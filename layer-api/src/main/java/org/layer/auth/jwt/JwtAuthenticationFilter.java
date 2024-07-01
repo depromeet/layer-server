@@ -41,12 +41,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     // Spring Security Context에 저장
     private void setAuthenticationToContext(Long memberId, MemberRole memberRole) {
-        UserDetails userDetails = new PrincipalDetails(memberId, memberRole);
         Authentication authentication = MemberAuthentication.create(memberId, memberRole);
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
-    // 요청 헤더에서 액세스 토크을 가져오는 메서드
+    // 요청 헤더에서 액세스 토큰을 가져오는 메서드
     private String getJwtFromRequest(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         return (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) ? bearerToken.replace("Bearer ", ""): null;

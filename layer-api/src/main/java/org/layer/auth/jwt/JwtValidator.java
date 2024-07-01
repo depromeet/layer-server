@@ -38,7 +38,7 @@ public class JwtValidator {
 
     }
 
-    public Claims getClaims(String token) {
+    private Claims getClaims(String token) {
         return Jwts.parser()
                 .verifyWith(secretKeyFactory.createSecretKey())
                 .build()
