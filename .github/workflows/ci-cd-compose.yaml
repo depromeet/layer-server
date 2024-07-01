@@ -1,9 +1,10 @@
-name: 어디로가는걸까
+name: deploy action
 
 on:
   push:
     branches:
-      - chore/cicd
+      - develop
+      - main
 
 env:
   REGISTRY: "ghcr.io"
@@ -21,11 +22,10 @@ jobs:
     outputs:
       deploy_target: ${{ steps.set-env.outputs.DEPLOY_TARGET }}
     steps:
-
       - name: Setup Env
         id: set-env
         run: |
-          if [[ "${GITHUB_REF}" == "refs/heads/chore/cicd" ]]; then
+          if [[ "${GITHUB_REF}" == "refs/heads/develop" ]]; then
             echo "DEPLOY_TARGET=development" >> $GITHUB_OUTPUT
           elif [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
             echo "DEPLOY_TARGET=production" >> $GITHUB_OUTPUT
