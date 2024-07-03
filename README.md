@@ -1,4 +1,4 @@
-# layer Server
+# layer server
 ![Group 110](https://github.com/depromeet/layer/assets/19422885/b85ee18d-ca94-4f20-9058-c03e41188291)
 
 ## 👨‍👨‍👧 팀원 소개
@@ -43,18 +43,20 @@
 3. 브랜치를 생성한 후에 작업을 진행한다.
 4. 진행한 후에 커밋을 한다.
 5. 작업이 완료되면 PR을 생성한다.
-6. PR을 생성한 후에 팀원들에게 리뷰를 요청한다.
+6. PR을 생성한 후에 팀원들에게 리뷰를 요청한다. 리뷰는 나머지 2명 모두에게 요청하되, 1명의 승인을 받으면 머지 가능한 상태가 된다.
 7. 리뷰를 받은 후에 PR을 default branch에 merge한다.
 8. merge된 후, 배포를 진행한다.
 
 ## ᛘ Branch
-`main branch` : 배포 단위 branch
+`main branch` : 배포 서버 branch
 
-`feature branch`: 각자 개발 branch
+`dev branch` : 개발 서버 branch
 
--   구현할 것들 별로 issue 생성
--   issue 번호를 기반으로 branch 생성
-    -   ex) feat/#이슈번호
+`feature branch`: 로컬 개발 branch
+
+-   issue는 노션에 생성한다.
+-   노션에 생성된 issue 번호를 기반으로 branch 생성
+    -   ex) feat/#{노션이슈번호}
 
 ## 🙏 Commit Convention
 - <a href="https://udacity.github.io/git-styleguide/">유다시티 컨벤션
