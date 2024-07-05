@@ -1,4 +1,4 @@
-package org.layer.api;
+package org.layer;
 
 
 import org.springframework.boot.SpringApplication;
