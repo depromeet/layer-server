@@ -16,7 +16,7 @@ services:
       - "8080:8080"
     volumes:
       - type: bind
-        source: ./config/application.yaml
+        source: ./application.yaml
         target: ./application.yaml
     networks:
       - app-network
