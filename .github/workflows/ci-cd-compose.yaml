@@ -90,10 +90,9 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: ./${{ env.MODULE }}
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/arm64/v8
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}/${{ env.MODULE }}:latest
             ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}/${{ env.MODULE }}:${{ github.run_id }}
 
   deploy:
