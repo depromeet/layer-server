@@ -12,11 +12,10 @@ services:
     container_name: layer-api
     depends_on:
       - redis
-    environment:
-      - SPRING_REDIS_HOST=redis
-      - SPRING_REDIS_PORT=6379
     ports:
       - "8080:8080"
+    volumes:
+      - /application.yaml:/application.yaml
     networks:
       - app-network
 

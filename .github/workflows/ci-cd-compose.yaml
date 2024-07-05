@@ -5,6 +5,7 @@ on:
     branches:
       - develop
       - main
+      - fix/LS-7
 
 env:
   REGISTRY: "ghcr.io"
@@ -25,13 +26,10 @@ jobs:
       - name: Setup Env
         id: set-env
         run: |
-          if [[ "${GITHUB_REF}" == "refs/heads/develop" ]]; then
-            echo "DEPLOY_TARGET=development" >> $GITHUB_OUTPUT
-          elif [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
+          if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
             echo "DEPLOY_TARGET=production" >> $GITHUB_OUTPUT
           else
-             echo "DEPLOY_TARGET is not set. Exiting..."
-             exit 1
+            echo "DEPLOY_TARGET=development" >> $GITHUB_OUTPUT
           fi
 
   build:
@@ -104,7 +102,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DEPLOY_TARGET: ${{ needs.setup.outputs.deploy_target }}
-      # TODO:  멀티모듈 적용시 동적 할당 필요
+      # TODO: 멀티모듈 적용시 동적 할당 필요
       MODULE: "layer-api"
 
     steps:
@@ -128,4 +126,8 @@ jobs:
           username: ${{ secrets.INSTANCE_USERNAME }}
           password: ${{ secrets.INSTANCE_PASSWORD }}
           port: 22
-          script: cd /home/${{ env.MODULE }}/infra/${{ env.DEPLOY_TARGET }} && docker-compose pull && docker-compose up -d
+          script: |
+            cd /home/${{ env.MODULE }}/infra/${{ env.DEPLOY_TARGET }}
+            echo "${{ secrets.APPLICATION_YAML_API }}" > application.yaml
+            docker-compose pull
+            docker-compose up -d
