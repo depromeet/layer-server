@@ -1,3 +1,6 @@
+# auth
+layer-api/src/main/resources/application-auth.properties
+
 HELP.md
 .gradle
 build/
