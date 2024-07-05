@@ -15,7 +15,7 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - /application.yaml:/config/application.yaml
+      - ./application.yaml:/config/application.yaml
     networks:
       - app-network
 
