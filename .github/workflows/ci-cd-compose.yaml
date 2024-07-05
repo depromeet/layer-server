@@ -109,6 +109,10 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v4
 
+      - name: Create application.yaml file
+        run: |
+          echo "${{ secrets.APPLICATION_YAML_API }}" > ./${{ env.MODULE }}/infra/${{ env.DEPLOY_TARGET }}/application.yaml
+
       - name: Send Docker Compose
         uses: appleboy/scp-action@master
         with:
