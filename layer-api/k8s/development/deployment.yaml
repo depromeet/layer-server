@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "layer-api"
+  labels:
+    app: "layer-api"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: "layer-api"
+  template:
+    metadata:
+      name: "layer-api"
+      labels:
+        app: "layer-api"
+    spec:
+      containers:
+        - name: "layer-api"
+          image: ghcr.io/depromeet/kasukabe-server/api
+          resources:
+            limits:
+              cpu: "256m"
+              memory: "256Mi"
+          volumeMounts:
+            - name: application-properties
+              mountPath: /config
+              readOnly: true
+      volumes:
+        - name: application-properties
+          configMap:
+            name: layer-configmap-api
+            items:
+              - key: "application.yaml"
+                path: "application.yaml"
+      imagePullSecrets:
+        - name: registry-secret
+      restartPolicy: Always

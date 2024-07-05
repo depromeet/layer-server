@@ -1,0 +1,131 @@
+name: deploy action
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+
+env:
+  REGISTRY: "ghcr.io"
+  NAMESPACE: "depromeet"
+  IMAGE_NAME: "kasukabe-server"
+  # TODO:  멀티모듈 적용시 동적 할당 필요
+  MODULE: "layer-api"
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      deploy_target: ${{ steps.set-env.outputs.DEPLOY_TARGET }}
+    steps:
+      - name: Setup Env
+        id: set-env
+        run: |
+          if [[ "${GITHUB_REF}" == "refs/heads/develop" ]]; then
+            echo "DEPLOY_TARGET=development" >> $GITHUB_OUTPUT
+          elif [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
+            echo "DEPLOY_TARGET=production" >> $GITHUB_OUTPUT
+          else
+             echo "DEPLOY_TARGET is not set. Exiting..."
+             exit 1
+          fi
+
+  build:
+    name: build
+    needs: [ setup ]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    env:
+      DEPLOY_TARGET: ${{ needs.setup.outputs.deploy_target }}
+      REGISTRY: "ghcr.io"
+      NAMESPACE: "depromeet"
+      IMAGE_NAME: "kasukabe-server"
+      # TODO:  멀티모듈 적용시 동적 할당 필요
+      MODULE: "layer-api"
+
+    steps:
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'corretto'
+
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@bd5760595778326ba7f1441bcf7e88b49de61a25 # v2.6.0
+
+      - name: Build ${{ env.MODULE }} module
+        run: ./gradlew :${{ env.MODULE }}:build
+
+      - name: Run tests:${{ env.MODULE }}
+        run: ./gradlew :${{ env.MODULE }}:test
+
+      - name: docker arm64 build set up - qemu
+        uses: docker/setup-qemu-action@v2
+
+      - name: docker arm64 build set up - buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: login github container registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}/${{ env.MODULE }}
+
+      - name: push
+        uses: docker/build-push-action@v4
+        with:
+          context: ./${{ env.MODULE }}
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}/${{ env.MODULE }}:latest
+            ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}/${{ env.MODULE }}:${{ github.run_id }}
+
+  deploy:
+    name: Deploy
+    needs: [ build, setup ]
+    runs-on: ubuntu-latest
+    env:
+      DEPLOY_TARGET: ${{ needs.setup.outputs.deploy_target }}
+      # TODO:  멀티모듈 적용시 동적 할당 필요
+      MODULE: "layer-api"
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - name: Send Docker Compose
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.INSTANCE_HOST }}
+          username: ${{ secrets.INSTANCE_USERNAME }}
+          password: ${{ secrets.INSTANCE_PASSWORD }}
+          port: 22
+          source: ./${{ env.MODULE }}/infra/${{ env.DEPLOY_TARGET }}/*
+          target: "/home"
+
+      - name: Deploy with Docker Compose
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.INSTANCE_HOST }}
+          username: ${{ secrets.INSTANCE_USERNAME }}
+          password: ${{ secrets.INSTANCE_PASSWORD }}
+          port: 22
+          script: cd /home/${{ env.MODULE }}/infra/${{ env.DEPLOY_TARGET }} && docker-compose pull && docker-compose up -d
