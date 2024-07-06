@@ -1,6 +1,6 @@
 package org.layer.config;
 
-import org.layer.member.Member;
+import org.layer.domain.member.entity.Member;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

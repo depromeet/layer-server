@@ -3,7 +3,7 @@ package org.layer.auth.api;
 import lombok.RequiredArgsConstructor;
 import org.layer.auth.jwt.JwtToken;
 import org.layer.auth.service.JwtService;
-import org.layer.member.MemberRole;
+import org.layer.domain.member.entity.MemberRole;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;

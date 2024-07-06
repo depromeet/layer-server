@@ -3,10 +3,8 @@ package org.layer.auth.service;
 import lombok.RequiredArgsConstructor;
 import org.layer.auth.exception.TokenException;
 import org.layer.auth.jwt.*;
-import org.layer.config.AuthValueConfig;
-import org.layer.member.MemberRole;
+import org.layer.domain.member.entity.MemberRole;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
