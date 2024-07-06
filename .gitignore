@@ -1,9 +1,11 @@
 # auth
 layer-api/src/main/resources/application-auth.properties
+layer-api/src/main/resources/application.*
 layer-external/src/main/resources/application-oauth.properties
 layer-external/src/main/resources/application-oauth.yaml
 layer-external/src/main/resources/application.yaml
 layer-api/src/main/resources/application.yaml
+
 
 HELP.md
 .gradle
