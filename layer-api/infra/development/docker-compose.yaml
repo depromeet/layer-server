@@ -2,8 +2,6 @@ services:
   java-app:
     image: ghcr.io/depromeet/kasukabe-server/layer-api:latest
     container_name: layer-api
-    depends_on:
-      - redis
     ports:
       - "8080:8080"
     volumes:
