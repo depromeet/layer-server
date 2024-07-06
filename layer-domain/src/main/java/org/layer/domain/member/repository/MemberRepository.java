@@ -1,4 +1,4 @@
-package org.layer.domain.member.dao;
+package org.layer.domain.member.repository;
 
 import org.layer.domain.member.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;

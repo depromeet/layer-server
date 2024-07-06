@@ -1,4 +1,4 @@
-package org.layer.domain.retrospect.dao;
+package org.layer.domain.retrospect.repository;
 
 import org.layer.domain.retrospect.entity.Retrospect;
 import org.springframework.data.jpa.repository.JpaRepository;
