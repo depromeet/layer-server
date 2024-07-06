@@ -1,12 +1,4 @@
 services:
-  redis:
-    image: redis:latest
-    container_name: redis
-    ports:
-      - "6379:6379"
-    networks:
-      - app-network
-
   java-app:
     image: ghcr.io/depromeet/kasukabe-server/layer-api:latest
     container_name: layer-api
