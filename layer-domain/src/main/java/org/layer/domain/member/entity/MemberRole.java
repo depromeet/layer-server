@@ -1,4 +1,4 @@
-package org.layer.member;
+package org.layer.domain.member.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
