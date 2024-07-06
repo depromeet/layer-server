@@ -24,7 +24,7 @@ public class JwtService {
         String accessToken = jwtProvider.createToken(MemberAuthentication.create(memberId, memberRole), ACCESS_TOKEN_EXPIRATION_TIME);
         String refreshToken = jwtProvider.createToken(MemberAuthentication.create(memberId, memberRole), REFRESH_TOKEN_EXPIRATION_TIME);
 
-        saveRefreshTokenToRedis(memberId, memberRole, refreshToken);
+        saveRefreshTokenToRedis(memberId, refreshToken);
 
         return JwtToken.builder()
                 .accessToken(accessToken)
@@ -32,8 +32,8 @@ public class JwtService {
                 .build();
     }
 
-    private void saveRefreshTokenToRedis(Long memberId, MemberRole memberRole, String refreshToken) {
-        redisTemplate.opsForValue().set(refreshToken, memberId, Duration.ofDays(14));
+    private void saveRefreshTokenToRedis(Long memberId, String refreshToken) {
+        redisTemplate.opsForValue().set(memberId.toString(), refreshToken, Duration.ofDays(14));
     }
 
     private Long getMemberIdFromRefreshToken(String refreshToken) throws TokenException {
@@ -46,8 +46,8 @@ public class JwtService {
         return memberId;
     }
 
-    public void deleteRefreshToken(String refreshToken) {
-        redisTemplate.delete(refreshToken);
+    public void deleteRefreshToken(Long memberId) {
+        redisTemplate.delete(memberId.toString());
     }
 
 }

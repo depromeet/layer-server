@@ -36,6 +36,8 @@ public class SecurityConfig {
                 ).authorizeHttpRequests(authorizeRequest ->
                         authorizeRequest
                                 .requestMatchers(new AntPathRequestMatcher("/create-token")).permitAll()
+                                .requestMatchers(new AntPathRequestMatcher("/oauth/kakao")).permitAll()
+                                .requestMatchers(new AntPathRequestMatcher("/test")).permitAll()
                                 .anyRequest().authenticated()
                 );
     }
