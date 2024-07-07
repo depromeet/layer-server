@@ -6,7 +6,7 @@ import org.layer.auth.dto.controller.SignUpRequest;
 import org.layer.auth.dto.service.ReissueTokenServiceResponse;
 import org.layer.auth.dto.service.SignInServiceResponse;
 import org.layer.auth.dto.service.SignUpServiceResponse;
-import org.layer.auth.exception.AuthException;
+import org.layer.auth.exception.AuthExceptionType;
 import org.layer.auth.jwt.JwtToken;
 import org.layer.common.exception.BaseCustomException;
 import org.layer.domain.member.entity.Member;
@@ -19,7 +19,7 @@ import org.layer.oauth.service.KakaoService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.layer.common.exception.MemberExceptionType.FORBIDDEN;
+import static org.layer.auth.exception.AuthExceptionType.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -91,7 +91,7 @@ public class AuthService {
         return switch (socialType) {
             case KAKAO -> kakaoService.getMemberInfo(socialAccessToken);
             case GOOGLE -> googleService.getMemberInfo(socialAccessToken);
-            default -> throw new AuthException();
+            default -> throw new BaseCustomException(INVALID_SOCIAL_TYPE);
         };
     }
 
