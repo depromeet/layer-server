@@ -35,12 +35,9 @@ public class SecurityConfig {
                         session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 ).authorizeHttpRequests(authorizeRequest ->
                         authorizeRequest
-                                .requestMatchers(new AntPathRequestMatcher("/create-token")).permitAll()
-                                .requestMatchers(new AntPathRequestMatcher("/oauth/kakao")).permitAll()
-                                .requestMatchers(new AntPathRequestMatcher("/sign-in")).permitAll()
-                                .requestMatchers(new AntPathRequestMatcher("/reissue-token")).permitAll()
-                                .requestMatchers(new AntPathRequestMatcher("/sign-up")).permitAll()
-                                .requestMatchers(new AntPathRequestMatcher("/test")).permitAll()
+                                .requestMatchers(new AntPathRequestMatcher("/api/auth/sign-in")).permitAll()
+                                .requestMatchers(new AntPathRequestMatcher("/api/auth/reissue-token")).permitAll()
+                                .requestMatchers(new AntPathRequestMatcher("/api/auth/sign-up")).permitAll()
                                 .anyRequest().authenticated()
                 );
     }
