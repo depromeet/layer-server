@@ -65,5 +65,10 @@ public class AuthController {
                 ReissueTokenResponse.of(authService.reissueToken(memberId)),
                 HttpStatus.CREATED);
     }
-    
+
+    //== test용 API 액세스 토큰 발급 ==//
+    @GetMapping("oauth2/google")
+    public String googleTest(@RequestParam("code") String code) {
+        return googleService.getToken(code);
+    }
 }
