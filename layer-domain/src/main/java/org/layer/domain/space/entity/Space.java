@@ -32,4 +32,9 @@ public class Space {
     private Long leaderId;
 
     private Long defaultFormId;
+
+    /**
+     * Form Relationid
+     */
+    private Long formId;
 }
