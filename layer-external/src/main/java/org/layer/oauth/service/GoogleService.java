@@ -49,31 +49,4 @@ public class GoogleService {
         assert response != null;
         return new MemberInfoServiceResponse(response.id(), GOOGLE, response.email());
     }
-
-
-    //== 코드로 액세스 토큰을 받는 메서드  TODO: 삭제하기==//
-    public String getToken(String code) {
-        log.info("redirect uri: {}", googleOAuthConfig.getGoogleRedirectUri());
-        // 토큰 요청 데이터
-        String uri = UriComponentsBuilder.fromOriginHeader(GOOGLE_TOKEN_URI)
-                .toUriString();
-
-        Map<String, String> params = new LinkedHashMap<>();
-        params.put("client_id", googleOAuthConfig.getGoogleClientId());
-        params.put("client_secret", googleOAuthConfig.getGoogleClientSecret());
-        params.put("code", code);
-        params.put("grant_type", "authorization_code");
-        params.put("redirect_uri", googleOAuthConfig.getGoogleRedirectUri());
-
-
-        TokenRequestDto response = RestClient.create(GOOGLE_TOKEN_URI)
-                .post()
-                .contentType(APPLICATION_JSON)
-                .body(params)
-                .retrieve()
-                .body(TokenRequestDto.class);
-
-        assert response != null;
-        return response.accessToken();
-    }
 }

@@ -47,25 +47,4 @@ public class KakaoService {
         return new MemberInfoServiceResponse(response.id(), KAKAO, response.kakao_account().email());
     }
 
-    //== 이건 프론트에서..? TODO: 지우기 ==//
-    public String getToken(String code) {
-        // 토큰 요청 데이터
-        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("grant_type", "authorization_code");
-        params.add("client_id", kakaoOAuthConfig.getKakaoLoginApiKey());
-        params.add("redirect_uri", kakaoOAuthConfig.getRedirectUri());
-        params.add("code", code);
-
-
-        Map response = RestClient.create(kakaoOAuthConfig.getKakaoAuthBaseUri())
-                .post()
-                .uri(kakaoOAuthConfig.getTokenRequestUri())
-                .body(params)
-                .header("Content-type", "application/x-www-form-urlencoded;charset=utf-8") //요청 헤더
-                .retrieve()
-                .body(Map.class);
-
-        assert response != null;
-        return (String) response.get("access_token");
-    }
 }

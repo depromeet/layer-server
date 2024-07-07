@@ -65,15 +65,5 @@ public class AuthController {
                 ReissueTokenResponse.of(authService.reissueToken(memberId)),
                 HttpStatus.CREATED);
     }
-
-
-//    //== 구글 테스트용 api ==//
-//    @GetMapping("oauth2/google")
-//    public String googleTest(@RequestParam("code") String code) {
-//        log.info("code : " + code);
-//        String token = googleService.getToken(code);
-//        return token;
-//    }
-
-
+    
 }
