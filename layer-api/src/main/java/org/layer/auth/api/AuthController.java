@@ -9,12 +9,14 @@ import org.layer.auth.jwt.JwtToken;
 import org.layer.auth.service.AuthService;
 import org.layer.auth.service.JwtService;
 import org.layer.domain.member.entity.MemberRole;
-import org.layer.domain.member.entity.SocialType;
-import org.layer.oauth.dto.service.KakaoGetMemberInfoServiceResponse;
+
 import org.layer.oauth.service.KakaoService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
 @RestController

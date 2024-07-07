@@ -1,7 +1,6 @@
 package org.layer.auth.jwt;
 
 import lombok.Builder;
-import lombok.RequiredArgsConstructor;
 import org.layer.domain.member.entity.MemberRole;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;

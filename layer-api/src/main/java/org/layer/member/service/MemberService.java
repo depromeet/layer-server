@@ -10,6 +10,9 @@ import org.layer.domain.member.repository.MemberRepository;
 import org.layer.oauth.dto.service.MemberInfoServiceResponse;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
+import static org.layer.common.exception.MemberExceptionType.NOT_A_NEW_MEMBER;
 import static org.layer.domain.member.entity.MemberRole.USER;
 
 @RequiredArgsConstructor
@@ -24,6 +27,14 @@ public class MemberService {
     public Member findMemberBySocialIdAndSocialType(String socialId, SocialType socialType) {
         return memberRepository.findBySocialIdAndSocialType(socialId, socialType)
                 .orElseThrow(() -> new BaseCustomException(MemberExceptionType.NOT_FOUND_USER));
+    }
+
+    public void checkIsNewMember(String socialId, SocialType socialType) {
+        Optional<Member> memberOpt = memberRepository.findBySocialIdAndSocialType(socialId, socialType);
+
+        if(memberOpt.isPresent()) {
+            throw new BaseCustomException(NOT_A_NEW_MEMBER);
+        }
     }
 
     public Member saveMember(SignUpRequest signUpRequest, MemberInfoServiceResponse memberInfo) {

@@ -23,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 import static org.layer.common.exception.MemberExceptionType.FORBIDDEN;
 
 @Slf4j
-@Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Service
 public class AuthService {
@@ -33,6 +32,7 @@ public class AuthService {
     private final MemberUtil memberUtil;
 
     //== 로그인 ==//
+    @Transactional
     public SignInServiceResponse signIn(final String socialAccessToken, final SocialType socialType) {
         MemberInfoServiceResponse signedMember = getMemberInfo(socialType, socialAccessToken);
 
@@ -43,8 +43,12 @@ public class AuthService {
     }
 
     //== 회원가입(이름을 입력 받기) ==//
+    @Transactional
     public SignUpServiceResponse signUp(final String socialAccessToken, final SignUpRequest signUpRequest) {
         MemberInfoServiceResponse memberInfo = getMemberInfo(signUpRequest.socialType(), socialAccessToken);
+
+        // 이미 있는 회원인지 확인
+        isNewMember(memberInfo.socialType(), memberInfo.socialId());
 
         // DB에 회원 저장
         Member member = memberService.saveMember(signUpRequest, memberInfo);
@@ -52,6 +56,7 @@ public class AuthService {
     }
 
     //== 로그아웃 ==//
+    @Transactional
     public void signOut(final Long memberId) {
         // 현재 로그인된 사용자와 memberId가 일치하는지 확인 => 일치하지 않으면 Exception
         isValidMember(memberId);
@@ -60,12 +65,14 @@ public class AuthService {
 
 
     //== 회원 탈퇴 ==//
+    @Transactional
     public void withdraw(final Long memberId) {
         // TODO: member 도메인에서 del_yn 바꾸기 => Member entitiy에 추가,,?
 
     }
 
     //== (리프레시 토큰을 받았을 때) 토큰 재발급 ==//
+    @Transactional
     public ReissueTokenServiceResponse reissueToken(final Long memberId) {
         // 현재 로그인된 사용자와 memberId가 일치하는지 확인
         isValidMember(memberId);
@@ -95,6 +102,11 @@ public class AuthService {
         if(!currentMember.getId().equals(memberId)) {
             throw new BaseCustomException(FORBIDDEN);
         }
+    }
+
+    // 이미 있는 회원인지 확인하기
+    private void isNewMember(SocialType socialType, String socialId) {
+        memberService.checkIsNewMember(socialId, socialType);
     }
 
 }
