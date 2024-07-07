@@ -2,9 +2,13 @@ package org.layer.oauth.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.layer.common.exception.BaseCustomException;
+import org.layer.common.exception.MemberExceptionType;
+import org.layer.domain.member.entity.SocialType;
 import org.layer.oauth.config.OAuthConfig;
 import org.layer.oauth.dto.service.KakaoAccountServiceResponse;
 import org.layer.oauth.dto.service.KakaoGetMemberInfoServiceResponse;
+import org.layer.oauth.dto.service.MemberInfoServiceResponse;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -13,6 +17,8 @@ import org.springframework.web.client.RestClient;
 
 import java.util.Map;
 
+import static org.layer.common.exception.MemberExceptionType.FAIL_TO_AUTH;
+import static org.layer.domain.member.entity.SocialType.KAKAO;
 import static org.layer.oauth.config.OAuthConfig.*;
 
 
@@ -23,7 +29,7 @@ public class KakaoService {
     private final OAuthConfig oAuthConfig;
 
     // TODO: getMemberInfo 리턴 타입 수정 필요
-    public KakaoAccountServiceResponse getMemberInfo(final String accessToken) {
+    public MemberInfoServiceResponse getMemberInfo(final String accessToken) {
         KakaoGetMemberInfoServiceResponse response = null;
         try {
             RestClient restClient = RestClient.create();
@@ -34,15 +40,15 @@ public class KakaoService {
                     .retrieve()
                     .onStatus(HttpStatusCode::is4xxClientError,
                             (kakaoRequest, kakaoResponse) -> {
-                                throw new RuntimeException(); // TODO: 수정 필요
+                                throw new BaseCustomException(FAIL_TO_AUTH);
                             })
                     .body(KakaoGetMemberInfoServiceResponse.class);
         } catch(Exception e) {
-            throw e; // TODO: Exception 수정 필요
+            throw new BaseCustomException(FAIL_TO_AUTH);
         }
 
         assert response != null;
-        return response.kakao_account();
+        return new MemberInfoServiceResponse(response.id(), KAKAO, response.kakao_account().email());
     }
 
     //== 이건 프론트에서..? TODO: 지우기 ==//

@@ -8,8 +8,11 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 @Getter
 @Entity
@@ -33,4 +36,15 @@ public class Member {
 
     @NotNull
     private String socialId;
+
+
+    @Builder(access = AccessLevel.PUBLIC)
+    private Member(String name,String email, MemberRole memberRole,
+                   SocialType socialType, String socialId) {
+        this.name = name;
+        this.email = email;
+        this.memberRole = memberRole;
+        this.socialType = socialType;
+        this.socialId = socialId;
+    }
 }
