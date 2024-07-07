@@ -1,6 +1,7 @@
 package org.layer.auth.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.layer.auth.jwt.*;
 import org.layer.common.exception.BaseCustomException;
 import org.layer.domain.member.entity.MemberRole;

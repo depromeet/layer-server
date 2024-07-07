@@ -13,11 +13,18 @@ import org.layer.domain.member.entity.Member;
 import org.layer.domain.member.entity.SocialType;
 import org.layer.member.service.MemberService;
 import org.layer.member.service.MemberUtil;
+import org.layer.oauth.config.KakaoOAuthConfig;
 import org.layer.oauth.dto.service.MemberInfoServiceResponse;
 import org.layer.oauth.service.GoogleService;
 import org.layer.oauth.service.KakaoService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.client.RestClient;
+
+import java.util.Map;
 
 import static org.layer.auth.exception.AuthExceptionType.*;
 
@@ -108,5 +115,6 @@ public class AuthService {
     private void isNewMember(SocialType socialType, String socialId) {
         memberService.checkIsNewMember(socialId, socialType);
     }
+
 
 }

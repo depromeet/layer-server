@@ -3,15 +3,10 @@ package org.layer.auth.api;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.layer.auth.dto.controller.*;
-import org.layer.auth.dto.service.ReissueTokenServiceResponse;
 import org.layer.auth.dto.service.SignInServiceResponse;
 import org.layer.auth.dto.service.SignUpServiceResponse;
-import org.layer.auth.jwt.JwtToken;
 import org.layer.auth.service.AuthService;
-import org.layer.auth.service.JwtService;
-import org.layer.domain.member.entity.MemberRole;
 
-import org.layer.oauth.dto.controller.TokenRequestDto;
 import org.layer.oauth.service.GoogleService;
 import org.layer.oauth.service.KakaoService;
 import org.springframework.http.HttpStatus;
@@ -28,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
     private final AuthService authService;
     private final GoogleService googleService;
+    private final KakaoService kakaoService;
 
     // 로그인
     @PostMapping("/sign-in")
@@ -66,9 +62,16 @@ public class AuthController {
                 HttpStatus.CREATED);
     }
 
-    //== test용 API 액세스 토큰 발급 ==//
+    //== google OAuth2 test용 API 액세스 토큰 발급 ==//
     @GetMapping("oauth2/google")
     public String googleTest(@RequestParam("code") String code) {
         return googleService.getToken(code);
     }
+
+    //== kakao OAuth2 test용 API 액세스 토큰 발급 ==//
+    @GetMapping("oauth2/kakao")
+    public Object kakaoLogin(@RequestParam(value = "code", required = false) String code) {
+        return kakaoService.getToken(code);
+    }
+
 }

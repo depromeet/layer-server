@@ -4,10 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.layer.common.exception.BaseCustomException;
 import org.layer.oauth.config.GoogleOAuthConfig;
-import org.layer.oauth.dto.controller.TokenRequestDto;
+import org.layer.oauth.dto.service.google.GoogleTokenServiceResponse;
 import org.layer.oauth.dto.service.MemberInfoServiceResponse;
 import org.layer.oauth.dto.service.google.GoogleGetMemberInfoServiceResponse;
-import org.layer.oauth.dto.service.kakao.KakaoGetMemberInfoServiceResponse;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -64,12 +63,12 @@ public class GoogleService {
         params.put("redirect_uri", googleOAuthConfig.getGoogleRedirectUri());
 
 
-        TokenRequestDto response = RestClient.create(GOOGLE_TOKEN_URI)
+        GoogleTokenServiceResponse response = RestClient.create(GOOGLE_TOKEN_URI)
                 .post()
                 .contentType(APPLICATION_JSON)
                 .body(params)
                 .retrieve()
-                .body(TokenRequestDto.class);
+                .body(GoogleTokenServiceResponse.class);
 
         assert response != null;
         return response.accessToken();

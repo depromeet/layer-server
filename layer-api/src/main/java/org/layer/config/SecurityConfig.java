@@ -39,6 +39,7 @@ public class SecurityConfig {
                                 .requestMatchers(new AntPathRequestMatcher("/api/auth/reissue-token")).permitAll()
                                 .requestMatchers(new AntPathRequestMatcher("/api/auth/sign-up")).permitAll()
                                 .requestMatchers(new AntPathRequestMatcher("/api/auth/oauth2/google")).permitAll()
+                                .requestMatchers(new AntPathRequestMatcher("/api/auth/oauth2/kakao")).permitAll()
                                 .anyRequest().authenticated()
                 );
     }
