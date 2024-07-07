@@ -1,6 +1,7 @@
 package org.layer.auth.api;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.layer.auth.dto.controller.*;
 import org.layer.auth.dto.service.ReissueTokenServiceResponse;
 import org.layer.auth.dto.service.SignInServiceResponse;
@@ -10,6 +11,8 @@ import org.layer.auth.service.AuthService;
 import org.layer.auth.service.JwtService;
 import org.layer.domain.member.entity.MemberRole;
 
+import org.layer.oauth.dto.controller.TokenRequestDto;
+import org.layer.oauth.service.GoogleService;
 import org.layer.oauth.service.KakaoService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,12 +21,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/api/auth")
 @RestController
 public class AuthController {
     private final AuthService authService;
-    private final KakaoService kakaoService;
+    private final GoogleService googleService;
 
     // 로그인
     @PostMapping("/sign-in")
@@ -61,4 +65,15 @@ public class AuthController {
                 ReissueTokenResponse.of(authService.reissueToken(memberId)),
                 HttpStatus.CREATED);
     }
+
+
+//    //== 구글 테스트용 api ==//
+//    @GetMapping("oauth2/google")
+//    public String googleTest(@RequestParam("code") String code) {
+//        log.info("code : " + code);
+//        String token = googleService.getToken(code);
+//        return token;
+//    }
+
+
 }

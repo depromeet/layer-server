@@ -3,11 +3,8 @@ package org.layer.oauth.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.layer.common.exception.BaseCustomException;
-import org.layer.common.exception.MemberExceptionType;
-import org.layer.domain.member.entity.SocialType;
-import org.layer.oauth.config.OAuthConfig;
-import org.layer.oauth.dto.service.KakaoAccountServiceResponse;
-import org.layer.oauth.dto.service.KakaoGetMemberInfoServiceResponse;
+import org.layer.oauth.config.KakaoOAuthConfig;
+import org.layer.oauth.dto.service.kakao.KakaoGetMemberInfoServiceResponse;
 import org.layer.oauth.dto.service.MemberInfoServiceResponse;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
@@ -19,16 +16,15 @@ import java.util.Map;
 
 import static org.layer.common.exception.MemberExceptionType.FAIL_TO_AUTH;
 import static org.layer.domain.member.entity.SocialType.KAKAO;
-import static org.layer.oauth.config.OAuthConfig.*;
+import static org.layer.oauth.config.KakaoOAuthConfig.*;
 
 
 @Slf4j
 @RequiredArgsConstructor
 @Service
 public class KakaoService {
-    private final OAuthConfig oAuthConfig;
+    private final KakaoOAuthConfig kakaoOAuthConfig;
 
-    // TODO: getMemberInfo 리턴 타입 수정 필요
     public MemberInfoServiceResponse getMemberInfo(final String accessToken) {
         KakaoGetMemberInfoServiceResponse response = null;
         try {
@@ -56,14 +52,14 @@ public class KakaoService {
         // 토큰 요청 데이터
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("grant_type", "authorization_code");
-        params.add("client_id", oAuthConfig.getKakaoLoginApiKey());
-        params.add("redirect_uri", oAuthConfig.getRedirectUri());
+        params.add("client_id", kakaoOAuthConfig.getKakaoLoginApiKey());
+        params.add("redirect_uri", kakaoOAuthConfig.getRedirectUri());
         params.add("code", code);
 
 
-        Map response = RestClient.create(oAuthConfig.getKakaoAuthBaseUri())
+        Map response = RestClient.create(kakaoOAuthConfig.getKakaoAuthBaseUri())
                 .post()
-                .uri(oAuthConfig.getTokenRequestUri())
+                .uri(kakaoOAuthConfig.getTokenRequestUri())
                 .body(params)
                 .header("Content-type", "application/x-www-form-urlencoded;charset=utf-8") //요청 헤더
                 .retrieve()

@@ -1,4 +1,4 @@
-package org.layer.oauth.dto.service;
+package org.layer.oauth.dto.service.kakao;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;

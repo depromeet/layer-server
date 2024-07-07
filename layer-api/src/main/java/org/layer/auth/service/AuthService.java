@@ -2,7 +2,6 @@ package org.layer.auth.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.layer.auth.dto.controller.SignInRequest;
 import org.layer.auth.dto.controller.SignUpRequest;
 import org.layer.auth.dto.service.ReissueTokenServiceResponse;
 import org.layer.auth.dto.service.SignInServiceResponse;
@@ -14,8 +13,8 @@ import org.layer.domain.member.entity.Member;
 import org.layer.domain.member.entity.SocialType;
 import org.layer.member.service.MemberService;
 import org.layer.member.service.MemberUtil;
-import org.layer.oauth.dto.service.KakaoGetMemberInfoServiceResponse;
 import org.layer.oauth.dto.service.MemberInfoServiceResponse;
+import org.layer.oauth.service.GoogleService;
 import org.layer.oauth.service.KakaoService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +25,8 @@ import static org.layer.common.exception.MemberExceptionType.FORBIDDEN;
 @RequiredArgsConstructor
 @Service
 public class AuthService {
-    private final KakaoService kakaoLoginService;
+    private final KakaoService kakaoService;
+    private final GoogleService googleService;
     private final JwtService jwtService;
     private final MemberService memberService;
     private final MemberUtil memberUtil;
@@ -89,8 +89,8 @@ public class AuthService {
     // MemberInfoServiceResponse: socialId, socialType, email
     private MemberInfoServiceResponse getMemberInfo(SocialType socialType, String socialAccessToken) {
         return switch (socialType) {
-            case KAKAO -> kakaoLoginService.getMemberInfo(socialAccessToken);
-            case GOOGLE -> null;
+            case KAKAO -> kakaoService.getMemberInfo(socialAccessToken);
+            case GOOGLE -> googleService.getMemberInfo(socialAccessToken);
             default -> throw new AuthException();
         };
     }
