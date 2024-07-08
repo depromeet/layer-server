@@ -28,7 +28,7 @@ public class AuthController {
 
     // 회원가입 => 소셜로그인 했는데 유효한 유저가 없을 때 이름 입력하고 회원가입하는 과정
     @PostMapping("/sign-up")
-    public ResponseEntity<SignUpResponse> signUp(@RequestHeader(value = "authorizatio") final String socialAccessToken, @RequestBody final SignUpRequest signUpRequest) {
+    public ResponseEntity<SignUpResponse> signUp(@RequestHeader(value = "Authorization") final String socialAccessToken, @RequestBody final SignUpRequest signUpRequest) {
         log.info("{} <<< socialAccessToken",socialAccessToken);
         SignUpServiceResponse signUpServiceResponse = authService.signUp(socialAccessToken, signUpRequest);
         return new ResponseEntity<>(SignUpResponse.of(signUpServiceResponse), HttpStatus.CREATED);
