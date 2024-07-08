@@ -3,14 +3,17 @@ package org.layer.domain.auth.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.layer.domain.auth.controller.dto.*;
-import org.layer.domain.auth.service.AuthService;
 import org.layer.domain.auth.service.dto.SignInServiceResponse;
 import org.layer.domain.auth.service.dto.SignUpServiceResponse;
 import org.layer.oauth.service.GoogleService;
+import org.layer.oauth.service.KakaoService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.layer.domain.auth.service.AuthService;
 @Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/api/auth")
@@ -18,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
     private final AuthService authService;
     private final GoogleService googleService;
+    private final KakaoService kakaoService;
 
     // 로그인
     @PostMapping("/sign-in")
@@ -28,8 +32,7 @@ public class AuthController {
 
     // 회원가입 => 소셜로그인 했는데 유효한 유저가 없을 때 이름 입력하고 회원가입하는 과정
     @PostMapping("/sign-up")
-    public ResponseEntity<SignUpResponse> signUp(@RequestHeader(value = "Authorization") final String socialAccessToken, @RequestBody final SignUpRequest signUpRequest) {
-        log.info("{} <<< socialAccessToken",socialAccessToken);
+    public ResponseEntity<SignUpResponse> signUp(@RequestHeader("Authorization") final String socialAccessToken, @RequestBody final SignUpRequest signUpRequest) {
         SignUpServiceResponse signUpServiceResponse = authService.signUp(socialAccessToken, signUpRequest);
         return new ResponseEntity<>(SignUpResponse.of(signUpServiceResponse), HttpStatus.CREATED);
     }
@@ -57,14 +60,15 @@ public class AuthController {
                 HttpStatus.CREATED);
     }
 
+    //== google OAuth2 test용 API 액세스 토큰 발급 ==//
+    @GetMapping("oauth2/google")
+    public String googleTest(@RequestParam("code") String code) {
+        return googleService.getToken(code);
+    }
 
-//    //== 구글 테스트용 api ==//
-//    @GetMapping("oauth2/google")
-//    public String googleTest(@RequestParam("code") String code) {
-//        log.info("code : " + code);
-//        String token = googleService.getToken(code);
-//        return token;
-//    }
-
-
+    //== kakao OAuth2 test용 API 액세스 토큰 발급 ==//
+    @GetMapping("oauth2/kakao")
+    public Object kakaoLogin(@RequestParam(value = "code", required = false) String code) {
+        return kakaoService.getToken(code);
+    }
 }

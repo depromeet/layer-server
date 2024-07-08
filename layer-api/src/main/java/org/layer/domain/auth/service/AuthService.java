@@ -8,7 +8,7 @@ import org.layer.domain.auth.service.dto.ReissueTokenServiceResponse;
 import org.layer.domain.auth.service.dto.SignInServiceResponse;
 import org.layer.domain.auth.service.dto.SignUpServiceResponse;
 import org.layer.domain.jwt.JwtToken;
-import org.layer.domain.jwt.exception.TokenException;
+import org.layer.domain.jwt.exception.AuthExceptionType;
 import org.layer.domain.jwt.service.JwtService;
 import org.layer.domain.member.entity.Member;
 import org.layer.domain.member.entity.SocialType;
@@ -20,7 +20,6 @@ import org.layer.oauth.service.KakaoService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.layer.common.exception.MemberExceptionType.FORBIDDEN;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -92,7 +91,7 @@ public class AuthService {
         return switch (socialType) {
             case KAKAO -> kakaoService.getMemberInfo(socialAccessToken);
             case GOOGLE -> googleService.getMemberInfo(socialAccessToken);
-            default -> throw new TokenException();
+            default -> throw new BaseCustomException(AuthExceptionType.INVALID_SOCIAL_TYPE);
         };
     }
 
@@ -101,7 +100,7 @@ public class AuthService {
     private void isValidMember(Long memberId) {
         Member currentMember = memberUtil.getCurrentMember();
         if(!currentMember.getId().equals(memberId)) {
-            throw new BaseCustomException(FORBIDDEN);
+            throw new BaseCustomException(AuthExceptionType.FORBIDDEN);
         }
     }
 
@@ -109,5 +108,6 @@ public class AuthService {
     private void isNewMember(SocialType socialType, String socialId) {
         memberService.checkIsNewMember(socialId, socialType);
     }
+
 
 }

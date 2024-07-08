@@ -47,7 +47,7 @@ public class KakaoService {
         return new MemberInfoServiceResponse(response.id(), KAKAO, response.kakao_account().email());
     }
 
-    //== 이건 프론트에서..? TODO: 지우기 ==//
+    //== 프론트에서 처리해주는 부분 TODO: 추후 삭제하기 ==//
     public String getToken(String code) {
         // 토큰 요청 데이터
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();

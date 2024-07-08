@@ -1,10 +1,10 @@
 package org.layer.domain.jwt.service;
 
 import lombok.RequiredArgsConstructor;
+import org.layer.common.exception.BaseCustomException;
 import org.layer.domain.jwt.JwtProvider;
 import org.layer.domain.jwt.JwtToken;
 import org.layer.domain.jwt.MemberAuthentication;
-import org.layer.domain.jwt.exception.TokenException;
 import org.layer.domain.member.entity.MemberRole;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.util.Objects;
 
+import static org.layer.domain.auth.exception.TokenExceptionType.INVALID_REFRESH_TOKEN;
 import static org.layer.config.AuthValueConfig.ACCESS_TOKEN_EXPIRATION_TIME;
 import static org.layer.config.AuthValueConfig.REFRESH_TOKEN_EXPIRATION_TIME;
 
@@ -37,12 +38,12 @@ public class JwtService {
         redisTemplate.opsForValue().set(memberId.toString(), refreshToken, Duration.ofDays(14));
     }
 
-    private Long getMemberIdFromRefreshToken(String refreshToken) throws TokenException {
+    private Long getMemberIdFromRefreshToken(String refreshToken) {
         Long memberId = null;
         try {
             memberId = Long.parseLong((String) Objects.requireNonNull(redisTemplate.opsForValue().get(refreshToken)));
         } catch(Exception e) {
-            throw new TokenException();
+            throw new BaseCustomException(INVALID_REFRESH_TOKEN);
         }
         return memberId;
     }
