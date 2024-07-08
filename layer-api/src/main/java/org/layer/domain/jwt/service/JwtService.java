@@ -1,10 +1,10 @@
 package org.layer.domain.jwt.service;
 
 import lombok.RequiredArgsConstructor;
-import org.layer.domain.auth.exception.TokenException;
 import org.layer.domain.jwt.JwtProvider;
 import org.layer.domain.jwt.JwtToken;
 import org.layer.domain.jwt.MemberAuthentication;
+import org.layer.domain.jwt.exception.TokenException;
 import org.layer.domain.member.entity.MemberRole;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;

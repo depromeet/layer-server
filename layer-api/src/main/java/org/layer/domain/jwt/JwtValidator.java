@@ -4,10 +4,13 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.layer.domain.auth.exception.TokenException;
+import org.layer.domain.jwt.exception.TokenException;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+
+import static org.layer.domain.jwt.JwtValidationType.INVALID_JWT;
+import static org.layer.domain.jwt.JwtValidationType.VALID_JWT;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -18,9 +21,9 @@ public class JwtValidator {
     public JwtValidationType validateToken(String token) {
         try {
             getClaims(token);
-            return JwtValidationType.VALID_JWT;
-        } catch(TokenException e) {
-            return JwtValidationType.INVALID_JWT;
+            return VALID_JWT;
+        } catch(Exception e) {
+            return INVALID_JWT;
         }
     }
 

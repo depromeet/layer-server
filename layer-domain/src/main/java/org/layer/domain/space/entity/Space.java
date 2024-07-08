@@ -31,8 +31,6 @@ public class Space {
     @NotNull
     private Long leaderId;
 
-    private Long defaultFormId;
-
     /**
      * Form Relationid
      */

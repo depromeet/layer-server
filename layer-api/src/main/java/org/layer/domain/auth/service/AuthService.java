@@ -4,11 +4,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.layer.common.exception.BaseCustomException;
 import org.layer.domain.auth.controller.dto.SignUpRequest;
-import org.layer.domain.auth.exception.AuthException;
 import org.layer.domain.auth.service.dto.ReissueTokenServiceResponse;
 import org.layer.domain.auth.service.dto.SignInServiceResponse;
 import org.layer.domain.auth.service.dto.SignUpServiceResponse;
 import org.layer.domain.jwt.JwtToken;
+import org.layer.domain.jwt.exception.TokenException;
 import org.layer.domain.jwt.service.JwtService;
 import org.layer.domain.member.entity.Member;
 import org.layer.domain.member.entity.SocialType;
@@ -92,7 +92,7 @@ public class AuthService {
         return switch (socialType) {
             case KAKAO -> kakaoService.getMemberInfo(socialAccessToken);
             case GOOGLE -> googleService.getMemberInfo(socialAccessToken);
-            default -> throw new AuthException();
+            default -> throw new TokenException();
         };
     }
 
