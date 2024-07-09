@@ -1,17 +1,20 @@
 package org.layer.retrospect.controller.dto.request;
 
-import java.util.List;
-
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 @Schema(name = "RetrospectCreateRequest", description = "회고 생성 요청 Dto")
 public record RetrospectCreateRequest(
+	@Schema(description = "회고 폼 id", example = "1")
+	@NotNull
+	Long formId,
+	@Schema(description = "회고 제목", example = "중간 발표 이후 회고")
+	@Size(min = 3)
+	String title,
+	@Schema(description = "회고 한줄 설명", example = "우리만의 KPT 회고")
+	@NotNull
+	String introduction
 
-	@Size(min = 1, max = 15)
-	@Schema(description = "회고 질문", example = "어려움을 느껴서 개선하고 싶은 점은 무엇인가요?")
-	List<String> questions,
-	@Schema(description = "나의 회고 폼 추가 여부, true: 내 회고폼에 추가 O, false: 내 회고폼에 추가 X", example = "true")
-	boolean isMyForm
 ) {
 }
