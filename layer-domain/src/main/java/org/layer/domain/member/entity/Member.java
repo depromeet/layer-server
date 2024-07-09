@@ -26,9 +26,11 @@ public class Member {
     private String email;
 
     @NotNull
+    @Enumerated(value = EnumType.STRING)
     private MemberRole memberRole;
 
     @NotNull
+    @Enumerated(value = EnumType.STRING)
     private SocialType socialType;
 
     @NotNull
