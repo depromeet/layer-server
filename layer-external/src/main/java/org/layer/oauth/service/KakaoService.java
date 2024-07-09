@@ -68,5 +68,4 @@ public class KakaoService {
         assert response != null;
         return (String) response.get("access_token");
     }
-
 }
