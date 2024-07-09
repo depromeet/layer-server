@@ -7,6 +7,8 @@ import org.layer.auth.dto.service.SignInServiceResponse;
 import org.layer.auth.dto.service.SignUpServiceResponse;
 import org.layer.auth.service.AuthService;
 
+import org.layer.domain.member.entity.Member;
+import org.layer.domain.member.repository.MemberRepository;
 import org.layer.oauth.service.GoogleService;
 import org.layer.oauth.service.KakaoService;
 import org.springframework.http.HttpStatus;
@@ -16,6 +18,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Optional;
+
 @Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/api/auth")
@@ -24,6 +28,7 @@ public class AuthController {
     private final AuthService authService;
     private final GoogleService googleService;
     private final KakaoService kakaoService;
+    private final MemberRepository memberRepository;
 
     // 로그인
     @PostMapping("/sign-in")
