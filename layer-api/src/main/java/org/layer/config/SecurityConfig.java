@@ -2,7 +2,7 @@ package org.layer.config;
 
 
 import lombok.RequiredArgsConstructor;
-import org.layer.auth.jwt.JwtAuthenticationFilter;
+import org.layer.domain.jwt.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -35,7 +35,12 @@ public class SecurityConfig {
                         session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 ).authorizeHttpRequests(authorizeRequest ->
                         authorizeRequest
-                                .requestMatchers(new AntPathRequestMatcher("/create-token")).permitAll()
+                                .requestMatchers(new AntPathRequestMatcher("/api/auth/sign-in")).permitAll()
+                                .requestMatchers(new AntPathRequestMatcher("/api/auth/reissue-token")).permitAll()
+                                .requestMatchers(new AntPathRequestMatcher("/api/auth/sign-up")).permitAll()
+                                .requestMatchers(new AntPathRequestMatcher("/api/auth/oauth2/google")).permitAll()
+                                .requestMatchers(new AntPathRequestMatcher("/api/test")).permitAll()
+                                .requestMatchers(new AntPathRequestMatcher("/api/auth/oauth2/kakao")).permitAll()
                                 .anyRequest().authenticated()
                 );
     }
@@ -47,7 +52,4 @@ public class SecurityConfig {
                 .requestMatchers(new AntPathRequestMatcher("/swagger-ui/**")).permitAll()
                 .requestMatchers(new AntPathRequestMatcher("/docs/**")).permitAll());
     }
-
-
-
 }

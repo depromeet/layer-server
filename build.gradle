@@ -46,6 +46,9 @@ subprojects {
 		testImplementation platform('org.junit:junit-bom:5.9.1')
 		testImplementation 'org.junit.jupiter:junit-jupiter'
 
+		implementation 'org.springframework.boot:spring-boot-starter'
+		implementation 'org.springframework.boot:spring-boot-starter-web'
+
 	}
 
 	test {
@@ -60,8 +63,7 @@ project(":layer-api") {
 		implementation project(path: ':layer-domain')
 		implementation project(path: ':layer-external')
 
-		implementation 'org.springframework.boot:spring-boot-starter'
-		implementation 'org.springframework.boot:spring-boot-starter-web'
+
 		implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
 		//== jwt ==//
@@ -74,8 +76,15 @@ project(":layer-api") {
 
 		// redis
 		implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-
 		testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+		// jpa
+		implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+		//Swagger
+		implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
+
+		runtimeOnly 'com.mysql:mysql-connector-j'
 	}
 
 	jar.enabled = false
@@ -88,6 +97,7 @@ project(":layer-common") {
 
 	dependencies {
 		implementation 'org.springframework.boot:spring-boot-starter-web'
+//		implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	}
 
 }
