@@ -30,10 +30,12 @@ public class Member {
     private String email;
 
     @NotNull
+    @Enumerated(value = EnumType.STRING)
     private MemberRole memberRole;
 
     @Valid
     @NotNull
+    @Enumerated(value = EnumType.STRING)
     private SocialType socialType;
 
     @Valid
