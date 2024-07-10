@@ -23,7 +23,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class GoogleService {
+public class GoogleService implements OAuthService {
     private final GoogleOAuthConfig googleOAuthConfig;
 
     //== 액세스 토큰으로 사용자 정보 가져오기 ==//

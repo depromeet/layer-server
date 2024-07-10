@@ -22,7 +22,7 @@ import static org.layer.oauth.config.KakaoOAuthConfig.*;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class KakaoService {
+public class KakaoService implements OAuthService {
     private final KakaoOAuthConfig kakaoOAuthConfig;
 
     public MemberInfoServiceResponse getMemberInfo(final String accessToken) {
