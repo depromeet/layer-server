@@ -6,6 +6,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -32,10 +33,12 @@ public class Member {
     @Enumerated(value = EnumType.STRING)
     private MemberRole memberRole;
 
+    @Valid
     @NotNull
     @Enumerated(value = EnumType.STRING)
     private SocialType socialType;
 
+    @Valid
     @NotNull
     private String socialId;
 

@@ -3,8 +3,10 @@ package org.layer.domain.auth.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.layer.domain.auth.controller.dto.*;
+import org.layer.domain.auth.service.AuthService;
 import org.layer.domain.auth.service.dto.SignInServiceResponse;
 import org.layer.domain.auth.service.dto.SignUpServiceResponse;
+import org.layer.domain.member.repository.MemberRepository;
 import org.layer.oauth.service.GoogleService;
 import org.layer.oauth.service.KakaoService;
 import org.springframework.http.HttpStatus;
@@ -13,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.layer.domain.auth.service.AuthService;
+
 @Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/api/auth")
@@ -22,6 +24,7 @@ public class AuthController {
     private final AuthService authService;
     private final GoogleService googleService;
     private final KakaoService kakaoService;
+    private final MemberRepository memberRepository;
 
     // 로그인
     @PostMapping("/sign-in")

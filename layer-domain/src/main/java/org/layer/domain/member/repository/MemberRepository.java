@@ -9,5 +9,4 @@ import java.util.Optional;
 
 public interface MemberRepository extends JpaRepository<Member, Long> {
     Optional<Member> findBySocialIdAndSocialType(@NotNull String socialId, @NotNull SocialType socialType);
-
 }
