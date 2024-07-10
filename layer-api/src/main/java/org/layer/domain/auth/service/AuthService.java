@@ -29,8 +29,6 @@ public class AuthService {
     private final GoogleService googleService;
     private final JwtService jwtService;
     private final MemberService memberService;
-    private final MemberUtil memberUtil;
-
     //== 로그인 ==//
     @Transactional
     public SignInServiceResponse signIn(final String socialAccessToken, final SocialType socialType) {
@@ -78,7 +76,7 @@ public class AuthService {
         isValidMember(memberId);
 
         // 시큐리티 컨텍스트에서 member 찾아오기
-        Member member = memberUtil.getCurrentMember();
+        Member member = memberService.getCurrentMember();
         return ReissueTokenServiceResponse.of(member,
                 jwtService.issueToken(member.getId(), member.getMemberRole()));
     }
@@ -98,7 +96,7 @@ public class AuthService {
 
     // 현재 로그인 된 사용자와 해당 멤버 아이디가 일치하는지 확인
     private void isValidMember(Long memberId) {
-        Member currentMember = memberUtil.getCurrentMember();
+        Member currentMember = memberService.getCurrentMember();
         if(!currentMember.getId().equals(memberId)) {
             throw new BaseCustomException(AuthExceptionType.FORBIDDEN);
         }

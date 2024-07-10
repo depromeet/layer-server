@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.layer.common.exception.BaseCustomException;
 import org.layer.common.exception.MemberExceptionType;
 import org.layer.domain.auth.controller.dto.SignUpRequest;
+import org.layer.domain.jwt.SecurityUtil;
 import org.layer.domain.member.entity.Member;
 import org.layer.domain.member.entity.SocialType;
 import org.layer.domain.member.repository.MemberRepository;
@@ -13,11 +14,13 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 import static org.layer.common.exception.MemberExceptionType.NOT_A_NEW_MEMBER;
+import static org.layer.common.exception.MemberExceptionType.NOT_FOUND_USER;
 import static org.layer.domain.member.entity.MemberRole.USER;
 
 @RequiredArgsConstructor
 @Service
 public class MemberService {
+    private final SecurityUtil securityUtil;
     private final MemberRepository memberRepository;
     public Member findMemberById(Long memberId) {
         return memberRepository.findById(memberId).orElse(null);
@@ -49,6 +52,18 @@ public class MemberService {
         memberRepository.save(member);
 
         return member;
+    }
+
+    public Member getCurrentMember() {
+        return memberRepository
+                .findById(securityUtil.getCurrentMemberId())
+                .orElseThrow(() -> new BaseCustomException(NOT_FOUND_USER));
+    }
+
+    public Member getMemberByMemberId(Long memberId) {
+        return memberRepository.
+                findById(memberId)
+                .orElseThrow(() -> new BaseCustomException(NOT_FOUND_USER));
     }
 
 }
