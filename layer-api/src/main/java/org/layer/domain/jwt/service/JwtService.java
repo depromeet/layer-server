@@ -51,11 +51,11 @@ public class JwtService {
     }
 
     private void saveRefreshTokenToRedis(Long memberId, String refreshToken) {
+        log.info("line 54: refresh token: {}", refreshToken);
         redisTemplate.opsForValue().set(memberId.toString(), refreshToken, Duration.ofDays(14));
     }
 
     private String getRefreshTokenFromRedis(Long memberId) {
-        log.info("refresh token from redis: {}", redisTemplate.opsForValue().get(memberId.toString()));
         return (String) redisTemplate.opsForValue().get(memberId.toString());
     }
 
@@ -78,7 +78,6 @@ public class JwtService {
             throw new BaseCustomException(INVALID_REFRESH_TOKEN);
         }
 
-        log.info("line 81: {}", memberRole);
         return memberRole;
     }
     public void deleteRefreshToken(Long memberId) {
