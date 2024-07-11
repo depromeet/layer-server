@@ -43,8 +43,9 @@ public class AuthController implements AuthApi {
 
     // 로그아웃
     @PostMapping("/sign-out")
-    public ResponseEntity<?> signOut(@RequestBody Long memberId) {
-        authService.signOut(memberId);
+    public ResponseEntity<?> signOut(@RequestBody SignOutRequest signOutRequest) {
+        log.info("memberId: {}", signOutRequest.memberId());
+        authService.signOut(signOutRequest.memberId());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

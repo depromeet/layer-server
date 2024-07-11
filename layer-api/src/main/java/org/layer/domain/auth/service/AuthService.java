@@ -57,7 +57,7 @@ public class AuthService {
     @Transactional
     public void signOut(final Long memberId) {
         // 현재 로그인된 사용자와 memberId가 일치하는지 확인 => 일치하지 않으면 Exception
-        isValidMember(memberId);
+//        isValidMember(memberId);
         jwtService.deleteRefreshToken(memberId);
     }
 
