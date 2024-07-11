@@ -46,6 +46,7 @@ public class GoogleService implements OAuthService {
         }
 
         assert response != null;
+        log.info("name is {}", response.name());
         return new MemberInfoServiceResponse(response.id(), GOOGLE, response.email());
     }
 

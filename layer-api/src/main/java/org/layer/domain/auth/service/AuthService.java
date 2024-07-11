@@ -69,16 +69,13 @@ public class AuthService {
 
     }
 
-    //== (리프레시 토큰을 받았을 때) 토큰 재발급 ==//
+    //== 토큰 재발급. redis 확인 후 재발급 ==//
     @Transactional
     public ReissueTokenServiceResponse reissueToken(final Long memberId) {
-        // 현재 로그인된 사용자와 memberId가 일치하는지 확인
-        isValidMember(memberId);
+        Member member = memberService.getMemberByMemberId(memberId);
+        JwtToken jwtToken = jwtService.reissueToken(memberId);
 
-        // 시큐리티 컨텍스트에서 member 찾아오기
-        Member member = memberService.getCurrentMember();
-        return ReissueTokenServiceResponse.of(member,
-                jwtService.issueToken(member.getId(), member.getMemberRole()));
+        return ReissueTokenServiceResponse.of(member, jwtToken);
     }
 
 

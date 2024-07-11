@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("/api/auth")
 @RestController
-public class AuthController {
+public class AuthController implements AuthApi {
     private final AuthService authService;
     private final GoogleService googleService;
     private final KakaoService kakaoService;
@@ -28,7 +28,7 @@ public class AuthController {
 
     // 로그인
     @PostMapping("/sign-in")
-    public ResponseEntity<SignInResponse> signIn(@RequestHeader("Authorization") final String socialAccessToken, @RequestBody final SignInRequest signInRequest)  {
+    public ResponseEntity<SignInResponse> signIn(@RequestHeader("Authorization") final String socialAccessToken, @RequestBody final SignInRequest signInRequest) {
         SignInServiceResponse signInServiceResponse = authService.signIn(socialAccessToken, signInRequest.socialType());
         return new ResponseEntity<>(SignInResponse.of(signInServiceResponse), HttpStatus.OK);
     }
@@ -57,9 +57,9 @@ public class AuthController {
 
     // 토큰 재발급
     @PostMapping("/reissue-token")
-    public ResponseEntity<ReissueTokenResponse> reissueToken(@RequestBody Long memberId) {
+    public ResponseEntity<ReissueTokenResponse> reissueToken(ReissueTokenRequest reissueTokenRequest) {
         return new ResponseEntity<>(
-                ReissueTokenResponse.of(authService.reissueToken(memberId)),
+                ReissueTokenResponse.of(authService.reissueToken(reissueTokenRequest.memberId())),
                 HttpStatus.CREATED);
     }
 
