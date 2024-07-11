@@ -51,7 +51,6 @@ public class JwtService {
     }
 
     private void saveRefreshTokenToRedis(Long memberId, String refreshToken) {
-        log.info("line 54: refresh token: {}", refreshToken);
         redisTemplate.opsForValue().set(memberId.toString(), refreshToken, Duration.ofDays(14));
     }
 

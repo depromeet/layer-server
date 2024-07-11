@@ -66,4 +66,9 @@ public class MemberService {
                 .orElseThrow(() -> new BaseCustomException(NOT_FOUND_USER));
     }
 
+    public void withdrawMember(Long memberId) {
+        Member currentMember = getCurrentMember();
+        memberRepository.delete(currentMember);
+    }
+
 }

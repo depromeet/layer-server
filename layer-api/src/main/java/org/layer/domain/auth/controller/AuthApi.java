@@ -16,11 +16,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @Tag(name = "인증", description = "인증 관련 API")
 public interface AuthApi {
-    @Operation(summary = "로그인", description = "소셜 로그인 API(구글, 카카오)")
+    @Operation(summary = "[인증 불필요] 로그인", description = "소셜 로그인 API(구글, 카카오), 헤더에 소셜 액세스 토큰이 필요하며, 자체 jwt 필요없음")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "로그인 성공",
                     headers = {
-                            @Header(name = "Authorization", description = "Bearer 액세스 토큰", schema = @Schema(type = "string", format = "jwt"), required = true)
+                            @Header(name = "Authorization", description = "소셜 액세스 토큰(Bearer 없이 토큰만)", schema = @Schema(type = "string", format = "jwt"), required = true)
                     },
                     content = @Content(mediaType = "application/json", examples = {
                             @ExampleObject(name="로그인 성공", value = """
@@ -35,7 +35,7 @@ public interface AuthApi {
                     })),
             @ApiResponse(responseCode = "400", description = "로그인 실패 - 토큰이 유효하지 않음",
                     headers = {
-                            @Header(name = "Authorization", description = "Bearer 액세스 토큰", schema = @Schema(type = "string", format = "jwt"), required = true)
+                            @Header(name = "Authorization", description = "소셜 액세스 토큰(Bearer 없이 토큰만)", schema = @Schema(type = "string", format = "jwt"), required = true)
                     },
                     content = @Content(mediaType = "application/json", examples = {
                             @ExampleObject(name="토큰이 유효하지 않음", value = """
@@ -48,7 +48,7 @@ public interface AuthApi {
                     })),
             @ApiResponse(responseCode = "404", description = "로그인 실패 - 회원이 DB에 없음",
                     headers = {
-                            @Header(name = "Authorization", description = "Bearer 액세스 토큰", schema = @Schema(type = "string", format = "jwt"), required = true)
+                            @Header(name = "Authorization", description = "소셜 액세스 토큰(Bearer 없이 토큰만)", schema = @Schema(type = "string", format = "jwt"), required = true)
                     },
                     content = @Content(mediaType = "application/json", examples = {
                             @ExampleObject(name="회원이 DB에 없음", value = """
@@ -62,11 +62,11 @@ public interface AuthApi {
     })
     public ResponseEntity<SignInResponse> signIn(@RequestHeader("Authorization") final String socialAccessToken, @RequestBody final SignInRequest signInRequest);
 
-    @Operation(summary = "회원가입", description = "처음 소셜 로그인 하는 유저가 이름을 입력하는 과정, social_type은 KAKAO, GOOGLE")
+    @Operation(summary = "[인증 불필요] 회원가입", description = "처음 소셜 로그인 하는 유저가 이름을 입력하는 과정, social_type은 KAKAO, GOOGLE")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "회원가입 성공",
                     headers = {
-                            @Header(name = "Authorization", description = "Bearer 액세스 토큰", schema = @Schema(type = "string", format = "jwt"), required = true)
+                            @Header(name = "Authorization", description = "소셜 액세스 토큰(Bearer 없이 토큰만)", schema = @Schema(type = "string", format = "jwt"), required = true)
                     },
                     content = @Content(mediaType = "application/json", examples = {
                             @ExampleObject(name="회원 가입 성공. 유저의 정보를 리턴", value = """
@@ -83,7 +83,7 @@ public interface AuthApi {
                     })),
             @ApiResponse(responseCode = "400", description = "회원가입 실패",
                     headers = {
-                            @Header(name = "Authorization", description = "Bearer 액세스 토큰", schema = @Schema(type = "string", format = "jwt"), required = true)
+                            @Header(name = "Authorization", description = "소셜 액세스 토큰", schema = @Schema(type = "string", format = "jwt"), required = true)
                     },
                     content = @Content(mediaType = "application/json", examples = {
                             @ExampleObject(name="이미 가입된 회원", value = """
@@ -93,7 +93,7 @@ public interface AuthApi {
                             }
                     """
                             ),
-                            @ExampleObject(name="토큰이 유요하지 않음", value = """
+                            @ExampleObject(name="토큰이 유효하지 않음", value = """
                             {
                                 "name": "FAIL_TO_AUTH",
                                 "message": "인증에 실패했습니다."
@@ -106,7 +106,7 @@ public interface AuthApi {
     @Operation(summary = "로그아웃", description = "member_id를 전달하면 DB에서 리프레시 토큰을 지웁니다.")
     public ResponseEntity<?> signOut(SignOutRequest signOutRequest);
 
-    @Operation(summary = "토큰 재발급", description = "member_id를 전달하면 데이터베이스에 리프레시 토큰이 남아있지 확인하고 남아있다면 jwt(access + refresh)를 새로 발급합니다.")
+    @Operation(summary = "[인증 불필요] 토큰 재발급", description = "member_id를 전달하면 데이터베이스에 리프레시 토큰이 남아있지 확인하고 남아있다면 jwt(access + refresh)를 새로 발급합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "토큰 재발급 성공",
                     content = @Content(mediaType = "application/json", examples = {
@@ -132,6 +132,13 @@ public interface AuthApi {
     })
     public ResponseEntity<ReissueTokenResponse> reissueToken(@RequestBody ReissueTokenRequest reissueTokenRequest);
 
+
+    @Operation(summary = "회원 탈퇴", description = "header Authorization에 액세스 토큰과 memberId를 전달하여 회원 탈퇴를 할 수 있습니다.")
+    @ApiResponse(responseCode = "200", description = "탈퇴 성공",
+            headers = {
+                    @Header(name = "Authorization", description = "자체 jwt 액세스 토큰", schema = @Schema(type = "string", format = "jwt"), required = true)
+            })
+    public ResponseEntity<?> withdraw(WithdrawMemberRequest withdrawMemberRequest);
 
     // TODO: 토큰 확인용 임시 API 추후 삭제
     @Operation(summary = "[실제 사용 X] 구글 액세스 토큰 받기", description = "서버 쪽에서 토큰을 확인하기 위한 API입니다! (실제 사용 X, 추후 삭제 예정)")

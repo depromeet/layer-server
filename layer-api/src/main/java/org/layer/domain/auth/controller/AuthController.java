@@ -44,16 +44,15 @@ public class AuthController implements AuthApi {
     // 로그아웃
     @PostMapping("/sign-out")
     public ResponseEntity<?> signOut(@RequestBody SignOutRequest signOutRequest) {
-        log.info("memberId: {}", signOutRequest.memberId());
         authService.signOut(signOutRequest.memberId());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     // 회원 탈퇴
     @PostMapping("/withdraw")
-    public ResponseEntity<?> withdraw(@RequestBody Long memberId) {
-        authService.withdraw(memberId);
-        return new ResponseEntity<>(HttpStatus.OK); // TODO: 리턴 객체 수정 필요
+    public ResponseEntity<?> withdraw(WithdrawMemberRequest withdrawMemberRequest) {
+        authService.withdraw(withdrawMemberRequest.memberId());
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     // 토큰 재발급

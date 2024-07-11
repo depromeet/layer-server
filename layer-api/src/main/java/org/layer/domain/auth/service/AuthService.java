@@ -57,7 +57,7 @@ public class AuthService {
     @Transactional
     public void signOut(final Long memberId) {
         // 현재 로그인된 사용자와 memberId가 일치하는지 확인 => 일치하지 않으면 Exception
-//        isValidMember(memberId);
+        isValidMember(memberId);
         jwtService.deleteRefreshToken(memberId);
     }
 
@@ -65,8 +65,8 @@ public class AuthService {
     //== 회원 탈퇴 ==//
     @Transactional
     public void withdraw(final Long memberId) {
-        // TODO: member 도메인에서 del_yn 바꾸기 => Member entitiy에 추가,,?
-
+        // hard delete
+        memberService.withdrawMember(memberId);
     }
 
     //== 토큰 재발급. redis 확인 후 재발급 ==//

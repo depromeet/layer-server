@@ -44,7 +44,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     // 요청 헤더에서 액세스 토큰을 가져오는 메서드
     private String getJwtFromRequest(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
-        return (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) ? bearerToken.replace("Bearer ", ""): null;
+        String accessToken = null;
+        if(StringUtils.hasText(bearerToken)) {
+            accessToken = bearerToken.replace("Bearer ", "");
+        }
+        return accessToken;
     }
 
     // 정상적인 토큰인지 판단하는 메서드
