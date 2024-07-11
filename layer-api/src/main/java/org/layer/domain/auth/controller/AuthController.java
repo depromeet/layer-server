@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("/api/auth")
 @RestController
-public class AuthController {
+public class AuthController implements AuthApi {
     private final AuthService authService;
     private final GoogleService googleService;
     private final KakaoService kakaoService;
@@ -28,7 +28,7 @@ public class AuthController {
 
     // 로그인
     @PostMapping("/sign-in")
-    public ResponseEntity<SignInResponse> signIn(@RequestHeader("Authorization") final String socialAccessToken, @RequestBody final SignInRequest signInRequest)  {
+    public ResponseEntity<SignInResponse> signIn(@RequestHeader("Authorization") final String socialAccessToken, @RequestBody final SignInRequest signInRequest) {
         SignInServiceResponse signInServiceResponse = authService.signIn(socialAccessToken, signInRequest.socialType());
         return new ResponseEntity<>(SignInResponse.of(signInServiceResponse), HttpStatus.OK);
     }
@@ -43,23 +43,23 @@ public class AuthController {
 
     // 로그아웃
     @PostMapping("/sign-out")
-    public ResponseEntity<?> signOut(@RequestBody Long memberId) {
-        authService.signOut(memberId);
+    public ResponseEntity<?> signOut(@RequestBody SignOutRequest signOutRequest) {
+        authService.signOut(signOutRequest.memberId());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     // 회원 탈퇴
     @PostMapping("/withdraw")
-    public ResponseEntity<?> withdraw(@RequestBody Long memberId) {
-        authService.withdraw(memberId);
-        return new ResponseEntity<>(HttpStatus.OK); // TODO: 리턴 객체 수정 필요
+    public ResponseEntity<?> withdraw(WithdrawMemberRequest withdrawMemberRequest) {
+        authService.withdraw(withdrawMemberRequest.memberId());
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     // 토큰 재발급
     @PostMapping("/reissue-token")
-    public ResponseEntity<ReissueTokenResponse> reissueToken(@RequestBody Long memberId) {
+    public ResponseEntity<ReissueTokenResponse> reissueToken(ReissueTokenRequest reissueTokenRequest) {
         return new ResponseEntity<>(
-                ReissueTokenResponse.of(authService.reissueToken(memberId)),
+                ReissueTokenResponse.of(authService.reissueToken(reissueTokenRequest.memberId())),
                 HttpStatus.CREATED);
     }
 

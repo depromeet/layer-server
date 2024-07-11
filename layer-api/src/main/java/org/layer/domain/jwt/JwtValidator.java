@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.layer.common.exception.BaseCustomException;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -46,7 +47,11 @@ public class JwtValidator {
             throw new BaseCustomException(INVALID_TOKEN);
         }
         return (List<String>) (claims.get("role"));
+    }
 
+    // 정상적인 토큰인지 판단하는 메서드
+    public boolean isValidToken(String token) {
+        return StringUtils.hasText(token) && validateToken(token) == JwtValidationType.VALID_JWT;
     }
 
     private Claims getClaims(String token) {

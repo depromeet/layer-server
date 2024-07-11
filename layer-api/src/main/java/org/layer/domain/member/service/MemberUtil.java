@@ -11,17 +11,6 @@ import static org.layer.common.exception.MemberExceptionType.NOT_FOUND_USER;
 @RequiredArgsConstructor
 @Component
 public class MemberUtil {
-    private final SecurityUtil securityUtil;
-    private final MemberRepository memberRepository;
-    public Member getCurrentMember() {
-        return memberRepository
-                .findById(securityUtil.getCurrentMemberId())
-                .orElseThrow(() -> new BaseCustomException(NOT_FOUND_USER));
-    }
 
-    public Member getMemberByMemberId(Long memberId) {
-        return memberRepository.
-                findById(memberId)
-                .orElseThrow(() -> new BaseCustomException(NOT_FOUND_USER));
-    }
+    private final MemberRepository memberRepository;
 }

@@ -27,7 +27,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String accessToken = getJwtFromRequest(request);
 
-        if(isValidToken(accessToken)) {
+        if(jwtValidator.isValidToken(accessToken)) {
             Long memberId = jwtValidator.getMemberIdFromToken(accessToken);
             List<String> role = jwtValidator.getRoleFromToken(accessToken);
             setAuthenticationToContext(memberId, MemberRole.valueOf(role.get(0)));
@@ -44,7 +44,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     // 요청 헤더에서 액세스 토큰을 가져오는 메서드
     private String getJwtFromRequest(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
-        return (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) ? bearerToken.replace("Bearer ", ""): null;
+        String accessToken = null;
+        if(StringUtils.hasText(bearerToken)) {
+            accessToken = bearerToken.replace("Bearer ", "");
+        }
+        return accessToken;
     }
 
     // 정상적인 토큰인지 판단하는 메서드
