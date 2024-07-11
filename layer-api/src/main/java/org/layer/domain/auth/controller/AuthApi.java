@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -18,6 +19,9 @@ public interface AuthApi {
     @Operation(summary = "로그인", description = "소셜 로그인 API(구글, 카카오)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "로그인 성공",
+                    headers = {
+                            @Header(name = "Authorization", description = "Bearer 액세스 토큰", schema = @Schema(type = "string", format = "jwt"), required = true)
+                    },
                     content = @Content(mediaType = "application/json", examples = {
                             @ExampleObject(name="로그인 성공", value = """
                     {
@@ -30,6 +34,9 @@ public interface AuthApi {
                             )
                     })),
             @ApiResponse(responseCode = "400", description = "로그인 실패 - 토큰이 유효하지 않음",
+                    headers = {
+                            @Header(name = "Authorization", description = "Bearer 액세스 토큰", schema = @Schema(type = "string", format = "jwt"), required = true)
+                    },
                     content = @Content(mediaType = "application/json", examples = {
                             @ExampleObject(name="토큰이 유효하지 않음", value = """
                     {
@@ -40,6 +47,9 @@ public interface AuthApi {
                             )
                     })),
             @ApiResponse(responseCode = "404", description = "로그인 실패 - 회원이 DB에 없음",
+                    headers = {
+                            @Header(name = "Authorization", description = "Bearer 액세스 토큰", schema = @Schema(type = "string", format = "jwt"), required = true)
+                    },
                     content = @Content(mediaType = "application/json", examples = {
                             @ExampleObject(name="회원이 DB에 없음", value = """
                     {
@@ -55,6 +65,9 @@ public interface AuthApi {
     @Operation(summary = "회원가입", description = "처음 소셜 로그인 하는 유저가 이름을 입력하는 과정, social_type은 KAKAO, GOOGLE")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "회원가입 성공",
+                    headers = {
+                            @Header(name = "Authorization", description = "Bearer 액세스 토큰", schema = @Schema(type = "string", format = "jwt"), required = true)
+                    },
                     content = @Content(mediaType = "application/json", examples = {
                             @ExampleObject(name="회원 가입 성공. 유저의 정보를 리턴", value = """
                     {
@@ -69,6 +82,9 @@ public interface AuthApi {
                             )
                     })),
             @ApiResponse(responseCode = "400", description = "회원가입 실패",
+                    headers = {
+                            @Header(name = "Authorization", description = "Bearer 액세스 토큰", schema = @Schema(type = "string", format = "jwt"), required = true)
+                    },
                     content = @Content(mediaType = "application/json", examples = {
                             @ExampleObject(name="이미 가입된 회원", value = """
                             {
@@ -115,9 +131,6 @@ public interface AuthApi {
                     }))
     })
     public ResponseEntity<ReissueTokenResponse> reissueToken(@RequestBody ReissueTokenRequest reissueTokenRequest);
-
-
-
 
 
     // TODO: 토큰 확인용 임시 API 추후 삭제
