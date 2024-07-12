@@ -1,4 +1,4 @@
-package org.layer.domain.blockOption.entity;
+package org.layer.domain.questionOption.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -7,16 +7,16 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.layer.domain.BaseEntity;
-import org.layer.domain.block.entity.Block;
+import org.layer.domain.question.entity.Question;
 
 @Entity
-@Table(name= "block_option", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"block_id", "value"})
+@Table(name = "question_option", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"question_id", "value"})
 })
 @EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class BlockOption extends BaseEntity {
+public class QuestionOption extends BaseEntity {
 
     private String label;
 
@@ -24,6 +24,6 @@ public class BlockOption extends BaseEntity {
     private String value;
 
     @ManyToOne
-    @JoinColumn( name = "block_id")
-    private Block block;
+    @JoinColumn(name = "question_id")
+    private Question question;
 }
