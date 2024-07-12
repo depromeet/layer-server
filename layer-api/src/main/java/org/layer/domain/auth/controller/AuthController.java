@@ -2,6 +2,7 @@ package org.layer.domain.auth.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.layer.common.annotation.DisableSwaggerSecurity;
 import org.layer.domain.auth.controller.dto.*;
 import org.layer.domain.auth.service.AuthService;
 import org.layer.domain.auth.service.dto.SignInServiceResponse;
@@ -12,9 +13,6 @@ import org.layer.oauth.service.KakaoService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -26,16 +24,21 @@ public class AuthController {
     private final KakaoService kakaoService;
     private final MemberRepository memberRepository;
 
+    private static final String SOCIAL_TOKEN_NAME = "X-AUTH-TOKEN";
+
     // 로그인
+    @DisableSwaggerSecurity
     @PostMapping("/sign-in")
-    public ResponseEntity<SignInResponse> signIn(@RequestHeader("Authorization") final String socialAccessToken, @RequestBody final SignInRequest signInRequest)  {
+    public ResponseEntity<SignInResponse> signIn(@RequestHeader(SOCIAL_TOKEN_NAME) final String socialAccessToken, @RequestBody final SignInRequest signInRequest) {
         SignInServiceResponse signInServiceResponse = authService.signIn(socialAccessToken, signInRequest.socialType());
         return new ResponseEntity<>(SignInResponse.of(signInServiceResponse), HttpStatus.OK);
     }
 
     // 회원가입 => 소셜로그인 했는데 유효한 유저가 없을 때 이름 입력하고 회원가입하는 과정
+    @DisableSwaggerSecurity
     @PostMapping("/sign-up")
-    public ResponseEntity<SignUpResponse> signUp(@RequestHeader("Authorization") final String socialAccessToken, @RequestBody final SignUpRequest signUpRequest) {
+    public ResponseEntity<SignUpResponse> signUp(@RequestHeader(SOCIAL_TOKEN_NAME) final String socialAccessToken, @RequestBody final SignUpRequest signUpRequest) {
+        log.info(" {} <<<socialAccessTokensocialAccessToken", socialAccessToken);
         SignUpServiceResponse signUpServiceResponse = authService.signUp(socialAccessToken, signUpRequest);
         return new ResponseEntity<>(SignUpResponse.of(signUpServiceResponse), HttpStatus.CREATED);
     }
@@ -63,12 +66,14 @@ public class AuthController {
                 HttpStatus.CREATED);
     }
 
+    @DisableSwaggerSecurity
     //== google OAuth2 test용 API 액세스 토큰 발급 ==//
     @GetMapping("oauth2/google")
     public String googleTest(@RequestParam("code") String code) {
         return googleService.getToken(code);
     }
 
+    @DisableSwaggerSecurity
     //== kakao OAuth2 test용 API 액세스 토큰 발급 ==//
     @GetMapping("oauth2/kakao")
     public Object kakaoLogin(@RequestParam(value = "code", required = false) String code) {
