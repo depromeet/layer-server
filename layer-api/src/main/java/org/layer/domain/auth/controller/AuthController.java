@@ -38,7 +38,6 @@ public class AuthController {
     @DisableSwaggerSecurity
     @PostMapping("/sign-up")
     public ResponseEntity<SignUpResponse> signUp(@RequestHeader(SOCIAL_TOKEN_NAME) final String socialAccessToken, @RequestBody final SignUpRequest signUpRequest) {
-        log.info(" {} <<<socialAccessTokensocialAccessToken", socialAccessToken);
         SignUpServiceResponse signUpServiceResponse = authService.signUp(socialAccessToken, signUpRequest);
         return new ResponseEntity<>(SignUpResponse.of(signUpServiceResponse), HttpStatus.CREATED);
     }
