@@ -2,6 +2,7 @@ package org.layer.domain.space.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
+import org.layer.domain.space.entity.Space;
 import org.layer.domain.space.entity.SpaceCategory;
 import org.layer.domain.space.entity.SpaceField;
 
@@ -25,6 +26,15 @@ public class SpaceRequest {
             @Schema(description = "공간 설명")
             String introduction
     ) {
+        public Space toEntity(Long memberId) {
+            return Space.builder()
+                    .category(category)
+                    .field(field)
+                    .name(name)
+                    .introduction(introduction)
+                    .leaderId(memberId)
+                    .build();
+        }
     }
 
     @Schema(description = "내가 속한 스페이스 조회")

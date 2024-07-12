@@ -7,8 +7,8 @@ import org.layer.domain.BaseEntity;
 
 @Getter
 @Entity
-@Builder
 @AllArgsConstructor
+@Builder
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Space extends BaseEntity {

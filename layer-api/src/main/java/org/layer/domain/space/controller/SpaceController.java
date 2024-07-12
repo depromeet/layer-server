@@ -32,7 +32,8 @@ public class SpaceController implements SpaceApi {
     @Override
     @PutMapping("/")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<SpaceResponse.SpaceInfo> createSpace(@MemberId Long memberId, @RequestBody @Validated SpaceRequest.CreateSpaceRequest createSpaceRequest) {
-        return null;
+    public ResponseEntity<Boolean> createSpace(@MemberId Long memberId, @RequestBody @Validated SpaceRequest.CreateSpaceRequest createSpaceRequest) {
+        var response = spaceService.createSpace(memberId, createSpaceRequest);
+        return ResponseEntity.ok(response);
     }
 }

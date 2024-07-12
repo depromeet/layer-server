@@ -42,11 +42,11 @@ public interface SpaceApi {
                     content = {
                             @Content(
                                     mediaType = "application/json",
-                                    schema = @Schema(implementation = SpaceResponse.SpaceInfo.class)
+                                    schema = @Schema(implementation = Boolean.class)
                             )
                     }
             )
     }
     )
-    ResponseEntity<SpaceResponse.SpaceInfo> createSpace(@MemberId Long memberId, @RequestBody @Validated SpaceRequest.CreateSpaceRequest createSpaceRequest);
+    ResponseEntity<Boolean> createSpace(@MemberId Long memberId, @RequestBody @Validated SpaceRequest.CreateSpaceRequest createSpaceRequest);
 }

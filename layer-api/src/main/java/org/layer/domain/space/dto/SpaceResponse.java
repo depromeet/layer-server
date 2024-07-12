@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import org.layer.common.dto.Meta;
 import org.layer.common.exception.BaseCustomException;
-import org.layer.domain.space.entity.Space;
 import org.layer.domain.space.entity.SpaceCategory;
 import org.layer.domain.space.entity.SpaceField;
 
@@ -15,10 +14,11 @@ import java.util.Optional;
 import static org.layer.domain.auth.exception.TokenExceptionType.INVALID_REFRESH_TOKEN;
 
 public class SpaceResponse {
+  
 
     @Builder
     @Schema(description = "스페이스 정보 응답")
-    public record SpaceInfo(
+    public record SpaceWithUserCountInfo(
             @Schema(description = "스페이스 ID")
             @NotNull
             Long id,
@@ -37,13 +37,16 @@ public class SpaceResponse {
             String introduction,
 
             @Schema(description = "설정된 회고 폼 아이디")
-            Long formId
+            Long formId,
+
+            @Schema(description = "소속된 회원 수")
+            Long userCount
     ) {
-        public static SpaceInfo toResponse(Space space) {
+        public static SpaceWithUserCountInfo toResponse(SpaceWithMemberCount space) {
             return Optional.ofNullable(space)
-                    .map(it -> SpaceInfo.builder().id(it.getId()).category(it.getCategory())
+                    .map(it -> SpaceWithUserCountInfo.builder().id(it.getId()).category(it.getCategory())
                             .field(it.getField()).name(it.getName()).introduction(it.getIntroduction())
-                            .formId(it.getFormId()).build())
+                            .formId(it.getFormId()).userCount(it.getUserCount()).build())
                     .orElseThrow(() -> new BaseCustomException(INVALID_REFRESH_TOKEN));
         }
     }
@@ -52,13 +55,13 @@ public class SpaceResponse {
     @Schema()
     public record SpacePage(
             @Schema()
-            List<SpaceInfo> data,
+            List<SpaceWithUserCountInfo> data,
 
             @Schema()
             Meta meta
     ) {
 
-        public static SpacePage toResponse(List<SpaceInfo> spaceInfo, Meta meta) {
+        public static SpacePage toResponse(List<SpaceWithUserCountInfo> spaceInfo, Meta meta) {
             return SpacePage.builder().data(spaceInfo).meta(meta).build();
         }
     }
