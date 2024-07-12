@@ -1,6 +1,6 @@
 package org.layer.domain.space.entity;
 
-public enum Field {
+public enum SpaceField {
     DESIGN,
     DEVELOPMENT,
     MARKETING,

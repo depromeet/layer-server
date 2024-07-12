@@ -1,27 +1,23 @@
 package org.layer.domain.space.entity;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotNull;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.layer.domain.BaseEntity;
 
 @Getter
 @Entity
+@Builder
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Space {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Space extends BaseEntity {
 
     @NotNull
     private SpaceCategory category;
 
     @NotNull
-    private Field field;
+    private SpaceField field;
 
     @NotNull
     private String name;
