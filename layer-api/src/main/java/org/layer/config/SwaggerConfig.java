@@ -18,16 +18,18 @@ import java.util.Arrays;
 @Configuration
 public class SwaggerConfig {
 
+    private static final String AUTH_TOKEN = "Authorization";
+
     SecurityScheme apiAuth = new SecurityScheme()
             .type(SecurityScheme.Type.APIKEY)
             .in(SecurityScheme.In.HEADER)
-            .name("authorization-token");
+            .name(AUTH_TOKEN);
 
     SecurityRequirement addSecurityItem = new SecurityRequirement()
-            .addList("authorization-token");
+            .addList(AUTH_TOKEN);
 
     @Bean
-    public OpenAPI openAPI(){
+    public OpenAPI openAPI() {
         var info = new Info();
         info.title("Layer API");
         info.description("Layer API 문서에요.");
@@ -39,7 +41,7 @@ public class SwaggerConfig {
         info.license(new License().name("MIT"));
         return new OpenAPI()
                 .components(new Components()
-                        .addSecuritySchemes("authorization-token", apiAuth)
+                        .addSecuritySchemes(AUTH_TOKEN, apiAuth)
                 )
                 .addSecurityItem(addSecurityItem)
                 .info(info);

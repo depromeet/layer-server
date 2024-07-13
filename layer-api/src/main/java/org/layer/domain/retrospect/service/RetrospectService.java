@@ -1,4 +1,4 @@
-package org.layer.retrospect.service;
+package org.layer.domain.retrospect.service;
 
 import org.layer.domain.retrospect.entity.Retrospect;
 import org.layer.domain.retrospect.entity.RetrospectStatus;

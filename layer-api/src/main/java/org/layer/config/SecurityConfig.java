@@ -1,8 +1,12 @@
 package org.layer.config;
 
 
+import io.swagger.v3.oas.models.Operation;
 import lombok.RequiredArgsConstructor;
+import org.layer.common.annotation.DisableSwaggerSecurity;
 import org.layer.domain.jwt.JwtAuthenticationFilter;
+import org.springdoc.core.customizers.OperationCustomizer;
+import org.springframework.boot.autoconfigure.security.ConditionalOnDefaultWebSecurity;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -12,10 +16,14 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.web.method.HandlerMethod;
+
+import java.util.Collections;
 
 @RequiredArgsConstructor
 @Configuration
 @EnableWebSecurity
+@ConditionalOnDefaultWebSecurity
 public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
@@ -52,5 +60,16 @@ public class SecurityConfig {
                 .requestMatchers(new AntPathRequestMatcher("/v3/api-docs/**")).permitAll()
                 .requestMatchers(new AntPathRequestMatcher("/swagger-ui/**")).permitAll()
                 .requestMatchers(new AntPathRequestMatcher("/docs/**")).permitAll());
+    }
+
+    @Bean
+    public OperationCustomizer customize() {
+        return (Operation operation, HandlerMethod handlerMethod) -> {
+            DisableSwaggerSecurity methodAnnotation = handlerMethod.getMethodAnnotation(DisableSwaggerSecurity.class);
+            if (methodAnnotation != null) {
+                operation.setSecurity(Collections.emptyList());
+            }
+            return operation;
+        };
     }
 }
