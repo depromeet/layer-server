@@ -1,6 +1,8 @@
 package org.layer.domain.space.repository;
 
+import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +35,23 @@ public class SpaceRepositoryImpl implements SpaceCustomRepository {
                 .and(hasCategory(category));
 
         return queryFactory.select(
-                        new QSpaceWithMemberCount(space.id, space.createdAt, space.updatedAt, space.category, space.field, space.name, space.introduction, space.leaderId, space.formId, memberSpaceRelation.id.count().as("userCount")))
+                        new QSpaceWithMemberCount(
+                                space.id,
+                                space.createdAt,
+                                space.updatedAt,
+                                space.category,
+                                space.field,
+                                space.name,
+                                space.introduction,
+                                space.leaderId,
+                                space.formId,
+                                ExpressionUtils.as(JPAExpressions.select(
+                                                        memberSpaceRelation.id.count()
+                                                )
+                                                .from(memberSpaceRelation)
+                                                .where(memberSpaceRelation.spaceId.eq(space.id))
+                                        , "userCount")
+                        ))
                 .from(space)
                 .join(memberSpaceRelation).on(space.id.eq(memberSpaceRelation.spaceId))
                 .where(predicate)
@@ -55,7 +73,13 @@ public class SpaceRepositoryImpl implements SpaceCustomRepository {
                                 space.introduction,
                                 space.leaderId,
                                 space.formId,
-                                memberSpaceRelation.id.count().as("userCount"))
+                                ExpressionUtils.as(JPAExpressions.select(
+                                                        memberSpaceRelation.id.count()
+                                                )
+                                                .from(memberSpaceRelation)
+                                                .where(memberSpaceRelation.spaceId.eq(space.id))
+                                        , "userCount")
+                        )
                 )
                 .from(memberSpaceRelation)
                 .join(space)

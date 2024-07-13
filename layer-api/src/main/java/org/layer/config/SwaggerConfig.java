@@ -23,7 +23,7 @@ public class SwaggerConfig {
     SecurityScheme apiAuth = new SecurityScheme()
             .type(SecurityScheme.Type.HTTP)
             .in(SecurityScheme.In.HEADER)
-            .scheme("bearer")
+            .scheme("Bearer")
             .bearerFormat("JWT")
             .name(AUTH_TOKEN);
 
