@@ -8,13 +8,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 public record RetrospectListGetResponse(
 	@Schema(description = "쌓인 레이어 수", example = "3")
 	int layerCount,
-	@Schema(description = "팀원 수", example = "10")
-	int teamCount,
 	@Schema(description = "회고 객체 목록", example = "")
 	List<RetrospectGetResponse> retrospects
 
 ) {
-	public static RetrospectListGetResponse of(int layerCount, int teamCount, List<RetrospectGetResponse> retrospects){
-		return new RetrospectListGetResponse(layerCount, teamCount, retrospects);
+	public static RetrospectListGetResponse of(int layerCount, List<RetrospectGetResponse> retrospects){
+		return new RetrospectListGetResponse(layerCount, retrospects);
 	}
 }

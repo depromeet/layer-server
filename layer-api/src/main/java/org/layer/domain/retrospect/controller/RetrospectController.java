@@ -52,8 +52,8 @@ public class RetrospectController implements RetrospectApi {
 				r.writeCount()))
 			.toList();
 
-		return ResponseEntity.ok().body(RetrospectListGetResponse.of(serviceResponse.layerCount(),
-			serviceResponse.teamCount(), retrospectGetResponses));
+		return ResponseEntity.ok()
+			.body(RetrospectListGetResponse.of(serviceResponse.layerCount(), retrospectGetResponses));
 	}
 
 }

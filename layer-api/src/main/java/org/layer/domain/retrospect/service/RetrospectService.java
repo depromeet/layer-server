@@ -56,7 +56,6 @@ public class RetrospectService {
 				answers.hasRetrospectAnswer(memberId), r.getRetrospectStatus(), answers.getWriteCount()))
 			.toList();
 
-		return RetrospectListGetServiceResponse.of(retrospects.size(), memberSpaceRelations.getTeamMemberCount(),
-			retrospectDtos);
+		return RetrospectListGetServiceResponse.of(retrospects.size(), retrospectDtos);
 	}
 }
