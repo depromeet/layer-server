@@ -11,8 +11,9 @@ import org.layer.domain.space.dto.SpaceRequest;
 import org.layer.domain.space.dto.SpaceResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 
 @Tag(name = "스페이스 API")
 public interface SpaceApi {
@@ -31,22 +32,50 @@ public interface SpaceApi {
             )
     }
     )
-    ResponseEntity<SpaceResponse.SpacePage> getMySpaceList(@MemberId Long memberId, @RequestParam @Validated SpaceRequest.GetSpaceRequest getSpaceRequest);
+    ResponseEntity<SpaceResponse.SpacePage> getMySpaceList(@MemberId Long memberId, @ModelAttribute @Validated SpaceRequest.GetSpaceRequest getSpaceRequest);
 
-    @Operation(summary = "스페이스 생성하기", method = "POST", description = """
+    @Operation(summary = "스페이스 생성하기", method = "PUT", description = """
             스페이스를 생성합니다. <br />
-            생성 성공 시 저장된 스페이스 정보를 반환합니다.
+            생성 성공 시 아무것도 반환하지 않습니다.
             """)
     @ApiResponses({
             @ApiResponse(responseCode = "201",
                     content = {
                             @Content(
                                     mediaType = "application/json",
-                                    schema = @Schema(implementation = Boolean.class)
+                                    schema = @Schema()
                             )
                     }
             )
     }
     )
-    ResponseEntity<Boolean> createSpace(@MemberId Long memberId, @RequestBody @Validated SpaceRequest.CreateSpaceRequest createSpaceRequest);
+    void createSpace(@MemberId Long memberId, @RequestBody @Validated SpaceRequest.CreateSpaceRequest createSpaceRequest);
+
+    @Operation(summary = "스페이스 수정하기", method = "POST", description = """
+            스페이스를 수정합니다. <br />
+            생성 성공 시 아무것도 반환하지 않습니다.
+            """)
+    @ApiResponses({
+            @ApiResponse(responseCode = "202",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema()
+                            )
+                    }
+            )
+    }
+    )
+    void updateSpace(@MemberId Long memberId, @RequestBody @Validated SpaceRequest.UpdateSpaceRequest updateSpaceRequest);
+
+    @Operation(summary = "스페이스 단건 조회하기", method = "GET", description = """
+            스페이스 아이디를 통해 하나의 스페이스를 조회합니다.
+            내가 속하지 않은 공간만 조회할 수 있습니다.
+            """)
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = SpaceResponse.SpaceWithUserCountInfo.class))
+            })
+    })
+    ResponseEntity<SpaceResponse.SpaceWithUserCountInfo> getSpaceById(@MemberId Long memberId, @PathVariable Long spaceId);
 }
