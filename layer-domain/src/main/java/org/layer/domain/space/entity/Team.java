@@ -9,7 +9,7 @@ import org.layer.domain.space.exception.MemberSpaceRelationException;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class MemberSpaceRelations {
+public class Team {
 	private final List<MemberSpaceRelation> memberSpaceRelations;
 
 	public void validateTeamMembership(Long memberId){

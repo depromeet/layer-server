@@ -1,6 +1,9 @@
 package org.layer.domain.retrospect.service;
 
+import static org.layer.common.exception.MemberSpaceRelationExceptionType.*;
+
 import java.util.List;
+import java.util.Optional;
 
 import org.layer.domain.answer.entity.Answers;
 import org.layer.domain.answer.repository.AnswerRepository;
@@ -9,9 +12,9 @@ import org.layer.domain.retrospect.entity.RetrospectStatus;
 import org.layer.domain.retrospect.repository.RetrospectRepository;
 import org.layer.domain.retrospect.service.dto.response.RetrospectGetServiceResponse;
 import org.layer.domain.retrospect.service.dto.response.RetrospectListGetServiceResponse;
-import org.layer.domain.space.entity.MemberSpaceRelations;
+import org.layer.domain.space.entity.MemberSpaceRelation;
+import org.layer.domain.space.exception.MemberSpaceRelationException;
 import org.layer.domain.space.repository.MemberSpaceRelationRepository;
-import org.layer.domain.space.repository.SpaceRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,12 +43,11 @@ public class RetrospectService {
 	}
 
 	public RetrospectListGetServiceResponse getRetrospects(Long spaceId, Long memberId) {
-
-		MemberSpaceRelations memberSpaceRelations = new MemberSpaceRelations(
-			memberSpaceRelationRepository.findAllBySpaceId(spaceId));
-
-		// 해당 멤버가 요청한 스페이스 소속 여부 확인
-		memberSpaceRelations.validateTeamMembership(memberId);
+		Optional<MemberSpaceRelation> team = memberSpaceRelationRepository.findBySpaceIdAndMemberId(
+			spaceId, memberId);
+		if (team.isEmpty()) {  // 해당 멤버가 요청한 스페이스 소속 여부 확인
+			throw new MemberSpaceRelationException(NOT_FOUND_MEMBER_SPACE_RELATION);
+		}
 
 		List<Retrospect> retrospects = retrospectRepository.findAllBySpaceId(spaceId);
 		List<Long> retrospectIds = retrospects.stream().map(Retrospect::getId).toList();
