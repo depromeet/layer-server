@@ -1,17 +1,18 @@
 package org.layer.domain.space.service;
 
-
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.layer.common.dto.Meta;
-import org.layer.common.exception.BaseCustomException;
 import org.layer.domain.space.dto.SpaceRequest;
 import org.layer.domain.space.dto.SpaceResponse;
+import org.layer.domain.space.dto.SpaceWithMemberCount;
 import org.layer.domain.space.entity.MemberSpaceRelation;
+import org.layer.domain.space.entity.Space;
 import org.layer.domain.space.repository.MemberSpaceRelationRepository;
 import org.layer.domain.space.repository.SpaceRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.stream.Collectors;
 
@@ -62,6 +63,4 @@ public class SpaceService {
         return SpaceResponse.SpaceWithUserCountInfo.toResponse(foundSpace);
     }
 
-
 }
-

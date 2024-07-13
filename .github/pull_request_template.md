@@ -17,9 +17,10 @@
 ## ⚙️ 테스트 결과
 <!-- local에서 postman으로 요청한 결과를 첨부합니다, postman을 사용하지 않으면 관련 화면 캡쳐 -->
 
+### 발생한 쿼리 첨부
 
 ## 👉 반영 브랜치
 <!-- feat/#issue -> dev와 같이 반영 브랜치를 표시합니다 -->
 <!-- closed #issue로 merge되면 issue가 자동으로 close되게 해줍니다 -->
-- feat/#
+- feat/
 - closed #
