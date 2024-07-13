@@ -43,7 +43,7 @@
 3. 브랜치를 생성한 후에 작업을 진행한다.
 4. 진행한 후에 커밋을 한다.
 5. 작업이 완료되면 PR을 생성한다.
-6. PR을 생성한 후에 팀원들에게 리뷰를 요청한다. 리뷰는 나머지 2명 모두에게 요청하되, 1명의 승인을 받으면 머지 가능한 상태가 된다.
+6. PR을 생성한 후에 팀원들에게 리뷰를 요청한다. 리뷰는 PR 올린 시간 기준으로 24시간 내로는 2명의 승인, 그 이후로는 1명의 승인이 필요하다.
 7. 리뷰를 받은 후에 PR을 default branch에 merge한다.
 8. merge된 후, 배포를 진행한다.
 
@@ -57,12 +57,15 @@
 -   issue는 노션에 생성한다.
 -   노션에 생성된 issue 번호를 기반으로 branch 생성
     -   ex) feat/#{노션이슈번호}
+- dev 브랜치에 머지할 때는 브랜치 간소화 및 revert 용이성을 위해 스쿼시 머지를 진행한다. 
 
 ## 🙏 Commit Convention
 - <a href="https://udacity.github.io/git-styleguide/">유다시티 컨벤션
 
 ```
 feat: 새로운 기능 구현
+add: 기능구현까지는 아니지만 새로운 파일이 추가된 경우
+del: 기존 코드를 삭제한 경우
 fix: 버그, 오류 해결
 docs: README나 WIKI 등의 문서 작업
 style: 코드가 아닌 스타일 변경을 하는 경우
@@ -89,6 +92,7 @@ chore: 코드 수정, 내부 파일 수정
 - Controller에서 요청/응답하는 DTO와 Service에서 사용하는 DTO를 분리합니다.
     - Layered Architecture를 엄격하게 준수합니다.
     - 확장/번경에 용이하게 합니다.
+    - 매개변수가 5개 미만일 경우 controller-service간 Dto를 사용하지 않습니다. 
 - 네이밍은 아래와 같이 정의합니다.
     - Controller DTO: `${Entity명}${복수형일 경우 List 추가}${행위 또는 상태}${Request/Response}`
     - Service DTO: `${Entity명}${복수형일 경우 List 추가}${행위 또는 상태}Service${Request/Response}`

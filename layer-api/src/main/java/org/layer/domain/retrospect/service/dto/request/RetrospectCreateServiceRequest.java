@@ -1,4 +1,4 @@
-package org.layer.domain.retrospect.service.dto;
+package org.layer.domain.retrospect.service.dto.request;
 
 import java.util.List;
 
