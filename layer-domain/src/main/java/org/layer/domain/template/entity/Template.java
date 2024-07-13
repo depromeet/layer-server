@@ -9,7 +9,7 @@ import org.layer.domain.BaseEntity;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Entity
-public class RetrospectTemplate extends BaseEntity {
+public class Template extends BaseEntity {
     @NotNull
     private Long id;
 
