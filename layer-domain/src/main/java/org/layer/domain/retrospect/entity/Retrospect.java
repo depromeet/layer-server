@@ -26,9 +26,6 @@ public class Retrospect extends BaseTimeEntity {
     private Long spaceId;
 
     @NotNull
-    private Long formId;
-
-    @NotNull
     private String title;
 
     @NotNull
@@ -39,9 +36,8 @@ public class Retrospect extends BaseTimeEntity {
     private RetrospectStatus retrospectStatus;
 
     @Builder
-    public Retrospect(Long spaceId, Long formId, String title, String introduction, RetrospectStatus retrospectStatus) {
+    public Retrospect(Long spaceId, String title, String introduction, RetrospectStatus retrospectStatus) {
         this.spaceId = spaceId;
-        this.formId = formId;
         this.title = title;
         this.introduction = introduction;
         this.retrospectStatus = retrospectStatus;
