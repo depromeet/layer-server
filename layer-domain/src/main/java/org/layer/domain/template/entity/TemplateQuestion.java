@@ -1,16 +1,14 @@
 package org.layer.domain.template.entity;
 
-import jakarta.persistence.Convert;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import org.layer.domain.question.converter.QuestionTypeConverter;
 import org.layer.domain.question.entity.QuestionType;
 
 @Entity
 public class TemplateQuestion {
-    @NotNull
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @NotNull
     private Long templateId; // fk: 어떤 템플릿에 속하는지

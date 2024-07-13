@@ -1,6 +1,9 @@
 package org.layer.domain.template.entity;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.layer.domain.BaseEntity;
@@ -10,7 +13,8 @@ import org.layer.domain.BaseEntity;
 @Getter
 @Entity
 public class Template extends BaseEntity {
-    @NotNull
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotNull
@@ -21,6 +25,10 @@ public class Template extends BaseEntity {
 
     @NotNull
     private String templateImageUrl;
+
+    private String firstTag; // 첫번째 태그. ex) 간단한 프로세스
+
+    private String secondTag; // 두번째 태그. ex) 다음 목표 설정
 
     //== 회고 설명에 대한 부분 ==//
     @NotNull
