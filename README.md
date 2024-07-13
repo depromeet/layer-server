@@ -57,6 +57,7 @@
 -   issue는 노션에 생성한다.
 -   노션에 생성된 issue 번호를 기반으로 branch 생성
     -   ex) feat/#{노션이슈번호}
+- dev 브랜치에 머지할 때는 브랜치 간소화 및 revert 용이성을 위해 스쿼시 머지를 진행한다. 
 
 ## 🙏 Commit Convention
 - <a href="https://udacity.github.io/git-styleguide/">유다시티 컨벤션
