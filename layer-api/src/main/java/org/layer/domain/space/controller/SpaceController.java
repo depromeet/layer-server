@@ -31,14 +31,14 @@ public class SpaceController implements SpaceApi {
     }
 
     @Override
-    @PutMapping("/")
+    @PutMapping("")
     @PreAuthorize("isAuthenticated()")
     public void createSpace(@MemberId Long memberId, @RequestBody @Validated SpaceRequest.CreateSpaceRequest createSpaceRequest) {
         spaceService.createSpace(memberId, createSpaceRequest);
     }
 
     @Override
-    @PostMapping("/")
+    @PostMapping("")
     @PreAuthorize("isAuthenticated()")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public void updateSpace(@MemberId Long memberId, @RequestBody @Validated SpaceRequest.UpdateSpaceRequest updateSpaceRequest) {
