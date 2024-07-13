@@ -67,14 +67,14 @@ public class AuthController implements AuthApi {
 
     @DisableSwaggerSecurity
     //== google OAuth2 test용 API 액세스 토큰 발급 ==//
-    @GetMapping("oauth2/google")
+    @GetMapping("/oauth2/google")
     public String googleTest(@RequestParam("code") String code) {
         return googleService.getToken(code);
     }
 
     @DisableSwaggerSecurity
     //== kakao OAuth2 test용 API 액세스 토큰 발급 ==//
-    @GetMapping("oauth2/kakao")
+    @GetMapping("/oauth2/kakao")
     public Object kakaoLogin(@RequestParam(value = "code", required = false) String code) {
         return kakaoService.getToken(code);
     }
