@@ -11,17 +11,17 @@ import org.layer.domain.question.entity.Question;
 
 @Entity
 @Table(name = "question_option", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"question_id", "value"})
+        @UniqueConstraint(columnNames = {"question_id", "option_value"})
 })
 @EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class QuestionOption extends BaseEntity {
 
-    private String label;
+    private String optionLabel;
 
     @NotNull
-    private String value;
+    private String optionValue;
 
     @ManyToOne
     @JoinColumn(name = "question_id")
