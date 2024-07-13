@@ -89,6 +89,7 @@ chore: 코드 수정, 내부 파일 수정
 - Controller에서 요청/응답하는 DTO와 Service에서 사용하는 DTO를 분리합니다.
     - Layered Architecture를 엄격하게 준수합니다.
     - 확장/번경에 용이하게 합니다.
+    - 매개변수가 5개 미만일 경우 controller-service간 Dto를 사용하지 않습니다. 
 - 네이밍은 아래와 같이 정의합니다.
     - Controller DTO: `${Entity명}${복수형일 경우 List 추가}${행위 또는 상태}${Request/Response}`
     - Service DTO: `${Entity명}${복수형일 경우 List 추가}${행위 또는 상태}Service${Request/Response}`
