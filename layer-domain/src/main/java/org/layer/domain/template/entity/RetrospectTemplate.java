@@ -12,10 +12,13 @@ import org.layer.domain.BaseEntity;
 public class RetrospectTemplate extends BaseEntity {
     @NotNull
     private Long id;
+
     @NotNull
     private String title; // ex. 빠르고 효율적인 회고
+
     @NotNull
     private String templateName; // ex. KPT 회고
+
     @NotNull
     private String description; // 회고에 대한 설명
 }
