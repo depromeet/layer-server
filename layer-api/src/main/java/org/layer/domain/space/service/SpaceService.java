@@ -42,7 +42,7 @@ public class SpaceService {
     @Transactional
     public Boolean createSpace(Long memberId, SpaceRequest.CreateSpaceRequest createSpaceRequest) {
         Space newSpace = createSpaceRequest.toEntity(memberId);
-        var memberSpaceRelation = MemberSpaceRelation.builder().memberId(memberId).spaceId(newSpace.getId()).build();
+        var memberSpaceRelation = MemberSpaceRelation.builder().memberId(memberId).space(newSpace).build();
         spaceRepository.save(newSpace);
         memberSpaceRelationRepository.save(memberSpaceRelation);
         return true;
