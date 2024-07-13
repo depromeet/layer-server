@@ -20,5 +20,15 @@ public class Template extends BaseEntity {
     private String templateName; // ex. KPT 회고
 
     @NotNull
+    private String templateImageUrl;
+
+    //== 회고 설명에 대한 부분 ==//
+    @NotNull
     private String description; // 회고에 대한 설명
+
+    @NotNull
+    private String tipTitle; // ex) 회고는 빠르고 간단하게!
+
+    @NotNull
+    private String tipDescription; // 팁에 대한 설명
 }
