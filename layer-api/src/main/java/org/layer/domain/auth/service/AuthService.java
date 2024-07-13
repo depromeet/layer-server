@@ -29,8 +29,6 @@ public class AuthService {
     private final GoogleService googleService;
     private final JwtService jwtService;
     private final MemberService memberService;
-    private final MemberUtil memberUtil;
-
     //== 로그인 ==//
     @Transactional
     public SignInServiceResponse signIn(final String socialAccessToken, final SocialType socialType) {
@@ -67,20 +65,17 @@ public class AuthService {
     //== 회원 탈퇴 ==//
     @Transactional
     public void withdraw(final Long memberId) {
-        // TODO: member 도메인에서 del_yn 바꾸기 => Member entitiy에 추가,,?
-
+        // hard delete
+        memberService.withdrawMember(memberId);
     }
 
-    //== (리프레시 토큰을 받았을 때) 토큰 재발급 ==//
+    //== 토큰 재발급. redis 확인 후 재발급 ==//
     @Transactional
     public ReissueTokenServiceResponse reissueToken(final Long memberId) {
-        // 현재 로그인된 사용자와 memberId가 일치하는지 확인
-        isValidMember(memberId);
+        Member member = memberService.getMemberByMemberId(memberId);
+        JwtToken jwtToken = jwtService.reissueToken(memberId);
 
-        // 시큐리티 컨텍스트에서 member 찾아오기
-        Member member = memberUtil.getCurrentMember();
-        return ReissueTokenServiceResponse.of(member,
-                jwtService.issueToken(member.getId(), member.getMemberRole()));
+        return ReissueTokenServiceResponse.of(member, jwtToken);
     }
 
 
@@ -98,7 +93,7 @@ public class AuthService {
 
     // 현재 로그인 된 사용자와 해당 멤버 아이디가 일치하는지 확인
     private void isValidMember(Long memberId) {
-        Member currentMember = memberUtil.getCurrentMember();
+        Member currentMember = memberService.getCurrentMember();
         if(!currentMember.getId().equals(memberId)) {
             throw new BaseCustomException(AuthExceptionType.FORBIDDEN);
         }
