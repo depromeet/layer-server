@@ -65,4 +65,3 @@ public class SpaceService {
 
 }
 
-//https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=ad070effc980074c24bde76fd1931fba&redirect_uri=http://localhost:8080/oauth/kakao
