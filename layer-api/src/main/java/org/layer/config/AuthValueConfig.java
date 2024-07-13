@@ -21,7 +21,6 @@ public class AuthValueConfig {
     public static final String KAKAO_URI = "https://kapi.kakao.com/v2/user/me";
 
 
-
     @PostConstruct
     protected void init() {
         JWT_SECRET = Base64.getEncoder().encodeToString(JWT_SECRET.getBytes(StandardCharsets.UTF_8));
