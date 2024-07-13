@@ -7,6 +7,7 @@ import org.layer.domain.space.api.SpaceApi;
 import org.layer.domain.space.dto.SpaceRequest;
 import org.layer.domain.space.dto.SpaceResponse;
 import org.layer.domain.space.service.SpaceService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -24,7 +25,7 @@ public class SpaceController implements SpaceApi {
     @Override
     @GetMapping("/list")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<SpaceResponse.SpacePage> getMySpaceList(@MemberId Long memberId, SpaceRequest.GetSpaceRequest getSpaceRequest) {
+    public ResponseEntity<SpaceResponse.SpacePage> getMySpaceList(@MemberId Long memberId, @ModelAttribute @Validated SpaceRequest.GetSpaceRequest getSpaceRequest) {
         var response = spaceService.getSpaceListFromMemberId(memberId, getSpaceRequest);
         return ResponseEntity.ok(response);
     }
@@ -32,8 +33,23 @@ public class SpaceController implements SpaceApi {
     @Override
     @PutMapping("/")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<Boolean> createSpace(@MemberId Long memberId, @RequestBody @Validated SpaceRequest.CreateSpaceRequest createSpaceRequest) {
-        var response = spaceService.createSpace(memberId, createSpaceRequest);
-        return ResponseEntity.ok(response);
+    public void createSpace(@MemberId Long memberId, @RequestBody @Validated SpaceRequest.CreateSpaceRequest createSpaceRequest) {
+        spaceService.createSpace(memberId, createSpaceRequest);
+    }
+
+    @Override
+    @PostMapping("/")
+    @PreAuthorize("isAuthenticated()")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void updateSpace(@MemberId Long memberId, @RequestBody @Validated SpaceRequest.UpdateSpaceRequest updateSpaceRequest) {
+        spaceService.updateSpace(memberId, updateSpaceRequest);
+    }
+
+    @GetMapping("/{spaceId}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<SpaceResponse.SpaceWithUserCountInfo> getSpaceById(@MemberId Long memberId, @PathVariable Long spaceId) {
+        var foundSpace = spaceService.getSpaceById(memberId, spaceId);
+        return ResponseEntity.ok((foundSpace));
     }
 }
+
