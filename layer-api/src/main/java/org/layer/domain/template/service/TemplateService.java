@@ -1,6 +1,7 @@
 package org.layer.domain.template.service;
 
 import lombok.RequiredArgsConstructor;
+import org.layer.domain.template.dto.TemplateDetailInfoResponse;
 import org.layer.domain.template.dto.TemplateSimpleInfoResponse;
 import org.layer.domain.template.entity.Template;
 import org.layer.domain.template.exception.TemplateException;
@@ -22,5 +23,10 @@ public class TemplateService {
     }
 
     //== 상세 정보 단건 조회 ==//
+    public TemplateDetailInfoResponse getTemplateDetailInfo(Long templateId) {
+        Template template = templateRepository.findById(templateId).orElseThrow(() -> new TemplateException(TemplateExceptionType.TEMPLATE_NOT_FOUND));
+        return TemplateDetailInfoResponse.toResponse(template);
+    }
+
 
 }

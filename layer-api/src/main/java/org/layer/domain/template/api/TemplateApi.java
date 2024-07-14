@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.layer.domain.template.dto.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PathVariable;
 
 @Tag(name = "기본 템플릿 관련 API (ex. KPT, 4L과 같은 고정 템플릿)")
 public interface TemplateApi {
@@ -26,7 +27,7 @@ public interface TemplateApi {
             )
     }
     )
-    ResponseEntity<TemplateSimpleInfoResponse> getTemplateSimpleInfo(@Validated TemplateInfoRequest templateInfoRequest);
+    ResponseEntity<TemplateSimpleInfoResponse> getTemplateSimpleInfo(@PathVariable Long templateId);
 
 
     @Operation(summary = "템플릿 상세 정보 단건 조회", method = "GET", description = """
@@ -43,7 +44,7 @@ public interface TemplateApi {
             )
     }
     )
-    ResponseEntity<TemplateDetailInfoResponse> getTemplateDetailInfo(@Validated TemplateInfoRequest templateInfoRequest);
+    ResponseEntity<TemplateDetailInfoResponse> getTemplateDetailInfo(@PathVariable Long templateId);
 
     @Operation(summary = "템플릿 [간단 정보 + 모든 질문] 단건 조회", method = "GET", description = """
             특정 템플릿의 간단 정보와 그 템플릿에 속한 질문들을 조회합니다.
@@ -59,7 +60,7 @@ public interface TemplateApi {
             )
     }
     )
-    ResponseEntity<TemplateQuestionsResponse> getTemplateQuestionList(@Validated TemplateInfoRequest templateInfoRequest);
+    ResponseEntity<TemplateQuestionsResponse> getTemplateQuestionList(@PathVariable Long templateId);
 
 
     @Operation(summary = "모든 템플릿 간단 정보 조회", method = "GET", description = """

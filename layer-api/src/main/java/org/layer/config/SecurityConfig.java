@@ -50,6 +50,7 @@ public class SecurityConfig {
                                 .requestMatchers(new AntPathRequestMatcher("/api/test")).permitAll()
                                 .requestMatchers(new AntPathRequestMatcher("/api/auth/oauth2/kakao")).permitAll()
                                 .requestMatchers(new AntPathRequestMatcher("/api/auth/test")).permitAll()
+                                .requestMatchers(new AntPathRequestMatcher("/api/template/**")).permitAll() // FIXME: 삭제
                                 .anyRequest().authenticated()
                 );
     }

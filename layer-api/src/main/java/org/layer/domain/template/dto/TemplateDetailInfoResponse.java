@@ -2,7 +2,15 @@ package org.layer.domain.template.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
+import org.layer.domain.template.entity.Template;
+import org.layer.domain.template.exception.TemplateException;
 
+import java.util.Optional;
+
+import static org.layer.domain.template.exception.TemplateExceptionType.INVALID_TEMPLATE;
+
+@Builder
 @Schema
 public record TemplateDetailInfoResponse(
         @Schema(description = "템플릿 ID", example = "1")
@@ -31,5 +39,22 @@ public record TemplateDetailInfoResponse(
         @Schema(description = "회고 팁 설명", example = "KPT 회고는 짧은 시간에 구성원의 생각을... [생략]")
         @NotNull
         String tipDescription // 팁에 대한 설명
+
 ) {
+        public static TemplateDetailInfoResponse toResponse(Template template) {
+                return Optional.ofNullable(template)
+                        .map(it -> TemplateDetailInfoResponse.builder()
+                                .id(it.getId())
+                                .title(it.getTitle())
+                                .templateName(it.getTemplateName())
+                                .templateImageUrl(it.getTemplateImageUrl())
+                                .firstTag(it.getFirstTag())
+                                .secondTag(it.getSecondTag())
+                                .description(it.getDescription())
+                                .tipTitle(it.getTipTitle())
+                                .tipDescription(it.getTipDescription())
+                                .build())
+                                .orElseThrow(() -> new TemplateException(INVALID_TEMPLATE));
+
+        }
 }

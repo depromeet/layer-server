@@ -7,10 +7,12 @@ import org.layer.common.exception.BaseCustomException;
 import org.layer.domain.space.dto.SpaceResponse;
 import org.layer.domain.space.dto.SpaceWithMemberCount;
 import org.layer.domain.template.entity.Template;
+import org.layer.domain.template.exception.TemplateException;
 
 import java.util.Optional;
 
 import static org.layer.domain.auth.exception.TokenExceptionType.INVALID_REFRESH_TOKEN;
+import static org.layer.domain.template.exception.TemplateExceptionType.INVALID_TEMPLATE;
 
 @Builder
 @Schema(description = "템플릿 간단 정보 단건 조회 응답")
@@ -33,6 +35,6 @@ public record TemplateSimpleInfoResponse(
                 return Optional.ofNullable(template)
                         .map(it -> TemplateSimpleInfoResponse.builder().id(it.getId()).title(it.getTitle())
                                 .templateName(it.getTemplateName()).imageUrl(it.getTemplateImageUrl()).build())
-                        .orElseThrow(() -> new BaseCustomException(INVALID_REFRESH_TOKEN));
+                        .orElseThrow(() -> new TemplateException(INVALID_TEMPLATE));
         }
 }
