@@ -30,7 +30,7 @@ public class QuestionController implements QuestionApi{
 		List<QuestionGetResponse> responses = questionService.getRetrospectQuestions(spaceId, retrospectId, memberId)
 			.questions()
 			.stream()
-			.map(q -> QuestionGetResponse.of(q.question(), q.order()))
+			.map(q -> QuestionGetResponse.of(q.question(), q.order(), q.questionType()))
 			.toList();
 
 		return ResponseEntity.ok().body(QuestionListGetResponse.of(responses));
