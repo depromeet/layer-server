@@ -15,10 +15,10 @@ public record RetrospectGetResponse(
 	@Schema(description = "회고 상태 : PROCEEDING 나 DONE 중에 하나입니다.", example = "PROCEEDING")
 	RetrospectStatus retrospectStatus,
 	@Schema(description = "해당 회고 응답 수", example = "4")
-	int writeCount
+	long writeCount
 ) {
 	public static RetrospectGetResponse of(String title, String introduction, boolean isWrite, RetrospectStatus retrospectStatus,
-		int writeCount){
+		long writeCount){
 
 		return new RetrospectGetResponse(title, introduction, isWrite, retrospectStatus, writeCount);
 	}

@@ -7,10 +7,10 @@ public record RetrospectGetServiceResponse(
 	String introduction,
 	boolean isWrite,
 	RetrospectStatus retrospectStatus,
-	int writeCount
+	long writeCount
 ) {
 	public static RetrospectGetServiceResponse of(String title, String introduction, boolean isWrite,
-		RetrospectStatus retrospectStatus, int writeCount){
+		RetrospectStatus retrospectStatus, long writeCount){
 		return new RetrospectGetServiceResponse(title, introduction, isWrite, retrospectStatus, writeCount);
 	}
 }
