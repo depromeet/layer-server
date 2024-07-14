@@ -52,6 +52,7 @@ public class SecurityConfig {
                                 .requestMatchers(new AntPathRequestMatcher("/api/auth/oauth2/kakao")).permitAll()
                                 .requestMatchers(new AntPathRequestMatcher("/api/auth/test")).permitAll()
                                 .requestMatchers(new AntPathRequestMatcher("/h2-console/**")).permitAll()
+                                .requestMatchers(new AntPathRequestMatcher("/api/template/**")).permitAll()
                                 .anyRequest().authenticated()
                 )
             .headers(headers -> headers
