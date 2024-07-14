@@ -77,5 +77,5 @@ public interface TemplateApi {
             )
     }
     )
-    ResponseEntity<TemplateListResponse> getAllTemplates();
+    ResponseEntity<TemplateListResponse> getAllTemplates(AllTemplatesRequest allTemplatesRequest);
 }
