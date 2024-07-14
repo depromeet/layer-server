@@ -8,7 +8,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.layer.domain.template.dto.*;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 
 @Tag(name = "기본 템플릿 관련 API (ex. KPT, 4L과 같은 고정 템플릿)")
@@ -54,13 +53,13 @@ public interface TemplateApi {
                     content = {
                             @Content(
                                     mediaType = "application/json",
-                                    schema = @Schema(implementation = TemplateQuestionsResponse.class)
+                                    schema = @Schema(implementation = TemplateQuestionListResponse.class)
                             )
                     }
             )
     }
     )
-    ResponseEntity<TemplateQuestionsResponse> getTemplateQuestionList(@PathVariable Long templateId);
+    ResponseEntity<TemplateQuestionListResponse> getTemplateQuestionList(@PathVariable Long templateId);
 
 
     @Operation(summary = "모든 템플릿 간단 정보 조회", method = "GET", description = """
@@ -71,7 +70,7 @@ public interface TemplateApi {
                     content = {
                             @Content(
                                     mediaType = "application/json",
-                                    schema = @Schema(implementation = TemplateQuestionsResponse.class)
+                                    schema = @Schema(implementation = TemplateQuestionListResponse.class)
                             )
                     }
             )

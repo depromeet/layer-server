@@ -36,8 +36,8 @@ public class TemplateController implements TemplateApi {
     //== 질문을 포함한 간단 정보 ==//
     @Override
     @GetMapping("/{templateId}/question-list")
-    public ResponseEntity<TemplateQuestionsResponse> getTemplateQuestionList(@PathVariable Long templateId) {
-        TemplateQuestionsResponse templateQuestions = templateService.getTemplateQuestions(templateId);
+    public ResponseEntity<TemplateQuestionListResponse> getTemplateQuestionList(@PathVariable("templateId") Long templateId) {
+        TemplateQuestionListResponse templateQuestions = templateService.getTemplateQuestions(templateId);
         return new ResponseEntity<>(templateQuestions, HttpStatus.OK);
     }
 

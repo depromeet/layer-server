@@ -4,9 +4,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import org.layer.domain.template.entity.Template;
+import org.layer.domain.template.entity.TemplateQuestion;
 import org.layer.domain.template.exception.TemplateException;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.layer.domain.template.exception.TemplateExceptionType.INVALID_TEMPLATE;
 
@@ -38,10 +41,19 @@ public record TemplateDetailInfoResponse(
         String tipTitle, // ex) 회고는 빠르고 간단하게!
         @Schema(description = "회고 팁 설명", example = "KPT 회고는 짧은 시간에 구성원의 생각을... [생략]")
         @NotNull
-        String tipDescription // 팁에 대한 설명
+        String tipDescription, // 팁에 대한 설명
+
+        @Schema(description = "템플릿 질문과 그 설명 리스트")
+        @NotNull
+        List<TemplateDetailQuestionResponse> templateDetailQuestionList // 질문(회고 과정)에 대한 설명
 
 ) {
-        public static TemplateDetailInfoResponse toResponse(Template template) {
+        public static TemplateDetailInfoResponse toResponse(Template template, List<TemplateQuestion> templateQuestionList) {
+                List<TemplateDetailQuestionResponse> templateDetailQuestionList = templateQuestionList
+                        .stream()
+                        .map(TemplateDetailQuestionResponse::toResponse)
+                        .toList();
+
                 return Optional.ofNullable(template)
                         .map(it -> TemplateDetailInfoResponse.builder()
                                 .id(it.getId())
@@ -53,6 +65,7 @@ public record TemplateDetailInfoResponse(
                                 .description(it.getDescription())
                                 .tipTitle(it.getTipTitle())
                                 .tipDescription(it.getTipDescription())
+                                .templateDetailQuestionList(templateDetailQuestionList)
                                 .build())
                                 .orElseThrow(() -> new TemplateException(INVALID_TEMPLATE));
 

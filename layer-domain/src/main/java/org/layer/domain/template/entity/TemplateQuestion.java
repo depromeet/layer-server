@@ -2,9 +2,11 @@ package org.layer.domain.template.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
 import org.layer.domain.question.converter.QuestionTypeConverter;
 import org.layer.domain.question.entity.QuestionType;
 
+@Getter
 @Entity
 public class TemplateQuestion {
     @Id

@@ -7,10 +7,11 @@ import org.layer.domain.template.entity.Template;
 import org.layer.domain.template.entity.TemplateQuestion;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Builder
-public record TemplateQuestionsResponse(
+public record TemplateQuestionListResponse(
         @Schema(description = "템플릿 ID")
         @NotNull
         Long id,
@@ -21,15 +22,16 @@ public record TemplateQuestionsResponse(
         @NotNull
         String templateName,
         @Schema(description = "템플릿에 속한 질문 리스트")
-        List<TemplateQuestion> questionList
+        List<TemplateQuestionResponse> questionList
 ) {
 
-        public static TemplateQuestionsResponse toResponse(Template template, List<TemplateQuestion> questionList) {
-                return TemplateQuestionsResponse.builder()
+        public static TemplateQuestionListResponse toResponse(Template template, List<TemplateQuestion> questionList) {
+                List<TemplateQuestionResponse> questionResponseList = questionList.stream().map(TemplateQuestionResponse::toResponse).collect(Collectors.toList());
+                return TemplateQuestionListResponse.builder()
                         .id(template.getId())
                         .title(template.getTitle())
                         .templateName(template.getTemplateName())
-                        .questionList(questionList)
+                        .questionList(questionResponseList)
                         .build();
         }
 }
