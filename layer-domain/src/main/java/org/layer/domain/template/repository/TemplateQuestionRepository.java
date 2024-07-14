@@ -9,5 +9,5 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface TemplateQuestionRepository extends JpaRepository<TemplateQuestion, Long> {
-    List<TemplateQuestion> findByTemplateId(Long templateId);
+    List<TemplateQuestion> findAllByTemplateId(Long templateId);
 }

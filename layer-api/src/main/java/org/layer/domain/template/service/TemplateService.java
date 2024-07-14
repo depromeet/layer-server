@@ -31,14 +31,14 @@ public class TemplateService {
     //== 상세 정보 단건 조회 ==//
     public TemplateDetailInfoResponse getTemplateDetailInfo(Long templateId) {
         Template template = templateRepository.findById(templateId).orElseThrow(() -> new TemplateException(TemplateExceptionType.TEMPLATE_NOT_FOUND));
-        List<TemplateQuestion> templateQuestionList = templateQuestionRepository.findByTemplateId(templateId);
+        List<TemplateQuestion> templateQuestionList = templateQuestionRepository.findAllByTemplateId(templateId);
         return TemplateDetailInfoResponse.toResponse(template, templateQuestionList);
     }
 
     //== 질문을 포함한 간단 정보 단건 조회 ==//
     public TemplateQuestionListResponse getTemplateQuestions(Long templateId) {
         Template template = templateRepository.findById(templateId).orElseThrow(() -> new TemplateException(TemplateExceptionType.TEMPLATE_NOT_FOUND));
-        List<TemplateQuestion> questionList = templateQuestionRepository.findByTemplateId(templateId);
+        List<TemplateQuestion> questionList = templateQuestionRepository.findAllByTemplateId(templateId);
 
         return TemplateQuestionListResponse.toResponse(template, questionList);
     }
