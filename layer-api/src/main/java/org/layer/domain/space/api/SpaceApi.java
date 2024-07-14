@@ -74,8 +74,8 @@ public interface SpaceApi {
             """)
     @ApiResponses({
             @ApiResponse(responseCode = "200", content = {
-                    @Content(mediaType = "application/json", schema = @Schema(implementation = SpaceResponse.SpaceWithUserCountInfo.class))
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = SpaceResponse.SpaceWithMemberCountInfo.class))
             })
     })
-    ResponseEntity<SpaceResponse.SpaceWithUserCountInfo> getSpaceById(@MemberId Long memberId, @PathVariable Long spaceId);
+    ResponseEntity<SpaceResponse.SpaceWithMemberCountInfo> getSpaceById(@MemberId Long memberId, @PathVariable Long spaceId);
 }

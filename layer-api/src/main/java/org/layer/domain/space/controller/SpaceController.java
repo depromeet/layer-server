@@ -42,7 +42,7 @@ public class SpaceController implements SpaceApi {
     }
 
     @GetMapping("/{spaceId}")
-    public ResponseEntity<SpaceResponse.SpaceWithUserCountInfo> getSpaceById(@MemberId Long memberId, @PathVariable Long spaceId) {
+    public ResponseEntity<SpaceResponse.SpaceWithMemberCountInfo> getSpaceById(@MemberId Long memberId, @PathVariable Long spaceId) {
         var foundSpace = spaceService.getSpaceById(memberId, spaceId);
         return ResponseEntity.ok((foundSpace));
     }

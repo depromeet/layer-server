@@ -1,13 +1,13 @@
 package org.layer.domain.space.repository;
 
-import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import lombok.extern.slf4j.Slf4j;
 import org.layer.domain.space.dto.QSpaceWithMemberCount;
 import org.layer.domain.space.dto.SpaceWithMemberCount;
+import org.layer.domain.space.entity.QMemberSpaceRelation;
 import org.layer.domain.space.entity.SpaceCategory;
 import org.layer.domain.space.entity.SpaceField;
 import org.springframework.stereotype.Repository;
@@ -34,26 +34,7 @@ public class SpaceRepositoryImpl implements SpaceCustomRepository {
                 .and(cursorId == null ? null : space.id.gt(cursorId))
                 .and(hasCategory(category));
 
-        return queryFactory.select(
-                        new QSpaceWithMemberCount(
-                                space.id,
-                                space.createdAt,
-                                space.updatedAt,
-                                space.category,
-                                space.field,
-                                space.name,
-                                space.introduction,
-                                space.leaderId,
-                                space.formId,
-                                ExpressionUtils.as(JPAExpressions.select(
-                                                        memberSpaceRelation.id.count()
-                                                )
-                                                .from(memberSpaceRelation)
-                                                .where(memberSpaceRelation.space.id.eq(space.id))
-                                        , "userCount")
-                        ))
-                .from(space)
-                .join(memberSpaceRelation).on(space.id.eq(memberSpaceRelation.space.id))
+        return getSpaceWithMemberCountQuery()
                 .where(predicate)
                 .groupBy(space.id)
                 .orderBy(space.id.asc())
@@ -63,37 +44,17 @@ public class SpaceRepositoryImpl implements SpaceCustomRepository {
 
     @Override
     public Optional<SpaceWithMemberCount> findByIdAndJoinedMemberId(Long spaceId, Long memberId) {
-        var foundSpace = queryFactory.select(
-                        new QSpaceWithMemberCount(space.id,
-                                space.createdAt,
-                                space.updatedAt,
-                                space.category,
-                                space.field,
-                                space.name,
-                                space.introduction,
-                                space.leaderId,
-                                space.formId,
-                                ExpressionUtils.as(JPAExpressions.select(
-                                                        memberSpaceRelation.id.count()
-                                                )
-                                                .from(memberSpaceRelation)
-                                                .where(memberSpaceRelation.space.id.eq(space.id))
-                                        , "userCount")
-                        )
-                )
-                .from(memberSpaceRelation)
-                .join(space)
-                .on(space.id.eq(memberSpaceRelation.space.id))
+
+        var foundSpace = getSpaceWithMemberCountQuery()
                 .where(space.id.eq(spaceId)
                         .and(memberSpaceRelation.memberId.eq(memberId)))
-                .limit(1)
                 .fetchOne();
 
         if (isSpaceWithMemberCountEmpty(foundSpace)) {
             return Optional.empty();
         }
         // TODO: 커스텀 에러로 변경
-        return Optional.ofNullable(foundSpace);
+        return Optional.of(foundSpace);
     }
 
     @Override
@@ -109,15 +70,32 @@ public class SpaceRepositoryImpl implements SpaceCustomRepository {
         return query.where(space.id.eq(spaceId)).execute();
     }
 
+    private JPAQuery<SpaceWithMemberCount> getSpaceWithMemberCountQuery() {
+        QMemberSpaceRelation memberCountRelationTable = new QMemberSpaceRelation("msr");
+        return queryFactory.select(
+                        new QSpaceWithMemberCount(
+                                space.id,
+                                space.createdAt,
+                                space.updatedAt,
+                                space.category,
+                                space.field,
+                                space.name,
+                                space.introduction,
+                                space.leaderId,
+                                space.formId,
+                                memberCountRelationTable.space.id.count().as("memberCount")
+                        ))
+                .from(space)
+                .leftJoin(memberSpaceRelation).on(space.id.eq(memberSpaceRelation.space.id))
+                .leftJoin(memberCountRelationTable).on(space.id.eq(memberCountRelationTable.space.id));
+    }
+
 
     private BooleanExpression hasCategory(Optional<SpaceCategory> category) {
-        if (category.isPresent()) {
-            return space.category.eq(category.get());
-        }
-        return null;
+        return category.map(space.category::eq).orElse(null);
     }
 
     private boolean isSpaceWithMemberCountEmpty(SpaceWithMemberCount space) {
-        return space.getId() == null && space.getName() == null && space.getUserCount() == 0;
+        return space.getId() == null && space.getName() == null && space.getMemberCount() == 0;
     }
 }
