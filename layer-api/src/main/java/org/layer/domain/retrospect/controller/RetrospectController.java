@@ -3,10 +3,11 @@ package org.layer.domain.retrospect.controller;
 import java.util.List;
 
 import org.layer.common.annotation.MemberId;
+import org.layer.domain.retrospect.controller.dto.request.RetrospectCreateRequest;
 import org.layer.domain.retrospect.controller.dto.response.RetrospectGetResponse;
 import org.layer.domain.retrospect.controller.dto.response.RetrospectListGetResponse;
 import org.layer.domain.retrospect.service.RetrospectService;
-import org.layer.domain.retrospect.controller.dto.request.RetrospectCreateRequest;
+import org.layer.domain.retrospect.service.dto.request.RetrospectCreateServiceRequest;
 import org.layer.domain.retrospect.service.dto.response.RetrospectListGetServiceResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -35,8 +36,10 @@ public class RetrospectController implements RetrospectApi {
 		@RequestBody @Valid RetrospectCreateRequest request,
 		@MemberId Long memberId) {
 
-		retrospectService.create(spaceId, request.formId(), request.title(), request.introduction());
-		return ResponseEntity.ok(null);
+		retrospectService.createRetrospect(
+			RetrospectCreateServiceRequest.of(request.title(), request.introduction(), spaceId, request.questions()), memberId);
+
+		return ResponseEntity.ok().build();
 	}
 
 	@Override

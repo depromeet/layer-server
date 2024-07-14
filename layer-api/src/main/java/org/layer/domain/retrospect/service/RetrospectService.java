@@ -7,9 +7,16 @@ import java.util.Optional;
 
 import org.layer.domain.answer.entity.Answers;
 import org.layer.domain.answer.repository.AnswerRepository;
+import org.layer.domain.form.entity.Form;
+import org.layer.domain.form.repository.FormRepository;
+import org.layer.domain.question.entity.Question;
+import org.layer.domain.question.enums.QuestionOwner;
+import org.layer.domain.question.enums.QuestionType;
+import org.layer.domain.question.repository.QuestionRepository;
 import org.layer.domain.retrospect.entity.Retrospect;
 import org.layer.domain.retrospect.entity.RetrospectStatus;
 import org.layer.domain.retrospect.repository.RetrospectRepository;
+import org.layer.domain.retrospect.service.dto.request.RetrospectCreateServiceRequest;
 import org.layer.domain.retrospect.service.dto.response.RetrospectGetServiceResponse;
 import org.layer.domain.retrospect.service.dto.response.RetrospectListGetServiceResponse;
 import org.layer.domain.space.entity.MemberSpaceRelation;
@@ -27,27 +34,45 @@ public class RetrospectService {
 
 	private final RetrospectRepository retrospectRepository;
 	private final MemberSpaceRelationRepository memberSpaceRelationRepository;
+	private final QuestionRepository questionRepository;
 	private final AnswerRepository answerRepository;
+	private final FormRepository formRepository;
 
 	@Transactional
-	public void create(Long spaceId, Long formId, String title, String introduction) {
-		Retrospect retrospect = Retrospect.builder()
-			.title(title)
-			.formId(formId)
-			.spaceId(spaceId)
-			.introduction(introduction)
+	public void createRetrospect(RetrospectCreateServiceRequest request, Long memberId) {
+		// 해당 스페이스 팀원인지 검증
+		validateTeamMember(request.spaceId(), memberId);
+
+		Retrospect retrospect = getRetrospect(request);
+		Retrospect savedRetrospect = retrospectRepository.save(retrospect);
+
+		List<Question> questions = request.questions().stream()
+			.map(q -> new Question(savedRetrospect.getId(), q, QuestionOwner.TEAM, QuestionType.PLAIN_TEXT))
+			.toList();
+		questionRepository.saveAll(questions);
+
+		// 내 회고 폼에 추가
+		Form form = new Form(memberId, request.title(), request.introduction());
+		Form savedForm = formRepository.save(form);
+
+		List<Question> myQuestions = request.questions().stream()
+			.map(q -> new Question(savedForm.getId(), q, QuestionOwner.INDIVIDUAL, QuestionType.PLAIN_TEXT))
+			.toList();
+		questionRepository.saveAll(myQuestions);
+	}
+
+	private Retrospect getRetrospect(RetrospectCreateServiceRequest request) {
+		return Retrospect.builder()
+			.title(request.title())
+			.spaceId(request.spaceId())
+			.introduction(request.introduction())
 			.retrospectStatus(RetrospectStatus.PROCEEDING)
 			.build();
-
-		retrospectRepository.save(retrospect);
 	}
 
 	public RetrospectListGetServiceResponse getRetrospects(Long spaceId, Long memberId) {
-		Optional<MemberSpaceRelation> team = memberSpaceRelationRepository.findBySpaceIdAndMemberId(
-			spaceId, memberId);
-		if (team.isEmpty()) {  // 해당 멤버가 요청한 스페이스 소속 여부 확인
-			throw new MemberSpaceRelationException(NOT_FOUND_MEMBER_SPACE_RELATION);
-		}
+		// 해당 스페이스 팀원인지 검증
+		validateTeamMember(spaceId, memberId);
 
 		List<Retrospect> retrospects = retrospectRepository.findAllBySpaceId(spaceId);
 		List<Long> retrospectIds = retrospects.stream().map(Retrospect::getId).toList();
@@ -59,5 +84,13 @@ public class RetrospectService {
 			.toList();
 
 		return RetrospectListGetServiceResponse.of(retrospects.size(), retrospectDtos);
+	}
+
+	private void validateTeamMember(Long request, Long memberId) {
+		Optional<MemberSpaceRelation> team = memberSpaceRelationRepository.findBySpaceIdAndMemberId(
+			request, memberId);
+		if (team.isEmpty()) {
+			throw new MemberSpaceRelationException(NOT_FOUND_MEMBER_SPACE_RELATION);
+		}
 	}
 }

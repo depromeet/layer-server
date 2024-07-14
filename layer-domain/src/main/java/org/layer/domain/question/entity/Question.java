@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.layer.domain.BaseEntity;
 import org.layer.domain.question.converter.QuestionTypeConverter;
+import org.layer.domain.question.enums.QuestionOwner;
+import org.layer.domain.question.enums.QuestionType;
 import org.layer.domain.questionOption.entity.QuestionOption;
 
 import java.util.HashSet;
@@ -18,10 +20,14 @@ import java.util.Set;
 public class Question extends BaseEntity {
 
     @NotNull
-    private Long formId;
+    private Long questionOwnerId;
 
     @NotNull
     private String content;
+
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private QuestionOwner questionOwner;
 
     @Column(length = 20)
     @NotNull
@@ -31,4 +37,10 @@ public class Question extends BaseEntity {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<QuestionOption> options = new HashSet<>();
 
+    public Question(Long questionOwnerId, String content, QuestionOwner questionOwner, QuestionType questionType) {
+        this.questionOwnerId = questionOwnerId;
+        this.content = content;
+        this.questionOwner = questionOwner;
+        this.questionType = questionType;
+    }
 }

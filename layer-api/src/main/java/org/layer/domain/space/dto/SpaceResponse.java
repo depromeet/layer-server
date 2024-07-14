@@ -14,11 +14,11 @@ import java.util.Optional;
 import static org.layer.domain.auth.exception.TokenExceptionType.INVALID_REFRESH_TOKEN;
 
 public class SpaceResponse {
-  
+
 
     @Builder
     @Schema(description = "스페이스 정보 응답")
-    public record SpaceWithUserCountInfo(
+    public record SpaceWithMemberCountInfo(
             @Schema(description = "스페이스 ID")
             @NotNull
             Long id,
@@ -40,13 +40,13 @@ public class SpaceResponse {
             Long formId,
 
             @Schema(description = "소속된 회원 수")
-            Long userCount
+            Long memberCount
     ) {
-        public static SpaceWithUserCountInfo toResponse(SpaceWithMemberCount space) {
+        public static SpaceWithMemberCountInfo toResponse(SpaceWithMemberCount space) {
             return Optional.ofNullable(space)
-                    .map(it -> SpaceWithUserCountInfo.builder().id(it.getId()).category(it.getCategory())
+                    .map(it -> SpaceWithMemberCountInfo.builder().id(it.getId()).category(it.getCategory())
                             .field(it.getField()).name(it.getName()).introduction(it.getIntroduction())
-                            .formId(it.getFormId()).userCount(it.getUserCount()).build())
+                            .formId(it.getFormId()).memberCount(it.getMemberCount()).build())
                     .orElseThrow(() -> new BaseCustomException(INVALID_REFRESH_TOKEN));
         }
     }
@@ -55,13 +55,13 @@ public class SpaceResponse {
     @Schema()
     public record SpacePage(
             @Schema()
-            List<SpaceWithUserCountInfo> data,
+            List<SpaceWithMemberCountInfo> data,
 
             @Schema()
             Meta meta
     ) {
 
-        public static SpacePage toResponse(List<SpaceWithUserCountInfo> spaceInfo, Meta meta) {
+        public static SpacePage toResponse(List<SpaceWithMemberCountInfo> spaceInfo, Meta meta) {
             return SpacePage.builder().data(spaceInfo).meta(meta).build();
         }
     }

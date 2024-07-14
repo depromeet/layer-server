@@ -138,9 +138,9 @@ project(":layer-external") {
     bootJar.enabled = false
     jar.enabled = true
 
-	dependencies {
-		implementation project(path: ':layer-common')
-		implementation project(path: ':layer-domain')
+    dependencies {
+        implementation project(path: ':layer-common')
+        implementation project(path: ':layer-domain')
 
         testImplementation platform('org.junit:junit-bom:5.9.1')
         testImplementation 'org.junit.jupiter:junit-jupiter'
