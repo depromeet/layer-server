@@ -1,6 +1,8 @@
 package org.layer.domain.space.entity;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -15,9 +17,11 @@ import org.layer.domain.BaseEntity;
 public class Space extends BaseEntity {
 
     @NotNull
+    @Enumerated(EnumType.STRING)
     private SpaceCategory category;
 
     @NotNull
+    @Enumerated(EnumType.STRING)
     private SpaceField field;
 
     @NotNull

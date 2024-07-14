@@ -2,7 +2,7 @@ package org.layer.domain.question.converter;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
-import org.layer.domain.question.entity.QuestionType;
+import org.layer.domain.question.enums.QuestionType;
 
 import java.util.stream.Stream;
 

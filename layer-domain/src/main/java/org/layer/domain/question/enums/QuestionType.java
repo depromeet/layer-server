@@ -1,4 +1,4 @@
-package org.layer.domain.question.entity;
+package org.layer.domain.question.enums;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
