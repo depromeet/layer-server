@@ -1,5 +1,9 @@
 package org.layer.domain.question.enums;
 
+import java.util.Arrays;
+
+import org.layer.common.exception.BaseCustomException;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -30,4 +34,11 @@ public enum QuestionType {
     private String description;
     private String style;
     private String type;
+
+    public static QuestionType stringToEnum(String questionType){
+        return Arrays.stream(QuestionType.values())
+            .filter(q -> q.getStyle().equals(questionType))
+            .findAny()
+            .orElseThrow(() -> new BaseCustomException(null)); // TODO 수정 필요
+    }
 }
