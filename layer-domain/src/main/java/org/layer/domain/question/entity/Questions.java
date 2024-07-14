@@ -1,9 +1,11 @@
 package org.layer.domain.question.entity;
 
+import static org.layer.common.exception.QuestionExceptionType.*;
+
 import java.util.List;
 
-import org.layer.common.exception.BaseCustomException;
 import org.layer.domain.question.enums.QuestionType;
+import org.layer.domain.question.exception.QuestionException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -13,7 +15,7 @@ public class Questions {
 
 	public void validateQuestionSize(int requestSize){
 		if(questions.size() != requestSize){
-			throw new BaseCustomException(null);  // TODO: 수정 필요
+			throw new QuestionException(INVALID_QUESTION_SIZE);
 		}
 	}
 
@@ -22,6 +24,6 @@ public class Questions {
 			.filter(q -> q.getId().equals(questionId))
 			.filter(q -> q.getQuestionType().equals(questionType))
 			.findAny()
-			.orElseThrow(() -> new BaseCustomException(null));  // TODO: 수정 필요
+			.orElseThrow(() -> new QuestionException(INVALID_QUESTION));
 	}
 }
