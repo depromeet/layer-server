@@ -8,6 +8,8 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.layer.domain.BaseEntity;
 
+import java.util.Optional;
+
 @Getter
 @Entity
 @AllArgsConstructor
@@ -36,4 +38,11 @@ public class Space extends BaseEntity {
      * Form Relationid
      */
     private Long formId;
+
+    public Optional<Boolean> isLeaderSpace(Long memberId) {
+        if (leaderId.equals(memberId)) {
+            return Optional.empty();
+        }
+        return Optional.of(true);
+    }
 }
