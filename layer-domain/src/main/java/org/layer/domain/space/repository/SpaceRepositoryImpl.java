@@ -86,14 +86,13 @@ public class SpaceRepositoryImpl implements SpaceCustomRepository {
                 .on(space.id.eq(memberSpaceRelation.space.id))
                 .where(space.id.eq(spaceId)
                         .and(memberSpaceRelation.memberId.eq(memberId)))
-                .limit(1)
                 .fetchOne();
 
         if (isSpaceWithMemberCountEmpty(foundSpace)) {
             return Optional.empty();
         }
         // TODO: 커스텀 에러로 변경
-        return Optional.ofNullable(foundSpace);
+        return Optional.of(foundSpace);
     }
 
     @Override
@@ -111,10 +110,7 @@ public class SpaceRepositoryImpl implements SpaceCustomRepository {
 
 
     private BooleanExpression hasCategory(Optional<SpaceCategory> category) {
-        if (category.isPresent()) {
-            return space.category.eq(category.get());
-        }
-        return null;
+        return category.map(space.category::eq).orElse(null);
     }
 
     private boolean isSpaceWithMemberCountEmpty(SpaceWithMemberCount space) {
