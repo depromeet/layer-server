@@ -24,13 +24,13 @@ public class TemplateService {
 
     //== 간단 정보 단건 조회 ==//
     public TemplateSimpleInfoResponse getTemplateSimpleInfo(Long templateId) {
-        Template template = templateRepository.findById(templateId).orElseThrow(() -> new TemplateException(TemplateExceptionType.TEMPLATE_NOT_FOUND));
+        Template template = templateRepository.findByIdOrThrow(templateId);
         return TemplateSimpleInfoResponse.toResponse(template);
     }
 
     //== 상세 정보 단건 조회 ==//
     public TemplateDetailInfoResponse getTemplateDetailInfo(Long templateId) {
-        Template template = templateRepository.findById(templateId).orElseThrow(() -> new TemplateException(TemplateExceptionType.TEMPLATE_NOT_FOUND));
+        Template template = templateRepository.findByIdOrThrow(templateId);
         List<TemplateQuestion> templateQuestionList = templateQuestionRepository.findAllByTemplateId(templateId);
         return TemplateDetailInfoResponse.toResponse(template, templateQuestionList);
     }
