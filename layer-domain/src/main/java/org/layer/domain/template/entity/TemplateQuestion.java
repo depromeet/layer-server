@@ -3,7 +3,6 @@ package org.layer.domain.template.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
-import org.layer.domain.question.converter.QuestionTypeConverter;
 import org.layer.domain.question.enums.QuestionType;
 
 @Getter
@@ -19,7 +18,7 @@ public class TemplateQuestion {
     private String content; // 질문 내용
 
     @NotNull
-    @Convert(converter = QuestionTypeConverter.class)
+    @Enumerated(EnumType.STRING)
     private QuestionType questionType; // 질문 타입
 
     //== 회고 템플릿 설명과 관련==//
