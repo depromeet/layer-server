@@ -30,21 +30,39 @@ public class SpaceController implements SpaceApi {
 
     @Override
     @PutMapping("")
-    public void createSpace(@MemberId Long memberId, @RequestBody @Validated SpaceRequest.CreateSpaceRequest createSpaceRequest) {
+    public ResponseEntity<Void> createSpace(@MemberId Long memberId, @RequestBody @Validated SpaceRequest.CreateSpaceRequest createSpaceRequest) {
         spaceService.createSpace(memberId, createSpaceRequest);
+        return ResponseEntity.ok().build();
     }
 
     @Override
     @PostMapping("")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public void updateSpace(@MemberId Long memberId, @RequestBody @Validated SpaceRequest.UpdateSpaceRequest updateSpaceRequest) {
+    public ResponseEntity<Void> updateSpace(@MemberId Long memberId, @RequestBody @Validated SpaceRequest.UpdateSpaceRequest updateSpaceRequest) {
         spaceService.updateSpace(memberId, updateSpaceRequest);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/{spaceId}")
-    public ResponseEntity<SpaceResponse.SpaceWithUserCountInfo> getSpaceById(@MemberId Long memberId, @PathVariable Long spaceId) {
+    public ResponseEntity<SpaceResponse.SpaceWithMemberCountInfo> getSpaceById(@MemberId Long memberId, @PathVariable Long spaceId) {
         var foundSpace = spaceService.getSpaceById(memberId, spaceId);
         return ResponseEntity.ok((foundSpace));
+    }
+
+    @Override
+    @PostMapping("/join")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public ResponseEntity<Void> createMemberSpace(@MemberId Long memberId, @RequestParam Long spaceId) {
+        spaceService.createMemberSpace(memberId, spaceId);
+        return ResponseEntity.ok().build();
+    }
+
+    @Override
+    @PostMapping("/leave")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public ResponseEntity<Void> removeMemberSpace(@MemberId Long memberId, @RequestParam Long spaceId) {
+        spaceService.removeMemberSpace(memberId, spaceId);
+        return ResponseEntity.ok().build();
     }
 }
 
