@@ -1,7 +1,7 @@
 package org.layer.domain.template.dto;
 
 import jakarta.validation.constraints.NotNull;
-import org.layer.domain.question.entity.QuestionType;
+import org.layer.domain.question.enums.QuestionType;
 
 public record QuestionResponse(
         @NotNull

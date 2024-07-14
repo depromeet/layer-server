@@ -24,8 +24,6 @@ public class QForm extends EntityPathBase<Form> {
     //inherited
     public final DateTimePath<java.time.LocalDateTime> createdAt = _super.createdAt;
 
-    public final EnumPath<org.layer.domain.form.enums.FormPublishedBy> formPublishedBy = createEnum("formPublishedBy", org.layer.domain.form.enums.FormPublishedBy.class);
-
     //inherited
     public final NumberPath<Long> id = _super.id;
 

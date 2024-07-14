@@ -27,7 +27,7 @@ public class QTemplateQuestion extends EntityPathBase<TemplateQuestion> {
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
-    public final EnumPath<org.layer.domain.question.entity.QuestionType> questionType = createEnum("questionType", org.layer.domain.question.entity.QuestionType.class);
+    public final EnumPath<org.layer.domain.question.enums.QuestionType> questionType = createEnum("questionType", org.layer.domain.question.enums.QuestionType.class);
 
     public final NumberPath<Long> templateId = createNumber("templateId", Long.class);
 

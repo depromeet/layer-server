@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import org.layer.domain.question.converter.QuestionTypeConverter;
-import org.layer.domain.question.entity.QuestionType;
+import org.layer.domain.question.enums.QuestionType;
 
 @Getter
 @Entity

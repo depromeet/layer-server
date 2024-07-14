@@ -27,14 +27,16 @@ public class QQuestion extends EntityPathBase<Question> {
     //inherited
     public final DateTimePath<java.time.LocalDateTime> createdAt = _super.createdAt;
 
-    public final NumberPath<Long> formId = createNumber("formId", Long.class);
-
     //inherited
     public final NumberPath<Long> id = _super.id;
 
     public final SetPath<org.layer.domain.questionOption.entity.QuestionOption, org.layer.domain.questionOption.entity.QQuestionOption> options = this.<org.layer.domain.questionOption.entity.QuestionOption, org.layer.domain.questionOption.entity.QQuestionOption>createSet("options", org.layer.domain.questionOption.entity.QuestionOption.class, org.layer.domain.questionOption.entity.QQuestionOption.class, PathInits.DIRECT2);
 
-    public final EnumPath<QuestionType> questionType = createEnum("questionType", QuestionType.class);
+    public final EnumPath<org.layer.domain.question.enums.QuestionOwner> questionOwner = createEnum("questionOwner", org.layer.domain.question.enums.QuestionOwner.class);
+
+    public final NumberPath<Long> questionOwnerId = createNumber("questionOwnerId", Long.class);
+
+    public final EnumPath<org.layer.domain.question.enums.QuestionType> questionType = createEnum("questionType", org.layer.domain.question.enums.QuestionType.class);
 
     //inherited
     public final DateTimePath<java.time.LocalDateTime> updatedAt = _super.updatedAt;

@@ -30,14 +30,14 @@ public class QQuestionOption extends EntityPathBase<QuestionOption> {
     //inherited
     public final NumberPath<Long> id = _super.id;
 
-    public final StringPath label = createString("label");
+    public final StringPath optionLabel = createString("optionLabel");
+
+    public final StringPath optionValue = createString("optionValue");
 
     public final org.layer.domain.question.entity.QQuestion question;
 
     //inherited
     public final DateTimePath<java.time.LocalDateTime> updatedAt = _super.updatedAt;
-
-    public final StringPath value = createString("value");
 
     public QQuestionOption(String variable) {
         this(QuestionOption.class, forVariable(variable), INITS);
