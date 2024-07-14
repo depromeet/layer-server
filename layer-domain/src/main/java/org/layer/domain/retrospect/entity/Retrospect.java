@@ -1,6 +1,9 @@
 package org.layer.domain.retrospect.entity;
 
+import static org.layer.common.exception.RetrospectExceptionType.*;
+
 import org.layer.domain.common.BaseTimeEntity;
+import org.layer.domain.retrospect.exception.RetrospectException;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -41,5 +44,11 @@ public class Retrospect extends BaseTimeEntity {
         this.title = title;
         this.introduction = introduction;
         this.retrospectStatus = retrospectStatus;
+    }
+
+    public void isProceedingRetrospect(){
+        if(!this.retrospectStatus.equals(RetrospectStatus.PROCEEDING)){
+            throw new RetrospectException(NOT_PROCEEDING_RETROSPECT);
+        }
     }
 }

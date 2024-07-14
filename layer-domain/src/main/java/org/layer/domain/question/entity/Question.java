@@ -19,11 +19,16 @@ import java.util.Set;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Question extends BaseEntity {
 
+    /*
+        questionOwnerId은 retrospectId or memberId 중 하나이다.
+    */
     @NotNull
     private Long questionOwnerId;
 
     @NotNull
     private String content;
+
+    private int questionOrder;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -31,15 +36,16 @@ public class Question extends BaseEntity {
 
     @Column(length = 20)
     @NotNull
-    @Convert(converter = QuestionTypeConverter.class)
+    @Enumerated(EnumType.STRING)
     private QuestionType questionType;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<QuestionOption> options = new HashSet<>();
 
-    public Question(Long questionOwnerId, String content, QuestionOwner questionOwner, QuestionType questionType) {
+    public Question(Long questionOwnerId, String content, int questionOrder, QuestionOwner questionOwner, QuestionType questionType) {
         this.questionOwnerId = questionOwnerId;
         this.content = content;
+        this.questionOrder = questionOrder;
         this.questionOwner = questionOwner;
         this.questionType = questionType;
     }
