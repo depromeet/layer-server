@@ -51,15 +51,14 @@ public class RetrospectService {
 			.toList();
 		questionRepository.saveAll(questions);
 
-		if(request.isMyForm()){
-			Form form = new Form(memberId, request.title(), request.introduction());
-			Form savedForm = formRepository.save(form);
+		// 내 회고 폼에 추가
+		Form form = new Form(memberId, request.title(), request.introduction());
+		Form savedForm = formRepository.save(form);
 
-			List<Question> myQuestions = request.questions().stream()
-				.map(q -> new Question(savedForm.getId(), q, QuestionOwner.INDIVIDUAL, QuestionType.PLAIN_TEXT))
-				.toList();
-			questionRepository.saveAll(myQuestions);
-		}
+		List<Question> myQuestions = request.questions().stream()
+			.map(q -> new Question(savedForm.getId(), q, QuestionOwner.INDIVIDUAL, QuestionType.PLAIN_TEXT))
+			.toList();
+		questionRepository.saveAll(myQuestions);
 	}
 
 	private Retrospect getRetrospect(RetrospectCreateServiceRequest request) {

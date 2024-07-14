@@ -37,8 +37,7 @@ public class RetrospectController implements RetrospectApi {
 		@MemberId Long memberId) {
 
 		retrospectService.createRetrospect(
-			RetrospectCreateServiceRequest.of(request.title(), request.introduction(), spaceId, request.questions(),
-				request.isMyForm()), memberId);
+			RetrospectCreateServiceRequest.of(request.title(), request.introduction(), spaceId, request.questions()), memberId);
 
 		return ResponseEntity.ok().build();
 	}

@@ -16,9 +16,6 @@ public record RetrospectCreateRequest(
 	@Schema(description = "회고 질문 목록(리스트)", example = "이번에 가장 어려웠던 점은 무엇인가요?")
 	@NotNull
 	@Size(min = 3, max = 15)
-	List<String> questions,
-	@Schema(description = "내 회고 목록 추가 여부", example = "true")
-
-	boolean isMyForm
+	List<String> questions
 ) {
 }

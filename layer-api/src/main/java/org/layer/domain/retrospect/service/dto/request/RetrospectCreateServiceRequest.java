@@ -6,12 +6,10 @@ public record RetrospectCreateServiceRequest(
 	String title,
 	String introduction,
 	Long spaceId,
-	List<String> questions,
-	boolean isMyForm
+	List<String> questions
 ) {
-	public static RetrospectCreateServiceRequest of(String title, String introduction, Long spaceId, List<String> questions,
-		boolean isMyForm) {
+	public static RetrospectCreateServiceRequest of(String title, String introduction, Long spaceId, List<String> questions) {
 
-		return new RetrospectCreateServiceRequest(title, introduction, spaceId, questions, isMyForm);
+		return new RetrospectCreateServiceRequest(title, introduction, spaceId, questions);
 	}
 }
