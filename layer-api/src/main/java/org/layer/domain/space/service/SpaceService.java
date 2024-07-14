@@ -105,11 +105,11 @@ public class SpaceService {
                 );
 
         /*
-          TODO: 유효성 검사가 이루어지는 레이어가 Service 계층이 맞을까?
+          스페이스 팀장 여부 확인
          */
-        if (memberId.equals(foundSpace.getLeaderId())) {
-            throw new SpaceException(SPACE_LEADER_CANNOT_LEAVE);
-        }
+        foundSpace.isLeaderSpace(memberId)
+                .orElseThrow(() -> new SpaceException(SPACE_LEADER_CANNOT_LEAVE));
+
         /*
           개인 스페이스의 경우, 이탈 시 Space 엔티티의 로직이 된다.
           따라서 INDIVIDUAL인 Space인 경우 가능한 케이스는 2가지로
