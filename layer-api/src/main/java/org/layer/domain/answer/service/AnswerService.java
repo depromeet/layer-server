@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.layer.domain.answer.entity.Answer;
+import org.layer.domain.answer.entity.Answers;
 import org.layer.domain.answer.repository.AnswerRepository;
 import org.layer.domain.answer.service.dto.request.AnswerCreateServiceRequest;
 import org.layer.domain.answer.service.dto.request.AnswerListCreateServiceRequest;
@@ -39,7 +40,7 @@ public class AnswerService {
 		}
 
 		// 회고 존재 검증
-		retrospectRepository.findById(retrospectId); // TODO: 수정필요
+		retrospectRepository.findByIdOrThrow(retrospectId);
 
 		// 회고 질문 유효성 검사 - 해당 회고에 속해있는 질문인지
 		List<Long> questionIds = request.requests().stream()
@@ -50,10 +51,13 @@ public class AnswerService {
 		questions.validateQuestionSize(questionIds.size());
 
 		// 회고 질문 유효성 검사 - 이미 응답을 하지 않았는지
-		answerRepository.findByRetrospectIdAndQuestionIdAndMemberId(retrospectId, null, memberId);
+		Answers answers = new Answers(
+			answerRepository.findByRetrospectIdAndMemberIdAndQuestionIdIn(retrospectId, memberId, questionIds));
+		answers.validateNoAnswer();
 
 		request.requests().forEach(
 				r -> {
+					// 회고 질문 유효성 검사 - 각각의 질문들이 유효한지
 					questions.validateIdAndQuestionType(r.questionId(), QuestionType.stringToEnum(r.questionType()));
 					Answer answer = new Answer(retrospectId, r.questionId(), memberId, r.answer());
 					answerRepository.save(answer);
