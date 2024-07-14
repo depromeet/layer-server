@@ -27,10 +27,10 @@ public class SpaceWithMemberCount {
     @NotNull
     private Long leaderId;
     private Long formId;
-    private Long userCount;
+    private Long memberCount;
 
     @QueryProjection
-    public SpaceWithMemberCount(Long id, LocalDateTime createdAt, LocalDateTime updatedAt, SpaceCategory category, SpaceField field, String name, String introduction, Long leaderId, Long formId, Long userCount) {
+    public SpaceWithMemberCount(Long id, LocalDateTime createdAt, LocalDateTime updatedAt, SpaceCategory category, SpaceField field, String name, String introduction, Long leaderId, Long formId, Long memberCount) {
         this.id = id;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
@@ -40,6 +40,6 @@ public class SpaceWithMemberCount {
         this.introduction = introduction;
         this.leaderId = leaderId;
         this.formId = formId;
-        this.userCount = userCount;
+        this.memberCount = memberCount;
     }
 }

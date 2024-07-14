@@ -3,12 +3,11 @@ package org.layer.domain.space.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.layer.common.dto.Meta;
-import org.layer.common.exception.BaseCustomException;
 import org.layer.domain.space.dto.SpaceRequest;
 import org.layer.domain.space.dto.SpaceResponse;
 import org.layer.domain.space.entity.MemberSpaceRelation;
+import org.layer.domain.space.exception.SpaceException;
 import org.layer.domain.space.repository.MemberSpaceRelationRepository;
 import org.layer.domain.space.repository.SpaceRepository;
 import org.springframework.stereotype.Service;
@@ -37,7 +36,7 @@ public class SpaceService {
         Long newCursor = !hasNextPage ? null : spacePages.isEmpty() ? null : spacePages.get(spacePages.size() - 1).getId();
 
 
-        var spaceList = spacePages.stream().map(SpaceResponse.SpaceWithUserCountInfo::toResponse).collect(Collectors.toList());
+        var spaceList = spacePages.stream().map(SpaceResponse.SpaceWithMemberCountInfo::toResponse).collect(Collectors.toList());
 
         var meta = Meta.builder().cursor(newCursor).hasNextPage(hasNextPage).build();
         return SpaceResponse.SpacePage.toResponse(spaceList, meta);
@@ -53,14 +52,14 @@ public class SpaceService {
 
     @Transactional
     public void updateSpace(Long memberId, SpaceRequest.UpdateSpaceRequest updateSpaceRequest) {
-        spaceRepository.findByIdAndJoinedMemberId(updateSpaceRequest.id(), memberId).orElseThrow(() -> new BaseCustomException(SPACE_NOT_FOUND));
+        spaceRepository.findByIdAndJoinedMemberId(updateSpaceRequest.id(), memberId).orElseThrow(() -> new SpaceException(SPACE_NOT_FOUND));
         spaceRepository.updateSpace(updateSpaceRequest.id(), updateSpaceRequest.category(), updateSpaceRequest.field(), updateSpaceRequest.name(), updateSpaceRequest.introduction());
     }
 
-    public SpaceResponse.SpaceWithUserCountInfo getSpaceById(Long memberId, Long spaceId) {
-        var foundSpace = spaceRepository.findByIdAndJoinedMemberId(spaceId, memberId).orElseThrow(() -> new BaseCustomException(SPACE_NOT_FOUND));
+    public SpaceResponse.SpaceWithMemberCountInfo getSpaceById(Long memberId, Long spaceId) {
+        var foundSpace = spaceRepository.findByIdAndJoinedMemberId(spaceId, memberId).orElseThrow(() -> new SpaceException(SPACE_NOT_FOUND));
 
-        return SpaceResponse.SpaceWithUserCountInfo.toResponse(foundSpace);
+        return SpaceResponse.SpaceWithMemberCountInfo.toResponse(foundSpace);
     }
 
 }
