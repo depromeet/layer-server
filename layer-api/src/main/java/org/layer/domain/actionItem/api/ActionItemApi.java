@@ -7,8 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.layer.common.annotation.MemberId;
-import org.layer.domain.space.dto.SpaceRequest;
-import org.layer.domain.space.dto.SpaceResponse;
+import org.layer.domain.actionItem.dto.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -23,11 +22,56 @@ public interface ActionItemApi {
                     content = {
                             @Content(
                                     mediaType = "application/json",
-                                    schema = @Schema(implementation = SpaceResponse.SpacePage.class)
+                                    schema = @Schema(implementation = CreateActionItemResponse.class)
                             )
                     }
             )
     }
     )
-    ResponseEntity<SpaceResponse.SpacePage> getMySpaceList(@MemberId Long memberId, @ModelAttribute @Validated SpaceRequest.GetSpaceRequest getSpaceRequest);
+    ResponseEntity<CreateActionItemResponse> createActionItem(@MemberId Long memberId,
+                                                              @ModelAttribute @Validated CreateActionItemRequest createActionItemRequest);
+
+
+    @Operation(summary = "개인의 액션 아이템 조회", method = "GET", description = """
+            회원 아이디로 개인이 작성한 모든 액션아이템을 조회합니다.
+            """)
+    @ApiResponses({
+            @ApiResponse(responseCode = "200",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = MemberActionItemResponse.class)
+                            )
+                    }
+            )
+    }
+    )
+    ResponseEntity<CreateActionItemResponse> memberActionItem(@MemberId Long memberId);
+
+    @Operation(summary = "팀의 액션 아이템 조회", method = "GET", description = """
+            팀 아이디로 팀의 모든 액션아이템을 조회합니다.
+            """)
+    @ApiResponses({
+            @ApiResponse(responseCode = "200",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = TeamActionItemResponse.class)
+                            )
+                    }
+            )
+    }
+    )
+    ResponseEntity<CreateActionItemResponse> teamActionItem(@MemberId Long memberId,
+                                                            @ModelAttribute @Validated TeamActionItemRequest teamActionItemRequest);
+
+    @Operation(summary = "액션 아이템 삭제", method = "DELETE", description = """
+            액션 아이템을 삭제합니다.
+            """)
+    @ApiResponses({
+            @ApiResponse(responseCode = "200")
+    }
+    )
+    ResponseEntity<CreateActionItemResponse> deleteActionItem(@MemberId Long memberId,
+                                                            @ModelAttribute @Validated DeleteActionItemRequest deleteActionItemRequest);
 }

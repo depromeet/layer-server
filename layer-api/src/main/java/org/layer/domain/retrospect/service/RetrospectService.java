@@ -4,6 +4,7 @@ import static org.layer.common.exception.MemberSpaceRelationExceptionType.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.layer.domain.answer.entity.Answers;
 import org.layer.domain.answer.repository.AnswerRepository;
@@ -46,8 +47,9 @@ public class RetrospectService {
 		Retrospect retrospect = getRetrospect(request);
 		Retrospect savedRetrospect = retrospectRepository.save(retrospect);
 
+		AtomicInteger teamIndex = new AtomicInteger(1);
 		List<Question> questions = request.questions().stream()
-			.map(q -> new Question(savedRetrospect.getId(), q, QuestionOwner.TEAM, QuestionType.PLAIN_TEXT))
+			.map(q -> new Question(savedRetrospect.getId(), q, teamIndex.getAndIncrement(), QuestionOwner.TEAM, QuestionType.PLAIN_TEXT))
 			.toList();
 		questionRepository.saveAll(questions);
 
@@ -55,8 +57,9 @@ public class RetrospectService {
 		Form form = new Form(memberId, request.title(), request.introduction());
 		Form savedForm = formRepository.save(form);
 
+		AtomicInteger myIndex = new AtomicInteger(1);
 		List<Question> myQuestions = request.questions().stream()
-			.map(q -> new Question(savedForm.getId(), q, QuestionOwner.INDIVIDUAL, QuestionType.PLAIN_TEXT))
+			.map(q -> new Question(savedForm.getId(), q, myIndex.getAndIncrement(), QuestionOwner.INDIVIDUAL, QuestionType.PLAIN_TEXT))
 			.toList();
 		questionRepository.saveAll(myQuestions);
 	}
