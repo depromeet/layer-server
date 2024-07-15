@@ -43,7 +43,6 @@ public class ActionItemService {
                 .actionItemStatus(PROCESSING)
                 .build());
 
-        //
         return new CreateActionItemResponse(memberId, retrospect.getSpaceId());
     }
 

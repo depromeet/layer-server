@@ -10,7 +10,7 @@ import org.layer.common.annotation.MemberId;
 import org.layer.domain.actionItem.dto.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestBody;
 
 @Tag(name = "액션아이템 API")
 public interface ActionItemApi {
@@ -29,7 +29,7 @@ public interface ActionItemApi {
     }
     )
     ResponseEntity<CreateActionItemResponse> createActionItem(@MemberId Long memberId,
-                                                              @Validated CreateActionItemRequest createActionItemRequest);
+                                                              @Validated @RequestBody CreateActionItemRequest createActionItemRequest);
 
 
     @Operation(summary = "개인의 액션 아이템 조회", method = "GET", description = """
@@ -63,7 +63,7 @@ public interface ActionItemApi {
     }
     )
     ResponseEntity<CreateActionItemResponse> teamActionItem(@MemberId Long memberId,
-                                                            @Validated TeamActionItemRequest teamActionItemRequest);
+                                                            @Validated @RequestBody TeamActionItemRequest teamActionItemRequest);
 
     @Operation(summary = "액션 아이템 삭제", method = "DELETE", description = """
             액션 아이템을 삭제합니다.
@@ -73,5 +73,5 @@ public interface ActionItemApi {
     }
     )
     ResponseEntity<CreateActionItemResponse> deleteActionItem(@MemberId Long memberId,
-                                                            @Validated DeleteActionItemRequest deleteActionItemRequest);
+                                                              @Validated @RequestBody DeleteActionItemRequest deleteActionItemRequest);
 }
