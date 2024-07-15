@@ -83,7 +83,7 @@ public class RetrospectService {
 
 		List<RetrospectGetServiceResponse> retrospectDtos = retrospects.stream()
 			.map(r -> RetrospectGetServiceResponse.of(r.getTitle(), r.getIntroduction(),
-				answers.hasRetrospectAnswer(memberId), r.getRetrospectStatus(), answers.getWriteCount()))
+				answers.hasRetrospectAnswer(memberId, r.getId()), r.getRetrospectStatus(), answers.getWriteCount(r.getId())))
 			.toList();
 
 		return RetrospectListGetServiceResponse.of(retrospects.size(), retrospectDtos);

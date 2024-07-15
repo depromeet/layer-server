@@ -5,6 +5,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import jakarta.validation.constraints.NotNull;
@@ -30,5 +31,11 @@ public class Answer {
     @NotNull
     private String content;
 
-
+    @Builder
+    public Answer(Long retrospectId, Long questionId, Long memberId, String content) {
+        this.retrospectId = retrospectId;
+        this.questionId = questionId;
+        this.memberId = memberId;
+        this.content = content;
+    }
 }

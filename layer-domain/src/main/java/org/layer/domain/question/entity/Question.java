@@ -6,7 +6,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.layer.domain.BaseEntity;
-import org.layer.domain.question.converter.QuestionTypeConverter;
 import org.layer.domain.question.enums.QuestionOwner;
 import org.layer.domain.question.enums.QuestionType;
 import org.layer.domain.questionOption.entity.QuestionOption;
