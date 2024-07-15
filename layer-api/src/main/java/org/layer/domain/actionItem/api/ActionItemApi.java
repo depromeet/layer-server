@@ -29,7 +29,7 @@ public interface ActionItemApi {
     }
     )
     ResponseEntity<CreateActionItemResponse> createActionItem(@MemberId Long memberId,
-                                                              @ModelAttribute @Validated CreateActionItemRequest createActionItemRequest);
+                                                              @Validated CreateActionItemRequest createActionItemRequest);
 
 
     @Operation(summary = "개인의 액션 아이템 조회", method = "GET", description = """
@@ -63,7 +63,7 @@ public interface ActionItemApi {
     }
     )
     ResponseEntity<CreateActionItemResponse> teamActionItem(@MemberId Long memberId,
-                                                            @ModelAttribute @Validated TeamActionItemRequest teamActionItemRequest);
+                                                            @Validated TeamActionItemRequest teamActionItemRequest);
 
     @Operation(summary = "액션 아이템 삭제", method = "DELETE", description = """
             액션 아이템을 삭제합니다.
@@ -73,5 +73,5 @@ public interface ActionItemApi {
     }
     )
     ResponseEntity<CreateActionItemResponse> deleteActionItem(@MemberId Long memberId,
-                                                            @ModelAttribute @Validated DeleteActionItemRequest deleteActionItemRequest);
+                                                            @Validated DeleteActionItemRequest deleteActionItemRequest);
 }

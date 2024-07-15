@@ -1,18 +1,15 @@
 package org.layer.domain.actionItem.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.layer.domain.actionItem.enums.ActionItemStatus;
 
+@Builder
 @Getter
-@Entity
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Entity
 public class ActionItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,5 +28,6 @@ public class ActionItem {
     private String content; // 액션 아이템 내용
 
     @NotNull
+    @Enumerated(EnumType.STRING)
     private ActionItemStatus actionItemStatus; // 액션 아이템 상태
 }
