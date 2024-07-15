@@ -22,6 +22,7 @@ public class ActionItemService {
     private final ActionItemRepository actionItemRepository;
     private final RetrospectRepository retrospectRepository;
     private final MemberSpaceRelationRepository memberSpaceRelationRepository;
+
     public CreateActionItemResponse createActionItem(Long memberId, Long retrospectId, String content) {
 
         // 멤버가 해당 회고가 진행 중인 스페이스에 속하는지 확인
