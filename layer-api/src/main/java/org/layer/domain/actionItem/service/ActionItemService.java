@@ -9,7 +9,6 @@ import org.layer.domain.retrospect.repository.RetrospectRepository;
 import org.layer.domain.space.entity.MemberSpaceRelation;
 import org.layer.domain.space.exception.MemberSpaceRelationException;
 import org.layer.domain.space.repository.MemberSpaceRelationRepository;
-import org.layer.domain.space.repository.SpaceRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -21,7 +20,6 @@ import static org.layer.domain.actionItem.enums.ActionItemStatus.PROCESSING;
 @Service
 public class ActionItemService {
     private final ActionItemRepository actionItemRepository;
-    private final SpaceRepository spaceRepository;
     private final RetrospectRepository retrospectRepository;
     private final MemberSpaceRelationRepository memberSpaceRelationRepository;
     public CreateActionItemResponse createActionItem(Long memberId, Long retrospectId, String content) {
@@ -45,5 +43,8 @@ public class ActionItemService {
 
         return new CreateActionItemResponse(memberId, retrospect.getSpaceId());
     }
+
+
+
 
 }

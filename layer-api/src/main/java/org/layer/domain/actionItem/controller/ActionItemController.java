@@ -37,6 +37,7 @@ public class ActionItemController implements ActionItemApi {
     @Override
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<CreateActionItemResponse> memberActionItem(@MemberId Long memberId) {
+
         return null;
     }
 

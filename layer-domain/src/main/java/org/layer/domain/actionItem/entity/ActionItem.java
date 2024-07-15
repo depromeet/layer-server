@@ -3,14 +3,15 @@ package org.layer.domain.actionItem.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
+import org.layer.domain.BaseEntity;
 import org.layer.domain.actionItem.enums.ActionItemStatus;
 
-@Builder
 @Getter
-@AllArgsConstructor
+@SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class ActionItem {
+public class ActionItem extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -30,4 +31,12 @@ public class ActionItem {
     @NotNull
     @Enumerated(EnumType.STRING)
     private ActionItemStatus actionItemStatus; // 액션 아이템 상태
+
+    public ActionItem(Long retrospectId, Long spaceId, Long memberId, String content, ActionItemStatus actionItemStatus) {
+        this.retrospectId = retrospectId;
+        this.spaceId = spaceId;
+        this.memberId = memberId;
+        this.content = content;
+        this.actionItemStatus = actionItemStatus;
+    }
 }
