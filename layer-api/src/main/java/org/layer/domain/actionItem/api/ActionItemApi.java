@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.util.List;
+
 @Tag(name = "액션아이템 API")
 public interface ActionItemApi {
     @Operation(summary = "액션 아이템 생성", method = "POST", description = """
@@ -46,7 +48,8 @@ public interface ActionItemApi {
             )
     }
     )
-    ResponseEntity<CreateActionItemResponse> memberActionItem(@MemberId Long memberId);
+    ResponseEntity<List<MemberActionItemResponse>> memberActionItem(@MemberId Long currentMemberId,
+                                                                    Long memberId);
 
     @Operation(summary = "팀의 액션 아이템 조회", method = "GET", description = """
             팀 아이디로 팀의 모든 액션아이템을 조회합니다.
