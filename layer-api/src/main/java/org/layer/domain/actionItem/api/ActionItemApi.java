@@ -76,6 +76,5 @@ public interface ActionItemApi {
             @ApiResponse(responseCode = "200")
     }
     )
-    ResponseEntity<CreateActionItemResponse> deleteActionItem(@MemberId Long memberId,
-                                                              @Validated @RequestBody DeleteActionItemRequest deleteActionItemRequest);
+    ResponseEntity<DeleteActionItemResponse> deleteActionItem(@MemberId Long memberId, @PathVariable("actionItemId") Long actionItemId);
 }

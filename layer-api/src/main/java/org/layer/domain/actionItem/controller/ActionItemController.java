@@ -33,28 +33,29 @@ public class ActionItemController implements ActionItemApi {
     }
 
     @Override
-    @RequestMapping("/member/{memberId}")
+    @GetMapping("/member/{memberId}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<MemberActionItemResponse>> memberActionItem(@MemberId Long currentMemberId,
-                                                                           @PathVariable("memberId") Long memberId) {
+    public ResponseEntity<List<MemberActionItemResponse>> memberActionItem(@MemberId Long currentMemberId, @PathVariable("memberId") Long memberId) {
         List<MemberActionItemResponse> memberActionItemList = actionItemService.getMemberActionItemList(currentMemberId, memberId);
 
         return new ResponseEntity<>(memberActionItemList, HttpStatus.OK);
     }
 
     @Override
-    @RequestMapping("/space/{spaceId}")
+    @GetMapping("/space/{spaceId}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<TeamActionItemResponse> teamActionItem(@MemberId Long memberId, @PathVariable("spaceId") Long spaceId) {
-        log.info("memberId: {}, spaceId: {}", memberId, spaceId);
         TeamActionItemResponse teamActionItem = actionItemService.getTeamActionItemList(memberId, spaceId);
 
         return new ResponseEntity<>(teamActionItem, HttpStatus.OK);
     }
 
     @Override
+    @DeleteMapping("/{actionItemId}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<CreateActionItemResponse> deleteActionItem(@MemberId Long memberId, DeleteActionItemRequest deleteActionItemRequest) {
-        return null;
+    public ResponseEntity<DeleteActionItemResponse> deleteActionItem(@MemberId Long memberId, @PathVariable("actionItemId") Long actionItemId) {
+        DeleteActionItemResponse deleteActionItemResponse = actionItemService.deleteActionItem(memberId, actionItemId);
+
+        return new ResponseEntity<>(deleteActionItemResponse, HttpStatus.OK);
     }
 }

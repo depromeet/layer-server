@@ -2,11 +2,9 @@ package org.layer.domain.actionItem.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.layer.domain.actionItem.dto.CreateActionItemResponse;
-import org.layer.domain.actionItem.dto.MemberActionItemResponse;
-import org.layer.domain.actionItem.dto.TeamActionItemElementResponse;
-import org.layer.domain.actionItem.dto.TeamActionItemResponse;
+import org.layer.domain.actionItem.dto.*;
 import org.layer.domain.actionItem.entity.ActionItem;
+import org.layer.domain.actionItem.exception.ActionItemException;
 import org.layer.domain.actionItem.repository.ActionItemRepository;
 import org.layer.domain.member.exception.MemberException;
 import org.layer.domain.retrospect.entity.Retrospect;
@@ -23,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static org.layer.common.exception.ActionItemExceptionType.CANNOT_DELETE_ACTION_ITEM;
 import static org.layer.common.exception.MemberExceptionType.FORBIDDEN;
 import static org.layer.common.exception.MemberSpaceRelationExceptionType.NOT_FOUND_MEMBER_SPACE_RELATION;
 import static org.layer.domain.actionItem.enums.ActionItemStatus.PROCEEDING;
@@ -112,6 +111,21 @@ public class ActionItemService {
                 .spaceName(space.getName())
                 .teamActionItemList(teamActionItemList)
                 .build();
+    }
+
+    @Transactional
+    public DeleteActionItemResponse deleteActionItem(Long memberId, Long actionItemId) {
+        ActionItem actionItem = actionItemRepository.findByIdOrThrow(actionItemId);
+
+        log.info("memberID: {} , {}", actionItem.getMemberId(), memberId);
+        // 액션 아이템을 작성한 사람이 아님
+        if(actionItem.getMemberId() != memberId) {
+            throw new ActionItemException(CANNOT_DELETE_ACTION_ITEM);
+        }
+
+        actionItemRepository.delete(actionItem);
+
+        return new DeleteActionItemResponse(actionItemId);
     }
 
 
