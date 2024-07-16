@@ -43,3 +43,5 @@ out/
 ### VS Code ###
 .vscode/
 *.properties
+
+layer-domain/src/main/generated
