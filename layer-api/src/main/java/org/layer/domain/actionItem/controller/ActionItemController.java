@@ -1,6 +1,7 @@
 package org.layer.domain.actionItem.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.layer.common.annotation.MemberId;
 import org.layer.domain.actionItem.api.ActionItemApi;
 import org.layer.domain.actionItem.dto.*;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/api/action-item")
 @RestController
@@ -41,9 +43,13 @@ public class ActionItemController implements ActionItemApi {
     }
 
     @Override
+    @RequestMapping("/space/{spaceId}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<CreateActionItemResponse> teamActionItem(@MemberId Long memberId, TeamActionItemRequest teamActionItemRequest) {
-        return null;
+    public ResponseEntity<TeamActionItemResponse> teamActionItem(@MemberId Long memberId, @PathVariable("spaceId") Long spaceId) {
+        log.info("memberId: {}, spaceId: {}", memberId, spaceId);
+        TeamActionItemResponse teamActionItem = actionItemService.getTeamActionItemList(memberId, spaceId);
+
+        return new ResponseEntity<>(teamActionItem, HttpStatus.OK);
     }
 
     @Override

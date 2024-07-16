@@ -8,4 +8,6 @@ import java.util.List;
 
 public interface ActionItemRepository extends JpaRepository<ActionItem, Long> {
     List<ActionItem> findAllByMemberIdAndActionItemStatusOrderByCreatedAtDesc(Long memberId, ActionItemStatus actionItemStatus);
+
+    List<ActionItem> findAllBySpaceIdAndActionItemStatusOrderByCreatedAtDesc(Long spaceId, ActionItemStatus actionItemStatus);
 }

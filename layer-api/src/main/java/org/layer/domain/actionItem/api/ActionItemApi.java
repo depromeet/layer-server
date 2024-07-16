@@ -10,6 +10,7 @@ import org.layer.common.annotation.MemberId;
 import org.layer.domain.actionItem.dto.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
@@ -59,14 +60,14 @@ public interface ActionItemApi {
                     content = {
                             @Content(
                                     mediaType = "application/json",
-                                    schema = @Schema(implementation = TeamActionItemResponse.class)
+                                    schema = @Schema(implementation = TeamActionItemElementResponse.class)
                             )
                     }
             )
     }
     )
-    ResponseEntity<CreateActionItemResponse> teamActionItem(@MemberId Long memberId,
-                                                            @Validated @RequestBody TeamActionItemRequest teamActionItemRequest);
+    ResponseEntity<TeamActionItemResponse> teamActionItem(@MemberId Long memberId,
+                                                            @PathVariable Long spaceId);
 
     @Operation(summary = "액션 아이템 삭제", method = "DELETE", description = """
             액션 아이템을 삭제합니다.

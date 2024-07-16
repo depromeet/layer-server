@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.layer.domain.actionItem.dto.CreateActionItemResponse;
 import org.layer.domain.actionItem.dto.MemberActionItemResponse;
+import org.layer.domain.actionItem.dto.TeamActionItemElementResponse;
+import org.layer.domain.actionItem.dto.TeamActionItemResponse;
 import org.layer.domain.actionItem.entity.ActionItem;
 import org.layer.domain.actionItem.repository.ActionItemRepository;
 import org.layer.domain.member.exception.MemberException;
@@ -15,6 +17,7 @@ import org.layer.domain.space.exception.MemberSpaceRelationException;
 import org.layer.domain.space.repository.MemberSpaceRelationRepository;
 import org.layer.domain.space.repository.SpaceRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +36,7 @@ public class ActionItemService {
     private final MemberSpaceRelationRepository memberSpaceRelationRepository;
     private final SpaceRepository spaceRepository;
 
+    @Transactional
     public CreateActionItemResponse createActionItem(Long memberId, Long retrospectId, String content) {
 
         // 멤버가 해당 회고가 진행 중인 스페이스에 속하는지 확인
@@ -82,6 +86,33 @@ public class ActionItemService {
         return memberActionItemList;
     }
 
+    public TeamActionItemResponse getTeamActionItemList(Long memberId, Long spaceId) {
+        // 현재 로그인한 회원이 회고 스페이스에 속하는지 확인
+        Optional<MemberSpaceRelation> team = memberSpaceRelationRepository.findBySpaceIdAndMemberId(spaceId, memberId);
+        if(team.isEmpty()) {
+            throw new MemberSpaceRelationException(NOT_FOUND_MEMBER_SPACE_RELATION);
+        }
+
+        List<ActionItem> actionItemList = actionItemRepository.findAllBySpaceIdAndActionItemStatusOrderByCreatedAtDesc(spaceId, PROCEEDING);
+
+        List<TeamActionItemElementResponse> teamActionItemList = new ArrayList<>();
+        for (ActionItem actionItem : actionItemList) {
+
+
+            // 회고 찾기
+            Retrospect retrospect = retrospectRepository.findByIdOrThrow(actionItem.getRetrospectId());
+
+            teamActionItemList.add(TeamActionItemElementResponse.toResponse(actionItem, retrospect.getTitle()));
+        }
+
+        // space 찾기
+        Space space = spaceRepository.findByIdOrThrow(spaceId);
+        return TeamActionItemResponse.builder()
+                .spaceId(spaceId)
+                .spaceName(space.getName())
+                .teamActionItemList(teamActionItemList)
+                .build();
+    }
 
 
 }
