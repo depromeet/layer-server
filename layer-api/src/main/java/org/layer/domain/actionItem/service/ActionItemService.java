@@ -11,6 +11,7 @@ import org.layer.domain.retrospect.entity.Retrospect;
 import org.layer.domain.retrospect.repository.RetrospectRepository;
 import org.layer.domain.space.entity.MemberSpaceRelation;
 import org.layer.domain.space.entity.Space;
+import org.layer.domain.space.entity.SpaceCategory;
 import org.layer.domain.space.exception.MemberSpaceRelationException;
 import org.layer.domain.space.repository.MemberSpaceRelationRepository;
 import org.layer.domain.space.repository.SpaceRepository;
@@ -78,8 +79,8 @@ public class ActionItemService {
 
             // 회고 찾기
             Retrospect retrospect = retrospectRepository.findByIdOrThrow(actionItem.getRetrospectId());
-            // FIXME: 현재 isTeam을 무조건 true로 넣어놓는 상태 => 팀, 개인 스페이스 구별 필요
-            memberActionItemList.add(MemberActionItemResponse.toResponse(actionItem, space.getName(), retrospect.getTitle(), true));
+            boolean isTeam = space.getCategory().equals(SpaceCategory.TEAM);
+            memberActionItemList.add(MemberActionItemResponse.toResponse(actionItem, space.getName(), retrospect.getTitle(), isTeam));
         }
 
         return memberActionItemList;
@@ -119,7 +120,7 @@ public class ActionItemService {
 
         log.info("memberID: {} , {}", actionItem.getMemberId(), memberId);
         // 액션 아이템을 작성한 사람이 아님
-        if(actionItem.getMemberId() != memberId) {
+        if(!actionItem.getMemberId().equals(memberId)) {
             throw new ActionItemException(CANNOT_DELETE_ACTION_ITEM);
         }
 
