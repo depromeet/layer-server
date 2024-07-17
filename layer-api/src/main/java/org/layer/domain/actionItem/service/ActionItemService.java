@@ -19,7 +19,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.layer.common.exception.MemberExceptionType.FORBIDDEN;
 import static org.layer.common.exception.MemberSpaceRelationExceptionType.NOT_FOUND_MEMBER_SPACE_RELATION;
@@ -65,23 +67,7 @@ public class ActionItemService {
 
         List<ActionItem> actionItemList = actionItemRepository.findAllByMemberIdAndActionItemStatusOrderByCreatedAtDesc(memberId, PROCEEDING);
 
-        // FIXME: 삭제
-        for (ActionItem actionItem : actionItemList) {
-            log.info(actionItem.getContent());
-        }
-
-        List<MemberActionItemResponse> memberActionItemList = new ArrayList<>();
-        for (ActionItem actionItem : actionItemList) {
-            // space 찾기
-            Space space = spaceRepository.findByIdOrThrow(actionItem.getSpaceId());
-
-            // 회고 찾기
-            Retrospect retrospect = retrospectRepository.findByIdOrThrow(actionItem.getRetrospectId());
-            boolean isTeam = space.getCategory().equals(SpaceCategory.TEAM);
-            memberActionItemList.add(MemberActionItemResponse.toResponse(actionItem, space.getName(), retrospect.getTitle(), isTeam));
-        }
-
-        return memberActionItemList;
+        return processActionItems(actionItemList);
     }
 
     public TeamActionItemResponse getTeamActionItemList(Long memberId, Long spaceId) {
@@ -123,6 +109,55 @@ public class ActionItemService {
 
         return new DeleteActionItemResponse(actionItemId);
     }
+
+
+
+    // getMemberActionItemList 메서드에서 사용 (쿼리 IN절로 수정 로직)
+    private List<MemberActionItemResponse> processActionItems(List<ActionItem> actionItemList) {
+        List<MemberActionItemResponse> memberActionItemList = new ArrayList<>();
+        List<Long> spaceIds = actionItemList.stream()
+                .map(ActionItem::getSpaceId)
+                .collect(Collectors.toList());
+
+        List<Long> retrospectIds = actionItemList.stream()
+                .map(ActionItem::getRetrospectId)
+                .collect(Collectors.toList());
+
+        // 스페이스, 회고 정보 가져오기
+        List<Space> spaces = spaceRepository.findByIdIn(spaceIds);
+        List<Retrospect> retrospects = retrospectRepository.findByIdIn(retrospectIds);
+
+        // Map으로 매핑
+        Map<Long, Space> spaceMap = spaces.stream()
+                .collect(Collectors.toMap(
+                        Space::getId,
+                        space -> space
+                ));
+
+        Map<Long, Retrospect> retrospectMap = retrospects.stream()
+                .collect(Collectors.toMap(
+                        Retrospect::getId,
+                        retrospect -> retrospect
+                ));
+
+
+        // 회원의 액션 아이템 리스트에 추가
+        for (ActionItem actionItem : actionItemList) {
+            Space space = spaceMap.get(actionItem.getSpaceId());
+            Retrospect retrospect = retrospectMap.get(actionItem.getRetrospectId());
+
+            // TODO: 이런 상황에서 어떻게 할지 좀 더 고민 필요
+            if (space == null || retrospect == null) {
+                continue; // 회고 또는 스페이스가 삭제되고 액션 아이템이 남은 상황
+            }
+
+            boolean isTeam = space.getCategory().equals(SpaceCategory.TEAM);
+            memberActionItemList.add(MemberActionItemResponse.toResponse(actionItem, space.getName(), retrospect.getTitle(), isTeam));
+        }
+
+        return memberActionItemList;
+    }
+
 
 
 }
