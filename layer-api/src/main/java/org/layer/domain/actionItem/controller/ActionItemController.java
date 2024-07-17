@@ -44,8 +44,8 @@ public class ActionItemController implements ActionItemApi {
     @Override
     @GetMapping("/space/{spaceId}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<TeamActionItemResponse> teamActionItem(@MemberId Long memberId, @PathVariable("spaceId") Long spaceId) {
-        TeamActionItemResponse teamActionItem = actionItemService.getTeamActionItemList(memberId, spaceId);
+    public ResponseEntity<SpaceActionItemResponse> teamActionItem(@MemberId Long memberId, @PathVariable("spaceId") Long spaceId) {
+        SpaceActionItemResponse teamActionItem = actionItemService.getSpaceActionItemList(memberId, spaceId);
 
         return new ResponseEntity<>(teamActionItem, HttpStatus.OK);
     }

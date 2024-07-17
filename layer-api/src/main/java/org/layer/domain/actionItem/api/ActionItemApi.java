@@ -60,14 +60,14 @@ public interface ActionItemApi {
                     content = {
                             @Content(
                                     mediaType = "application/json",
-                                    schema = @Schema(implementation = TeamActionItemElementResponse.class)
+                                    schema = @Schema(implementation = SpaceActionItemElementResponse.class)
                             )
                     }
             )
     }
     )
-    ResponseEntity<TeamActionItemResponse> teamActionItem(@MemberId Long memberId,
-                                                            @PathVariable Long spaceId);
+    ResponseEntity<SpaceActionItemResponse> teamActionItem(@MemberId Long memberId,
+                                                           @PathVariable Long spaceId);
 
     @Operation(summary = "액션 아이템 삭제", method = "DELETE", description = """
             액션 아이템을 삭제합니다.

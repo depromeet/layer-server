@@ -6,7 +6,7 @@ import lombok.Builder;
 import org.layer.domain.actionItem.entity.ActionItem;
 
 @Builder
-public record TeamActionItemElementResponse(
+public record SpaceActionItemElementResponse(
                                     @NotNull
                                     @Schema(description = "액션 아이템 ID")
                                     Long actionItemId,
@@ -20,8 +20,8 @@ public record TeamActionItemElementResponse(
                                     @Schema(description = "액션 아이템과 매핑되는 회고 이름")
                                     String retrospectName) {
 
-    public static TeamActionItemElementResponse toResponse(ActionItem actionItem, String retrospectName) {
-        return TeamActionItemElementResponse.builder()
+    public static SpaceActionItemElementResponse toResponse(ActionItem actionItem, String retrospectName) {
+        return SpaceActionItemElementResponse.builder()
                 .actionItemId(actionItem.getId())
                 .actionItemContent(actionItem.getContent())
                 .retrospectId(actionItem.getRetrospectId())
