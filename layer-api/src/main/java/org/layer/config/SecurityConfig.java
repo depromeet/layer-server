@@ -17,6 +17,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.method.HandlerMethod;
 
 import java.util.Collections;
@@ -38,6 +40,7 @@ public class SecurityConfig {
 
     private void setHttp(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
+                .cors(corsConfigurer -> corsConfigurer.configurationSource(corsConfigurationSource()))
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .sessionManagement(
@@ -65,6 +68,18 @@ public class SecurityConfig {
                 .requestMatchers(new AntPathRequestMatcher("/v3/api-docs/**")).permitAll()
                 .requestMatchers(new AntPathRequestMatcher("/swagger-ui/**")).permitAll()
                 .requestMatchers(new AntPathRequestMatcher("/docs/**")).permitAll());
+    }
+
+    // cors
+    CorsConfigurationSource corsConfigurationSource() {
+        return request -> {
+            CorsConfiguration config = new CorsConfiguration();
+            config.setAllowedHeaders(Collections.singletonList("*"));
+            config.setAllowedMethods(Collections.singletonList("*"));
+            config.setAllowedOriginPatterns(Collections.singletonList("*")); // 허용할 origin
+            config.setAllowCredentials(true);
+            return config;
+        };
     }
 
     @Bean
