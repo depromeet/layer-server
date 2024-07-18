@@ -6,6 +6,9 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.layer.domain.BaseEntity;
 import org.layer.domain.actionItem.enums.ActionItemStatus;
+import org.layer.domain.actionItem.exception.ActionItemException;
+
+import static org.layer.common.exception.ActionItemExceptionType.CANNOT_DELETE_ACTION_ITEM;
 
 @Getter
 @SuperBuilder
@@ -38,5 +41,12 @@ public class ActionItem extends BaseEntity {
         this.memberId = memberId;
         this.content = content;
         this.actionItemStatus = actionItemStatus;
+    }
+
+    public void isWriter(Long memberId) {
+        // 액션 아이템을 작성한 사람이 아님
+        if(!this.getMemberId().equals(memberId)) {
+            throw new ActionItemException(CANNOT_DELETE_ACTION_ITEM);
+        }
     }
 }

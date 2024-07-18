@@ -32,6 +32,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             Long memberId = jwtValidator.getMemberIdFromToken(accessToken);
             List<String> role = jwtValidator.getRoleFromToken(accessToken);
             setAuthenticationToContext(memberId, MemberRole.valueOf(role.get(0)));
+        } else {
+            log.info("{} JWT FILTER", accessToken);
         }
         filterChain.doFilter(request, response);
     }
@@ -46,7 +48,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private String getJwtFromRequest(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         String accessToken = null;
-        if(StringUtils.hasText(bearerToken)) {
+        if (StringUtils.hasText(bearerToken)) {
             accessToken = bearerToken.replace("Bearer ", "");
         }
         return accessToken;

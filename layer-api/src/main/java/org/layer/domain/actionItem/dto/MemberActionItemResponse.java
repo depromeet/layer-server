@@ -3,6 +3,7 @@ package org.layer.domain.actionItem.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
+import org.layer.domain.actionItem.entity.ActionItem;
 
 @Builder
 @Schema(description = "특정 회원이 작성한 액션 아이템")
@@ -27,4 +28,16 @@ public record MemberActionItemResponse (@NotNull
                                         @NotNull
                                         @Schema(description = "팀 스페이스의 액션 아이템인지, 개인 스페이스의 액션 아이템인지")
                                         Boolean isTeam){
+
+    public static MemberActionItemResponse toResponse(ActionItem actionItem, String spaceName, String retrospectName, boolean isTeam) {
+        return MemberActionItemResponse.builder()
+                .actionItemId(actionItem.getId())
+                .actionItemContent(actionItem.getContent())
+                .spaceId(actionItem.getSpaceId())
+                .spaceName(spaceName)
+                .retrospectId(actionItem.getRetrospectId())
+                .retrospectName(retrospectName)
+                .isTeam(isTeam)
+                .build();
+    }
 }
