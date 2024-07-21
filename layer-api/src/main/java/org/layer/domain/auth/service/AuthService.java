@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.layer.common.exception.BaseCustomException;
 import org.layer.domain.auth.controller.dto.SignUpRequest;
 import org.layer.domain.auth.service.dto.ReissueTokenServiceResponse;
-import org.layer.domain.auth.service.dto.SignInServiceResponse;
+import org.layer.domain.auth.controller.dto.SignInResponse;
 import org.layer.domain.auth.service.dto.SignUpServiceResponse;
 import org.layer.domain.jwt.JwtToken;
 import org.layer.domain.jwt.exception.AuthExceptionType;
@@ -30,13 +30,13 @@ public class AuthService {
     private final MemberService memberService;
     //== 로그인 ==//
     @Transactional
-    public SignInServiceResponse signIn(final String socialAccessToken, final SocialType socialType) {
+    public SignInResponse signIn(final String socialAccessToken, final SocialType socialType) {
         MemberInfoServiceResponse signedMember = getMemberInfo(socialType, socialAccessToken);
 
         // DB에서 회원 찾기. 없다면 Exception 발생 => 이름 입력 창으로
         Member member = memberService.findMemberBySocialIdAndSocialType(signedMember.socialId(), socialType);
         JwtToken jwtToken = jwtService.issueToken(member.getId(), member.getMemberRole());
-        return SignInServiceResponse.of(member, jwtToken);
+        return SignInResponse.of(member, jwtToken);
     }
 
     //== 회원가입(이름을 입력 받기) ==//
@@ -105,6 +105,5 @@ public class AuthService {
     private void isNewMember(SocialType socialType, String socialId) {
         memberService.checkIsNewMember(socialId, socialType);
     }
-
 
 }
