@@ -13,7 +13,8 @@ public record SignInResponse(Long memberId,
                              MemberRole memberRole,
                              String socialId,
                              SocialType socialType,
-                             String accessToken) {
+                             String accessToken,
+                             String refreshToken) {
     public static SignInResponse of(Member member, JwtToken jwtToken) {
         return SignInResponse.builder()
                 .memberId(member.getId())
@@ -23,6 +24,7 @@ public record SignInResponse(Long memberId,
                 .socialType(member.getSocialType())
                 .socialId(member.getSocialId())
                 .accessToken(jwtToken.getAccessToken())
+                .refreshToken(jwtToken.getRefreshToken())
                 .build();
     }
 }

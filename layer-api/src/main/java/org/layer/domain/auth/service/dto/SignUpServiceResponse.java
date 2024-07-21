@@ -11,7 +11,8 @@ public record SignUpServiceResponse(Long memberId,
                                     MemberRole memberRole,
                                     String socialId,
                                     SocialType socialType,
-                                    String accessToken) {
+                                    String accessToken,
+                                    String refreshToken) {
     public static SignUpServiceResponse of(Member member, JwtToken jwtToken) {
         return new SignUpServiceResponse(member.getId(),
                 member.getName(),
@@ -19,6 +20,7 @@ public record SignUpServiceResponse(Long memberId,
                 member.getMemberRole(),
                 member.getSocialId(),
                 member.getSocialType(),
-                jwtToken.getAccessToken());
+                jwtToken.getAccessToken(),
+                jwtToken.getRefreshToken());
     }
 }

@@ -10,7 +10,8 @@ public record SignUpResponse(Long memberId,
                                     MemberRole memberRole,
                                     String socialId,
                                     SocialType socialType,
-                                    String accessToken) {
+                                    String accessToken,
+                                    String refreshToken) {
     public static SignUpResponse of(SignUpServiceResponse signUpServiceResponse) {
         return new SignUpResponse(signUpServiceResponse.memberId(),
                 signUpServiceResponse.name(),
@@ -18,6 +19,7 @@ public record SignUpResponse(Long memberId,
                 signUpServiceResponse.memberRole(),
                 signUpServiceResponse.socialId(),
                 signUpServiceResponse.socialType(),
-                signUpServiceResponse.accessToken());
+                signUpServiceResponse.accessToken(),
+                signUpServiceResponse.refreshToken());
     }
 }
