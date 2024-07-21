@@ -3,6 +3,7 @@ package org.layer.domain.auth.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.layer.common.annotation.DisableSwaggerSecurity;
+import org.layer.common.annotation.MemberId;
 import org.layer.domain.auth.controller.dto.*;
 import org.layer.domain.auth.service.AuthService;
 import org.layer.domain.auth.controller.dto.SignInResponse;
@@ -63,6 +64,12 @@ public class AuthController implements AuthApi {
         return new ResponseEntity<>(
                 ReissueTokenResponse.of(authService.reissueToken(reissueTokenRequest.memberId())),
                 HttpStatus.CREATED);
+    }
+
+    // 액세스 토큰으로 회원 정보 얻기
+    @GetMapping("/member-info")
+    public MemberInfoResponse getMemberInfo(@MemberId Long memberId) {
+        return authService.getMemberInfo(memberId);
     }
 
     @DisableSwaggerSecurity

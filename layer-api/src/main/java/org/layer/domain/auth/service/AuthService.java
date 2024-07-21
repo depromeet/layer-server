@@ -3,6 +3,7 @@ package org.layer.domain.auth.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.layer.common.exception.BaseCustomException;
+import org.layer.domain.auth.controller.dto.MemberInfoResponse;
 import org.layer.domain.auth.controller.dto.SignUpRequest;
 import org.layer.domain.auth.service.dto.ReissueTokenServiceResponse;
 import org.layer.domain.auth.controller.dto.SignInResponse;
@@ -78,6 +79,13 @@ public class AuthService {
         JwtToken jwtToken = jwtService.reissueToken(memberId);
 
         return ReissueTokenServiceResponse.of(member, jwtToken);
+    }
+
+
+    //== 회원 정보 얻기 ==//
+    public MemberInfoResponse getMemberInfo(final Long memberId) {
+        Member member = memberService.getMemberByMemberId(memberId);
+        return MemberInfoResponse.of(member);
     }
 
 
