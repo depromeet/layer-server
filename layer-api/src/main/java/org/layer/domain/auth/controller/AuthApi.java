@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.layer.common.annotation.MemberId;
 import org.layer.domain.auth.controller.dto.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,10 +26,13 @@ public interface AuthApi {
                     content = @Content(mediaType = "application/json", examples = {
                             @ExampleObject(name="로그인 성공", value = """
                     {
-                        "memberId": 1,
-                        "accessToken": "eyJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE3MjA2OTcyMDksImV4cCI6MTcyMDY5OTAwOSwicm9sZSI6WyJVU0VSIl0sIm1lbWJlcklkIjoxfQ.OV-RWbIPZIQlMsPMR0reFHMFq9MNBKQwf7Hw7Uo0QbJPrTEACu0MqSJlv-gMtag1PhBxo7KB5dxEDza6QI06Zw",
-                        "refreshToken": "eyJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE3MjA2OTcyMTAsImV4cCI6MTcyMTkwNjgxMCwicm9sZSI6WyJVU0VSIl0sIm1lbWJlcklkIjoxfQ.fIVauBlL3GHLrVFJ1YwWb89RFwxa84Cql2WqEu4L258ebPJ04TkAGbqrCt7i-oEKI6dbvv0KDRKXkgDQH18kTA",
-                        "memberRole": "USER"
+                        "memberId": 3,
+                        "name": "김회고",
+                        "email": "kimlayer@kakao.com",
+                        "memberRole": "USER",
+                        "socialId": "123456789",
+                        "socialType": "KAKAO",
+                        "accessToken": "[토큰값]"
                     }
                     """
                             )
@@ -71,12 +75,13 @@ public interface AuthApi {
                     content = @Content(mediaType = "application/json", examples = {
                             @ExampleObject(name="회원 가입 성공. 유저의 정보를 리턴", value = """
                     {
-                        "memberId": 1,
+                        "memberId": 3,
                         "name": "김회고",
-                        "email": "layerkim@kakao.com",
+                        "email": "kimlayer@kakao.com",
                         "memberRole": "USER",
-                        "SocialId": "1234567890",
-                        "socialType": "KAKAO"
+                        "socialId": "123456789",
+                        "socialType": "KAKAO",
+                        "accessToken": "[토큰값]"
                     }
                     """
                             )
@@ -139,6 +144,21 @@ public interface AuthApi {
                     @Header(name = "Authorization", description = "자체 jwt 액세스 토큰", schema = @Schema(type = "string", format = "jwt"), required = true)
             })
     public ResponseEntity<?> withdraw(WithdrawMemberRequest withdrawMemberRequest);
+
+    @Operation(summary = "회원 정보 얻기", description = "header Authorization에 Bearer [액세스토큰]을 넣어 인증하면 회원 정보를 얻을 수 있습니다.")
+    @ApiResponse(responseCode = "200", description = "회원 정보 얻기 성공",
+            content = @Content(mediaType = "application/json", examples = {
+                    @ExampleObject(name="회원 정보 얻기 성공", value = """
+                    {
+                        "memberId": 3,
+                        "name": "김회고",
+                        "email": "kimlayer@kakao.com",
+                        "memberRole": "USER",
+                        "socialId": "123456789",
+                        "socialType": "KAKAO"
+                    }
+                    """)}))
+    public MemberInfoResponse getMemberInfo(@MemberId Long memberId);
 
     // TODO: 토큰 확인용 임시 API 추후 삭제
     @Operation(summary = "[실제 사용 X] 구글 액세스 토큰 받기", description = "서버 쪽에서 토큰을 확인하기 위한 API입니다! (실제 사용 X, 추후 삭제 예정)")

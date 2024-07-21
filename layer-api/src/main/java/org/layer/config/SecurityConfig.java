@@ -65,7 +65,7 @@ public class SecurityConfig {
     // swagger
     private void permitSwaggerUri(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
-                .requestMatchers(new AntPathRequestMatcher("/v3/api-docs/**")).permitAll()
+//                .requestMatchers(new AntPathRequestMatcher("/swagger-ui*")).permitAll()
                 .requestMatchers(new AntPathRequestMatcher("/swagger-ui/**")).permitAll()
                 .requestMatchers(new AntPathRequestMatcher("/docs/**")).permitAll());
     }

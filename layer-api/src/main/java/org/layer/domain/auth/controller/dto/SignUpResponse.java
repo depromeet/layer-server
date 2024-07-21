@@ -8,7 +8,7 @@ public record SignUpResponse(Long memberId,
                                     String name,
                                     String email,
                                     MemberRole memberRole,
-                                    String SocialId,
+                                    String socialId,
                                     SocialType socialType,
                                     String accessToken) {
     public static SignUpResponse of(SignUpServiceResponse signUpServiceResponse) {
