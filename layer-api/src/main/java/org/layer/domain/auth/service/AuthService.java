@@ -13,7 +13,6 @@ import org.layer.domain.jwt.service.JwtService;
 import org.layer.domain.member.entity.Member;
 import org.layer.domain.member.entity.SocialType;
 import org.layer.domain.member.service.MemberService;
-import org.layer.domain.member.service.MemberUtil;
 import org.layer.oauth.dto.service.MemberInfoServiceResponse;
 import org.layer.oauth.service.GoogleService;
 import org.layer.oauth.service.KakaoService;
@@ -50,7 +49,10 @@ public class AuthService {
 
         // DB에 회원 저장
         Member member = memberService.saveMember(signUpRequest, memberInfo);
-        return SignUpServiceResponse.of(member);
+
+        // 토큰 발급
+        JwtToken jwtToken = jwtService.issueToken(member.getId(), member.getMemberRole());
+        return SignUpServiceResponse.of(member, jwtToken);
     }
 
     //== 로그아웃 ==//

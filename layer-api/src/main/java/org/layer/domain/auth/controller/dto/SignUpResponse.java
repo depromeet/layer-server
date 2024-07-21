@@ -9,13 +9,15 @@ public record SignUpResponse(Long memberId,
                                     String email,
                                     MemberRole memberRole,
                                     String SocialId,
-                                    SocialType socialType) {
+                                    SocialType socialType,
+                                    String accessToken) {
     public static SignUpResponse of(SignUpServiceResponse signUpServiceResponse) {
         return new SignUpResponse(signUpServiceResponse.memberId(),
                 signUpServiceResponse.name(),
                 signUpServiceResponse.email(),
                 signUpServiceResponse.memberRole(),
                 signUpServiceResponse.socialId(),
-                signUpServiceResponse.socialType());
+                signUpServiceResponse.socialType(),
+                signUpServiceResponse.accessToken());
     }
 }
