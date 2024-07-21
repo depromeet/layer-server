@@ -60,9 +60,10 @@ public class AuthController implements AuthApi {
 
     // 토큰 재발급
     @PostMapping("/reissue-token")
-    public ResponseEntity<ReissueTokenResponse> reissueToken(ReissueTokenRequest reissueTokenRequest) {
+    public ResponseEntity<ReissueTokenResponse> reissueToken(@RequestHeader(value = "Refresh", required = false) String refreshToken,
+                                                             ReissueTokenRequest reissueTokenRequest) {
         return new ResponseEntity<>(
-                ReissueTokenResponse.of(authService.reissueToken(reissueTokenRequest.memberId())),
+                ReissueTokenResponse.of(authService.reissueToken(refreshToken, reissueTokenRequest.memberId())),
                 HttpStatus.CREATED);
     }
 

@@ -74,9 +74,9 @@ public class AuthService {
 
     //== 토큰 재발급. redis 확인 후 재발급 ==//
     @Transactional
-    public ReissueTokenServiceResponse reissueToken(final Long memberId) {
+    public ReissueTokenServiceResponse reissueToken(final String refreshToken, final Long memberId) {
         Member member = memberService.getMemberByMemberId(memberId);
-        JwtToken jwtToken = jwtService.reissueToken(memberId);
+        JwtToken jwtToken = jwtService.reissueToken(refreshToken, memberId);
 
         return ReissueTokenServiceResponse.of(member, jwtToken);
     }
