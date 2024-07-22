@@ -1,6 +1,7 @@
 package org.layer.domain.external.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.layer.common.annotation.MemberId;
 import org.layer.domain.external.api.ExternalApi;
 import org.layer.domain.external.dto.ExternalRequest;
 import org.layer.domain.external.dto.ExternalResponse;
@@ -21,7 +22,7 @@ public class ExternalController implements ExternalApi {
     @Override
     @GetMapping("/image/presigned")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ExternalResponse.GetPreSignedURLResponse> getPresignedURL(Long memberId, ExternalRequest.GetPreSignedURLRequest getPreSignedURLRequest) {
+    public ResponseEntity<ExternalResponse.GetPreSignedURLResponse> getPresignedURL(@MemberId Long memberId, ExternalRequest.GetPreSignedURLRequest getPreSignedURLRequest) {
         String url = ncpService.getPreSignedUrl(memberId, getPreSignedURLRequest.domain());
 
         return ResponseEntity.ok(ExternalResponse.GetPreSignedURLResponse.toResponse(url));
