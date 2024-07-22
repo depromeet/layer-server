@@ -19,6 +19,6 @@ public interface SpaceCustomRepository {
 
     Optional<SpaceWithMemberCount> findByIdAndJoinedMemberId(Long spaceId, Long memberId);
 
-    public Long updateSpace(Long spaceId, SpaceCategory category, SpaceField field, String name, String introduction, String bannerUrl);
+    Long updateSpace(Long spaceId, SpaceCategory category, SpaceField field, String name, String introduction, String bannerUrl);
 
 }
