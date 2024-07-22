@@ -29,14 +29,14 @@ public class SpaceController implements SpaceApi {
     }
 
     @Override
-    @PutMapping("")
+    @PostMapping("")
     public ResponseEntity<Void> createSpace(@MemberId Long memberId, @RequestBody @Validated SpaceRequest.CreateSpaceRequest createSpaceRequest) {
         spaceService.createSpace(memberId, createSpaceRequest);
         return ResponseEntity.ok().build();
     }
 
     @Override
-    @PostMapping("")
+    @PutMapping("")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public ResponseEntity<Void> updateSpace(@MemberId Long memberId, @RequestBody @Validated SpaceRequest.UpdateSpaceRequest updateSpaceRequest) {
         spaceService.updateSpace(memberId, updateSpaceRequest);

@@ -16,6 +16,9 @@ public class SpaceRequest {
 
     @Schema(description = "스페이스 생성하기")
     public record CreateSpaceRequest(
+
+            @Schema(description = "스페이스 이미지 주소")
+            String bannerUrl,
             @Schema(description = "프로젝트 유형 카테고리", example = "INDIVIDUAL")
             @NotNull
             SpaceCategory category,
@@ -36,6 +39,7 @@ public class SpaceRequest {
                     .name(name)
                     .introduction(introduction)
                     .leaderId(memberId)
+                    .bannerUrl(bannerUrl)
                     .build();
         }
     }
@@ -43,6 +47,8 @@ public class SpaceRequest {
     @AtLeastNotNull(min = 2)
     @Schema(description = "스페이스 수정하기")
     public record UpdateSpaceRequest(
+            @Schema(description = "수정하고자 하는 배너 주소")
+            String bannerUrl,
 
             @Schema(description = "수정하고자 하는 스페이스 아이디")
             @NotNull
@@ -69,6 +75,7 @@ public class SpaceRequest {
                     .name(name)
                     .introduction(introduction)
                     .leaderId(memberId)
+                    .bannerUrl(bannerUrl)
                     .build();
         }
     }

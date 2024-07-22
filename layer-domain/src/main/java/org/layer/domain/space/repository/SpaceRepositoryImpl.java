@@ -58,7 +58,7 @@ public class SpaceRepositoryImpl implements SpaceCustomRepository {
     }
 
     @Override
-    public Long updateSpace(Long spaceId, SpaceCategory category, SpaceField field, String name, String introduction) {
+    public Long updateSpace(Long spaceId, SpaceCategory category, SpaceField field, String name, String introduction, String bannerUrl) {
         var query = queryFactory.update(space);
 
         // null 값 제거
@@ -66,6 +66,7 @@ public class SpaceRepositoryImpl implements SpaceCustomRepository {
         Optional.ofNullable(field).ifPresent(it -> query.set(space.field, it));
         Optional.ofNullable(name).ifPresent(it -> query.set(space.name, it));
         Optional.ofNullable(introduction).ifPresent(it -> query.set(space.introduction, it));
+        Optional.ofNullable(bannerUrl).ifPresent(it -> query.set(space.bannerUrl, it));
 
         return query.where(space.id.eq(spaceId)).execute();
     }

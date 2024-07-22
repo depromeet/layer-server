@@ -18,6 +18,8 @@ import java.util.Optional;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Space extends BaseEntity {
 
+    private String bannerUrl;
+
     @NotNull
     @Enumerated(EnumType.STRING)
     private SpaceCategory category;
