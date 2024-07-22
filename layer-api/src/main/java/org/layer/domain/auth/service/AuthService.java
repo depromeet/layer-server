@@ -3,9 +3,10 @@ package org.layer.domain.auth.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.layer.common.exception.BaseCustomException;
+import org.layer.domain.auth.controller.dto.MemberInfoResponse;
 import org.layer.domain.auth.controller.dto.SignUpRequest;
 import org.layer.domain.auth.service.dto.ReissueTokenServiceResponse;
-import org.layer.domain.auth.service.dto.SignInServiceResponse;
+import org.layer.domain.auth.controller.dto.SignInResponse;
 import org.layer.domain.auth.service.dto.SignUpServiceResponse;
 import org.layer.domain.jwt.JwtToken;
 import org.layer.domain.jwt.exception.AuthExceptionType;
@@ -13,7 +14,6 @@ import org.layer.domain.jwt.service.JwtService;
 import org.layer.domain.member.entity.Member;
 import org.layer.domain.member.entity.SocialType;
 import org.layer.domain.member.service.MemberService;
-import org.layer.domain.member.service.MemberUtil;
 import org.layer.oauth.dto.service.MemberInfoServiceResponse;
 import org.layer.oauth.service.GoogleService;
 import org.layer.oauth.service.KakaoService;
@@ -31,13 +31,13 @@ public class AuthService {
     private final MemberService memberService;
     //== 로그인 ==//
     @Transactional
-    public SignInServiceResponse signIn(final String socialAccessToken, final SocialType socialType) {
+    public SignInResponse signIn(final String socialAccessToken, final SocialType socialType) {
         MemberInfoServiceResponse signedMember = getMemberInfo(socialType, socialAccessToken);
 
         // DB에서 회원 찾기. 없다면 Exception 발생 => 이름 입력 창으로
         Member member = memberService.findMemberBySocialIdAndSocialType(signedMember.socialId(), socialType);
         JwtToken jwtToken = jwtService.issueToken(member.getId(), member.getMemberRole());
-        return SignInServiceResponse.of(member, jwtToken);
+        return SignInResponse.of(member, jwtToken);
     }
 
     //== 회원가입(이름을 입력 받기) ==//
@@ -50,7 +50,10 @@ public class AuthService {
 
         // DB에 회원 저장
         Member member = memberService.saveMember(signUpRequest, memberInfo);
-        return SignUpServiceResponse.of(member);
+
+        // 토큰 발급
+        JwtToken jwtToken = jwtService.issueToken(member.getId(), member.getMemberRole());
+        return SignUpServiceResponse.of(member, jwtToken);
     }
 
     //== 로그아웃 ==//
@@ -71,11 +74,18 @@ public class AuthService {
 
     //== 토큰 재발급. redis 확인 후 재발급 ==//
     @Transactional
-    public ReissueTokenServiceResponse reissueToken(final Long memberId) {
+    public ReissueTokenServiceResponse reissueToken(final String refreshToken, final Long memberId) {
         Member member = memberService.getMemberByMemberId(memberId);
-        JwtToken jwtToken = jwtService.reissueToken(memberId);
+        JwtToken jwtToken = jwtService.reissueToken(refreshToken, memberId);
 
         return ReissueTokenServiceResponse.of(member, jwtToken);
+    }
+
+
+    //== 회원 정보 얻기 ==//
+    public MemberInfoResponse getMemberInfo(final Long memberId) {
+        Member member = memberService.getMemberByMemberId(memberId);
+        return MemberInfoResponse.of(member);
     }
 
 
@@ -103,6 +113,5 @@ public class AuthService {
     private void isNewMember(SocialType socialType, String socialId) {
         memberService.checkIsNewMember(socialId, socialType);
     }
-
 
 }

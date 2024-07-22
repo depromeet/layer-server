@@ -12,7 +12,8 @@ public enum TokenExceptionType implements ExceptionType {
      */
     INVALID_TOKEN(HttpStatus.BAD_REQUEST, "token이 유효하지 않습니다."),
     INVALID_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "refresh token이 유효하지 않습니다."),
-    INVALID_ACCESS_TOKEN(HttpStatus.BAD_REQUEST, "access token이 유효하지 않습니다.");
+    INVALID_ACCESS_TOKEN(HttpStatus.BAD_REQUEST, "access token이 유효하지 않습니다."),
+    NO_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "refresh token이 존재하지 않습니다.");
 
 
     private final HttpStatus status;

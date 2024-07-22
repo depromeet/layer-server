@@ -2,21 +2,22 @@ package org.layer.domain.jwt.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.layer.common.exception.BaseCustomException;
-import org.layer.domain.auth.exception.TokenExceptionType;
-import org.layer.domain.jwt.*;
+import org.layer.domain.jwt.JwtProvider;
+import org.layer.domain.jwt.JwtToken;
+import org.layer.domain.jwt.JwtValidator;
+import org.layer.domain.jwt.MemberAuthentication;
+import org.layer.domain.jwt.exception.TokenException;
 import org.layer.domain.member.entity.MemberRole;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
 
-import static org.layer.domain.auth.exception.TokenExceptionType.INVALID_REFRESH_TOKEN;
 import static org.layer.config.AuthValueConfig.ACCESS_TOKEN_EXPIRATION_TIME;
 import static org.layer.config.AuthValueConfig.REFRESH_TOKEN_EXPIRATION_TIME;
+import static org.layer.domain.auth.exception.TokenExceptionType.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -39,11 +40,23 @@ public class JwtService {
     }
 
     // Jwt 재발급
-    public JwtToken reissueToken(Long memberId) {
+    public JwtToken reissueToken(String requestRefreshToken, Long memberId) {
         // 리프레시 토큰 검사
         String refreshToken = getRefreshTokenFromRedis(memberId);
+
+        // 1. requestRefreshToken이 null이거나 empty
+        if(requestRefreshToken == null || requestRefreshToken.isEmpty()) {
+            throw new TokenException(NO_REFRESH_TOKEN);
+        }
+
+        // 2. 요청 헤더로 들어온 것과 같은가
+        if(!refreshToken.equals(requestRefreshToken)) {
+            throw new TokenException(INVALID_REFRESH_TOKEN);
+        }
+
+        // 3. 파싱했을 때 유효한가
         if(!jwtValidator.isValidToken(refreshToken)) {
-            throw new BaseCustomException(TokenExceptionType.INVALID_TOKEN); // FIXME: TokenException 등으로 변경 필요
+            throw new TokenException(INVALID_TOKEN);
         }
 
 
@@ -63,7 +76,7 @@ public class JwtService {
         try {
             memberId = Long.parseLong((String) Objects.requireNonNull(redisTemplate.opsForValue().get(refreshToken)));
         } catch(Exception e) {
-            throw new BaseCustomException(INVALID_REFRESH_TOKEN);
+            throw new TokenException(INVALID_REFRESH_TOKEN);
         }
         return memberId;
     }
@@ -74,7 +87,7 @@ public class JwtService {
             List<String> role = jwtValidator.getRoleFromToken(refreshToken);
             memberRole = MemberRole.valueOf(role.get(0));
         } catch(Exception e) {
-            throw new BaseCustomException(INVALID_REFRESH_TOKEN);
+            throw new TokenException(INVALID_REFRESH_TOKEN);
         }
 
         return memberRole;
