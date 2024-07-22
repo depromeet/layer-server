@@ -12,7 +12,6 @@ import java.util.Optional;
 
 @Getter
 @Entity
-@AllArgsConstructor
 @SuperBuilder
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -44,5 +43,15 @@ public class Space extends BaseEntity {
             return Optional.empty();
         }
         return Optional.of(true);
+    }
+
+    public Space(SpaceCategory category, SpaceField field, String name, String introduction, Long leaderId,
+        Long formId) {
+        this.category = category;
+        this.field = field;
+        this.name = name;
+        this.introduction = introduction;
+        this.leaderId = leaderId;
+        this.formId = formId;
     }
 }

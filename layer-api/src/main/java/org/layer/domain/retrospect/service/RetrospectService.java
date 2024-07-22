@@ -40,7 +40,7 @@ public class RetrospectService {
 	private final FormRepository formRepository;
 
 	@Transactional
-	public void createRetrospect(RetrospectCreateServiceRequest request, Long memberId) {
+	public Long createRetrospect(RetrospectCreateServiceRequest request, Long memberId) {
 		// 해당 스페이스 팀원인지 검증
 		validateTeamMember(request.spaceId(), memberId);
 
@@ -62,6 +62,8 @@ public class RetrospectService {
 			.map(q -> new Question(savedForm.getId(), q, myIndex.getAndIncrement(), QuestionOwner.INDIVIDUAL, QuestionType.PLAIN_TEXT))
 			.toList();
 		questionRepository.saveAll(myQuestions);
+
+		return savedRetrospect.getId();
 	}
 
 	private Retrospect getRetrospect(RetrospectCreateServiceRequest request) {
