@@ -45,7 +45,7 @@ public class QuestionService {
 			retrospectId, QuestionOwner.TEAM);
 
 		List<QuestionGetServiceResponse> serviceResponses = questions.stream()
-			.map(q -> QuestionGetServiceResponse.of(q.getContent(), q.getQuestionOrder(), q.getQuestionType().getStyle()))
+			.map(q -> QuestionGetServiceResponse.of(q.getQuestionOwnerId(), q.getContent(), q.getQuestionOrder(), q.getQuestionType().getStyle()))
 			.toList();
 
 		return QuestionListGetServiceResponse.of(serviceResponses);

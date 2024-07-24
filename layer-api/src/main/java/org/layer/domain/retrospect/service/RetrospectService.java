@@ -14,13 +14,14 @@ import org.layer.domain.question.entity.Question;
 import org.layer.domain.question.enums.QuestionOwner;
 import org.layer.domain.question.enums.QuestionType;
 import org.layer.domain.question.repository.QuestionRepository;
+import org.layer.domain.retrospect.controller.dto.request.RetrospectCreateRequest;
 import org.layer.domain.retrospect.entity.Retrospect;
 import org.layer.domain.retrospect.entity.RetrospectStatus;
 import org.layer.domain.retrospect.repository.RetrospectRepository;
-import org.layer.domain.retrospect.service.dto.request.RetrospectCreateServiceRequest;
 import org.layer.domain.retrospect.service.dto.response.RetrospectGetServiceResponse;
 import org.layer.domain.retrospect.service.dto.response.RetrospectListGetServiceResponse;
 import org.layer.domain.space.entity.MemberSpaceRelation;
+import org.layer.domain.space.entity.Team;
 import org.layer.domain.space.exception.MemberSpaceRelationException;
 import org.layer.domain.space.repository.MemberSpaceRelationRepository;
 import org.springframework.stereotype.Service;
@@ -40,16 +41,17 @@ public class RetrospectService {
 	private final FormRepository formRepository;
 
 	@Transactional
-	public void createRetrospect(RetrospectCreateServiceRequest request, Long memberId) {
+	public void createRetrospect(RetrospectCreateRequest request, Long spaceId, Long memberId) {
 		// 해당 스페이스 팀원인지 검증
-		validateTeamMember(request.spaceId(), memberId);
+		validateTeamMember(spaceId, memberId);
 
-		Retrospect retrospect = getRetrospect(request);
+		Retrospect retrospect = getRetrospect(request, spaceId);
 		Retrospect savedRetrospect = retrospectRepository.save(retrospect);
 
 		AtomicInteger teamIndex = new AtomicInteger(1);
 		List<Question> questions = request.questions().stream()
-			.map(q -> new Question(savedRetrospect.getId(), q, teamIndex.getAndIncrement(), QuestionOwner.TEAM, QuestionType.PLAIN_TEXT))
+			.map(q -> new Question(savedRetrospect.getId(), q, teamIndex.getAndIncrement(), QuestionOwner.TEAM,
+				QuestionType.PLAIN_TEXT))
 			.toList();
 		questionRepository.saveAll(questions);
 
@@ -59,31 +61,35 @@ public class RetrospectService {
 
 		AtomicInteger myIndex = new AtomicInteger(1);
 		List<Question> myQuestions = request.questions().stream()
-			.map(q -> new Question(savedForm.getId(), q, myIndex.getAndIncrement(), QuestionOwner.INDIVIDUAL, QuestionType.PLAIN_TEXT))
+			.map(q -> new Question(savedForm.getId(), q, myIndex.getAndIncrement(), QuestionOwner.INDIVIDUAL,
+				QuestionType.PLAIN_TEXT))
 			.toList();
 		questionRepository.saveAll(myQuestions);
 	}
 
-	private Retrospect getRetrospect(RetrospectCreateServiceRequest request) {
+	private Retrospect getRetrospect(RetrospectCreateRequest request, Long spaceId) {
 		return Retrospect.builder()
 			.title(request.title())
-			.spaceId(request.spaceId())
+			.spaceId(spaceId)
 			.introduction(request.introduction())
 			.retrospectStatus(RetrospectStatus.PROCEEDING)
+			.deadline(request.deadline())
 			.build();
 	}
 
 	public RetrospectListGetServiceResponse getRetrospects(Long spaceId, Long memberId) {
 		// 해당 스페이스 팀원인지 검증
-		validateTeamMember(spaceId, memberId);
+		Team team = new Team(memberSpaceRelationRepository.findAllBySpaceId(spaceId));
+		team.validateTeamMembership(memberId);
 
 		List<Retrospect> retrospects = retrospectRepository.findAllBySpaceId(spaceId);
 		List<Long> retrospectIds = retrospects.stream().map(Retrospect::getId).toList();
 		Answers answers = new Answers(answerRepository.findAllByRetrospectIdIn(retrospectIds));
 
 		List<RetrospectGetServiceResponse> retrospectDtos = retrospects.stream()
-			.map(r -> RetrospectGetServiceResponse.of(r.getTitle(), r.getIntroduction(),
-				answers.hasRetrospectAnswer(memberId, r.getId()), r.getRetrospectStatus(), answers.getWriteCount(r.getId())))
+			.map(r -> RetrospectGetServiceResponse.of(r.getId(), r.getTitle(), r.getIntroduction(),
+				answers.hasRetrospectAnswer(memberId, r.getId()), r.getRetrospectStatus(),
+				answers.getWriteCount(r.getId()), team.getTeamMemberCount()))
 			.toList();
 
 		return RetrospectListGetServiceResponse.of(retrospects.size(), retrospectDtos);
