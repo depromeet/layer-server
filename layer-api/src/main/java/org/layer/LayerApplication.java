@@ -7,7 +7,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
-@OpenAPIDefinition(servers = {@Server(url = "https://api.layerapp.io", description = "운영서버")})
+@OpenAPIDefinition(servers = {
+        @Server(url = "https://api.layerapp.io", description = "운영서버"),
+        @Server(url = "http://localhost:8080", description = "개발서버")})
 @SpringBootApplication
 @EnableJpaAuditing
 public class LayerApplication {

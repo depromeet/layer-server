@@ -35,7 +35,7 @@ public interface SpaceApi {
     )
     ResponseEntity<SpaceResponse.SpacePage> getMySpaceList(@MemberId Long memberId, @ModelAttribute @Validated SpaceRequest.GetSpaceRequest getSpaceRequest);
 
-    @Operation(summary = "스페이스 생성하기", method = "PUT", description = """
+    @Operation(summary = "스페이스 생성하기", method = "POST", description = """
             스페이스를 생성합니다. <br />
             생성 성공 시 아무것도 반환하지 않습니다.
             """)
@@ -52,7 +52,7 @@ public interface SpaceApi {
     )
     ResponseEntity<Void> createSpace(@MemberId Long memberId, @RequestBody @Validated SpaceRequest.CreateSpaceRequest createSpaceRequest);
 
-    @Operation(summary = "스페이스 수정하기", method = "POST", description = """
+    @Operation(summary = "스페이스 수정하기", method = "PUT", description = """
             스페이스를 수정합니다. <br />
             생성 성공 시 아무것도 반환하지 않습니다.
             """)

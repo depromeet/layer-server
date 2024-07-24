@@ -142,7 +142,11 @@ project(":layer-external") {
         implementation project(path: ':layer-common')
         implementation project(path: ':layer-domain')
 
+        // NCP Object Storage
+        implementation 'io.awspring.cloud:spring-cloud-starter-aws:2.4.4'
+
         testImplementation platform('org.junit:junit-bom:5.9.1')
         testImplementation 'org.junit.jupiter:junit-jupiter'
+
     }
 }
