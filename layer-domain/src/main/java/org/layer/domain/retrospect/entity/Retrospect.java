@@ -2,6 +2,8 @@ package org.layer.domain.retrospect.entity;
 
 import static org.layer.common.exception.RetrospectExceptionType.*;
 
+import java.time.LocalDateTime;
+
 import org.layer.domain.common.BaseTimeEntity;
 import org.layer.domain.retrospect.exception.RetrospectException;
 
@@ -21,34 +23,39 @@ import jakarta.validation.constraints.NotNull;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Retrospect extends BaseTimeEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @NotNull
-    private Long spaceId;
+	@NotNull
+	private Long spaceId;
 
-    @NotNull
-    private String title;
+	@NotNull
+	private String title;
 
-    @NotNull
-    private String introduction;
+	@NotNull
+	private String introduction;
 
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    private RetrospectStatus retrospectStatus;
+	@NotNull
+	@Enumerated(EnumType.STRING)
+	private RetrospectStatus retrospectStatus;
 
-    @Builder
-    public Retrospect(Long spaceId, String title, String introduction, RetrospectStatus retrospectStatus) {
-        this.spaceId = spaceId;
-        this.title = title;
-        this.introduction = introduction;
-        this.retrospectStatus = retrospectStatus;
-    }
+	@NotNull
+	private LocalDateTime deadline;
 
-    public void isProceedingRetrospect(){
-        if(!this.retrospectStatus.equals(RetrospectStatus.PROCEEDING)){
-            throw new RetrospectException(NOT_PROCEEDING_RETROSPECT);
-        }
-    }
+	@Builder
+	public Retrospect(Long spaceId, String title, String introduction, RetrospectStatus retrospectStatus,
+		LocalDateTime deadline) {
+		this.spaceId = spaceId;
+		this.title = title;
+		this.introduction = introduction;
+		this.retrospectStatus = retrospectStatus;
+		this.deadline = deadline;
+	}
+
+	public void isProceedingRetrospect() {
+		if (!this.retrospectStatus.equals(RetrospectStatus.PROCEEDING)) {
+			throw new RetrospectException(NOT_PROCEEDING_RETROSPECT);
+		}
+	}
 }
