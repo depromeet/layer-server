@@ -58,4 +58,10 @@ public class Retrospect extends BaseTimeEntity {
 			throw new RetrospectException(NOT_PROCEEDING_RETROSPECT);
 		}
 	}
+
+	public void validateDeadline(LocalDateTime currentTime) {
+		if (currentTime.isAfter(this.deadline)) {
+			throw new RetrospectException(DEADLINE_PASSED);
+		}
+	}
 }
