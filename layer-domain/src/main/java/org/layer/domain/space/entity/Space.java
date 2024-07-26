@@ -1,5 +1,6 @@
 package org.layer.domain.space.entity;
 
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -7,7 +8,10 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.layer.domain.BaseEntity;
+import org.layer.domain.space.converter.SpaceFieldConverter;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Getter
@@ -25,8 +29,8 @@ public class Space extends BaseEntity {
     private SpaceCategory category;
 
     @NotNull
-    @Enumerated(EnumType.STRING)
-    private SpaceField field;
+    @Convert(converter = SpaceFieldConverter.class)
+    private List<SpaceField> fieldList = new ArrayList<>();
 
     @NotNull
     private String name;
