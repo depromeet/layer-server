@@ -133,5 +133,5 @@ jobs:
           script: |
             cd /home/${{ env.MODULE }}/infra/${{ env.DEPLOY_TARGET }}
             echo "${{ secrets.APPLICATION_YAML_API }}" > application.yaml
-            docker-compose pull
-            docker-compose up -d
+            docker compose pull
+            docker compose up -d
