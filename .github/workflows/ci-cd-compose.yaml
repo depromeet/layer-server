@@ -109,9 +109,9 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v4
 
-      - name: Create application.yaml file
+      - name: Create application-secret.properties file
         run: |
-          echo "${{ secrets.APPLICATION_YAML_API }}" > ./${{ env.MODULE }}/infra/${{ env.DEPLOY_TARGET }}/application.yaml
+          echo "${{ secrets.APPLICATION_SECRET_PROPERTIES }}" > ./${{ env.MODULE }}/infra/${{ env.DEPLOY_TARGET }}/application-secret.properties
 
       - name: Send Docker Compose
         uses: appleboy/scp-action@master
@@ -132,6 +132,6 @@ jobs:
           port: 22
           script: |
             cd /home/${{ env.MODULE }}/infra/${{ env.DEPLOY_TARGET }}
-            echo "${{ secrets.APPLICATION_YAML_API }}" > application.yaml
+            echo "${{ secrets.APPLICATION_SECRET_PROPERTIES }}" > application-secret.properties
             docker-compose pull
             docker-compose up -d

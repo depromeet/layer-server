@@ -14,6 +14,9 @@ services:
       - redis
     ports:
       - "8080:8080"
+    environment:
+      - TZ=Asia/Seoul
+      - SPRING_PROFILES_ACTIVE=prod
     volumes:
       - type: bind
         source: ./config/application.yaml

@@ -1,0 +1,70 @@
+spring:
+  config:
+    import: application-secret.properties
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:layer-local-db;DATABASE_TO_UPPER=FALSE;mode=mysql  # H2 접속 정보 (전부 소문자로 지정)
+    username: sa
+    password:
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+    open-in-view: false
+    defer-datasource-initialization: true
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password:
+
+jwt:
+  secret: ${DEV_JWT_SECRET}
+
+kakao:
+  login:
+    api_key: ${DEV_KAKAO_API_KEY}
+    redirect_uri: http://localhost:8080/api/auth/oauth2/kakao
+    uri:
+      base: https://kauth.kakao.com
+      code: /oauth/authorize
+      token: /oauth/token
+  api:
+    uri:
+      base: https://kapi.kakao.com
+      user: /v2/user/me
+
+google:
+  login:
+    client_id: ${DEV_GOOGLE_CLIENT_ID}
+    code_uri: ${DEV_GOOGLE_CODE_URI}
+    token_uri: ${DEV_GOOGLE_TOKEN_URI}
+    client_secret: ${DEV_GOOGLE_CLIENT_SECRET}
+    redirect_uri: ${DEV_GOOGLE_REDIRECT_URI}
+    code_redirect_uri: http://localhost:8080/api/auth/oauth2/google/code
+
+
+webmvc:
+  cors:
+    allowedOrigins:
+      http://localhost:8080,
+      https://api.layerapp.io,
+      https://layerapp.io,
+      http://localhost:5173
+
+ncp:
+  storage:
+    region: ${STORAGE_REGION}
+    bucketName: ${STORAGE_NAME}
+    endpoint: ${STORAGE_ENDPOINT}
+    accessKey: ${STORAGE_ACCESS_KEY}
+    secretKey: ${STORAGE_SECRET_KEY}
