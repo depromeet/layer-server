@@ -36,8 +36,7 @@ public class RetrospectController implements RetrospectApi {
 		@RequestBody @Valid RetrospectCreateRequest request,
 		@MemberId Long memberId) {
 
-		retrospectService.createRetrospect(
-			RetrospectCreateServiceRequest.of(request.title(), request.introduction(), spaceId, request.questions()), memberId);
+		retrospectService.createRetrospect(request, spaceId, memberId);
 
 		return ResponseEntity.ok().build();
 	}
@@ -51,8 +50,8 @@ public class RetrospectController implements RetrospectApi {
 		RetrospectListGetServiceResponse serviceResponse = retrospectService.getRetrospects(spaceId, memberId);
 
 		List<RetrospectGetResponse> retrospectGetResponses = serviceResponse.retrospects().stream()
-			.map(r -> RetrospectGetResponse.of(r.title(), r.introduction(), r.isWrite(), r.retrospectStatus(),
-				r.writeCount()))
+			.map(r -> RetrospectGetResponse.of(r.retrospectId(), r.title(), r.introduction(), r.isWrite(), r.retrospectStatus(),
+				r.writeCount(), r.totalCount()))
 			.toList();
 
 		return ResponseEntity.ok()
