@@ -54,7 +54,7 @@ public class SpaceService {
     @Transactional
     public void updateSpace(Long memberId, SpaceRequest.UpdateSpaceRequest updateSpaceRequest) {
         spaceRepository.findByIdAndJoinedMemberId(updateSpaceRequest.id(), memberId).orElseThrow(() -> new SpaceException(SPACE_NOT_FOUND));
-        spaceRepository.updateSpace(updateSpaceRequest.id(), updateSpaceRequest.category(), updateSpaceRequest.field(), updateSpaceRequest.name(), updateSpaceRequest.introduction(), updateSpaceRequest.bannerUrl());
+        spaceRepository.updateSpace(updateSpaceRequest.id(), updateSpaceRequest.category(), updateSpaceRequest.fieldList(), updateSpaceRequest.name(), updateSpaceRequest.introduction(), updateSpaceRequest.bannerUrl());
     }
 
     public SpaceResponse.SpaceWithMemberCountInfo getSpaceById(Long memberId, Long spaceId) {

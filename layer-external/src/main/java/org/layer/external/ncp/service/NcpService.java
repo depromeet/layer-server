@@ -7,6 +7,7 @@ import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.layer.external.ncp.dto.NcpResponse;
 import org.layer.external.ncp.enums.ImageDomain;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -24,12 +25,16 @@ public class NcpService {
 
     private final AmazonS3Client amazonS3Client;
 
-    public String getPreSignedUrl(Long memberId, ImageDomain imageDomain) {
-        String fileName = imageDomain + "/" + memberId.toString() + "/" + UUID.randomUUID();
+    public NcpResponse.PresignedResult getPreSignedUrl(Long memberId, ImageDomain imageDomain) {
+        String imagePath = imageDomain + "/" + memberId.toString() + "/" + UUID.randomUUID();
+        var imageUrl = amazonS3Client.getUrl(bucket, imagePath);
 
-        GeneratePresignedUrlRequest generatePresignedUrlRequest = getGeneratePreSignedUrlRequest(bucket, fileName);
+        GeneratePresignedUrlRequest generatePresignedUrlRequest = getGeneratePreSignedUrlRequest(bucket, imagePath);
 
-        return amazonS3Client.generatePresignedUrl(generatePresignedUrlRequest).toString();
+        return NcpResponse.PresignedResult.toResponse(
+                amazonS3Client.generatePresignedUrl(generatePresignedUrlRequest).toString(),
+                imageUrl.toString()
+        );
     }
 
     private GeneratePresignedUrlRequest getGeneratePreSignedUrlRequest(String bucket, String fileName) {
@@ -46,7 +51,9 @@ public class NcpService {
     private Date getPreSignedUrlExpiration() {
         Date expiration = new Date();
         long expTimeMillis = expiration.getTime();
-        expTimeMillis += 1000 * 60 * 2;
+
+        // 15 초
+        expTimeMillis += 1000 * 15;
         expiration.setTime(expTimeMillis);
         return expiration;
     }

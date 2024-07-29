@@ -1,5 +1,6 @@
 package org.layer.domain.retrospect.controller.dto.request;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -16,6 +17,9 @@ public record RetrospectCreateRequest(
 	@Schema(description = "회고 질문 목록(리스트)", example = "이번에 가장 어려웠던 점은 무엇인가요?")
 	@NotNull
 	@Size(min = 3, max = 15)
-	List<String> questions
+	List<String> questions,
+	@Schema(description = "회고 마감 일자", example = "")
+	@NotNull
+	LocalDateTime deadline
 ) {
 }

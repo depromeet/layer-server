@@ -12,6 +12,7 @@ import org.layer.domain.space.entity.SpaceCategory;
 import org.layer.domain.space.entity.SpaceField;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -50,7 +51,7 @@ public class SpaceRepositoryImpl implements SpaceCustomRepository {
                         .and(memberSpaceRelation.memberId.eq(memberId)))
                 .fetchOne();
 
-        if (isSpaceWithMemberCountEmpty(foundSpace)) {
+        if (foundSpace == null || isSpaceWithMemberCountEmpty(foundSpace)) {
             return Optional.empty();
         }
         // TODO: 커스텀 에러로 변경
@@ -58,12 +59,12 @@ public class SpaceRepositoryImpl implements SpaceCustomRepository {
     }
 
     @Override
-    public Long updateSpace(Long spaceId, SpaceCategory category, SpaceField field, String name, String introduction, String bannerUrl) {
+    public Long updateSpace(Long spaceId, SpaceCategory category, List<SpaceField> fieldList, String name, String introduction, String bannerUrl) {
         var query = queryFactory.update(space);
 
         // null 값 제거
         Optional.ofNullable(category).ifPresent(it -> query.set(space.category, it));
-        Optional.ofNullable(field).ifPresent(it -> query.set(space.field, it));
+        Optional.ofNullable(fieldList).ifPresent(it -> query.set(new ArrayList<>(), it));
         Optional.ofNullable(name).ifPresent(it -> query.set(space.name, it));
         Optional.ofNullable(introduction).ifPresent(it -> query.set(space.introduction, it));
         Optional.ofNullable(bannerUrl).ifPresent(it -> query.set(space.bannerUrl, it));
@@ -79,7 +80,7 @@ public class SpaceRepositoryImpl implements SpaceCustomRepository {
                                 space.createdAt,
                                 space.updatedAt,
                                 space.category,
-                                space.field,
+                                space.fieldList,
                                 space.name,
                                 space.introduction,
                                 space.leaderId,
