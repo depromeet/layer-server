@@ -29,7 +29,7 @@ public class NcpService {
         String imagePath = imageDomain + "/" + memberId.toString() + "/" + UUID.randomUUID();
         var imageUrl = amazonS3Client.getUrl(bucket, imagePath);
 
-        GeneratePresignedUrlRequest generatePresignedUrlRequest = getGeneratePreSignedUrlRequest(bucket, imagePath);
+        GeneratePresignedUrlRequest generatePresignedUrlRequest = getGeneratePreSignedUrlRequest(imagePath);
 
         return NcpResponse.PresignedResult.toResponse(
                 amazonS3Client.generatePresignedUrl(generatePresignedUrlRequest).toString(),
@@ -37,7 +37,7 @@ public class NcpService {
         );
     }
 
-    private GeneratePresignedUrlRequest getGeneratePreSignedUrlRequest(String bucket, String fileName) {
+    private GeneratePresignedUrlRequest getGeneratePreSignedUrlRequest(String fileName) {
         GeneratePresignedUrlRequest generatePresignedUrlRequest =
                 new GeneratePresignedUrlRequest(bucket, fileName)
                         .withMethod(HttpMethod.PUT)

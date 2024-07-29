@@ -34,8 +34,8 @@ public class AuthService {
     public SignInResponse signIn(final String socialAccessToken, final SocialType socialType) {
         MemberInfoServiceResponse signedMember = getMemberInfo(socialType, socialAccessToken);
 
-        // DB에서 회원 찾기. 없다면 Exception 발생 => 이름 입력 창으로
-        Member member = memberService.findMemberBySocialIdAndSocialType(signedMember.socialId(), socialType);
+        // DB에서 회원 찾기. 없다면 NEED_TO_REGISTER Exception 발생 => 이름 입력 창으로
+        Member member = memberService.getMemberBySocialInfoForSignIn(signedMember.socialId(), socialType);
         JwtToken jwtToken = jwtService.issueToken(member.getId(), member.getMemberRole());
         return SignInResponse.of(member, jwtToken);
     }
