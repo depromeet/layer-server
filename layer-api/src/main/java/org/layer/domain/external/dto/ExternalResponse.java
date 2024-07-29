@@ -3,7 +3,7 @@ package org.layer.domain.external.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
-import org.layer.external.ncp.exception.ExternalExeption;
+import org.layer.external.ncp.exception.ExternalException;
 
 import java.util.Optional;
 
@@ -33,7 +33,7 @@ public class ExternalResponse {
                             .presignedUrl(presignedUrl)
                             .imageUrl(imageUrl)
                             .build()
-                    ).orElseThrow(() -> new ExternalExeption(INTERNAL_SERVER_ERROR));
+                    ).orElseThrow(() -> new ExternalException(INTERNAL_SERVER_ERROR));
         }
     }
 }
