@@ -44,13 +44,15 @@ public class SpaceService {
     }
 
     @Transactional
-    public void createSpace(Long memberId, SpaceRequest.CreateSpaceRequest createSpaceRequest) {
+    public Long createSpace(Long memberId, SpaceRequest.CreateSpaceRequest createSpaceRequest) {
 
 
         var newSpace = spaceRepository.save(createSpaceRequest.toEntity(memberId));
         var memberSpaceRelation = MemberSpaceRelation.builder().memberId(memberId).space(newSpace).build();
 
         memberSpaceRelationRepository.save(memberSpaceRelation);
+
+        return newSpace.getId();
     }
 
     @Transactional

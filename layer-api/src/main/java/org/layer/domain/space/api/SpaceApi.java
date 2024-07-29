@@ -44,13 +44,16 @@ public interface SpaceApi {
                     content = {
                             @Content(
                                     mediaType = "application/json",
-                                    schema = @Schema()
+                                    schema = @Schema(implementation = SpaceResponse.SpaceCreateResponse.class, title = "생성된 스페이스 아이디", description = """
+                                            생성된 스페이스의 아이디를 반환합니다.
+                                                                                        
+                                            """)
                             )
                     }
             )
     }
     )
-    ResponseEntity<Void> createSpace(@MemberId Long memberId, @RequestBody @Validated SpaceRequest.CreateSpaceRequest createSpaceRequest);
+    ResponseEntity<SpaceResponse.SpaceCreateResponse> createSpace(@MemberId Long memberId, @RequestBody @Validated SpaceRequest.CreateSpaceRequest createSpaceRequest);
 
     @Operation(summary = "스페이스 수정하기", method = "PUT", description = """
             스페이스를 수정합니다. <br />

@@ -75,4 +75,16 @@ public class SpaceResponse {
             return SpacePage.builder().data(spaceInfo).meta(meta).build();
         }
     }
+
+    @Builder
+    @Schema
+    public record SpaceCreateResponse(
+            @Schema(title = "생성된 스페이스 아이디", description = """
+                                        
+                    생성 완료된 스페이스의 아이디
+                                        
+                    """)
+            Long spaceId
+    ) {
+    }
 }
