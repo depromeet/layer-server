@@ -8,6 +8,7 @@ import org.layer.domain.space.entity.Space;
 import org.layer.domain.space.entity.SpaceCategory;
 import org.layer.domain.space.entity.SpaceField;
 
+import java.util.List;
 import java.util.Optional;
 
 @Schema
@@ -23,8 +24,10 @@ public class SpaceRequest {
             @NotNull
             SpaceCategory category,
             @Schema(description = "진행중인 프로젝트 유형")
+
             @NotNull
-            SpaceField field,
+            List<SpaceField> fieldList,
+
             @Schema(description = "이름")
             @NotNull
             String name,
@@ -35,7 +38,7 @@ public class SpaceRequest {
         public Space toEntity(Long memberId) {
             return Space.builder()
                     .category(category)
-                    .field(field)
+                    .fieldList(fieldList)
                     .name(name)
                     .introduction(introduction)
                     .leaderId(memberId)
@@ -58,7 +61,7 @@ public class SpaceRequest {
             SpaceCategory category,
             @Schema(description = "진행중인 프로젝트 유형", nullable = true)
 
-            SpaceField field,
+            List<SpaceField> fieldList,
             @Schema(description = "이름", nullable = true)
 
             String name,
@@ -71,7 +74,7 @@ public class SpaceRequest {
             return Space.builder()
                     .id(id)
                     .category(category)
-                    .field(field)
+                    .fieldList(fieldList)
                     .name(name)
                     .introduction(introduction)
                     .leaderId(memberId)

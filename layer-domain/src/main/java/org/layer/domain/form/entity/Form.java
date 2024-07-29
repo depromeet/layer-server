@@ -1,12 +1,9 @@
 package org.layer.domain.form.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
-import org.hibernate.annotations.ColumnDefault;
 import org.layer.domain.BaseEntity;
-import org.layer.domain.form.converter.FormPublishedByConverter;
-import org.layer.domain.form.enums.FormPublishedBy;
 
 
 @Getter

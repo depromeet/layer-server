@@ -27,7 +27,7 @@ public class SpaceResponse {
             SpaceCategory category,
             @Schema(description = "진행중인 프로젝트 유형")
             @NotNull
-            SpaceField field,
+            List<SpaceField> fieldList,
 
             @Schema(description = "이름")
             @NotNull
@@ -45,7 +45,7 @@ public class SpaceResponse {
         public static SpaceWithMemberCountInfo toResponse(SpaceWithMemberCount space) {
             return Optional.ofNullable(space)
                     .map(it -> SpaceWithMemberCountInfo.builder().id(it.getId()).category(it.getCategory())
-                            .field(it.getField()).name(it.getName()).introduction(it.getIntroduction())
+                            .fieldList(it.getFieldList()).name(it.getName()).introduction(it.getIntroduction())
                             .formId(it.getFormId()).memberCount(it.getMemberCount()).build())
                     .orElseThrow(() -> new BaseCustomException(INVALID_REFRESH_TOKEN));
         }
