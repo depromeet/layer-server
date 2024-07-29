@@ -3,7 +3,6 @@ package org.layer.domain.space.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.layer.common.annotation.MemberId;
-import org.layer.domain.space.api.SpaceApi;
 import org.layer.domain.space.dto.SpaceRequest;
 import org.layer.domain.space.dto.SpaceResponse;
 import org.layer.domain.space.service.SpaceService;
