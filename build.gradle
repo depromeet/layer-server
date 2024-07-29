@@ -88,6 +88,9 @@ project(":layer-api") {
 
         // mysql
         runtimeOnly 'com.mysql:mysql-connector-j'
+
+        // aop
+        implementation 'org.springframework.boot:spring-boot-starter-aop'
     }
 
     jar.enabled = false

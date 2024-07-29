@@ -4,8 +4,11 @@ services:
     container_name: layer-api
     ports:
       - "8080:8080"
+    environment:
+      - TZ=Asia/Seoul
+      - SPRING_PROFILES_ACTIVE=dev
     volumes:
-      - ./application.yaml:/config/application.yaml
+      - ./application-secret.properties:/config/application-secret.properties
     networks:
       - app-network
 
