@@ -133,5 +133,5 @@ jobs:
           script: |
             cd /home/${{ env.MODULE }}/infra/${{ env.DEPLOY_TARGET }}
             echo "${{ secrets.APPLICATION_SECRET_PROPERTIES }}" > application-secret.properties
-            docker-compose pull
-            docker-compose up -d
+            docker compose pull
+            docker compose up -d
