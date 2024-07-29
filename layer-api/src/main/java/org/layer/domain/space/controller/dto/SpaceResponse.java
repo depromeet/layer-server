@@ -1,5 +1,7 @@
 package org.layer.domain.space.controller.dto;
 
+import static org.layer.common.exception.TokenExceptionType.*;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
@@ -12,7 +14,6 @@ import org.layer.domain.space.entity.SpaceField;
 import java.util.List;
 import java.util.Optional;
 
-import static org.layer.domain.auth.exception.TokenExceptionType.INVALID_REFRESH_TOKEN;
 
 public class SpaceResponse {
 

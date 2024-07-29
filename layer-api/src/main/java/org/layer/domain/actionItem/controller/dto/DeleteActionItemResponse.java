@@ -1,4 +1,4 @@
-package org.layer.domain.actionItem.dto;
+package org.layer.domain.actionItem.controller.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 

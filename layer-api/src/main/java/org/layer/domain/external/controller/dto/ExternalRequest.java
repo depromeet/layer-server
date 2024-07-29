@@ -1,4 +1,4 @@
-package org.layer.domain.external.dto;
+package org.layer.domain.external.controller.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.layer.external.ncp.enums.ImageDomain;

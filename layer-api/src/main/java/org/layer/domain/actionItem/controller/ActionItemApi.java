@@ -1,4 +1,4 @@
-package org.layer.domain.actionItem.api;
+package org.layer.domain.actionItem.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -7,6 +7,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.layer.common.annotation.MemberId;
+import org.layer.domain.actionItem.controller.dto.CreateActionItemRequest;
+import org.layer.domain.actionItem.controller.dto.CreateActionItemResponse;
+import org.layer.domain.actionItem.controller.dto.DeleteActionItemResponse;
+import org.layer.domain.actionItem.controller.dto.MemberActionItemResponse;
+import org.layer.domain.actionItem.controller.dto.SpaceActionItemElementResponse;
+import org.layer.domain.actionItem.controller.dto.SpaceActionItemResponse;
 import org.layer.domain.actionItem.dto.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;

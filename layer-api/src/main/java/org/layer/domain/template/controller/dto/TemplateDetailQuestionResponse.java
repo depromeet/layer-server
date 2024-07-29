@@ -1,4 +1,4 @@
-package org.layer.domain.template.dto;
+package org.layer.domain.template.controller.dto;
 
 import lombok.Builder;
 import org.layer.domain.template.entity.TemplateQuestion;

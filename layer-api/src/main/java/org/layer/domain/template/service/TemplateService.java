@@ -1,7 +1,11 @@
 package org.layer.domain.template.service;
 
 import lombok.RequiredArgsConstructor;
-import org.layer.domain.template.dto.*;
+
+import org.layer.domain.template.controller.dto.TemplateDetailInfoResponse;
+import org.layer.domain.template.controller.dto.TemplateListResponse;
+import org.layer.domain.template.controller.dto.TemplateQuestionListResponse;
+import org.layer.domain.template.controller.dto.TemplateSimpleInfoResponse;
 import org.layer.domain.template.entity.Template;
 import org.layer.domain.template.entity.TemplateQuestion;
 import org.layer.domain.template.exception.TemplateException;
@@ -14,7 +18,6 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service

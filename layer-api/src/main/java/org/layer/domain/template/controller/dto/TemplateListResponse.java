@@ -1,4 +1,4 @@
-package org.layer.domain.template.dto;
+package org.layer.domain.template.controller.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.layer.domain.template.entity.Template;

@@ -1,4 +1,4 @@
-package org.layer.domain.template.dto;
+package org.layer.domain.template.controller.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
@@ -9,7 +9,6 @@ import org.layer.domain.template.exception.TemplateException;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.layer.domain.template.exception.TemplateExceptionType.INVALID_TEMPLATE;
 

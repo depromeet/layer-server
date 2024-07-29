@@ -1,4 +1,4 @@
-package org.layer.domain.external.api;
+package org.layer.domain.external.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -7,8 +7,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.layer.common.annotation.MemberId;
-import org.layer.domain.external.dto.ExternalRequest;
-import org.layer.domain.external.dto.ExternalResponse;
+import org.layer.domain.external.controller.dto.ExternalRequest;
+import org.layer.domain.external.controller.dto.ExternalResponse;
 import org.springframework.http.ResponseEntity;
 
 @Tag(name = "외부 API")

@@ -1,7 +1,7 @@
-package org.layer.domain.template.dto;
+package org.layer.domain.template.controller.dto;
 
 import lombok.Builder;
-import org.layer.domain.question.entity.Question;
+
 import org.layer.domain.question.enums.QuestionType;
 import org.layer.domain.template.entity.TemplateQuestion;
 @Builder

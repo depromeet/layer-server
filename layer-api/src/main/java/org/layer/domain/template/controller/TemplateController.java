@@ -1,8 +1,12 @@
 package org.layer.domain.template.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.layer.domain.template.api.TemplateApi;
-import org.layer.domain.template.dto.*;
+
+import org.layer.domain.template.controller.dto.AllTemplatesRequest;
+import org.layer.domain.template.controller.dto.TemplateDetailInfoResponse;
+import org.layer.domain.template.controller.dto.TemplateListResponse;
+import org.layer.domain.template.controller.dto.TemplateQuestionListResponse;
+import org.layer.domain.template.controller.dto.TemplateSimpleInfoResponse;
 import org.layer.domain.template.service.TemplateService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

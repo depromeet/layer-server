@@ -1,4 +1,4 @@
-package org.layer.domain.template.api;
+package org.layer.domain.template.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -6,7 +6,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.layer.domain.template.dto.*;
+
+import org.layer.domain.template.controller.dto.AllTemplatesRequest;
+import org.layer.domain.template.controller.dto.TemplateDetailInfoResponse;
+import org.layer.domain.template.controller.dto.TemplateListResponse;
+import org.layer.domain.template.controller.dto.TemplateQuestionListResponse;
+import org.layer.domain.template.controller.dto.TemplateSimpleInfoResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 
