@@ -30,9 +30,10 @@ public class SpaceController implements SpaceApi {
 
     @Override
     @PostMapping("")
-    public ResponseEntity<Void> createSpace(@MemberId Long memberId, @RequestBody @Validated SpaceRequest.CreateSpaceRequest createSpaceRequest) {
-        spaceService.createSpace(memberId, createSpaceRequest);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<SpaceResponse.SpaceCreateResponse> createSpace(@MemberId Long memberId, @RequestBody @Validated SpaceRequest.CreateSpaceRequest createSpaceRequest) {
+        var newSpaceId = spaceService.createSpace(memberId, createSpaceRequest);
+
+        return ResponseEntity.ok(SpaceResponse.SpaceCreateResponse.builder().spaceId(newSpaceId).build());
     }
 
     @Override
