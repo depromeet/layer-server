@@ -40,13 +40,23 @@ public class SpaceResponse {
             Long formId,
 
             @Schema(description = "소속된 회원 수")
-            Long memberCount
+            Long memberCount,
+
+            @Schema(description = "스페이스 배너 이미지")
+            String bannerUrl
     ) {
         public static SpaceWithMemberCountInfo toResponse(SpaceWithMemberCount space) {
             return Optional.ofNullable(space)
-                    .map(it -> SpaceWithMemberCountInfo.builder().id(it.getId()).category(it.getCategory())
-                            .fieldList(it.getFieldList()).name(it.getName()).introduction(it.getIntroduction())
-                            .formId(it.getFormId()).memberCount(it.getMemberCount()).build())
+                    .map(it -> SpaceWithMemberCountInfo.builder()
+                            .id(it.getId())
+                            .category(it.getCategory())
+                            .fieldList(it.getFieldList())
+                            .name(it.getName())
+                            .introduction(it.getIntroduction())
+                            .formId(it.getFormId())
+                            .memberCount(it.getMemberCount())
+                            .bannerUrl(it.getBannerUrl())
+                            .build())
                     .orElseThrow(() -> new BaseCustomException(INVALID_REFRESH_TOKEN));
         }
     }

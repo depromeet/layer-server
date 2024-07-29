@@ -85,7 +85,8 @@ public class SpaceRepositoryImpl implements SpaceCustomRepository {
                                 space.introduction,
                                 space.leaderId,
                                 space.formId,
-                                memberCountRelationTable.space.id.count().as("memberCount")
+                                memberCountRelationTable.space.id.count().as("memberCount"),
+                                space.bannerUrl
                         ))
                 .from(space)
                 .leftJoin(memberSpaceRelation).on(space.id.eq(memberSpaceRelation.space.id))
