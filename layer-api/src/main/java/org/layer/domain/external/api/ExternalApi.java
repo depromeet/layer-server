@@ -16,6 +16,15 @@ public interface ExternalApi {
     @Operation(summary = "Presigned URL 발급받기",
             method = "POST", description = """
             이미지 업로드를 위한 Presigned URL 발급합니다.
+                        
+            - GetPreSignedURLResponse.presignedUrl: 이미지 저장을 위한 요청 URL<br />
+            - GetPreSignedURLResponse.imageUrl:     저장 완료된 이미지 요청 URL
+                        
+            # 참고사항
+                        
+            presigned URL 요청 시 헤더에 담긴 Content-type에 따라 파일의 확장자가 정해집니다.
+            사용처에 따라 정확한 Content-type으로 요청 부탁드립니다.
+                        
             """
     )
     @ApiResponses({
