@@ -1,10 +1,11 @@
-package org.layer.domain.space.dto;
+package org.layer.domain.space.controller.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import org.layer.common.dto.Meta;
 import org.layer.common.exception.BaseCustomException;
+import org.layer.domain.space.dto.SpaceWithMemberCount;
 import org.layer.domain.space.entity.SpaceCategory;
 import org.layer.domain.space.entity.SpaceField;
 

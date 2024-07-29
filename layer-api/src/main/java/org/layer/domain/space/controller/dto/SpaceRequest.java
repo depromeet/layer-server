@@ -1,4 +1,4 @@
-package org.layer.domain.space.dto;
+package org.layer.domain.space.controller.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;

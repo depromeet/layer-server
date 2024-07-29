@@ -3,15 +3,12 @@ package org.layer.domain.template.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
-import org.layer.common.exception.BaseCustomException;
-import org.layer.domain.space.dto.SpaceResponse;
-import org.layer.domain.space.dto.SpaceWithMemberCount;
+
 import org.layer.domain.template.entity.Template;
 import org.layer.domain.template.exception.TemplateException;
 
 import java.util.Optional;
 
-import static org.layer.domain.auth.exception.TokenExceptionType.INVALID_REFRESH_TOKEN;
 import static org.layer.domain.template.exception.TemplateExceptionType.INVALID_TEMPLATE;
 
 @Builder
