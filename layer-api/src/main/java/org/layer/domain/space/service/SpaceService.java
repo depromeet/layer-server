@@ -16,7 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.stream.Collectors;
 
-import static org.layer.domain.space.exception.SpaceExceptionType.*;
+import static org.layer.common.exception.SpaceExceptionType.*;
+import static org.layer.common.exception.SpaceExceptionType.SPACE_LEADER_CANNOT_LEAVE;
 
 @Service
 @RequiredArgsConstructor
@@ -57,12 +58,12 @@ public class SpaceService {
 
     @Transactional
     public void updateSpace(Long memberId, SpaceRequest.UpdateSpaceRequest updateSpaceRequest) {
-        spaceRepository.findByIdAndJoinedMemberId(updateSpaceRequest.id(), memberId).orElseThrow(() -> new SpaceException(SPACE_NOT_FOUND));
+        spaceRepository.findByIdAndJoinedMemberId(updateSpaceRequest.id(), memberId).orElseThrow(() -> new SpaceException(NOT_FOUND_SPACE));
         spaceRepository.updateSpace(updateSpaceRequest.id(), updateSpaceRequest.category(), updateSpaceRequest.fieldList(), updateSpaceRequest.name(), updateSpaceRequest.introduction(), updateSpaceRequest.bannerUrl());
     }
 
     public SpaceResponse.SpaceWithMemberCountInfo getSpaceById(Long memberId, Long spaceId) {
-        var foundSpace = spaceRepository.findByIdAndJoinedMemberId(spaceId, memberId).orElseThrow(() -> new SpaceException(SPACE_NOT_FOUND));
+        var foundSpace = spaceRepository.findByIdAndJoinedMemberId(spaceId, memberId).orElseThrow(() -> new SpaceException(NOT_FOUND_SPACE));
 
         return SpaceResponse.SpaceWithMemberCountInfo.toResponse(foundSpace);
     }
@@ -74,11 +75,11 @@ public class SpaceService {
           존재하는 스페이스 여부 확인
          */
         var foundSpace = spaceRepository.findById(spaceId)
-                .orElseThrow(() -> new SpaceException(SPACE_NOT_FOUND)
+                .orElseThrow(() -> new SpaceException(NOT_FOUND_SPACE)
                 );
 
         if (foundSpace.getCategory() == SpaceCategory.INDIVIDUAL) {
-            throw new SpaceException(SPACE_NOT_FOUND);
+            throw new SpaceException(NOT_FOUND_SPACE);
         }
 
 
@@ -105,7 +106,7 @@ public class SpaceService {
           존재하는 스페이스 여부 확인
          */
         var foundSpace = spaceRepository.findById(spaceId)
-                .orElseThrow(() -> new SpaceException(SPACE_NOT_FOUND)
+                .orElseThrow(() -> new SpaceException(NOT_FOUND_SPACE)
                 );
 
         /*
@@ -122,7 +123,7 @@ public class SpaceService {
           현재는 2번 케이스를 기준으로 구현되어 있음
          */
         if (foundSpace.getCategory() == SpaceCategory.INDIVIDUAL) {
-            throw new SpaceException(SPACE_NOT_FOUND);
+            throw new SpaceException(NOT_FOUND_SPACE);
         }
 
         /*
