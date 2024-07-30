@@ -20,7 +20,6 @@ import static org.layer.common.exception.TokenExceptionType.INVALID_REFRESH_TOKE
 import static org.layer.common.exception.TokenExceptionType.NO_REFRESH_TOKEN;
 import static org.layer.config.AuthValueConfig.ACCESS_TOKEN_EXPIRATION_TIME;
 import static org.layer.config.AuthValueConfig.REFRESH_TOKEN_EXPIRATION_TIME;
-import static org.layer.domain.auth.exception.TokenExceptionType.*;
 
 @Slf4j
 @RequiredArgsConstructor
