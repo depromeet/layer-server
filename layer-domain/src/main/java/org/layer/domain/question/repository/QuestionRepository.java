@@ -7,7 +7,8 @@ import org.layer.domain.question.enums.QuestionOwner;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface QuestionRepository extends JpaRepository<Question, Long> {
-	List<Question> findAllByQuestionOwnerIdAndQuestionOwnerOrderByQuestionOrder(Long questionOwnerId, QuestionOwner questionOwner);
+	List<Question> findAllByRetrospectIdAndQuestionOwnerOrderByQuestionOrder(Long retrospectId,
+		QuestionOwner questionOwner);
 
 	List<Question> findAllByIdIn(List<Long> questionIds);
 

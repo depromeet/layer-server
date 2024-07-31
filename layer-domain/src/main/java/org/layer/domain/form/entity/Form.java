@@ -32,7 +32,6 @@ public class Form extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private FormType formType;
 
-    @Builder
     public Form(Long memberId, Long spaceId, String title, String introduction, FormType formType) {
         this.memberId = memberId;
         this.spaceId = spaceId;

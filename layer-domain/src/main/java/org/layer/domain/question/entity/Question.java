@@ -6,7 +6,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.layer.domain.BaseEntity;
+import org.layer.domain.common.BaseTimeEntity;
 import org.layer.domain.question.enums.QuestionOwner;
 import org.layer.domain.question.enums.QuestionType;
 import org.layer.domain.questionOption.entity.QuestionOption;
@@ -17,7 +17,10 @@ import java.util.Set;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Question extends BaseEntity {
+public class Question extends BaseTimeEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     /*
         formId 나 retrospectId 둘 중 하나가 null 이고, 하나는 값이 지정되어야 한다.
