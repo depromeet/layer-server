@@ -1,6 +1,10 @@
 package org.layer.domain.answer.entity;
 
+import org.layer.domain.answer.enums.AnswerStatus;
+
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -31,11 +35,16 @@ public class Answer {
     @NotNull
     private String content;
 
-    @Builder
-    public Answer(Long retrospectId, Long questionId, Long memberId, String content) {
-        this.retrospectId = retrospectId;
-        this.questionId = questionId;
-        this.memberId = memberId;
-        this.content = content;
-    }
+	@NotNull
+	@Enumerated(EnumType.STRING)
+	private AnswerStatus answerStatus;
+
+	@Builder
+	public Answer(Long retrospectId, Long questionId, Long memberId, String content, AnswerStatus answerStatus) {
+		this.retrospectId = retrospectId;
+		this.questionId = questionId;
+		this.memberId = memberId;
+		this.content = content;
+		this.answerStatus = answerStatus;
+	}
 }
