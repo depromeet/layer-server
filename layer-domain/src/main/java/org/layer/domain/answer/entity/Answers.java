@@ -14,6 +14,13 @@ public class Answers {
 
 	private final List<Answer> answers;
 
+	public Answer getAnswerToQuestion(Long questionId){
+		return answers.stream()
+			.filter(answer -> answer.getQuestionId().equals(questionId))
+			.findAny()
+			.orElse(null);
+	}
+
 	public boolean hasRetrospectAnswer(Long memberId, Long retrospectId) {
 		return answers.stream()
 			.filter(answer -> answer.getRetrospectId().equals(retrospectId))
@@ -29,6 +36,12 @@ public class Answers {
 	public void validateNoAnswer(){
 		if(answers.size() != ZERO){
 			throw new AnswerException(ALREADY_ANSWERED);
+		}
+	}
+
+	public void validateAlreadyAnswer(Long memberId, Long retrospectId){
+		if(!hasRetrospectAnswer(memberId, retrospectId)){
+			throw new AnswerException(NOT_ANSWERED);
 		}
 	}
 }
