@@ -4,12 +4,14 @@ import java.util.List;
 
 import org.layer.common.annotation.MemberId;
 import org.layer.domain.answer.controller.dto.request.AnswerListCreateRequest;
+import org.layer.domain.answer.controller.dto.response.TemporaryAnswerListResponse;
 import org.layer.domain.answer.service.AnswerService;
 import org.layer.domain.answer.service.dto.request.AnswerCreateServiceRequest;
 import org.layer.domain.answer.service.dto.request.AnswerListCreateServiceRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -39,5 +41,15 @@ public class AnswerController implements AnswerApi {
 		answerService.create(AnswerListCreateServiceRequest.of(requests), spaceId, retrospectId, memberId);
 
 		return ResponseEntity.status(HttpStatus.CREATED).build();
+	}
+
+	@Override
+	@GetMapping("/temp")
+	public ResponseEntity<TemporaryAnswerListResponse> getTemporaryAnswer(@PathVariable("spaceId") Long spaceId,
+		@PathVariable("retrospectId") Long retrospectId, @MemberId Long memberId) {
+
+		TemporaryAnswerListResponse dto = answerService.getTemporaryAnswer(spaceId, retrospectId, memberId);
+
+		return ResponseEntity.ok().body(dto);
 	}
 }
