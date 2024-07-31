@@ -1,5 +1,7 @@
 package org.layer.domain.space.entity;
 
+import static org.layer.common.exception.SpaceExceptionType.*;
+
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -9,6 +11,7 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.layer.domain.BaseEntity;
 import org.layer.domain.space.converter.SpaceFieldConverter;
+import org.layer.domain.space.exception.SpaceException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,5 +53,13 @@ public class Space extends BaseEntity {
             return Optional.empty();
         }
         return Optional.of(true);
+    }
+
+    public void updateFormId(Long formId, Long requestMemberId){
+        if(!requestMemberId.equals(leaderId)){
+            throw new SpaceException(UNAUTHORIZED_UPDATE_FORM);
+        }
+
+        this.formId = formId;
     }
 }

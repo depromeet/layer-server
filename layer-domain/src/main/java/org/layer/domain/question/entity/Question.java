@@ -3,6 +3,7 @@ package org.layer.domain.question.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.layer.domain.BaseEntity;
@@ -19,10 +20,11 @@ import java.util.Set;
 public class Question extends BaseEntity {
 
     /*
-        questionOwnerId은 retrospectId or memberId 중 하나이다.
+        formId 나 retrospectId 둘 중 하나가 null 이고, 하나는 값이 지정되어야 한다.
     */
-    @NotNull
-    private Long questionOwnerId;
+    private Long formId;
+
+    private Long retrospectId;
 
     @NotNull
     private String content;
@@ -41,8 +43,10 @@ public class Question extends BaseEntity {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<QuestionOption> options = new HashSet<>();
 
-    public Question(Long questionOwnerId, String content, int questionOrder, QuestionOwner questionOwner, QuestionType questionType) {
-        this.questionOwnerId = questionOwnerId;
+    @Builder
+    private Question(Long formId, Long retrospectId, String content, int questionOrder, QuestionOwner questionOwner, QuestionType questionType) {
+        this.formId = formId;
+        this.retrospectId = retrospectId;
         this.content = content;
         this.questionOrder = questionOrder;
         this.questionOwner = questionOwner;
