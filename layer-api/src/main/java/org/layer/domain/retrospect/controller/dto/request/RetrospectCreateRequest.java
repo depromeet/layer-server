@@ -14,12 +14,17 @@ public record RetrospectCreateRequest(
 	@Schema(description = "회고 한줄 설명", example = "우리만의 KPT 회고")
 	@NotNull
 	String introduction,
-	@Schema(description = "회고 질문 목록(리스트)", example = "이번에 가장 어려웠던 점은 무엇인가요?")
+	@Schema(description = "회고 질문 객체 목록", example = "")
 	@NotNull
-	@Size(min = 3, max = 15)
-	List<String> questions,
+	List<QuestionCreateRequest> questions,
 	@Schema(description = "회고 마감 일자", example = "")
 	@NotNull
-	LocalDateTime deadline
+	LocalDateTime deadline,
+	@Schema(description = "질문을 수정한 경우 true", example = "true")
+	boolean isNewForm,
+	@Schema(description = "질문을 수정한 경우, 변경된 폼 이름", example = "변경된 커스텀 폼 제목")
+	String formName,
+	@Schema(description = "질문을 수정한 경우, 변경된 폼 한줄 소개", example = "변경된 커스텀 폼 한줄 소개")
+	String formIntroduction
 ) {
 }

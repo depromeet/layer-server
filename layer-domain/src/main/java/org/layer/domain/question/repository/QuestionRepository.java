@@ -10,4 +10,6 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
 	List<Question> findAllByQuestionOwnerIdAndQuestionOwnerOrderByQuestionOrder(Long questionOwnerId, QuestionOwner questionOwner);
 
 	List<Question> findAllByIdIn(List<Long> questionIds);
+
+	List<Question> findAllByFormId(Long formId);
 }
