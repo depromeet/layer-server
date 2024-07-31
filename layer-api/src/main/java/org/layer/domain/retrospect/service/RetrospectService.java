@@ -13,6 +13,7 @@ import org.layer.domain.form.entity.FormType;
 import org.layer.domain.form.repository.FormRepository;
 import org.layer.domain.question.entity.Question;
 import org.layer.domain.question.enums.QuestionOwner;
+import org.layer.domain.question.enums.QuestionType;
 import org.layer.domain.question.repository.QuestionRepository;
 import org.layer.domain.retrospect.controller.dto.request.QuestionCreateRequest;
 import org.layer.domain.retrospect.controller.dto.request.RetrospectCreateRequest;
@@ -117,7 +118,7 @@ public class RetrospectService {
 				.content(question.questionContent())
 				.questionOrder(index.getAndIncrement())
 				.questionOwner(QuestionOwner.TEAM)
-				.questionType(question.questionType())
+				.questionType(QuestionType.stringToEnum(question.questionType()))
 				.build())
 			.toList();
 	}

@@ -9,6 +9,6 @@ public record QuestionCreateRequest(
 	@Schema(description = "질문 내용", example = "팀원 간의 소통은 어땠나요?")
 	String questionContent,
 	@Schema(description = "질문 타입", example = "plain_text")
-	QuestionType questionType
+	String questionType
 ) {
 }
