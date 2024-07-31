@@ -2,7 +2,7 @@ package org.layer.domain.answer.controller.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-@Schema(name = "AnswerCreateRequest", description = "회고 작성 요청 Dto")
+@Schema(name = "AnswerCreateRequest", description = "회고 답변 작성 요청 Dto")
 public record AnswerCreateRequest(
 	@Schema(description = "질문 id", example = "1")
 	Long questionId,

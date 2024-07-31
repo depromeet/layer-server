@@ -5,6 +5,11 @@ import static org.layer.common.exception.MemberSpaceRelationExceptionType.*;
 import java.util.List;
 import java.util.Optional;
 
+import org.layer.domain.answer.entity.Answers;
+import org.layer.domain.answer.enums.AnswerStatus;
+import org.layer.domain.answer.repository.AnswerRepository;
+import org.layer.domain.question.controller.dto.response.QuestionGetResponse;
+import org.layer.domain.question.controller.dto.response.QuestionListGetResponse;
 import org.layer.domain.question.entity.Question;
 import org.layer.domain.question.enums.QuestionOwner;
 import org.layer.domain.question.repository.QuestionRepository;
@@ -13,6 +18,7 @@ import org.layer.domain.question.service.dto.response.QuestionListGetServiceResp
 import org.layer.domain.retrospect.entity.Retrospect;
 import org.layer.domain.retrospect.repository.RetrospectRepository;
 import org.layer.domain.space.entity.MemberSpaceRelation;
+import org.layer.domain.space.entity.Team;
 import org.layer.domain.space.exception.MemberSpaceRelationException;
 import org.layer.domain.space.repository.MemberSpaceRelationRepository;
 import org.springframework.stereotype.Service;
@@ -27,15 +33,13 @@ public class QuestionService {
 	private final QuestionRepository questionRepository;
 	private final MemberSpaceRelationRepository memberSpaceRelationRepository;
 	private final RetrospectRepository retrospectRepository;
+	private final AnswerRepository answerRepository;
 
-	public QuestionListGetServiceResponse getRetrospectQuestions(Long spaceId, Long retrospectId, Long memberId){
+	public QuestionListGetResponse getRetrospectQuestions(Long spaceId, Long retrospectId, Long memberId){
 
 		// 해당 멤버가 스페이스 소속인지 검증 로직
-		Optional<MemberSpaceRelation> team = memberSpaceRelationRepository.findBySpaceIdAndMemberId(
-			spaceId, memberId);
-		if(team.isEmpty()){
-			throw new MemberSpaceRelationException(NOT_FOUND_MEMBER_SPACE_RELATION);
-		}
+		Team team = new Team(memberSpaceRelationRepository.findAllBySpaceId(spaceId));
+		team.validateTeamMembership(memberId);
 
 		// 해당 회고가 있는지, PROCEEDING 상태인지 검증
 		Retrospect retrospect = retrospectRepository.findByIdOrThrow(retrospectId);
@@ -44,10 +48,14 @@ public class QuestionService {
 		List<Question> questions = questionRepository.findAllByQuestionOwnerIdAndQuestionOwnerOrderByQuestionOrder(
 			retrospectId, QuestionOwner.TEAM);
 
-		List<QuestionGetServiceResponse> serviceResponses = questions.stream()
-			.map(q -> QuestionGetServiceResponse.of(q.getQuestionOwnerId(), q.getContent(), q.getQuestionOrder(), q.getQuestionType().getStyle()))
+		List<QuestionGetResponse> responses = questions.stream()
+			.map(q -> QuestionGetResponse.of(q.getQuestionOwnerId(), q.getContent(), q.getQuestionOrder(), q.getQuestionType().getStyle()))
 			.toList();
 
-		return QuestionListGetServiceResponse.of(serviceResponses);
+		// 임시 저장 여부 확인
+		Answers answers = new Answers(
+			answerRepository.findAllByRetrospectIdAndMemberIdAndAnswerStatus(retrospectId, memberId, AnswerStatus.TEMPORARY));
+
+		return QuestionListGetResponse.of(responses, answers.hasRetrospectAnswer(memberId, retrospectId));
 	}
 }

@@ -27,12 +27,9 @@ public class QuestionController implements QuestionApi{
 	public ResponseEntity<QuestionListGetResponse> getRetrospectQuestions(@PathVariable("spaceId") Long spaceId,
 		@PathVariable("retrospectId") Long retrospectId, @MemberId Long memberId) {
 
-		List<QuestionGetResponse> responses = questionService.getRetrospectQuestions(spaceId, retrospectId, memberId)
-			.questions()
-			.stream()
-			.map(q -> QuestionGetResponse.of(q.questionId(), q.question(), q.order(), q.questionType()))
-			.toList();
+		QuestionListGetResponse response = questionService.getRetrospectQuestions(spaceId, retrospectId,
+			memberId);
 
-		return ResponseEntity.ok().body(QuestionListGetResponse.of(responses));
+		return ResponseEntity.ok().body(response);
 	}
 }
