@@ -9,10 +9,9 @@ import jakarta.validation.constraints.Size;
 
 public record RetrospectCreateRequest(
 	@Schema(description = "회고 제목", example = "중간 발표 이후 회고")
-	@Size(min = 3)
+	@NotNull
 	String title,
 	@Schema(description = "회고 한줄 설명", example = "우리만의 KPT 회고")
-	@NotNull
 	String introduction,
 	@Schema(description = "회고 질문 객체 목록", example = "")
 	@NotNull

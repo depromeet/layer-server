@@ -43,5 +43,6 @@ out/
 ### VS Code ###
 .vscode/
 *.properties
+*.sql
 
 layer-domain/src/main/generated
