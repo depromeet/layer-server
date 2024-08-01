@@ -3,18 +3,17 @@ package org.layer.domain.actionItem.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
-import org.layer.domain.BaseEntity;
 import org.layer.domain.actionItem.enums.ActionItemStatus;
 import org.layer.domain.actionItem.exception.ActionItemException;
+import org.layer.domain.common.BaseTimeEntity;
 
 import static org.layer.common.exception.ActionItemExceptionType.CANNOT_DELETE_ACTION_ITEM;
 
 @Getter
-@SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class ActionItem extends BaseEntity {
+public class ActionItem extends BaseTimeEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -35,7 +34,8 @@ public class ActionItem extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private ActionItemStatus actionItemStatus; // 액션 아이템 상태
 
-    public ActionItem(Long retrospectId, Long spaceId, Long memberId, String content, ActionItemStatus actionItemStatus) {
+    @Builder
+    private ActionItem(Long retrospectId, Long spaceId, Long memberId, String content, ActionItemStatus actionItemStatus) {
         this.retrospectId = retrospectId;
         this.spaceId = spaceId;
         this.memberId = memberId;

@@ -97,7 +97,7 @@ public class AnswerService {
 		answers.validateAlreadyAnswer(memberId, retrospectId);
 
 		// 해당 회고의 모든 질문 조회, 모든 임시답변 조회 -> 질문-임시답변과 매핑
-		List<Question> questions = questionRepository.findAllByQuestionOwnerIdAndQuestionOwnerOrderByQuestionOrder(
+		List<Question> questions = questionRepository.findAllByRetrospectIdAndQuestionOwnerOrderByQuestionOrder(
 			retrospectId, QuestionOwner.TEAM);
 
 		List<TemporaryAnswerGetResponse> temporaryAnswers = questions.stream()

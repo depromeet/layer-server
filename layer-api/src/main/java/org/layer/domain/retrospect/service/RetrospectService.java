@@ -9,11 +9,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.layer.domain.answer.entity.Answers;
 import org.layer.domain.answer.repository.AnswerRepository;
 import org.layer.domain.form.entity.Form;
+import org.layer.domain.form.entity.FormType;
 import org.layer.domain.form.repository.FormRepository;
 import org.layer.domain.question.entity.Question;
 import org.layer.domain.question.enums.QuestionOwner;
 import org.layer.domain.question.enums.QuestionType;
 import org.layer.domain.question.repository.QuestionRepository;
+import org.layer.domain.retrospect.controller.dto.request.QuestionCreateRequest;
 import org.layer.domain.retrospect.controller.dto.request.RetrospectCreateRequest;
 import org.layer.domain.retrospect.entity.Retrospect;
 import org.layer.domain.retrospect.entity.RetrospectStatus;
@@ -21,9 +23,11 @@ import org.layer.domain.retrospect.repository.RetrospectRepository;
 import org.layer.domain.retrospect.service.dto.response.RetrospectGetServiceResponse;
 import org.layer.domain.retrospect.service.dto.response.RetrospectListGetServiceResponse;
 import org.layer.domain.space.entity.MemberSpaceRelation;
+import org.layer.domain.space.entity.Space;
 import org.layer.domain.space.entity.Team;
 import org.layer.domain.space.exception.MemberSpaceRelationException;
 import org.layer.domain.space.repository.MemberSpaceRelationRepository;
+import org.layer.domain.space.repository.SpaceRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,38 +43,39 @@ public class RetrospectService {
 	private final QuestionRepository questionRepository;
 	private final AnswerRepository answerRepository;
 	private final FormRepository formRepository;
+	private final SpaceRepository spaceRepository;
 
 	@Transactional
 	public void createRetrospect(RetrospectCreateRequest request, Long spaceId, Long memberId) {
 		// 해당 스페이스 팀원인지 검증
-		validateTeamMember(spaceId, memberId);
+		Team team = new Team(memberSpaceRelationRepository.findAllBySpaceId(spaceId));
+		team.validateTeamMembership(memberId);
 
 		Retrospect retrospect = getRetrospect(request, spaceId);
 		Retrospect savedRetrospect = retrospectRepository.save(retrospect);
 
-		AtomicInteger teamIndex = new AtomicInteger(1);
-		List<Question> questions = request.questions().stream()
-			.map(q -> new Question(savedRetrospect.getId(), q, teamIndex.getAndIncrement(), QuestionOwner.TEAM,
-				QuestionType.PLAIN_TEXT))
-			.toList();
+		List<Question> questions = getQuestions(request.questions(), savedRetrospect.getId(), null);
 		questionRepository.saveAll(questions);
 
-		// 내 회고 폼에 추가
-		Form form = new Form(memberId, request.title(), request.introduction());
-		Form savedForm = formRepository.save(form);
+		// 새로운 폼 생성(수정)인지 확인
+		if (request.isNewForm()) {
+			// 내 회고 폼에 추가
+			Form form = new Form(memberId, spaceId, request.title(), request.introduction(), FormType.CUSTOM);
+			Form savedForm = formRepository.save(form);
 
-		AtomicInteger myIndex = new AtomicInteger(1);
-		List<Question> myQuestions = request.questions().stream()
-			.map(q -> new Question(savedForm.getId(), q, myIndex.getAndIncrement(), QuestionOwner.INDIVIDUAL,
-				QuestionType.PLAIN_TEXT))
-			.toList();
-		questionRepository.saveAll(myQuestions);
+			List<Question> myQuestions = getQuestions(request.questions(), null, savedForm.getId());
+			questionRepository.saveAll(myQuestions);
+
+			// 해당 스페이스의 기본 폼 변경
+			Space space = spaceRepository.findByIdOrThrow(spaceId);
+			space.updateFormId(savedForm.getId(), memberId);
+		}
 	}
 
 	private Retrospect getRetrospect(RetrospectCreateRequest request, Long spaceId) {
 		return Retrospect.builder()
-			.title(request.title())
 			.spaceId(spaceId)
+			.title(request.title())
 			.introduction(request.introduction())
 			.retrospectStatus(RetrospectStatus.PROCEEDING)
 			.deadline(request.deadline())
@@ -101,5 +106,20 @@ public class RetrospectService {
 		if (team.isEmpty()) {
 			throw new MemberSpaceRelationException(NOT_FOUND_MEMBER_SPACE_RELATION);
 		}
+	}
+
+	private List<Question> getQuestions(List<QuestionCreateRequest> questions, Long savedRetrospectId, Long formId) {
+		AtomicInteger index = new AtomicInteger(1);
+
+		return questions.stream()
+			.map(question -> Question.builder()
+				.retrospectId(savedRetrospectId)
+				.formId(formId)
+				.content(question.questionContent())
+				.questionOrder(index.getAndIncrement())
+				.questionOwner(QuestionOwner.TEAM)
+				.questionType(QuestionType.stringToEnum(question.questionType()))
+				.build())
+			.toList();
 	}
 }

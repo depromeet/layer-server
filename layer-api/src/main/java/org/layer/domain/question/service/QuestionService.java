@@ -45,11 +45,11 @@ public class QuestionService {
 		Retrospect retrospect = retrospectRepository.findByIdOrThrow(retrospectId);
 		retrospect.isProceedingRetrospect();
 
-		List<Question> questions = questionRepository.findAllByQuestionOwnerIdAndQuestionOwnerOrderByQuestionOrder(
+		List<Question> questions = questionRepository.findAllByRetrospectIdAndQuestionOwnerOrderByQuestionOrder(
 			retrospectId, QuestionOwner.TEAM);
 
 		List<QuestionGetResponse> responses = questions.stream()
-			.map(q -> QuestionGetResponse.of(q.getQuestionOwnerId(), q.getContent(), q.getQuestionOrder(), q.getQuestionType().getStyle()))
+			.map(q -> QuestionGetResponse.of(q.getId(), q.getContent(), q.getQuestionOrder(), q.getQuestionType().getStyle()))
 			.toList();
 
 		// 임시 저장 여부 확인
