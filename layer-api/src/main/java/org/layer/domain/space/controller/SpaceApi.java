@@ -170,5 +170,5 @@ public interface SpaceApi {
 
             )
     })
-    ResponseEntity<Void> removeMemberSpace(@MemberId Long memberId, @PathVariable Long spaceId);
+    ResponseEntity<Void> removeMemberSpace(@MemberId Long memberId, @RequestBody @Validated SpaceRequest.LeaveSpaceRequest leaveSpaceRequest);
 }
