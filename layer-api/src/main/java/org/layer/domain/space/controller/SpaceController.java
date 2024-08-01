@@ -60,8 +60,8 @@ public class SpaceController implements SpaceApi {
     @Override
     @PostMapping("/leave")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public ResponseEntity<Void> removeMemberSpace(@MemberId Long memberId, @RequestParam Long spaceId) {
-        spaceService.removeMemberSpace(memberId, spaceId);
+    public ResponseEntity<Void> removeMemberSpace(@MemberId Long memberId, @RequestBody @Validated SpaceRequest.LeaveSpaceRequest leaveSpaceRequest) {
+        spaceService.removeMemberSpace(memberId, leaveSpaceRequest.spaceId());
         return ResponseEntity.ok().build();
     }
 }

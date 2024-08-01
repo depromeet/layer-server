@@ -105,4 +105,11 @@ public class SpaceRequest {
         }
 
     }
+
+    @Schema(description = "스페이스 떠나기")
+    public record LeaveSpaceRequest(
+            @Schema(description = "떠날 스페이스 아이디")
+            Long spaceId
+    ) {
+    }
 }
