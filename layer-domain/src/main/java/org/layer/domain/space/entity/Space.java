@@ -54,12 +54,4 @@ public class Space extends BaseEntity {
         }
         return Optional.of(true);
     }
-
-    public void updateFormId(Long formId, Long requestMemberId){
-        if(!requestMemberId.equals(leaderId)){
-            throw new SpaceException(UNAUTHORIZED_UPDATE_FORM);
-        }
-
-        this.formId = formId;
-    }
 }

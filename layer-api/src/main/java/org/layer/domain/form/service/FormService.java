@@ -66,16 +66,4 @@ public class FormService {
 		return RecommendFormResponseDto.of(form, tags);
 	}
 
-	@Transactional
-	public void setRecommendTemplate(RecommendFormSetRequest request, Long memberId) {
-		// 팀 소속 여부 검증 로직
-		Team team = new Team(memberSpaceRelationRepository.findAllBySpaceId(request.spaceId()));
-		team.validateTeamMembership(memberId);
-
-		Form form = formRepository.findByIdOrThrow(request.formId());
-
-		Space space = spaceRepository.findByIdOrThrow(request.spaceId());
-		space.updateFormId(form.getId(), memberId);
-	}
-
 }

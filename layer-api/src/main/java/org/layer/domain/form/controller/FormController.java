@@ -42,13 +42,4 @@ public class FormController implements FormApi {
 		return ResponseEntity.ok().body(response);
 	}
 
-	@Override
-	@PostMapping("/recommend")
-	public ResponseEntity<Void> setRecommendTemplate(@RequestBody @Valid RecommendFormSetRequest request,
-		@MemberId Long memberId) {
-
-		formService.setRecommendTemplate(request, memberId);
-		return ResponseEntity.ok().build();
-	}
-
 }
