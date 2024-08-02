@@ -5,4 +5,16 @@
             <pattern>${LOG_PATTERN}</pattern>
         </encoder>
     </appender>
+
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${application.home:-.}/log/layer-api.%d{yyyy-MM-dd}.log
+            </fileNamePattern>
+            <maxHistory>10</maxHistory>
+        </rollingPolicy>
+
+        <encoder>
+            <pattern>%-4relative [%thread] %-5level %logger{35} - %msg%n</pattern>
+        </encoder>
+    </appender>
 </included>

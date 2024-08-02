@@ -17,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.stream.Collectors;
 
 import static org.layer.common.exception.SpaceExceptionType.*;
-import static org.layer.common.exception.SpaceExceptionType.SPACE_LEADER_CANNOT_LEAVE;
 
 @Service
 @RequiredArgsConstructor
