@@ -46,3 +46,6 @@ out/
 *.sql
 
 layer-domain/src/main/generated
+
+
+log/
