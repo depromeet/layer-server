@@ -27,4 +27,9 @@ public class Tag extends BaseTimeEntity {
 
 	private Long retrospectId;
 
+	public Tag(String tagName, Long formId, Long retrospectId) {
+		this.tagName = tagName;
+		this.formId = formId;
+		this.retrospectId = retrospectId;
+	}
 }
