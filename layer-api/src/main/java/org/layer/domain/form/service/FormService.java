@@ -8,6 +8,7 @@ import org.layer.domain.form.controller.dto.response.FormGetResponse;
 import org.layer.domain.form.controller.dto.response.QuestionGetResponse;
 import org.layer.domain.form.controller.dto.response.RecommendFormResponseDto;
 import org.layer.domain.form.entity.Form;
+import org.layer.domain.form.entity.FormType;
 import org.layer.domain.form.repository.FormRepository;
 import org.layer.domain.question.entity.Question;
 import org.layer.domain.question.repository.QuestionRepository;
@@ -37,8 +38,10 @@ public class FormService {
 		List<Tag> tags = tagRepository.findAllByFormId(formId);
 
 		// 해당 스페이스 팀원인지 검증
-		Team team = new Team(memberSpaceRelationRepository.findAllBySpaceId(form.getSpaceId()));
-		team.validateTeamMembership(memberId);
+		if (form.getFormType().equals(FormType.CUSTOM)) {
+			Team team = new Team(memberSpaceRelationRepository.findAllBySpaceId(form.getSpaceId()));
+			team.validateTeamMembership(memberId);
+		}
 
 		List<Question> questions = questionRepository.findAllByFormId(formId);
 
