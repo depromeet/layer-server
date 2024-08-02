@@ -17,7 +17,6 @@ public class Form extends BaseEntity {
     /*
      * 해당 폼 생성한 멤버 id
      */
-    @NotNull
     private Long memberId;
 
     private Long spaceId;
