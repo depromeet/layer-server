@@ -18,11 +18,11 @@ import org.layer.domain.retrospect.repository.RetrospectRepository;
 import org.layer.domain.retrospect.service.dto.response.RetrospectGetServiceResponse;
 import org.layer.domain.retrospect.service.dto.response.RetrospectListGetServiceResponse;
 import org.layer.domain.space.entity.MemberSpaceRelation;
-import org.layer.domain.space.entity.Space;
 import org.layer.domain.space.entity.Team;
 import org.layer.domain.space.exception.MemberSpaceRelationException;
 import org.layer.domain.space.repository.MemberSpaceRelationRepository;
-import org.layer.domain.space.repository.SpaceRepository;
+import org.layer.domain.tag.entity.Tag;
+import org.layer.domain.tag.repository.TagRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,7 +42,7 @@ public class RetrospectService {
     private final QuestionRepository questionRepository;
     private final AnswerRepository answerRepository;
     private final FormRepository formRepository;
-    private final SpaceRepository spaceRepository;
+    private final TagRepository tagRepository;
 
     @Transactional
     public Long createRetrospect(RetrospectCreateRequest request, Long spaceId, Long memberId) {
@@ -64,6 +64,11 @@ public class RetrospectService {
 
             List<Question> myQuestions = getQuestions(request.questions(), null, savedForm.getId());
             questionRepository.saveAll(myQuestions);
+
+            List<Tag> newTags = tagRepository.findAllByFormId(request.curFormId()).stream()
+                .map(tag -> new Tag(tag.getTagName(), savedForm.getId(), null)).toList();
+            tagRepository.saveAll(newTags);
+
         }
         return savedRetrospect.getId();
     }
