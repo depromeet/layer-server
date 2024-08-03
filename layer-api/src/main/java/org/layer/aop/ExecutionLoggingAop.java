@@ -1,5 +1,7 @@
 package org.layer.aop;
 
+import java.util.Enumeration;
+import java.util.Map;
 import java.util.Objects;
 
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -33,10 +35,11 @@ public class ExecutionLoggingAop {
 			memberId = (Long) authentication.getPrincipal();
 		}
 
+		log.info("[Request URI] : " + request.getRequestURI());
+
 		String className = pjp.getSignature().getDeclaringType().getSimpleName();
 		String methodName = pjp.getSignature().getName();
 		String task = className + "." + methodName;
-
 		log.info("[Call Method] " + httpMethod + ": " + task + " | Request userId=" + memberId);
 
 		Object[] paramArgs = pjp.getArgs();
