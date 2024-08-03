@@ -93,6 +93,7 @@ public class MemberService {
 
 
         return UpdateMemberInfoResponse.builder()
+                .memberId(member.getId())
                 .name(member.getName())
                 .profileImageUrl(member.getProfileImageUrl())
                 .build();
