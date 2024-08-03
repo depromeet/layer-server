@@ -1,12 +1,14 @@
 package org.layer.domain.form.controller;
 
 import org.layer.common.annotation.MemberId;
+import org.layer.domain.form.controller.dto.request.FormNameUpdateRequest;
 import org.layer.domain.form.controller.dto.request.RecommendFormQueryDto;
 import org.layer.domain.form.controller.dto.response.FormGetResponse;
 import org.layer.domain.form.controller.dto.response.RecommendFormResponseDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -30,4 +32,10 @@ public interface FormApi {
 	@Operation(summary = "추천 템플릿 조회", method = "GET", description = "추천 템플릿을 조회하는 기능입니다.")
 	ResponseEntity<RecommendFormResponseDto> getRecommendTemplate(@ModelAttribute @Valid @Parameter(hidden = true) RecommendFormQueryDto queryDto,
 		@MemberId Long memberId);
+
+	@Operation(summary = "커스텀 템플릿 제목 수정", method = "PATCH", description = "커스텀 템플릿 제목을 수정합니다.")
+	ResponseEntity<Void> updateFormTitle(@PathVariable Long formId, @RequestBody @Valid FormNameUpdateRequest request, @MemberId Long memberId);
+
+	@Operation(summary = "커스텀 템플릿 삭제", method = "DELETE", description = "커스텀 템플릿을 삭제합니다.")
+	ResponseEntity<Void> deleteFormTitle(@PathVariable Long formId, @MemberId Long memberId);
 }
