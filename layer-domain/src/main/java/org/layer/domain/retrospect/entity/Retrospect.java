@@ -70,4 +70,11 @@ public class Retrospect extends BaseTimeEntity {
 			throw new RetrospectException(DEADLINE_NOT_PASSED);
 		}
 	}
+
+	public void updateRetrospect(String title, String introduction, LocalDateTime deadline){
+
+		this.title = title;
+		this.introduction = introduction;
+		this.deadline = deadline;
+	}
 }
