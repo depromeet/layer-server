@@ -135,3 +135,4 @@ jobs:
             echo "${{ secrets.APPLICATION_SECRET_PROPERTIES }}" > application-secret.properties
             docker compose pull
             docker compose up -d
+            docker image prune -a -f
