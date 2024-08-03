@@ -42,7 +42,6 @@ public class TemplateService {
         TemplateMetadata template = templateMetadataRepository.findByFormIdOrThrow(formId);
         List<Question> questionList = questionRepository.findAllByFormId(formId);
 
-        log.info("line 40: {}", questionList);
 
         List<TemplateDetailQuestionResponse> questionDesList = questionList.stream().map(q -> {
             QuestionDescription description = questionDescriptionRepository.findByQuestionIdOrThrow(q.getId());
