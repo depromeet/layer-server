@@ -5,11 +5,14 @@ import org.layer.common.exception.BaseCustomException;
 import org.layer.common.exception.MemberExceptionType;
 import org.layer.domain.auth.controller.dto.SignUpRequest;
 import org.layer.domain.jwt.SecurityUtil;
+import org.layer.domain.member.controller.dto.UpdateMemberInfoRequest;
+import org.layer.domain.member.controller.dto.UpdateMemberInfoResponse;
 import org.layer.domain.member.entity.Member;
 import org.layer.domain.member.entity.SocialType;
 import org.layer.domain.member.repository.MemberRepository;
 import org.layer.oauth.dto.service.MemberInfoServiceResponse;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -48,6 +51,7 @@ public class MemberService {
         }
     }
 
+    @Transactional
     public Member saveMember(SignUpRequest signUpRequest, MemberInfoServiceResponse memberInfo) {
         Member member = Member.builder()
                 .name(signUpRequest.name())
@@ -74,9 +78,23 @@ public class MemberService {
                 .orElseThrow(() -> new BaseCustomException(NOT_FOUND_USER));
     }
 
+    @Transactional
     public void withdrawMember(Long memberId) {
         Member currentMember = getCurrentMember();
         memberRepository.delete(currentMember);
     }
 
+
+    @Transactional
+    public UpdateMemberInfoResponse updateMemberInfo(Long memberId, UpdateMemberInfoRequest updateMemberInfoRequest) {
+        Member member = memberRepository.findByIdOrThrow(memberId);
+        member.updateName(updateMemberInfoRequest.name());
+        member.updateProfileImageUrl(updateMemberInfoRequest.profileImageUrl());
+
+
+        return UpdateMemberInfoResponse.builder()
+                .name(member.getName())
+                .profileImageUrl(member.getProfileImageUrl())
+                .build();
+    }
 }
