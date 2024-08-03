@@ -11,7 +11,8 @@ public enum FormTag {
     MAD_SAD_GLAD("Mad Sad Glad"),
     SSC("SSC"),
     PMI("PMI"),
-    UNTITLED("무제");
+    UNTITLED("무제"),
+    CUSTOM("CUSTOM");
 
     private final String tag;
 }
