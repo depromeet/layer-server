@@ -2,6 +2,7 @@ package org.layer.domain.answer.controller;
 
 import org.layer.common.annotation.MemberId;
 import org.layer.domain.answer.controller.dto.request.AnswerListCreateRequest;
+import org.layer.domain.answer.controller.dto.response.AnswerListGetResponse;
 import org.layer.domain.answer.controller.dto.response.TemporaryAnswerListResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,5 +22,9 @@ public interface AnswerApi {
 
 	@Operation(summary = "임시 저장된 회고 조회", description = "")
 	ResponseEntity<TemporaryAnswerListResponse> getTemporaryAnswer(@PathVariable("spaceId") Long spaceId,
+		@PathVariable("retrospectId") Long retrospectId, @MemberId Long memberId);
+
+	@Operation(summary = "회고 분석 조회", description = "회고 분석 결과를 조회합니다.")
+	ResponseEntity<AnswerListGetResponse> getAnalyzeAnswer(@PathVariable("spaceId") Long spaceId,
 		@PathVariable("retrospectId") Long retrospectId, @MemberId Long memberId);
 }

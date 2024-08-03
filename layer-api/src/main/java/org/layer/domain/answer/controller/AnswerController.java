@@ -2,6 +2,7 @@ package org.layer.domain.answer.controller;
 
 import org.layer.common.annotation.MemberId;
 import org.layer.domain.answer.controller.dto.request.AnswerListCreateRequest;
+import org.layer.domain.answer.controller.dto.response.AnswerListGetResponse;
 import org.layer.domain.answer.controller.dto.response.TemporaryAnswerListResponse;
 import org.layer.domain.answer.service.AnswerService;
 import org.springframework.http.HttpStatus;
@@ -42,5 +43,14 @@ public class AnswerController implements AnswerApi {
 		TemporaryAnswerListResponse dto = answerService.getTemporaryAnswer(spaceId, retrospectId, memberId);
 
 		return ResponseEntity.ok().body(dto);
+	}
+
+	@Override
+	@GetMapping("/analyze")
+	public ResponseEntity<AnswerListGetResponse> getAnalyzeAnswer(@PathVariable("spaceId") Long spaceId,
+		@PathVariable("retrospectId") Long retrospectId, @MemberId Long memberId) {
+		AnswerListGetResponse response = answerService.getAnalyzeAnswer(spaceId, retrospectId, memberId);
+
+		return ResponseEntity.ok().body(response);
 	}
 }
