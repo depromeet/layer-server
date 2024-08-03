@@ -27,7 +27,7 @@ public record TemplateSimpleInfoResponse(
                 return TemplateSimpleInfoResponse.builder()
                         .id(form.getId())
                         .title(form.getTitle())
-                        .templateName(template.getTemplateName())
+                        .templateName(form.getFormTag().getTag())
                         .imageUrl(template.getTemplateImageUrl())
                         .build();
         }
