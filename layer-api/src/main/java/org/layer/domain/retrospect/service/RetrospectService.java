@@ -17,13 +17,18 @@ import org.layer.domain.retrospect.entity.RetrospectStatus;
 import org.layer.domain.retrospect.repository.RetrospectRepository;
 import org.layer.domain.retrospect.service.dto.response.RetrospectGetServiceResponse;
 import org.layer.domain.retrospect.service.dto.response.RetrospectListGetServiceResponse;
+import org.layer.domain.space.entity.MemberSpaceRelation;
 import org.layer.domain.space.entity.Team;
+import org.layer.domain.space.exception.MemberSpaceRelationException;
 import org.layer.domain.space.repository.MemberSpaceRelationRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.layer.common.exception.MemberSpaceRelationExceptionType.NOT_FOUND_MEMBER_SPACE_RELATION;
 
 @Service
 @RequiredArgsConstructor
@@ -83,10 +88,18 @@ public class RetrospectService {
         List<RetrospectGetServiceResponse> retrospectDtos = retrospects.stream()
                 .map(r -> RetrospectGetServiceResponse.of(r.getId(), r.getTitle(), r.getIntroduction(),
                         answers.hasRetrospectAnswer(memberId, r.getId()), r.getRetrospectStatus(),
-                        answers.getWriteCount(r.getId()), team.getTeamMemberCount()))
+                        answers.getWriteCount(r.getId()), team.getTeamMemberCount(), r.getCreatedAt(), r.getDeadline()))
                 .toList();
 
         return RetrospectListGetServiceResponse.of(retrospects.size(), retrospectDtos);
+    }
+
+    private void validateTeamMember(Long request, Long memberId) {
+        Optional<MemberSpaceRelation> team = memberSpaceRelationRepository.findBySpaceIdAndMemberId(
+                request, memberId);
+        if (team.isEmpty()) {
+            throw new MemberSpaceRelationException(NOT_FOUND_MEMBER_SPACE_RELATION);
+        }
     }
 
     private List<Question> getQuestions(List<QuestionCreateRequest> questions, Long savedRetrospectId, Long formId) {

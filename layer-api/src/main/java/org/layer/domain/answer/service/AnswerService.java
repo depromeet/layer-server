@@ -7,6 +7,11 @@ import java.util.Optional;
 
 import org.layer.domain.answer.controller.dto.request.AnswerCreateRequest;
 import org.layer.domain.answer.controller.dto.request.AnswerListCreateRequest;
+import org.layer.domain.answer.controller.dto.response.AnswerByPersonGetResponse;
+import org.layer.domain.answer.controller.dto.response.AnswerByQuestionGetResponse;
+import org.layer.domain.answer.controller.dto.response.AnswerListGetResponse;
+import org.layer.domain.answer.controller.dto.response.PersonAndAnswerGetResponse;
+import org.layer.domain.answer.controller.dto.response.QuestionAndAnswerGetResponse;
 import org.layer.domain.answer.controller.dto.response.TemporaryAnswerGetResponse;
 import org.layer.domain.answer.controller.dto.response.TemporaryAnswerListResponse;
 import org.layer.domain.answer.entity.Answer;
@@ -14,6 +19,8 @@ import org.layer.domain.answer.entity.Answers;
 import org.layer.domain.answer.enums.AnswerStatus;
 import org.layer.domain.answer.repository.AnswerRepository;
 import org.layer.domain.common.time.Time;
+import org.layer.domain.member.entity.Members;
+import org.layer.domain.member.repository.MemberRepository;
 import org.layer.domain.question.entity.Question;
 import org.layer.domain.question.entity.Questions;
 import org.layer.domain.question.enums.QuestionOwner;
@@ -38,6 +45,7 @@ public class AnswerService {
 	private final MemberSpaceRelationRepository memberSpaceRelationRepository;
 	private final RetrospectRepository retrospectRepository;
 	private final QuestionRepository questionRepository;
+	private final MemberRepository memberRepository;
 
 	private final Time time;
 
@@ -63,7 +71,8 @@ public class AnswerService {
 
 		// 회고 질문 유효성 검사 - 이미 응답을 하지 않았는지
 		Answers answers = new Answers(
-			answerRepository.findByRetrospectIdAndMemberIdAndAndAnswerStatusAndQuestionIdIn(retrospectId, memberId, AnswerStatus.DONE, questionIds));
+			answerRepository.findByRetrospectIdAndMemberIdAndAnswerStatusAndQuestionIdIn(retrospectId, memberId,
+				AnswerStatus.DONE, questionIds));
 		answers.validateNoAnswer();
 
 		// 기존 임시답변 제거
@@ -71,20 +80,20 @@ public class AnswerService {
 			AnswerStatus.TEMPORARY);
 
 		AnswerStatus answerStatus = AnswerStatus.DONE;
-		if(request.isTemporarySave()){
+		if (request.isTemporarySave()) {
 			answerStatus = AnswerStatus.TEMPORARY;
 		}
 
-		for(AnswerCreateRequest r : request.requests()){
+		for (AnswerCreateRequest r : request.requests()) {
 			// 회고 질문 유효성 검사 - 각각의 질문들이 유효한지
 			questions.validateIdAndQuestionType(r.questionId(), QuestionType.stringToEnum(r.questionType()));
 
-			Answer answer = new Answer(retrospectId, r.questionId(), memberId, r.answer(), answerStatus);
+			Answer answer = new Answer(retrospectId, r.questionId(), memberId, r.answerContent(), answerStatus);
 			answerRepository.save(answer);
 		}
 	}
 
-	public TemporaryAnswerListResponse getTemporaryAnswer(Long spaceId, Long retrospectId, Long memberId){
+	public TemporaryAnswerListResponse getTemporaryAnswer(Long spaceId, Long retrospectId, Long memberId) {
 		// 해당 스페이스 팀원인지 검증
 		Team team = new Team(memberSpaceRelationRepository.findAllBySpaceId(spaceId));
 		team.validateTeamMembership(memberId);
@@ -94,7 +103,8 @@ public class AnswerService {
 
 		// 임시 답변을 했는지 검증
 		Answers answers = new Answers(
-			answerRepository.findAllByRetrospectIdAndMemberIdAndAnswerStatus(retrospectId, memberId, AnswerStatus.TEMPORARY));
+			answerRepository.findAllByRetrospectIdAndMemberIdAndAnswerStatus(retrospectId, memberId,
+				AnswerStatus.TEMPORARY));
 		answers.validateAlreadyAnswer(memberId, retrospectId);
 
 		// 해당 회고의 모든 질문 조회, 모든 임시답변 조회 -> 질문-임시답변과 매핑
@@ -102,10 +112,72 @@ public class AnswerService {
 			retrospectId, QuestionOwner.TEAM);
 
 		List<TemporaryAnswerGetResponse> temporaryAnswers = questions.stream()
-			.map(question -> TemporaryAnswerGetResponse.of(question.getId(), question.getQuestionType().getStyle(), answers.getAnswerToQuestion(
-				question.getId())))
+			.map(question -> TemporaryAnswerGetResponse.of(question.getId(), question.getQuestionType().getStyle(),
+				answers.getAnswerToQuestion(
+					question.getId())))
 			.toList();
 
 		return TemporaryAnswerListResponse.of(temporaryAnswers);
+	}
+
+	public AnswerListGetResponse getAnalyzeAnswer(Long spaceId, Long retrospectId, Long memberId) {
+		// 해당 스페이스 팀원인지 검증
+		Team team = new Team(memberSpaceRelationRepository.findAllBySpaceId(spaceId));
+		team.validateTeamMembership(memberId);
+
+		Retrospect retrospect = retrospectRepository.findByIdOrThrow(retrospectId);
+		retrospect.validateRetrospectStatusDone();
+
+		// answer 뽑기
+		Answers answers = new Answers(answerRepository.findAllByRetrospectId(retrospectId));
+		List<Long> questionIds = answers.getAnswers().stream().map(Answer::getQuestionId).toList();
+		List<Long> memberIds = answers.getAnswers().stream().map(Answer::getMemberId).toList();
+
+		// 이름 뽑기
+		Members members = new Members(memberRepository.findAllById(memberIds));
+
+		// Question 뽑기
+		List<Question> questions = questionRepository.findAllByIdIn(questionIds);
+
+		// 질문 기준으로 정렬
+		List<AnswerByQuestionGetResponse> answerByQuestions = getAnswerByQuestionGetResponses(
+			answers, members, questions);
+
+		// 이름 기준으로 정렬
+		List<AnswerByPersonGetResponse> answerByPerson = getAnswerByPersonGetResponses(
+			answers, members, questions);
+
+		return new AnswerListGetResponse(answerByQuestions, answerByPerson);
+	}
+
+	private List<AnswerByPersonGetResponse> getAnswerByPersonGetResponses(Answers answers, Members members,
+		List<Question> questions) {
+		return members.getMembers().stream()
+			.map(member -> {
+				List<QuestionAndAnswerGetResponse> questionAndAnswer = questions.stream()
+					.map(question -> new QuestionAndAnswerGetResponse(question.getContent(),
+						question.getQuestionType().getStyle(), answers.getAnswerToQuestion(
+						question.getId())))
+					.toList();
+
+				return new AnswerByPersonGetResponse(member.getName(), questionAndAnswer);
+			})
+			.toList();
+	}
+
+	private List<AnswerByQuestionGetResponse> getAnswerByQuestionGetResponses(Answers answers, Members members,
+		List<Question> questions) {
+		return questions.stream()
+			.map(question -> {
+				List<PersonAndAnswerGetResponse> personAndAnswer = answers.getAnswers().stream()
+					.filter(answer -> answer.getQuestionId().equals(question.getId()))
+					.map(answer -> new PersonAndAnswerGetResponse(members.getName(answer.getMemberId()),
+						answer.getContent()))
+					.toList();
+
+				return new AnswerByQuestionGetResponse(question.getContent(), question.getQuestionType().getStyle(),
+					personAndAnswer);
+			})
+			.toList();
 	}
 }

@@ -3,6 +3,8 @@ package org.layer.domain.form.repository;
 import org.layer.domain.form.entity.Form;
 import org.layer.domain.form.entity.FormType;
 import org.layer.domain.form.exception.FormException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -17,5 +19,6 @@ public interface FormRepository extends JpaRepository<Form, Long> {
 
 	List<Form> findByFormTypeOrderById(FormType formType);
 
+	Page<Form> findAllByFormTypeOrderByIdDesc(Pageable pageable, FormType formType);
 
 }

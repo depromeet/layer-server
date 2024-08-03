@@ -45,7 +45,7 @@ public class RetrospectController implements RetrospectApi {
 
         List<RetrospectGetResponse> retrospectGetResponses = serviceResponse.retrospects().stream()
                 .map(r -> RetrospectGetResponse.of(r.retrospectId(), r.title(), r.introduction(), r.isWrite(), r.retrospectStatus(),
-                        r.writeCount(), r.totalCount()))
+                        r.writeCount(), r.totalCount(), r.createdAt(), r.deadline()))
                 .toList();
 
         return ResponseEntity.ok()

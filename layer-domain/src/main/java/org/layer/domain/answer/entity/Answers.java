@@ -3,13 +3,14 @@ package org.layer.domain.answer.entity;
 import static org.layer.common.exception.AnswerExceptionType.*;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.layer.domain.answer.exception.AnswerException;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
+@Getter
 public class Answers {
 	private static final int ZERO = 0;
 
