@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 
 @Slf4j
 @RestController
@@ -79,6 +81,13 @@ public class SpaceController implements SpaceApi {
         spaceService.kickMemberFromSpace(memberId, kickMemberFromSpaceRequest.spaceId(), kickMemberFromSpaceRequest.memberId());
         return ResponseEntity.ok().build();
 
+    }
+
+    @Override
+    @GetMapping("members/{spaceId}")
+    public ResponseEntity<List<SpaceResponse.SpaceMemberResponse>> getSpaceMembers(@MemberId Long memberId, @PathVariable Long spaceId) {
+        var spaceMembers = spaceService.getSpaceMembers(memberId, spaceId);
+        return ResponseEntity.ok(spaceMembers);
     }
 }
 

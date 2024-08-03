@@ -1,18 +1,21 @@
 package org.layer.domain.space.controller.dto;
 
-import static org.layer.common.exception.TokenExceptionType.*;
-
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import org.layer.common.dto.Meta;
 import org.layer.common.exception.BaseCustomException;
+import org.layer.domain.space.dto.SpaceMember;
 import org.layer.domain.space.dto.SpaceWithMemberCount;
 import org.layer.domain.space.entity.SpaceCategory;
 import org.layer.domain.space.entity.SpaceField;
+import org.layer.domain.space.exception.SpaceException;
 
 import java.util.List;
 import java.util.Optional;
+
+import static org.layer.common.exception.MemberExceptionType.NOT_FOUND_USER;
+import static org.layer.common.exception.TokenExceptionType.INVALID_REFRESH_TOKEN;
 
 
 public class SpaceResponse {
@@ -88,5 +91,32 @@ public class SpaceResponse {
                     """)
             Long spaceId
     ) {
+    }
+
+    @Builder
+    @Schema
+    public record SpaceMemberResponse(
+            @Schema(title = "맴버 아이디")
+            Long id,
+            @Schema(title = "멤버 프로필 사진")
+            String avatar,
+
+            @Schema(title = "멤버 이름")
+            String name,
+
+            @Schema(title = "스페이스 리더 여부")
+            Boolean isLeader
+    ) {
+        public static SpaceMemberResponse toResponse(SpaceMember spaceMember) {
+            return Optional.ofNullable(spaceMember)
+                    .map(it -> SpaceMemberResponse
+                            .builder()
+                            .id(spaceMember.getId())
+                            .name(spaceMember.getName())
+                            .avatar(spaceMember.getAvatar())
+                            .isLeader(spaceMember.getIsLeader())
+                            .build())
+                    .orElseThrow(() -> new SpaceException(NOT_FOUND_USER));
+        }
     }
 }
