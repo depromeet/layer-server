@@ -6,6 +6,12 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotNull;
+import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.layer.domain.BaseEntity;
+import org.layer.domain.form.enums.FormTag;
 import lombok.*;
 
 import org.layer.domain.BaseEntity;
@@ -33,6 +39,9 @@ public class Form extends BaseEntity {
 	@NotNull
 	@Enumerated(EnumType.STRING)
 	private FormType formType;
+  
+  @Enumerated(EnumType.STRING)
+  private FormTag formTag; // 기본 템플릿의 명칭. ex) KPT, 5F
 
 	public Form(Long memberId, Long spaceId, String title, String introduction, FormType formType) {
 		this.memberId = memberId;

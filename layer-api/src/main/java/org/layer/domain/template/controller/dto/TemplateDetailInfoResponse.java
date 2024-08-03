@@ -42,7 +42,7 @@ public record TemplateDetailInfoResponse(
         return TemplateDetailInfoResponse.builder()
                 .id(form.getId())
                 .title(form.getTitle())
-                .templateName(templateMetadata.getTemplateName())
+                .templateName(form.getFormTag().getTag())
                 .templateImageUrl(templateMetadata.getTemplateImageUrl())
                 .introduction(form.getIntroduction())
                 .tipTitle(templateMetadata.getTipTitle())
