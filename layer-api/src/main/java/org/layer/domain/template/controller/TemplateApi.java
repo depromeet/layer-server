@@ -1,6 +1,7 @@
 package org.layer.domain.template.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -58,7 +59,7 @@ public interface TemplateApi {
                     content = {
                             @Content(
                                     mediaType = "application/json",
-                                    schema = @Schema(implementation = TemplateSimpleInfoResponse.class)
+                                    array = @ArraySchema(schema = @Schema(implementation = TemplateSimpleInfoResponse.class))
                             )
                     }
             )
