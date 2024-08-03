@@ -29,8 +29,6 @@ public class TemplateService {
     private final QuestionRepository questionRepository;
     private final QuestionDescriptionRepository questionDescriptionRepository;
 
-    private static List<Long> templateIds = new ArrayList<>(List.of(10000L, 10001L, 10002L, 10003L, 10004L, 10005L));
-
     //== 간단 정보 단건 조회 ==//
     public TemplateSimpleInfoResponse getTemplateSimpleInfo(Long formId) {
         Form form = formRepository.findByIdOrThrow(formId);
