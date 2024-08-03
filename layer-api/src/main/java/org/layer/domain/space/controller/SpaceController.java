@@ -67,7 +67,7 @@ public class SpaceController implements SpaceApi {
 
     @Override
     @PatchMapping("/change-leader")
-    public ResponseEntity<Void> changeSpaceLeader(Long memberId, SpaceRequest.ChangeSpaceLeaderRequest changeSpaceLeaderRequest) {
+    public ResponseEntity<Void> changeSpaceLeader(@MemberId Long memberId, SpaceRequest.ChangeSpaceLeaderRequest changeSpaceLeaderRequest) {
         spaceService.changeSpaceLeader(memberId, changeSpaceLeaderRequest.spaceId(), changeSpaceLeaderRequest.memberId());
 
         return ResponseEntity.ok().build();
@@ -75,10 +75,18 @@ public class SpaceController implements SpaceApi {
 
     @Override
     @PatchMapping("/kick")
-    public ResponseEntity<Void> kickMemberFromSpace(Long memberId, SpaceRequest.KickMemberFromSpaceRequest kickMemberFromSpaceRequest) {
+    public ResponseEntity<Void> kickMemberFromSpace(@MemberId Long memberId, SpaceRequest.KickMemberFromSpaceRequest kickMemberFromSpaceRequest) {
         spaceService.kickMemberFromSpace(memberId, kickMemberFromSpaceRequest.spaceId(), kickMemberFromSpaceRequest.memberId());
         return ResponseEntity.ok().build();
 
+    }
+
+    @Override
+    @DeleteMapping("{spaceId}")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<Void> removeSpace(@MemberId Long memberId, @PathVariable("spaceId") Long spaceId) {
+        spaceService.removeSpace(spaceId, memberId);
+        return ResponseEntity.ok().build();
     }
 }
 
