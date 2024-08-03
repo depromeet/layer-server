@@ -111,8 +111,7 @@ public class SpaceService {
         /*
           스페이스 팀장 여부 확인
          */
-        foundSpace.isLeaderSpace(memberId)
-                .orElseThrow(() -> new SpaceException(SPACE_LEADER_CANNOT_LEAVE));
+        foundSpace.isLeaderSpace(memberId);
 
         /*
           개인 스페이스의 경우, 이탈 시 Space 엔티티의 로직이 된다.

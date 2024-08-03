@@ -48,10 +48,10 @@ public class Space extends BaseEntity {
      */
     private Long formId;
 
-    public Optional<Boolean> isLeaderSpace(Long memberId) {
-        if (leaderId.equals(memberId)) {
-            return Optional.empty();
+    public void isLeaderSpace(Long memberId) {
+        boolean isLeader = leaderId.equals(memberId);
+        if (!isLeader) {
+            throw new SpaceException(SPACE_LEADER_CANNOT_LEAVE);
         }
-        return Optional.of(true);
     }
 }

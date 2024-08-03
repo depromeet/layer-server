@@ -1,12 +1,15 @@
 package org.layer.domain.form.entity;
 
+import static org.layer.common.exception.FormExceptionType.*;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
-import org.layer.domain.BaseEntity;
 
+import org.layer.domain.BaseEntity;
+import org.layer.domain.form.exception.FormException;
 
 @Getter
 @Entity
@@ -14,28 +17,32 @@ import org.layer.domain.BaseEntity;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Form extends BaseEntity {
 
-    /*
-     * 해당 폼 생성한 멤버 id
-     */
-    private Long memberId;
+	/*
+	 * 해당 폼 생성한 멤버 id
+	 */
+	private Long memberId;
 
-    private Long spaceId;
+	private Long spaceId;
 
-    @NotNull
-    private String title;
+	@NotNull
+	private String title;
 
-    @NotNull
-    private String introduction;
+	@NotNull
+	private String introduction;
 
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    private FormType formType;
+	@NotNull
+	@Enumerated(EnumType.STRING)
+	private FormType formType;
 
-    public Form(Long memberId, Long spaceId, String title, String introduction, FormType formType) {
-        this.memberId = memberId;
-        this.spaceId = spaceId;
-        this.title = title;
-        this.introduction = introduction;
-        this.formType = formType;
-    }
+	public Form(Long memberId, Long spaceId, String title, String introduction, FormType formType) {
+		this.memberId = memberId;
+		this.spaceId = spaceId;
+		this.title = title;
+		this.introduction = introduction;
+		this.formType = formType;
+	}
+
+	public void updateFormTitle(String title) {
+		this.title = title;
+	}
 }
