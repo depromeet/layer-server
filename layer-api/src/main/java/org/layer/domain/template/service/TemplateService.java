@@ -15,8 +15,9 @@ import org.layer.domain.template.repository.QuestionDescriptionRepository;
 import org.layer.domain.template.repository.TemplateMetadataRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
+
+import static org.layer.domain.form.entity.FormType.TEMPLATE;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -26,8 +27,6 @@ public class TemplateService {
     private final TemplateMetadataRepository templateMetadataRepository;
     private final QuestionRepository questionRepository;
     private final QuestionDescriptionRepository questionDescriptionRepository;
-
-    private static List<Long> templateIds = new ArrayList<>(List.of(10000L, 10001L, 10002L, 10003L, 10004L, 10005L));
 
     //== 간단 정보 단건 조회 ==//
     public TemplateSimpleInfoResponse getTemplateSimpleInfo(Long formId) {
@@ -42,7 +41,6 @@ public class TemplateService {
         TemplateMetadata template = templateMetadataRepository.findByFormIdOrThrow(formId);
         List<Question> questionList = questionRepository.findAllByFormId(formId);
 
-        log.info("line 40: {}", questionList);
 
         List<TemplateDetailQuestionResponse> questionDesList = questionList.stream().map(q -> {
             QuestionDescription description = questionDescriptionRepository.findByQuestionIdOrThrow(q.getId());
@@ -58,7 +56,7 @@ public class TemplateService {
 
     //== 모든 템플릿 리스트 간단 정보 조회 ==//
     public List<TemplateSimpleInfoResponse> getAllTemplates() {
-        List<Form> forms = formRepository.findAllById(templateIds);
+        List<Form> forms = formRepository.findByFormTypeOrderById(TEMPLATE);
 
         return forms.stream().map(form -> {
             TemplateMetadata metadata = templateMetadataRepository.findByFormIdOrThrow(form.getId());
