@@ -5,7 +5,6 @@ import org.layer.domain.space.exception.SpaceException;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.layer.common.exception.SpaceExceptionType.NOT_FOUND_SPACE;
 
@@ -17,9 +16,6 @@ public interface SpaceRepository extends JpaRepository<Space, Long>, SpaceCustom
     }
 
     List<Space> findByIdIn(List<Long> ids);
-
-
-    Optional<Space> findByIdAndLeaderId(Long spaceId, Long leaderId);
 
 
 }
