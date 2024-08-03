@@ -3,6 +3,7 @@ package org.layer.domain.answer.entity;
 import static org.layer.common.exception.AnswerExceptionType.*;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.layer.domain.answer.exception.AnswerException;
 
@@ -14,10 +15,11 @@ public class Answers {
 
 	private final List<Answer> answers;
 
-	public Answer getAnswerToQuestion(Long questionId){
+	public String getAnswerToQuestion(Long questionId) {
 		return answers.stream()
 			.filter(answer -> answer.getQuestionId().equals(questionId))
-			.findAny()
+			.map(Answer::getContent)
+			.findFirst()
 			.orElse(null);
 	}
 
