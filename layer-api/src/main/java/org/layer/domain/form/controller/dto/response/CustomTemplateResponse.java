@@ -16,7 +16,7 @@ public record CustomTemplateResponse(
         @Schema(description = "태그", example = "Mad Sad Glad")
         String formTag,
         @NotNull
-        @Schema(description = "폼 생성일자", example = "")
+        @Schema(description = "폼 생성일자", example = "2024-08-03T21:40:52.880535")
         LocalDateTime createdAt
 ) {
 }
