@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 @RequestMapping("/api/template")
 @Controller
@@ -35,22 +37,13 @@ public class TemplateController implements TemplateApi {
         TemplateDetailInfoResponse templateDetailInfo = templateService.getTemplateDetailInfo(templateId);
         return new ResponseEntity<>(templateDetailInfo, HttpStatus.OK);
     }
-//
-//    //== 질문을 포함한 간단 정보 ==//
-//    @Override
-//    @GetMapping("/{templateId}/question-list")
-//    @PreAuthorize("isAuthenticated()")
-//    public ResponseEntity<TemplateQuestionListResponse> getTemplateQuestionList(@PathVariable("templateId") Long templateId) {
-//        TemplateQuestionListResponse templateQuestions = templateService.getTemplateQuestions(templateId);
-//        return new ResponseEntity<>(templateQuestions, HttpStatus.OK);
-//    }
-//
-//
-//    //== 모든 템플릿 ==//
-//    @Override
-//    @GetMapping("/all")
-//    @PreAuthorize("isAuthenticated()")
-//    public ResponseEntity<TemplateListResponse> getAllTemplates(AllTemplatesRequest allTemplatesRequest) {
-//        return new ResponseEntity<>(templateService.getAllTemplates(allTemplatesRequest.page(), allTemplatesRequest.size()), HttpStatus.OK);
-//    }
+
+
+    //== 모든 템플릿 간단 정보 조회 ==//
+    @Override
+    @GetMapping("/all")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<List<TemplateSimpleInfoResponse>> getAllTemplates() {
+        return new ResponseEntity<>(templateService.getAllTemplates(), HttpStatus.OK);
+    }
 }

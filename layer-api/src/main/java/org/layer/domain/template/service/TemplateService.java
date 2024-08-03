@@ -15,6 +15,7 @@ import org.layer.domain.template.repository.QuestionDescriptionRepository;
 import org.layer.domain.template.repository.TemplateMetadataRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -25,6 +26,8 @@ public class TemplateService {
     private final TemplateMetadataRepository templateMetadataRepository;
     private final QuestionRepository questionRepository;
     private final QuestionDescriptionRepository questionDescriptionRepository;
+
+    private static List<Long> templateIds = new ArrayList<>(List.of(10000L, 10001L, 10002L, 10003L, 10004L, 10005L));
 
     //== 간단 정보 단건 조회 ==//
     public TemplateSimpleInfoResponse getTemplateSimpleInfo(Long formId) {
@@ -53,18 +56,13 @@ public class TemplateService {
     }
 
 
-    //== 질문을 포함한 간단 정보 단건 조회 ==//
-//    public TemplateQuestionListResponse getTemplateQuestions(Long templateId) {
-//        TemplateMetadata template = templateMetadataRepository.findById(templateId).orElseThrow(() -> new TemplateException(TemplateExceptionType.TEMPLATE_NOT_FOUND));
-//        List<TemplateQuestion> questionList = templateQuestionRepository.findAllByTemplateId(templateId);
-//
-//        return TemplateQuestionListResponse.toResponse(template, questionList);
-//    }
-//
-//    //== 모든 템플릿 리스트 간단 정보 조회 ==//
-//    public TemplateListResponse getAllTemplates(int page, int size) {
-//        Pageable pageable = PageRequest.of(page, size);
-//        Slice<TemplateMetadata> templates = templateMetadataRepository.findAll(pageable);
-//        return TemplateListResponse.toResponse(templates);
-//    }
+    //== 모든 템플릿 리스트 간단 정보 조회 ==//
+    public List<TemplateSimpleInfoResponse> getAllTemplates() {
+        List<Form> forms = formRepository.findAllById(templateIds);
+
+        return forms.stream().map(form -> {
+            TemplateMetadata metadata = templateMetadataRepository.findByFormIdOrThrow(form.getId());
+            return TemplateSimpleInfoResponse.toResponse(form, metadata);
+        }).toList();
+    }
 }
