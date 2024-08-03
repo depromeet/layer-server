@@ -46,7 +46,7 @@ public class ActionItemService {
 
         // 멤버가 해당 회고가 진행 중인 스페이스에 속하는지 확인
         Retrospect retrospect = retrospectRepository.findByIdOrThrow(retrospectId);
-        Optional<MemberSpaceRelation> team = memberSpaceRelationRepository.findBySpaceIdAndMemberId(retrospect.getSpaceId(), retrospectId);
+        Optional<MemberSpaceRelation> team = memberSpaceRelationRepository.findBySpaceIdAndMemberId(retrospect.getSpaceId(), memberId);
 
         if(team.isEmpty()) {
             throw new MemberSpaceRelationException(NOT_FOUND_MEMBER_SPACE_RELATION);
