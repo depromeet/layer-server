@@ -75,7 +75,7 @@ public class SpaceController implements SpaceApi {
 
     @Override
     @PatchMapping("/kick")
-    public ResponseEntity<Void> kickMemberFormSpace(Long memberId, SpaceRequest.KickMemberFromSpaceRequest kickMemberFromSpaceRequest) {
+    public ResponseEntity<Void> kickMemberFromSpace(Long memberId, SpaceRequest.KickMemberFromSpaceRequest kickMemberFromSpaceRequest) {
         spaceService.kickMemberFromSpace(memberId, kickMemberFromSpaceRequest.spaceId(), kickMemberFromSpaceRequest.memberId());
         return ResponseEntity.ok().build();
 

@@ -194,6 +194,6 @@ public interface SpaceApi {
                     @Content(mediaType = "application/json", schema = @Schema)
             })
     })
-    ResponseEntity<Void> kickMemberFormSpace(@MemberId Long memberId, SpaceRequest.KickMemberFromSpaceRequest kickMemberFromSpaceRequest);
+    ResponseEntity<Void> kickMemberFromSpace(@MemberId Long memberId, SpaceRequest.KickMemberFromSpaceRequest kickMemberFromSpaceRequest);
 
 }
