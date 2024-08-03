@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.layer.common.annotation.MemberId;
 import org.layer.domain.answer.controller.dto.request.AnswerListCreateRequest;
+import org.layer.domain.answer.controller.dto.request.AnswerListUpdateRequest;
 import org.layer.domain.answer.controller.dto.response.AnswerListGetResponse;
 import org.layer.domain.answer.controller.dto.response.TemporaryAnswerListResponse;
 import org.layer.domain.answer.controller.dto.response.WrittenAnswerListResponse;
@@ -41,4 +42,9 @@ public interface AnswerApi {
             })
     })
     ResponseEntity<WrittenAnswerListResponse> getWrittenAnswersBeforeRetrospectIsDone(@PathVariable("spaceId") Long spaceId, @PathVariable("retrospectId") Long retrospectId, @MemberId Long memberId);
+
+    @Operation(summary = "회고 답변 수정하기", description = """
+            마감되지 않은 내가 작성한 답변을 수정합니다.
+            """)
+    ResponseEntity<Void> updateWrittenAnswers(@PathVariable("spaceId") Long spaceId, @PathVariable("retrospectId") Long retrospectId, @MemberId Long memberId, @RequestBody @Valid AnswerListUpdateRequest answerListUpdateRequest);
 }

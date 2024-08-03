@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.layer.common.annotation.MemberId;
 import org.layer.domain.answer.controller.dto.request.AnswerListCreateRequest;
+import org.layer.domain.answer.controller.dto.request.AnswerListUpdateRequest;
 import org.layer.domain.answer.controller.dto.response.AnswerListGetResponse;
 import org.layer.domain.answer.controller.dto.response.TemporaryAnswerListResponse;
 import org.layer.domain.answer.controller.dto.response.WrittenAnswerGetResponse;
@@ -61,5 +62,13 @@ public class AnswerController implements AnswerApi {
     ) {
         List<WrittenAnswerGetResponse> response = answerService.getWrittenAnswer(spaceId, retrospectId, memberId);
         return ResponseEntity.ok().body(WrittenAnswerListResponse.of(response));
+    }
+
+    @Override
+    @PutMapping
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Void> updateWrittenAnswers(Long spaceId, Long retrospectId, Long memberId, AnswerListUpdateRequest answerListUpdateRequest) {
+        answerService.update(answerListUpdateRequest, spaceId, retrospectId, memberId);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

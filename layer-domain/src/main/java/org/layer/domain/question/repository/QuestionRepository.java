@@ -7,8 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface QuestionRepository extends JpaRepository<Question, Long> {
-    List<Question> findAllByRetrospectIdAndQuestionOwnerOrderByQuestionOrder(Long retrospectId,
-                                                                             QuestionOwner questionOwner);
+    List<Question> findAllByRetrospectIdAndQuestionOwnerOrderByQuestionOrder(Long retrospectId, QuestionOwner questionOwner);
 
     List<Question> findAllByRetrospectIdOrderByQuestionOrder(Long retrospectId);
 
