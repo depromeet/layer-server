@@ -3,35 +3,32 @@ package org.layer.domain.template.controller.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
-
-import org.layer.domain.template.entity.Template;
-import org.layer.domain.template.exception.TemplateException;
-
-import java.util.Optional;
-
-import static org.layer.domain.template.exception.TemplateExceptionType.INVALID_TEMPLATE;
+import org.layer.domain.form.entity.Form;
+import org.layer.domain.template.entity.TemplateMetadata;
 
 @Builder
 @Schema(description = "템플릿 간단 정보 단건 조회 응답")
 public record TemplateSimpleInfoResponse(
-        @Schema(description = "템플릿 ID")
+        @Schema(description = "기본 템플릿(폼) ID")
         @NotNull
-        Long id,
+        Long id, // form
         @Schema(description = "템플릿 제목", example = "빠르고 효율적인 회고")
         @NotNull
-        String title,
+        String title, // form
         @Schema(description = "템플릿 명칭", example = "KPT 회고")
         @NotNull
-        String templateName,
+        String templateName, // metadata
 
         @Schema(description = "템플릿 사진 url", example = "[url]")
-        String imageUrl
+        String imageUrl // metadata
         ) {
 
-        public static TemplateSimpleInfoResponse toResponse(Template template) {
-                return Optional.ofNullable(template)
-                        .map(it -> TemplateSimpleInfoResponse.builder().id(it.getId()).title(it.getTitle())
-                                .templateName(it.getTemplateName()).imageUrl(it.getTemplateImageUrl()).build())
-                        .orElseThrow(() -> new TemplateException(INVALID_TEMPLATE));
+        public static TemplateSimpleInfoResponse toResponse(Form form, TemplateMetadata template) {
+                return TemplateSimpleInfoResponse.builder()
+                        .id(form.getId())
+                        .title(form.getTitle())
+                        .templateName(template.getTemplateName())
+                        .imageUrl(template.getTemplateImageUrl())
+                        .build();
         }
 }

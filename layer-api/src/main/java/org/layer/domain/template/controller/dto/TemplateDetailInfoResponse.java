@@ -3,14 +3,10 @@ package org.layer.domain.template.controller.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
-import org.layer.domain.template.entity.Template;
-import org.layer.domain.template.entity.TemplateQuestion;
-import org.layer.domain.template.exception.TemplateException;
+import org.layer.domain.form.entity.Form;
+import org.layer.domain.template.entity.TemplateMetadata;
 
 import java.util.List;
-import java.util.Optional;
-
-import static org.layer.domain.template.exception.TemplateExceptionType.INVALID_TEMPLATE;
 
 @Builder
 @Schema
@@ -27,14 +23,9 @@ public record TemplateDetailInfoResponse(
         @Schema(description = "템플릿 대표 사진", example = "[이미지 url]")
         @NotNull
         String templateImageUrl,
-        @Schema(description = "템플릿 관련 태그 1", example = "간단한 프로세스")
-        String firstTag, // 첫번째 태그. ex) 간단한 프로세스
-        @Schema(description = "템플릿 관련 태그 2", example = "다음 목표 설정")
-        String secondTag, // 두번째 태그. ex) 다음 목표 설정
-        //== 회고 설명에 대한 부분 ==//
         @Schema(description = "회고에 대한 설명", example = "회고 내용을 Keep, Problem, Try 세가지 관점으로 분류하여... [생략]")
         @NotNull
-        String description, // 회고에 대한 설명
+        String introduction, // 회고에 대한 설명
         @Schema(description = "회고 팁 제목", example = "회고는 빠르고 간단하게!")
         @NotNull
         String tipTitle, // ex) 회고는 빠르고 간단하게!
@@ -47,26 +38,16 @@ public record TemplateDetailInfoResponse(
         List<TemplateDetailQuestionResponse> templateDetailQuestionList // 질문(회고 과정)에 대한 설명
 
 ) {
-        public static TemplateDetailInfoResponse toResponse(Template template, List<TemplateQuestion> templateQuestionList) {
-                List<TemplateDetailQuestionResponse> templateDetailQuestionList = templateQuestionList
-                        .stream()
-                        .map(TemplateDetailQuestionResponse::toResponse)
-                        .toList();
-
-                return Optional.ofNullable(template)
-                        .map(it -> TemplateDetailInfoResponse.builder()
-                                .id(it.getId())
-                                .title(it.getTitle())
-                                .templateName(it.getTemplateName())
-                                .templateImageUrl(it.getTemplateImageUrl())
-                                .firstTag(it.getFirstTag())
-                                .secondTag(it.getSecondTag())
-                                .description(it.getDescription())
-                                .tipTitle(it.getTipTitle())
-                                .tipDescription(it.getTipDescription())
-                                .templateDetailQuestionList(templateDetailQuestionList)
-                                .build())
-                                .orElseThrow(() -> new TemplateException(INVALID_TEMPLATE));
-
-        }
+    public static TemplateDetailInfoResponse toResponse(Form form, TemplateMetadata templateMetadata, List<TemplateDetailQuestionResponse> templateQuestionList) {
+        return TemplateDetailInfoResponse.builder()
+                .id(form.getId())
+                .title(form.getTitle())
+                .templateName(templateMetadata.getTemplateName())
+                .templateImageUrl(templateMetadata.getTemplateImageUrl())
+                .introduction(form.getIntroduction())
+                .tipTitle(templateMetadata.getTipTitle())
+                .tipDescription(templateMetadata.getTipDescription())
+                .templateDetailQuestionList(templateQuestionList)
+                .build();
+    }
 }

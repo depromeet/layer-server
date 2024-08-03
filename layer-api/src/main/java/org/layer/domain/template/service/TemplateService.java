@@ -1,55 +1,68 @@
 package org.layer.domain.template.service;
 
 import lombok.RequiredArgsConstructor;
-
+import lombok.extern.slf4j.Slf4j;
+import org.layer.domain.form.entity.Form;
+import org.layer.domain.form.repository.FormRepository;
+import org.layer.domain.question.entity.Question;
+import org.layer.domain.question.repository.QuestionRepository;
 import org.layer.domain.template.controller.dto.TemplateDetailInfoResponse;
-import org.layer.domain.template.controller.dto.TemplateListResponse;
-import org.layer.domain.template.controller.dto.TemplateQuestionListResponse;
+import org.layer.domain.template.controller.dto.TemplateDetailQuestionResponse;
 import org.layer.domain.template.controller.dto.TemplateSimpleInfoResponse;
-import org.layer.domain.template.entity.Template;
-import org.layer.domain.template.entity.TemplateQuestion;
-import org.layer.domain.template.exception.TemplateException;
-import org.layer.domain.template.exception.TemplateExceptionType;
-import org.layer.domain.template.repository.TemplateQuestionRepository;
-import org.layer.domain.template.repository.TemplateRepository;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
+import org.layer.domain.template.entity.QuestionDescription;
+import org.layer.domain.template.entity.TemplateMetadata;
+import org.layer.domain.template.repository.QuestionDescriptionRepository;
+import org.layer.domain.template.repository.TemplateMetadataRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class TemplateService {
-    private final TemplateRepository templateRepository;
-    private final TemplateQuestionRepository templateQuestionRepository;
+    private final FormRepository formRepository;
+    private final TemplateMetadataRepository templateMetadataRepository;
+    private final QuestionRepository questionRepository;
+    private final QuestionDescriptionRepository questionDescriptionRepository;
+
+    private static List<Long> templateIds = new ArrayList<>(List.of(10000L, 10001L, 10002L, 10003L, 10004L, 10005L));
 
     //== 간단 정보 단건 조회 ==//
-    public TemplateSimpleInfoResponse getTemplateSimpleInfo(Long templateId) {
-        Template template = templateRepository.findByIdOrThrow(templateId);
-        return TemplateSimpleInfoResponse.toResponse(template);
+    public TemplateSimpleInfoResponse getTemplateSimpleInfo(Long formId) {
+        Form form = formRepository.findByIdOrThrow(formId);
+        TemplateMetadata metadata = templateMetadataRepository.findByFormIdOrThrow(formId);
+        return TemplateSimpleInfoResponse.toResponse(form, metadata);
     }
 
     //== 상세 정보 단건 조회 ==//
-    public TemplateDetailInfoResponse getTemplateDetailInfo(Long templateId) {
-        Template template = templateRepository.findByIdOrThrow(templateId);
-        List<TemplateQuestion> templateQuestionList = templateQuestionRepository.findAllByTemplateId(templateId);
-        return TemplateDetailInfoResponse.toResponse(template, templateQuestionList);
+    public TemplateDetailInfoResponse getTemplateDetailInfo(Long formId) {
+        Form form = formRepository.findByIdOrThrow(formId);
+        TemplateMetadata template = templateMetadataRepository.findByFormIdOrThrow(formId);
+        List<Question> questionList = questionRepository.findAllByFormId(formId);
+
+        log.info("line 40: {}", questionList);
+
+        List<TemplateDetailQuestionResponse> questionDesList = questionList.stream().map(q -> {
+            QuestionDescription description = questionDescriptionRepository.findByQuestionIdOrThrow(q.getId());
+            return TemplateDetailQuestionResponse.builder()
+                    .questionId(q.getId())
+                    .question(q.getContent())
+                    .description(description.getDescription()).build();
+        }).toList();
+
+        return TemplateDetailInfoResponse.toResponse(form, template, questionDesList);
     }
 
-    //== 질문을 포함한 간단 정보 단건 조회 ==//
-    public TemplateQuestionListResponse getTemplateQuestions(Long templateId) {
-        Template template = templateRepository.findById(templateId).orElseThrow(() -> new TemplateException(TemplateExceptionType.TEMPLATE_NOT_FOUND));
-        List<TemplateQuestion> questionList = templateQuestionRepository.findAllByTemplateId(templateId);
-
-        return TemplateQuestionListResponse.toResponse(template, questionList);
-    }
 
     //== 모든 템플릿 리스트 간단 정보 조회 ==//
-    public TemplateListResponse getAllTemplates(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Slice<Template> templates = templateRepository.findAll(pageable);
-        return TemplateListResponse.toResponse(templates);
+    public List<TemplateSimpleInfoResponse> getAllTemplates() {
+        List<Form> forms = formRepository.findAllById(templateIds);
+
+        return forms.stream().map(form -> {
+            TemplateMetadata metadata = templateMetadataRepository.findByFormIdOrThrow(form.getId());
+            return TemplateSimpleInfoResponse.toResponse(form, metadata);
+        }).toList();
     }
 }
