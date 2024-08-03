@@ -18,6 +18,8 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.layer.domain.form.entity.FormType.TEMPLATE;
+
 @Slf4j
 @RequiredArgsConstructor
 @Service
@@ -57,7 +59,7 @@ public class TemplateService {
 
     //== 모든 템플릿 리스트 간단 정보 조회 ==//
     public List<TemplateSimpleInfoResponse> getAllTemplates() {
-        List<Form> forms = formRepository.findAllById(templateIds);
+        List<Form> forms = formRepository.findByFormTypeOrderById(TEMPLATE);
 
         return forms.stream().map(form -> {
             TemplateMetadata metadata = templateMetadataRepository.findByFormIdOrThrow(form.getId());
