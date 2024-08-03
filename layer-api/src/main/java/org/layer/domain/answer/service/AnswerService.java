@@ -41,6 +41,7 @@ public class AnswerService {
 
 	private final Time time;
 
+	@Transactional
 	public void create(AnswerListCreateRequest request, Long spaceId, Long retrospectId, Long memberId) {
 		// 스페이스 팀원인지 검증
 		Optional<MemberSpaceRelation> team = memberSpaceRelationRepository.findBySpaceIdAndMemberId(
