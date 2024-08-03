@@ -13,8 +13,8 @@ import org.layer.domain.space.exception.SpaceException;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
+import static org.layer.common.exception.SpaceExceptionType.SPACE_LEADER_CANNOT_LEAVE;
 import static org.layer.common.exception.SpaceExceptionType.SPACE_LEADER_NOT_ALLOW;
 
 @Getter
