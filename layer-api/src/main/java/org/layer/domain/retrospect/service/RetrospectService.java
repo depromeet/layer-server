@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 
 import org.layer.domain.answer.entity.Answers;
 import org.layer.domain.answer.repository.AnswerRepository;
+import org.layer.domain.common.time.Time;
 import org.layer.domain.form.entity.Form;
 import org.layer.domain.form.entity.FormType;
 import org.layer.domain.form.repository.FormRepository;
@@ -45,6 +46,8 @@ public class RetrospectService {
 	private final AnswerRepository answerRepository;
 	private final FormRepository formRepository;
 	private final SpaceRepository spaceRepository;
+
+	private final Time time;
 
 	@Transactional
 	public Long createRetrospect(RetrospectCreateRequest request, Long spaceId, Long memberId) {
@@ -126,7 +129,7 @@ public class RetrospectService {
 		space.isLeaderSpace(memberId);
 
 		Retrospect retrospect = retrospectRepository.findByIdOrThrow(retrospectId);
-		retrospect.updateRetrospect(request.title(), request.introduction(), request.deadline());
+		retrospect.updateRetrospect(request.title(), request.introduction(), request.deadline(), time);
 	}
 
 	@Transactional
