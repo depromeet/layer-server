@@ -19,7 +19,6 @@ import org.layer.domain.answer.entity.Answers;
 import org.layer.domain.answer.enums.AnswerStatus;
 import org.layer.domain.answer.repository.AnswerRepository;
 import org.layer.domain.common.time.Time;
-import org.layer.domain.member.entity.Member;
 import org.layer.domain.member.entity.Members;
 import org.layer.domain.member.repository.MemberRepository;
 import org.layer.domain.question.entity.Question;
@@ -72,7 +71,7 @@ public class AnswerService {
 
 		// 회고 질문 유효성 검사 - 이미 응답을 하지 않았는지
 		Answers answers = new Answers(
-			answerRepository.findByRetrospectIdAndMemberIdAndAndAnswerStatusAndQuestionIdIn(retrospectId, memberId,
+			answerRepository.findByRetrospectIdAndMemberIdAndAnswerStatusAndQuestionIdIn(retrospectId, memberId,
 				AnswerStatus.DONE, questionIds));
 		answers.validateNoAnswer();
 

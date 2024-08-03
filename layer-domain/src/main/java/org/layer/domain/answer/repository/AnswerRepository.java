@@ -14,7 +14,7 @@ public interface AnswerRepository extends JpaRepository<Answer, Long> {
 
 	List<Answer> findAllByRetrospectId(Long retrospectId);
 
-	List<Answer> findByRetrospectIdAndMemberIdAndAndAnswerStatusAndQuestionIdIn(Long retrospectId, Long memberId,
+	List<Answer> findByRetrospectIdAndMemberIdAndAnswerStatusAndQuestionIdIn(Long retrospectId, Long memberId,
 		AnswerStatus answerStatus, List<Long> questionId);
 
 	List<Answer> findAllByRetrospectIdAndMemberIdAndAnswerStatus(Long retrospectId, Long memberId,
