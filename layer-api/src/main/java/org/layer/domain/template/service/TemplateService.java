@@ -15,7 +15,6 @@ import org.layer.domain.template.repository.QuestionDescriptionRepository;
 import org.layer.domain.template.repository.TemplateMetadataRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.layer.domain.form.entity.FormType.TEMPLATE;
