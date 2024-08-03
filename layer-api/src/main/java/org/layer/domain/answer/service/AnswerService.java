@@ -79,7 +79,7 @@ public class AnswerService {
 			// 회고 질문 유효성 검사 - 각각의 질문들이 유효한지
 			questions.validateIdAndQuestionType(r.questionId(), QuestionType.stringToEnum(r.questionType()));
 
-			Answer answer = new Answer(retrospectId, r.questionId(), memberId, r.answer(), answerStatus);
+			Answer answer = new Answer(retrospectId, r.questionId(), memberId, r.answerContent(), answerStatus);
 			answerRepository.save(answer);
 		}
 	}
