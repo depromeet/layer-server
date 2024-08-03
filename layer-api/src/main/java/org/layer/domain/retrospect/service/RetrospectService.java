@@ -17,20 +17,13 @@ import org.layer.domain.retrospect.entity.RetrospectStatus;
 import org.layer.domain.retrospect.repository.RetrospectRepository;
 import org.layer.domain.retrospect.service.dto.response.RetrospectGetServiceResponse;
 import org.layer.domain.retrospect.service.dto.response.RetrospectListGetServiceResponse;
-import org.layer.domain.space.entity.MemberSpaceRelation;
 import org.layer.domain.space.entity.Team;
-import org.layer.domain.space.exception.MemberSpaceRelationException;
 import org.layer.domain.space.repository.MemberSpaceRelationRepository;
-import org.layer.domain.tag.entity.Tag;
-import org.layer.domain.tag.repository.TagRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static org.layer.common.exception.MemberSpaceRelationExceptionType.NOT_FOUND_MEMBER_SPACE_RELATION;
 
 @Service
 @RequiredArgsConstructor
@@ -42,7 +35,6 @@ public class RetrospectService {
     private final QuestionRepository questionRepository;
     private final AnswerRepository answerRepository;
     private final FormRepository formRepository;
-    private final TagRepository tagRepository;
 
     @Transactional
     public Long createRetrospect(RetrospectCreateRequest request, Long spaceId, Long memberId) {
@@ -59,16 +51,12 @@ public class RetrospectService {
         // 새로운 폼 생성(수정)인지 확인
         if (request.isNewForm()) {
             // 내 회고 폼에 추가
-            Form form = new Form(memberId, spaceId, request.title(), request.introduction(), FormType.CUSTOM);
+            Form baseForm = formRepository.findByIdOrThrow(request.curFormId());
+            Form form = new Form(memberId, spaceId, request.title(), request.introduction(), FormType.CUSTOM, baseForm.getFormTag());
             Form savedForm = formRepository.save(form);
 
             List<Question> myQuestions = getQuestions(request.questions(), null, savedForm.getId());
             questionRepository.saveAll(myQuestions);
-
-            List<Tag> newTags = tagRepository.findAllByFormId(request.curFormId()).stream()
-                .map(tag -> new Tag(tag.getTagName(), savedForm.getId(), null)).toList();
-            tagRepository.saveAll(newTags);
-
         }
         return savedRetrospect.getId();
     }
@@ -99,14 +87,6 @@ public class RetrospectService {
                 .toList();
 
         return RetrospectListGetServiceResponse.of(retrospects.size(), retrospectDtos);
-    }
-
-    private void validateTeamMember(Long request, Long memberId) {
-        Optional<MemberSpaceRelation> team = memberSpaceRelationRepository.findBySpaceIdAndMemberId(
-                request, memberId);
-        if (team.isEmpty()) {
-            throw new MemberSpaceRelationException(NOT_FOUND_MEMBER_SPACE_RELATION);
-        }
     }
 
     private List<Question> getQuestions(List<QuestionCreateRequest> questions, Long savedRetrospectId, Long formId) {

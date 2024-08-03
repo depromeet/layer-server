@@ -17,8 +17,8 @@ import org.layer.domain.space.entity.Space;
 import org.layer.domain.space.entity.Team;
 import org.layer.domain.space.repository.MemberSpaceRelationRepository;
 import org.layer.domain.space.repository.SpaceRepository;
-import org.layer.domain.tag.entity.Tag;
-import org.layer.domain.tag.repository.TagRepository;
+import org.layer.domain.template.entity.TemplateMetadata;
+import org.layer.domain.template.repository.TemplateMetadataRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,15 +31,14 @@ public class FormService {
 	private final FormRepository formRepository;
 	private final MemberSpaceRelationRepository memberSpaceRelationRepository;
 	private final QuestionRepository questionRepository;
-	private final TagRepository tagRepository;
 	private final SpaceRepository spaceRepository;
+	private final TemplateMetadataRepository metadataRepository;
 
 	private static final int MIN = 10000;
 	private static final int MAX = 10002;
 
 	public FormGetResponse getForm(Long formId, Long memberId) {
 		Form form = formRepository.findByIdOrThrow(formId);
-		List<Tag> tags = tagRepository.findAllByFormId(formId);
 
 		// 해당 스페이스 팀원인지 검증
 		if (form.getFormType().equals(FormType.CUSTOM)) {
@@ -54,7 +53,7 @@ public class FormService {
 				question.getQuestionType().getStyle()))
 			.toList();
 
-		return FormGetResponse.of(form.getTitle(), tags, questionResponses);
+		return FormGetResponse.of(form.getTitle(), form.getFormTag().getTag(), questionResponses);
 	}
 
 	public RecommendFormResponseDto getRecommendTemplate(RecommendFormQueryDto queryDto, Long memberId) {
@@ -62,12 +61,10 @@ public class FormService {
 		Long formId = random.nextLong(MAX - MIN + 1) + MIN;
 
 		Form form = formRepository.findByIdOrThrow(formId);
-
-		List<Tag> tags = tagRepository.findAllByFormId(form.getId());
-
+		TemplateMetadata metadata = metadataRepository.findByFormIdOrThrow(formId);
 		// TODO: 템플릿 이미지 필요
 
-		return RecommendFormResponseDto.of(form, tags);
+		return RecommendFormResponseDto.of(form, metadata.getTemplateImageUrl());
 	}
 
 	@Transactional
