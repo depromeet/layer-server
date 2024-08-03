@@ -103,7 +103,7 @@ public class AnswerService {
 
 		List<TemporaryAnswerGetResponse> temporaryAnswers = questions.stream()
 			.map(question -> TemporaryAnswerGetResponse.of(question.getId(), question.getQuestionType().getStyle(), answers.getAnswerToQuestion(
-				question.getId()).getContent()))
+				question.getId())))
 			.toList();
 
 		return TemporaryAnswerListResponse.of(temporaryAnswers);
