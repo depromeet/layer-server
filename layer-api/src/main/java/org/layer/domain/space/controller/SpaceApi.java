@@ -198,7 +198,6 @@ public interface SpaceApi {
     })
     ResponseEntity<Void> kickMemberFromSpace(@MemberId Long memberId, SpaceRequest.KickMemberFromSpaceRequest kickMemberFromSpaceRequest);
 
-
     @Operation(summary = "스페이스 팀원 목록 조회하기", method = "GET", description = """
             스페이스에 속한 팀원 목록을 조회합니다.
             스페이스 멤버만 조회 가능합니다.
@@ -212,4 +211,15 @@ public interface SpaceApi {
             })
     })
     ResponseEntity<List<SpaceResponse.SpaceMemberResponse>> getSpaceMembers(@MemberId Long memberId, @PathVariable Long spaceId);
+
+    @Operation(summary = "스페이스 삭제하기", method = "DELETE", description = """
+            스페이스를 삭제합니다.
+            스페이스에 속한 모든 멤버정보와 설정된 폼을 함께 삭제합니다.
+            """)
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", content = {
+                    @Content(mediaType = "application/json", schema = @Schema)
+            })
+    })
+    ResponseEntity<Void> removeSpace(@MemberId Long memberId, @PathVariable("spaceId") Long spaceId);
 }

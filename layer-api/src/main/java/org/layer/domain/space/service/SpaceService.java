@@ -7,6 +7,7 @@ import org.layer.common.dto.Meta;
 import org.layer.domain.space.controller.dto.SpaceRequest;
 import org.layer.domain.space.controller.dto.SpaceResponse;
 import org.layer.domain.space.entity.MemberSpaceRelation;
+import org.layer.domain.space.entity.Space;
 import org.layer.domain.space.entity.SpaceCategory;
 import org.layer.domain.space.exception.MemberSpaceRelationException;
 import org.layer.domain.space.exception.SpaceException;
@@ -20,7 +21,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.layer.common.exception.MemberSpaceRelationExceptionType.NOT_FOUND_MEMBER_SPACE_RELATION;
-import static org.layer.common.exception.SpaceExceptionType.*;
+import static org.layer.common.exception.SpaceExceptionType.NOT_FOUND_SPACE;
+import static org.layer.common.exception.SpaceExceptionType.SPACE_ALREADY_JOINED;
 
 @Service
 @RequiredArgsConstructor
@@ -145,7 +147,7 @@ public class SpaceService {
     @Transactional
     public void changeSpaceLeader(Long leaderId, Long spaceId, Long memberId) {
         // 스페이스 리더 여부 확인
-        var foundSpace = spaceRepository.findByIdAndLeaderId(spaceId, leaderId).orElseThrow(() -> new SpaceException(CAN_ONLY_SPACE_LEADER));
+        var foundSpace = checkLeaderFromSpace(spaceId, leaderId);
 
         // 스페이스 존재하는 멤버 확인
         memberSpaceRelationRepository.findBySpaceIdAndMemberId(spaceId, memberId).orElseThrow(() -> new MemberSpaceRelationException(NOT_FOUND_MEMBER_SPACE_RELATION));
@@ -156,7 +158,7 @@ public class SpaceService {
     @Transactional
     public void kickMemberFromSpace(Long leaderId, Long spaceId, Long memberId) {
         // 스페이스 리더 여부 확인
-        spaceRepository.findByIdAndLeaderId(spaceId, leaderId).orElseThrow(() -> new SpaceException(CAN_ONLY_SPACE_LEADER));
+        checkLeaderFromSpace(spaceId, leaderId);
 
         // 스페이스 존재하는 멤버 확인
         var foundTeamByMemberId = memberSpaceRelationRepository.findBySpaceIdAndMemberId(spaceId, memberId).orElseThrow(() -> new MemberSpaceRelationException(NOT_FOUND_MEMBER_SPACE_RELATION));
@@ -164,6 +166,7 @@ public class SpaceService {
         // 팀에서 삭제하기
         memberSpaceRelationRepository.delete(foundTeamByMemberId);
     }
+
 
     public List<SpaceResponse.SpaceMemberResponse> getSpaceMembers(Long memberId, Long spaceId) {
         /*
@@ -184,6 +187,30 @@ public class SpaceService {
           이미 참여중인 스페이스 여부 확인
          */
         return memberSpaceRelationRepository.findBySpaceIdAndMemberId(spaceId, memberId).orElseThrow(() -> new SpaceException(SPACE_ALREADY_JOINED));
+    }
+  
+    @Transactional
+    public void removeSpace(Long spaceId, Long leaderId) {
+        // 스페이스 리더 여부 확인
+        var foundSpace = checkLeaderFromSpace(spaceId, leaderId);
+
+        memberSpaceRelationRepository.deleteAllBySpaceIdInBatch(foundSpace.getId());
+        spaceRepository.delete(foundSpace);
+    }
+
+
+    /**
+     * 스페이스 리더 여부 확인
+     *
+     * @param spaceId  스페이스 아이디
+     * @param leaderId 확인하고자 하는 리더 아이디
+     */
+    private Space checkLeaderFromSpace(Long spaceId, Long leaderId) {
+        var foundSpace = spaceRepository.findById(spaceId).orElseThrow(() -> new SpaceException(NOT_FOUND_SPACE));
+        foundSpace.isLeaderSpace(leaderId);
+
+        return foundSpace;
+
     }
 
 }

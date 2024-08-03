@@ -14,7 +14,7 @@ import org.layer.domain.space.exception.SpaceException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.layer.common.exception.SpaceExceptionType.SPACE_LEADER_CANNOT_LEAVE;
+import static org.layer.common.exception.SpaceExceptionType.CAN_ONLY_SPACE_LEADER;
 import static org.layer.common.exception.SpaceExceptionType.SPACE_LEADER_NOT_ALLOW;
 
 @Getter
@@ -51,7 +51,7 @@ public class Space extends BaseEntity {
     public void isLeaderSpace(Long memberId) {
         boolean isLeader = leaderId.equals(memberId);
         if (!isLeader) {
-            throw new SpaceException(SPACE_LEADER_CANNOT_LEAVE);
+            throw new SpaceException(CAN_ONLY_SPACE_LEADER);
         }
     }
 
