@@ -12,7 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 public interface AnswerRepository extends JpaRepository<Answer, Long> {
 	List<Answer> findAllByRetrospectIdIn(List<Long> retrospectIds);
 
-	List<Answer> findByRetrospectIdAndMemberIdAndAndAnswerStatusAndQuestionIdIn(Long retrospectId, Long memberId,
+	List<Answer> findAllByRetrospectId(Long retrospectId);
+
+	List<Answer> findByRetrospectIdAndMemberIdAndAnswerStatusAndQuestionIdIn(Long retrospectId, Long memberId,
 		AnswerStatus answerStatus, List<Long> questionId);
 
 	List<Answer> findAllByRetrospectIdAndMemberIdAndAnswerStatus(Long retrospectId, Long memberId,
