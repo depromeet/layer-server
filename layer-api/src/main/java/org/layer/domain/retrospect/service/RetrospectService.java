@@ -66,7 +66,7 @@ public class RetrospectService {
             questionRepository.saveAll(myQuestions);
 
             List<Tag> newTags = tagRepository.findAllByFormId(request.curFormId()).stream()
-                .map(tag -> new Tag(tag.getTagName(), savedForm.getId(), null)).toList();
+                    .map(tag -> new Tag(tag.getTagName(), savedForm.getId(), null)).toList();
             tagRepository.saveAll(newTags);
 
         }
@@ -95,7 +95,7 @@ public class RetrospectService {
         List<RetrospectGetServiceResponse> retrospectDtos = retrospects.stream()
                 .map(r -> RetrospectGetServiceResponse.of(r.getId(), r.getTitle(), r.getIntroduction(),
                         answers.hasRetrospectAnswer(memberId, r.getId()), r.getRetrospectStatus(),
-                        answers.getWriteCount(r.getId()), team.getTeamMemberCount()))
+                        answers.getWriteCount(r.getId()), team.getTeamMemberCount(), r.getCreatedAt(), r.getDeadline()))
                 .toList();
 
         return RetrospectListGetServiceResponse.of(retrospects.size(), retrospectDtos);
