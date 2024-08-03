@@ -70,6 +70,7 @@ public class FormService {
 		return RecommendFormResponseDto.of(form, tags);
 	}
 
+	@Transactional
 	public void updateFormTitle(Long formId, FormNameUpdateRequest request, Long memberId){
 		Form form = formRepository.findByIdOrThrow(formId);
 
@@ -78,6 +79,7 @@ public class FormService {
 		form.updateFormTitle(request.formTitle());
 	}
 
+	@Transactional
 	public void deleteFormTitle(Long formId, Long memberId){
 		Form form = formRepository.findByIdOrThrow(formId);
 
