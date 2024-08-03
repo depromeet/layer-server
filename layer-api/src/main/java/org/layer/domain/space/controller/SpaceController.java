@@ -88,7 +88,9 @@ public class SpaceController implements SpaceApi {
     public ResponseEntity<List<SpaceResponse.SpaceMemberResponse>> getSpaceMembers(@MemberId Long memberId, @PathVariable Long spaceId) {
         var spaceMembers = spaceService.getSpaceMembers(memberId, spaceId);
         return ResponseEntity.ok(spaceMembers);
+    }
 
+    @Override
     @DeleteMapping("{spaceId}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Void> removeSpace(@MemberId Long memberId, @PathVariable("spaceId") Long spaceId) {
