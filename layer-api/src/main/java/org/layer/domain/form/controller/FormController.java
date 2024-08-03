@@ -1,23 +1,19 @@
 package org.layer.domain.form.controller;
 
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.layer.common.annotation.MemberId;
 import org.layer.domain.form.controller.dto.request.FormNameUpdateRequest;
 import org.layer.domain.form.controller.dto.request.RecommendFormQueryDto;
+import org.layer.domain.form.controller.dto.response.CustomTemplateListResponse;
 import org.layer.domain.form.controller.dto.response.FormGetResponse;
 import org.layer.domain.form.controller.dto.response.RecommendFormResponseDto;
 import org.layer.domain.form.service.FormService;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -61,4 +57,10 @@ public class FormController implements FormApi {
 		return ResponseEntity.ok().build();
 	}
 
+	@Override
+	@GetMapping("/space/{spaceId}/custom-template")
+	public ResponseEntity<CustomTemplateListResponse> getCustomTemplateList(@PageableDefault(size=10) Pageable pageable, @PathVariable(name = "spaceId") Long spaceId, @MemberId Long memberId) {
+		CustomTemplateListResponse response = formService.getCustomTemplateList(pageable, spaceId, memberId);
+		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
 }
