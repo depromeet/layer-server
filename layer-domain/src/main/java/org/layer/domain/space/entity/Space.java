@@ -60,7 +60,10 @@ public class Space extends BaseEntity {
             throw new SpaceException(SPACE_LEADER_NOT_ALLOW);
         }
         leaderId = memberId;
+    }
 
-
+    public void updateRecentFormId(Long formId, Long memberId){
+        isLeaderSpace(memberId);
+        this.formId = formId;
     }
 }

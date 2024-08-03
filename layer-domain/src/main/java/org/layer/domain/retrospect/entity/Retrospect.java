@@ -5,6 +5,7 @@ import static org.layer.common.exception.RetrospectExceptionType.*;
 import java.time.LocalDateTime;
 
 import org.layer.domain.common.BaseTimeEntity;
+import org.layer.domain.common.time.Time;
 import org.layer.domain.retrospect.exception.RetrospectException;
 
 import jakarta.persistence.Entity;
@@ -69,5 +70,16 @@ public class Retrospect extends BaseTimeEntity {
 		if(!this.retrospectStatus.equals(RetrospectStatus.DONE)){
 			throw new RetrospectException(DEADLINE_NOT_PASSED);
 		}
+	}
+
+	public void updateRetrospect(String title, String introduction, LocalDateTime deadline, Time time){
+
+		if(deadline.isAfter(time.now())){
+			throw new RetrospectException(INVALID_DEADLINE);
+		}
+
+		this.title = title;
+		this.introduction = introduction;
+		this.deadline = deadline;
 	}
 }
