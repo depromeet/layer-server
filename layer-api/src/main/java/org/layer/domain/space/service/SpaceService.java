@@ -8,6 +8,7 @@ import org.layer.domain.space.controller.dto.SpaceRequest;
 import org.layer.domain.space.controller.dto.SpaceResponse;
 import org.layer.domain.space.entity.MemberSpaceRelation;
 import org.layer.domain.space.entity.SpaceCategory;
+import org.layer.domain.space.exception.MemberSpaceRelationException;
 import org.layer.domain.space.exception.SpaceException;
 import org.layer.domain.space.repository.MemberSpaceRelationRepository;
 import org.layer.domain.space.repository.SpaceRepository;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.stream.Collectors;
 
+import static org.layer.common.exception.MemberSpaceRelationExceptionType.NOT_FOUND_MEMBER_SPACE_RELATION;
 import static org.layer.common.exception.SpaceExceptionType.*;
 
 @Service
@@ -136,6 +138,29 @@ public class SpaceService {
           스페이스 참여여부 삭제 ( 스페이스 떠나기 )
          */
         memberSpaceRelationRepository.deleteById(foundMemberSpaceRelation.getId());
+    }
+
+    @Transactional
+    public void changeSpaceLeader(Long leaderId, Long spaceId, Long memberId) {
+        // 스페이스 리더 여부 확인
+        var foundSpace = spaceRepository.findByIdAndLeaderId(spaceId, leaderId).orElseThrow(() -> new SpaceException(CAN_ONLY_SPACE_LEADER));
+
+        // 스페이스 존재하는 멤버 확인
+        memberSpaceRelationRepository.findBySpaceIdAndMemberId(spaceId, memberId).orElseThrow(() -> new MemberSpaceRelationException(NOT_FOUND_MEMBER_SPACE_RELATION));
+
+        foundSpace.changeLeader(memberId);
+    }
+
+    @Transactional
+    public void kickMemberFromSpace(Long leaderId, Long spaceId, Long memberId) {
+        // 스페이스 리더 여부 확인
+        spaceRepository.findByIdAndLeaderId(spaceId, leaderId).orElseThrow(() -> new SpaceException(CAN_ONLY_SPACE_LEADER));
+
+        // 스페이스 존재하는 멤버 확인
+        var foundTeamByMemberId = memberSpaceRelationRepository.findBySpaceIdAndMemberId(spaceId, memberId).orElseThrow(() -> new MemberSpaceRelationException(NOT_FOUND_MEMBER_SPACE_RELATION));
+
+        // 팀에서 삭제하기
+        memberSpaceRelationRepository.delete(foundTeamByMemberId);
     }
 
 }

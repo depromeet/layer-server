@@ -112,4 +112,22 @@ public class SpaceRequest {
             Long spaceId
     ) {
     }
+
+    @Schema(title = "스페이스 대표자 변경하기")
+    public record ChangeSpaceLeaderRequest(
+            @Schema(description = "변경하고자 하는 스페이스 아이디")
+            Long spaceId,
+            @Schema(description = "변경하고자 하는 스페이스 팀원 아이디")
+            Long memberId
+    ) {
+    }
+
+    @Schema(title = "스페이스 추방하기")
+    public record KickMemberFromSpaceRequest(
+            @Schema(description = "추방하고자 하는 멤버 아이디")
+            Long memberId,
+            @Schema(description = "추방하고자 하는 스페이스 아이디")
+            Long spaceId
+    ) {
+    }
 }

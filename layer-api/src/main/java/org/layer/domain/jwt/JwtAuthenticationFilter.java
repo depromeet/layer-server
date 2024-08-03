@@ -50,6 +50,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (StringUtils.hasText(bearerToken)) {
             accessToken = bearerToken.replace("Bearer ", "");
         }
+
         return accessToken;
     }
 
