@@ -1,7 +1,5 @@
 package org.layer.domain.space.entity;
 
-import static org.layer.common.exception.SpaceExceptionType.*;
-
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -16,6 +14,8 @@ import org.layer.domain.space.exception.SpaceException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import static org.layer.common.exception.SpaceExceptionType.SPACE_LEADER_NOT_ALLOW;
 
 @Getter
 @Entity
@@ -53,5 +53,14 @@ public class Space extends BaseEntity {
             return Optional.empty();
         }
         return Optional.of(true);
+    }
+
+    public void changeLeader(Long memberId) {
+        if (leaderId.equals(memberId)) {
+            throw new SpaceException(SPACE_LEADER_NOT_ALLOW);
+        }
+        leaderId = memberId;
+
+
     }
 }

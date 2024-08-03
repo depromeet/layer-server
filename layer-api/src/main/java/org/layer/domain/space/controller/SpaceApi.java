@@ -171,4 +171,29 @@ public interface SpaceApi {
             )
     })
     ResponseEntity<Void> removeMemberSpace(@MemberId Long memberId, @RequestBody @Validated SpaceRequest.LeaveSpaceRequest leaveSpaceRequest);
+
+    @Operation(summary = "스페이스 대표자 변경하기", method = "PATCH", description = """
+                스페이스 대표자를 변경합니다.
+                스페이스 리더만 대표자를 변경할 수 있으며
+                변경대상이 스페이스에 속한 경우에만 가능합니다.
+            """)
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", content = {
+                    @Content(mediaType = "application/json", schema = @Schema)
+            })
+    })
+    ResponseEntity<Void> changeSpaceLeader(@MemberId Long memberId, @RequestBody @Validated SpaceRequest.ChangeSpaceLeaderRequest changeSpaceLeaderRequest);
+
+
+    @Operation(summary = "스페이스 추방하기", method = "PATCH", description = """
+            팀원을 스페이스에서 추방합니다.
+            스페이스 대표자만 가능합니다.
+            """)
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", content = {
+                    @Content(mediaType = "application/json", schema = @Schema)
+            })
+    })
+    ResponseEntity<Void> kickMemberFormSpace(@MemberId Long memberId, SpaceRequest.KickMemberFromSpaceRequest kickMemberFromSpaceRequest);
+
 }

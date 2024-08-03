@@ -64,5 +64,21 @@ public class SpaceController implements SpaceApi {
         spaceService.removeMemberSpace(memberId, leaveSpaceRequest.spaceId());
         return ResponseEntity.ok().build();
     }
+
+    @Override
+    @PatchMapping("/change-leader")
+    public ResponseEntity<Void> changeSpaceLeader(Long memberId, SpaceRequest.ChangeSpaceLeaderRequest changeSpaceLeaderRequest) {
+        spaceService.changeSpaceLeader(memberId, changeSpaceLeaderRequest.spaceId(), changeSpaceLeaderRequest.memberId());
+
+        return ResponseEntity.ok().build();
+    }
+
+    @Override
+    @PatchMapping("/kick")
+    public ResponseEntity<Void> kickMemberFormSpace(Long memberId, SpaceRequest.KickMemberFromSpaceRequest kickMemberFromSpaceRequest) {
+        spaceService.kickMemberFromSpace(memberId, kickMemberFromSpaceRequest.spaceId(), kickMemberFromSpaceRequest.memberId());
+        return ResponseEntity.ok().build();
+
+    }
 }
 
