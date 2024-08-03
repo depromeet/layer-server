@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.util.List;
+
 @Tag(name = "스페이스 API")
 public interface SpaceApi {
     @Operation(summary = "내가 속한 스페이스 조회하기", method = "GET", description = """
@@ -196,6 +198,19 @@ public interface SpaceApi {
     })
     ResponseEntity<Void> kickMemberFromSpace(@MemberId Long memberId, SpaceRequest.KickMemberFromSpaceRequest kickMemberFromSpaceRequest);
 
+    @Operation(summary = "스페이스 팀원 목록 조회하기", method = "GET", description = """
+            스페이스에 속한 팀원 목록을 조회합니다.
+            스페이스 멤버만 조회 가능합니다.
+                        
+            - 스페이스 리더가 첫번째 인덱스로 조회됩니다.
+            - 스페이스 가입이 빠른 순서로 조회됩니다.
+            """)
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", content = {
+                    @Content(mediaType = "application/json", schema = @Schema)
+            })
+    })
+    ResponseEntity<List<SpaceResponse.SpaceMemberResponse>> getSpaceMembers(@MemberId Long memberId, @PathVariable Long spaceId);
 
     @Operation(summary = "스페이스 삭제하기", method = "DELETE", description = """
             스페이스를 삭제합니다.
@@ -207,6 +222,4 @@ public interface SpaceApi {
             })
     })
     ResponseEntity<Void> removeSpace(@MemberId Long memberId, @PathVariable("spaceId") Long spaceId);
-
-
 }

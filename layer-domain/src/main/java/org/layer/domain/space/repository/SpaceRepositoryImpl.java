@@ -5,7 +5,9 @@ import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import lombok.extern.slf4j.Slf4j;
+import org.layer.domain.space.dto.QSpaceMember;
 import org.layer.domain.space.dto.QSpaceWithMemberCount;
+import org.layer.domain.space.dto.SpaceMember;
 import org.layer.domain.space.dto.SpaceWithMemberCount;
 import org.layer.domain.space.entity.QMemberSpaceRelation;
 import org.layer.domain.space.entity.SpaceCategory;
@@ -16,6 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static org.layer.domain.form.entity.QForm.form;
+import static org.layer.domain.member.entity.QMember.member;
 import static org.layer.domain.space.entity.QMemberSpaceRelation.memberSpaceRelation;
 import static org.layer.domain.space.entity.QSpace.space;
 
@@ -72,6 +76,26 @@ public class SpaceRepositoryImpl implements SpaceCustomRepository {
         return query.where(space.id.eq(spaceId)).execute();
     }
 
+    @Override
+    public List<SpaceMember> findAllSpaceMemberBySpaceIdWithIsLeader(Long spaceId) {
+        return queryFactory
+                .select(new QSpaceMember(
+                                member.id,
+                                member.profileImageUrl,
+                                member.name,
+                                space.leaderId.eq(member.id)
+                        )
+                )
+                .from(memberSpaceRelation)
+                .leftJoin(member)
+                .on(memberSpaceRelation.memberId.eq(member.id))
+                .leftJoin(space)
+                .on(memberSpaceRelation.space.id.eq(space.id))
+                .where(memberSpaceRelation.space.id.eq(spaceId))
+                .orderBy(memberSpaceRelation.createdAt.asc())
+                .fetch();
+    }
+
     private JPAQuery<SpaceWithMemberCount> getSpaceWithMemberCountQuery() {
         QMemberSpaceRelation memberCountRelationTable = new QMemberSpaceRelation("msr");
         return queryFactory.select(
@@ -90,7 +114,9 @@ public class SpaceRepositoryImpl implements SpaceCustomRepository {
                         ))
                 .from(space)
                 .leftJoin(memberSpaceRelation).on(space.id.eq(memberSpaceRelation.space.id))
-                .leftJoin(memberCountRelationTable).on(space.id.eq(memberCountRelationTable.space.id));
+                .leftJoin(memberCountRelationTable).on(space.id.eq(memberCountRelationTable.space.id))
+                .leftJoin(form).on(space.formId.eq(form.spaceId));
+
     }
 
 

@@ -1,5 +1,6 @@
 package org.layer.domain.space.repository;
 
+import org.layer.domain.space.dto.SpaceMember;
 import org.layer.domain.space.dto.SpaceWithMemberCount;
 import org.layer.domain.space.entity.SpaceCategory;
 import org.layer.domain.space.entity.SpaceField;
@@ -20,5 +21,7 @@ public interface SpaceCustomRepository {
     Optional<SpaceWithMemberCount> findByIdAndJoinedMemberId(Long spaceId, Long memberId);
 
     Long updateSpace(Long spaceId, SpaceCategory category, List<SpaceField> fieldList, String name, String introduction, String bannerUrl);
+
+    List<SpaceMember> findAllSpaceMemberBySpaceIdWithIsLeader(Long spaceId);
 
 }
