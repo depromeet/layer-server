@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import org.layer.domain.actionItem.entity.ActionItem;
+import org.layer.domain.actionItem.enums.ActionItemStatus;
 import org.layer.domain.retrospect.entity.Retrospect;
 import org.layer.domain.space.entity.Space;
 
@@ -26,7 +27,13 @@ public record MemberActionItemElementResponse(
                                             Long actionItemId,
                                             @NotNull
                                             @Schema(description = "실행 목표 내용", examples = {"긴 회의 시간 줄이기", "회의 후 내용 꼭 기록해두기"})
-                                            String content
+                                            String content,
+                                            @NotNull
+                                            @Schema(description = "핀 여부", examples = {"Y", "N"})
+                                            String isPinned,
+                                            @NotNull
+                                            @Schema(description = "실행 목표 상태", examples = {"PROCEEDING", "BEFORE_START", "DONE"})
+                                            ActionItemStatus actionItemStatus
 ) {
 
     public static MemberActionItemElementResponse of(Space space, Retrospect retrospect, ActionItem actionItem) {
@@ -37,6 +44,8 @@ public record MemberActionItemElementResponse(
                 .retrospectTitle(retrospect.getTitle())
                 .actionItemId(actionItem.getId())
                 .content(actionItem.getContent())
+                .isPinned(actionItem.getIsPinned() ? "Y" : "N")
+                .actionItemStatus(actionItem.getActionItemStatus())
                 .build();
     }
 }

@@ -132,12 +132,25 @@ public class ActionItemService {
         List<Long> spaceIds = spaces.stream().map(Space::getId).toList();
         List<Retrospect> doneRetrospects = retrospectRepository.findAllBySpaceIdIn(spaceIds).stream()
                 .filter(s -> s.getRetrospectStatus().equals(DONE))
-                .sorted((a, b) -> b.getDeadline().compareTo(a.getDeadline()))
                 .toList();
 
         // 액션 아이템 모두 뽑아오기
         List<Long> idList = doneRetrospects.stream().map(Retrospect::getId).toList();
-        List<ActionItem> actionItemList = actionItemRepository.findAllByRetrospectIdIn(idList);
+        List<ActionItem> actionItemList = actionItemRepository.findAllByRetrospectIdIn(idList).stream()
+                .sorted((a, b) -> {
+                    if(a.getIsPinned() && b.getIsPinned()
+                            && a.getActionItemStatus().equals(b.getActionItemStatus())) {
+                        return b.getCreatedAt().compareTo(a.getCreatedAt()); // 둘다 핀 돼있고, 상태도 같으면 최신 순
+                    } else if(a.getIsPinned() && b.getIsPinned()) {
+                        return a.getActionItemStatus().getPriority() - b.getActionItemStatus().getPriority();
+                    } else if(a.getIsPinned() || b.getIsPinned()) {
+                        return a.getIsPinned() ? -1 : 1;
+                    } else if(!a.getActionItemStatus().equals(b.getActionItemStatus())) {
+                        return a.getActionItemStatus().getPriority() - b.getActionItemStatus().getPriority();
+                    } else {
+                        return b.getCreatedAt().compareTo(a.getCreatedAt()); // 둘다 핀 돼있고, proceeding 이면 최신 순
+                    }
+                }).toList();
 
         List<MemberActionItemElementResponse> response = new ArrayList<>();
         for (ActionItem actionItem : actionItemList) {
