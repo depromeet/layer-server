@@ -23,7 +23,7 @@ public record SpaceActionItemResponse(@NotNull
 
     public static SpaceActionItemResponse of(Space space, Retrospect retrospect, List<ActionItem> spaceActionItemList) {
         List<SpaceActionItemElementResponse> actionItemElements = spaceActionItemList.stream()
-                .map(a -> SpaceActionItemElementResponse.of(a, retrospect.getTitle()))
+                .map(a -> SpaceActionItemElementResponse.of(a, retrospect))
                 .toList();
 
         return SpaceActionItemResponse.builder()

@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import org.layer.domain.actionItem.entity.ActionItem;
+import org.layer.domain.retrospect.entity.Retrospect;
 
 @Builder
 public record SpaceActionItemElementResponse(
@@ -20,12 +21,12 @@ public record SpaceActionItemElementResponse(
                                     @Schema(description = "행동 목표와 매핑되는 회고 제목")
                                     String retrospectTitle) {
 
-    public static SpaceActionItemElementResponse of(ActionItem actionItem, String retrospectName) {
+    public static SpaceActionItemElementResponse of(ActionItem actionItem, Retrospect retrospect) {
         return SpaceActionItemElementResponse.builder()
                 .actionItemId(actionItem.getId())
                 .content(actionItem.getContent())
-                .retrospectId(actionItem.getRetrospectId())
-                .retrospectTitle(retrospectName)
+                .retrospectId(retrospect.getId())
+                .retrospectTitle(retrospect.getTitle())
                 .build();
     }
 }

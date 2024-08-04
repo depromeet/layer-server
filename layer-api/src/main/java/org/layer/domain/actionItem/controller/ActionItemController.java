@@ -47,14 +47,15 @@ public class ActionItemController implements ActionItemApi {
     @Override
     @GetMapping("/space/{spaceId}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<SpaceActionItemResponse> teamActionItem(@MemberId Long memberId, @PathVariable("spaceId") Long spaceId) {
+    public ResponseEntity<SpaceActionItemResponse> teamActionItem(@MemberId Long memberId, @PathVariable(name = "spaceId") Long spaceId) {
         SpaceActionItemResponse teamActionItem = actionItemService.getSpaceActionItemList(memberId, spaceId);
 
         return new ResponseEntity<>(teamActionItem, HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<SpaceActionItemResponse> spaceRecentActionItem(@MemberId Long memberId, Long spaceId) {
+    @GetMapping("/space/{spaceId}/recent")
+    public ResponseEntity<SpaceActionItemResponse> spaceRecentActionItem(@MemberId Long memberId, @PathVariable(name = "spaceId") Long spaceId) {
         SpaceActionItemResponse spaceRecentActionItems = actionItemService.getSpaceRecentActionItems(memberId, spaceId);
 
         return new ResponseEntity<>(spaceRecentActionItems, HttpStatus.OK);

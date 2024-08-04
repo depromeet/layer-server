@@ -190,8 +190,8 @@ public class ActionItemService {
 
             spaceActionItemList.add(SpaceActionItemElementResponse.builder()
                     .actionItemId(actionItem.getId())
-                    .retrospectName(retrospect.getTitle())
-                    .actionItemContent(actionItem.getContent())
+                    .retrospectTitle(retrospect.getTitle())
+                    .content(actionItem.getContent())
                     .build());
         }
 
@@ -207,18 +207,21 @@ public class ActionItemService {
         memberSpaceRelationRepository.findBySpaceIdAndMemberId(spaceId, memberId);
 
         List<Retrospect> retrospectList = retrospectRepository.findAllBySpaceId(spaceId);
+        log.info("line 210: {}", retrospectList);
+        for (Retrospect retrospect : retrospectList) {
+            log.info("212 line: {}, {}", retrospect.getId(), retrospect.getRetrospectStatus());
+        }
         // 종료된 것 중 가장 최근에 만들어진 회고 찾기
         Optional<Retrospect> recentOpt = retrospectList.stream()
                 .filter(r -> r.getRetrospectStatus().equals(RetrospectStatus.DONE)) // 끝난 회고 찾기
-                .sorted((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt())) // createdAt 내림차순으로 정렬
+                .sorted((a, b) -> b.getDeadline().compareTo(a.getDeadline())) // deadline 내림차순으로 정렬
                 .findFirst();
 
-        List<ActionItem> actionItems = new ArrayList<>(); // 존재하지 않으면 빈 리스트
         if(recentOpt.isPresent()) {
             Retrospect recent = recentOpt.get();
-            actionItems = actionItemRepository.findAllByRetrospectId(recent.getId());
+            List<ActionItem> actionItems = actionItemRepository.findAllByRetrospectId(recent.getId());
+            return SpaceActionItemResponse.of(space, recent, actionItems);
         }
-
-        return SpaceActionItemResponse.of(space, actionItems);
+        return null;
     }
 }
