@@ -20,5 +20,6 @@ public interface FormRepository extends JpaRepository<Form, Long> {
 	List<Form> findByFormTypeOrderById(FormType formType);
 
 	Page<Form> findAllByFormTypeOrderByIdDesc(Pageable pageable, FormType formType);
+	Page<Form> findAllByFormTypeAndSpaceIdOrderByIdDesc(Pageable pageable, FormType formType, Long spaceId);
 
 }

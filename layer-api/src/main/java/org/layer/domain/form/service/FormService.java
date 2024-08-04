@@ -104,7 +104,7 @@ public class FormService {
 			throw new FormException(UNAUTHORIZED_GET_FORM);
 		}
 
-		Page<Form> customFormList = formRepository.findAllByFormTypeOrderByIdDesc(pageable, CUSTOM);
+		Page<Form> customFormList = formRepository.findAllByFormTypeAndSpaceIdOrderByIdDesc(pageable, CUSTOM, spaceId);
 
 		Page<CustomTemplateResponse> customFormResList = customFormList.map(form -> new CustomTemplateResponse(form.getId(), form.getTitle(), form.getFormTag().getTag(), form.getCreatedAt()));
 
