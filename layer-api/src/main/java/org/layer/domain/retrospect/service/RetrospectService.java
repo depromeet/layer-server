@@ -7,6 +7,7 @@ import org.layer.domain.answer.repository.AnswerRepository;
 import org.layer.domain.common.time.Time;
 import org.layer.domain.form.entity.Form;
 import org.layer.domain.form.entity.FormType;
+import org.layer.domain.form.enums.FormTag;
 import org.layer.domain.form.repository.FormRepository;
 import org.layer.domain.question.entity.Question;
 import org.layer.domain.question.enums.QuestionOwner;
@@ -64,9 +65,8 @@ public class RetrospectService {
 		// 새로운 폼 생성(수정)인지 확인
 		if (request.isNewForm()) {
 			// 내 회고 폼에 추가
-			Form baseForm = formRepository.findByIdOrThrow(request.curFormId());
 			Form form = new Form(memberId, spaceId, request.title(), request.introduction(), FormType.CUSTOM,
-				baseForm.getFormTag());
+				FormTag.CUSTOM);
 			Form savedForm = formRepository.save(form);
 
 			List<Question> myQuestions = getQuestions(request.questions(), null, savedForm.getId());
