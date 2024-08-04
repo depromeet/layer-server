@@ -1,19 +1,9 @@
 package org.layer.domain.form.service;
 
-import static org.layer.common.exception.FormExceptionType.*;
-import static org.layer.domain.form.entity.FormType.*;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
-
+import lombok.RequiredArgsConstructor;
 import org.layer.domain.form.controller.dto.request.FormNameUpdateRequest;
 import org.layer.domain.form.controller.dto.request.RecommendFormQueryDto;
-import org.layer.domain.form.controller.dto.response.CustomTemplateListResponse;
-import org.layer.domain.form.controller.dto.response.CustomTemplateResponse;
-import org.layer.domain.form.controller.dto.response.FormGetResponse;
-import org.layer.domain.form.controller.dto.response.QuestionGetResponse;
-import org.layer.domain.form.controller.dto.response.RecommendFormResponseDto;
+import org.layer.domain.form.controller.dto.response.*;
 import org.layer.domain.form.entity.Form;
 import org.layer.domain.form.exception.FormException;
 import org.layer.domain.form.repository.FormRepository;
@@ -31,7 +21,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+import java.util.Optional;
+import java.util.Random;
+
+import static org.layer.common.exception.FormExceptionType.UNAUTHORIZED_GET_FORM;
+import static org.layer.domain.form.entity.FormType.CUSTOM;
 
 @Service
 @RequiredArgsConstructor
@@ -111,7 +106,7 @@ public class FormService {
 
 		Page<Form> customFormList = formRepository.findAllByFormTypeOrderByIdDesc(pageable, CUSTOM);
 
-		Page<CustomTemplateResponse> customFormResList = customFormList.map(form -> new CustomTemplateResponse(form.getTitle(), form.getFormTag().getTag(), form.getCreatedAt()));
+		Page<CustomTemplateResponse> customFormResList = customFormList.map(form -> new CustomTemplateResponse(form.getId(), form.getTitle(), form.getFormTag().getTag(), form.getCreatedAt()));
 
 		return CustomTemplateListResponse.builder()
 				.customTemplateList(customFormResList)
