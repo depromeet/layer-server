@@ -7,10 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.layer.common.annotation.MemberId;
-import org.layer.domain.actionItem.controller.dto.CreateActionItemRequest;
-import org.layer.domain.actionItem.controller.dto.SpaceActionItemElementResponse;
-import org.layer.domain.actionItem.controller.dto.SpaceActionItemResponse;
-import org.layer.domain.actionItem.controller.dto.SpaceRetrospectActionItemResponse;
+import org.layer.domain.actionItem.controller.dto.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,22 +26,21 @@ public interface ActionItemApi {
                                                               @Validated @RequestBody CreateActionItemRequest createActionItemRequest);
 
 
-//    @Operation(summary = "개인의 액션 아이템 조회", method = "GET", description = """
-//            회원 아이디로 개인이 작성한 모든 액션아이템을 조회합니다.
-//            """)
-//    @ApiResponses({
-//            @ApiResponse(responseCode = "200",
-//                    content = {
-//                            @Content(
-//                                    mediaType = "application/json",
-//                                    schema = @Schema(implementation = MemberActionItemResponse.class)
-//                            )
-//                    }
-//            )
-//    }
-//    )
-//    ResponseEntity<List<MemberActionItemResponse>> memberActionItem(@MemberId Long currentMemberId,
-//                                                                    Long memberId);의
+    @Operation(summary = "개인의 액션 아이템 조회", method = "GET", description = """
+            회원 아이디로 개인이 작성한 모든 액션아이템을 조회합니다.
+            """)
+    @ApiResponses({
+            @ApiResponse(responseCode = "200",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = MemberActionItemResponse.class)
+                            )
+                    }
+            )
+    }
+    )
+    ResponseEntity<MemberActionItemResponse> memberActionItem(@MemberId Long currentMemberId);
 
     @Operation(summary = "팀의 액션 아이템 조회", method = "GET", description = """
             팀 아이디로 팀의 모든 액션아이템을 회고 별로 조회합니다.

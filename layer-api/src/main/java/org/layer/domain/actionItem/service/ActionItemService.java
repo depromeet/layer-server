@@ -17,9 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.layer.common.exception.MemberSpaceRelationExceptionType.NOT_FOUND_MEMBER_SPACE_RELATION;
 import static org.layer.domain.actionItem.enums.ActionItemStatus.PROCEEDING;
@@ -100,45 +98,6 @@ public class ActionItemService {
         actionItemRepository.delete(actionItem);
     }
 
-    // getMemberActionItemList 메서드에서 사용 (쿼리 IN절로 수정 로직)
-    private List<SpaceActionItemElementResponse> processSpaceActionItems(List<ActionItem> actionItemList) {
-        List<SpaceActionItemElementResponse> spaceActionItemList = new ArrayList<>();
-
-        // 회고 아이디 추출
-        List<Long> retrospectIds = actionItemList.stream()
-                .map(ActionItem::getRetrospectId)
-                .collect(Collectors.toList());
-
-        // 회고 정보 가져오기
-        List<Retrospect> retrospects = retrospectRepository.findByIdIn(retrospectIds);
-
-        // Map으로 매핑
-        Map<Long, Retrospect> retrospectMap = retrospects.stream()
-                .collect(Collectors.toMap(
-                        Retrospect::getId,
-                        retrospect -> retrospect
-                ));
-
-
-        // 스페이스 액션 아이템 리스트에 추가
-        for (ActionItem actionItem : actionItemList) {
-            Retrospect retrospect = retrospectMap.get(actionItem.getRetrospectId());
-
-            // TODO: 이런 상황에서 어떻게 할지 좀 더 고민 필요
-            if (retrospect == null) {
-                continue; // 회고가 삭제되고 액션 아이템이 남은 상황
-            }
-
-            spaceActionItemList.add(SpaceActionItemElementResponse.builder()
-                    .actionItemId(actionItem.getId())
-                    .retrospectTitle(retrospect.getTitle())
-                    .content(actionItem.getContent())
-                    .build());
-        }
-
-        return spaceActionItemList;
-    }
-
     // space에서 모든 끝난 회고에 대한 실행 목표 조회
     public SpaceActionItemResponse getSpaceRecentActionItems(Long memberId, Long spaceId) {
         // 스페이스가 있는지 검증
@@ -161,5 +120,10 @@ public class ActionItemService {
             return SpaceActionItemResponse.of(space, recent, actionItems);
         }
         return null;
+    }
+
+
+    public MemberActionItemResponse getMemberActionItemList(Long currentMemberId) {
+        return MemberActionItemResponse.builder().build();
     }
 }
