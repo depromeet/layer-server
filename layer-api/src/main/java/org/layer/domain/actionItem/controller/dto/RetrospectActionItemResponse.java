@@ -8,7 +8,7 @@ import java.util.List;
 
 @Builder
 public record RetrospectActionItemResponse(@NotNull
-                                            @Schema(description = "(스페이스 내의 완료된 회고 중 가장 최근에 시작된) 회고 ID", example = "1")
+                                            @Schema(description = "회고 ID", example = "1")
                                             Long retrospectId,
                                             @NotNull
                                             @Schema(description = "회고 제목", example = "중간 발표 이후 회고")
