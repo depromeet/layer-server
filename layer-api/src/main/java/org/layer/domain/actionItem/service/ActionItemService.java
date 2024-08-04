@@ -135,23 +135,16 @@ public class ActionItemService {
                 .sorted((a, b) -> b.getDeadline().compareTo(a.getDeadline()))
                 .toList();
 
+        // 액션 아이템 모두 뽑아오기
+        List<Long> idList = doneRetrospects.stream().map(Retrospect::getId).toList();
+        List<ActionItem> actionItemList = actionItemRepository.findAllByRetrospectIdIn(idList);
+
         List<MemberActionItemElementResponse> response = new ArrayList<>();
-        for (Retrospect doneRetrospect : doneRetrospects) {
-            List<ActionItem> actionItems = actionItemRepository.findAllByRetrospectId(doneRetrospect.getId());
-            List<ActionItemResponse> actionItemResponse = actionItems.stream().map(ActionItemResponse::of).toList();
-            Space space = spaceRepository.findByIdOrThrow(doneRetrospect.getSpaceId());
-            List<MemberActionItemElementResponse> actionItemResponses = actionItems.stream()
-                    .map(actionItem -> MemberActionItemElementResponse.of(space, doneRetrospect, actionItemResponse))
-                    .toList();
+        for (ActionItem actionItem : actionItemList) {
+            Space space = spaceRepository.findByIdOrThrow(actionItem.getSpaceId());
+            Retrospect retrospect = retrospectRepository.findByIdOrThrow(actionItem.getRetrospectId());
 
-            MemberActionItemElementResponse responseElement = MemberActionItemElementResponse.builder()
-                    .retrospectId(doneRetrospect.getId())
-                    .retrospectTitle(doneRetrospect.getTitle())
-                    .spaceId(space.getId())
-                    .spaceName(space.getName())
-                    .actionItemList(actionItemResponse)
-                    .build();
-
+            MemberActionItemElementResponse responseElement = MemberActionItemElementResponse.of(space, retrospect, actionItem);
             response.add(responseElement);
         }
 

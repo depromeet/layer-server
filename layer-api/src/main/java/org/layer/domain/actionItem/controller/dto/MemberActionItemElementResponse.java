@@ -3,10 +3,9 @@ package org.layer.domain.actionItem.controller.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
+import org.layer.domain.actionItem.entity.ActionItem;
 import org.layer.domain.retrospect.entity.Retrospect;
 import org.layer.domain.space.entity.Space;
-
-import java.util.List;
 
 @Builder
 public record MemberActionItemElementResponse(
@@ -23,17 +22,21 @@ public record MemberActionItemElementResponse(
                                             @Schema(description = "실행 목표가 속한 회고 이름")
                                             String retrospectTitle,
                                             @NotNull
-                                            @Schema(description = "회고의 실행 목표 리스트")
-                                            List<ActionItemResponse> actionItemList
+                                            @Schema(description = "실행 목표 ID", examples = {"1", "2"})
+                                            Long actionItemId,
+                                            @NotNull
+                                            @Schema(description = "실행 목표 내용", examples = {"긴 회의 시간 줄이기", "회의 후 내용 꼭 기록해두기"})
+                                            String content
 ) {
 
-    public static MemberActionItemElementResponse of(Space space, Retrospect retrospect, List<ActionItemResponse> actionItemList) {
+    public static MemberActionItemElementResponse of(Space space, Retrospect retrospect, ActionItem actionItem) {
         return MemberActionItemElementResponse.builder()
                 .spaceId(space.getId())
                 .spaceName(space.getName())
                 .retrospectId(retrospect.getId())
                 .retrospectTitle(retrospect.getTitle())
-                .actionItemList(actionItemList)
+                .actionItemId(actionItem.getId())
+                .content(actionItem.getContent())
                 .build();
     }
 }

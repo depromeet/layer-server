@@ -20,4 +20,5 @@ public interface ActionItemRepository extends JpaRepository<ActionItem, Long> {
     }
 
     List<ActionItem> findAllByRetrospectId(Long retrospectId);
+    List<ActionItem> findAllByRetrospectIdIn(List<Long> retrospectId);
 }
