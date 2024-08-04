@@ -149,7 +149,7 @@ public class ActionItemService {
                     .retrospectTitle(doneRetrospect.getTitle())
                     .spaceId(space.getId())
                     .spaceName(space.getName())
-                    .teamActionItemList(actionItemResponse)
+                    .actionItemList(actionItemResponse)
                     .build();
 
             response.add(responseElement);

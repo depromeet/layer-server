@@ -5,5 +5,5 @@ import lombok.Builder;
 import java.util.List;
 
 @Builder
-public record MemberActionItemResponse(List<MemberActionItemElementResponse> teamActionItemList) {
+public record MemberActionItemResponse(List<MemberActionItemElementResponse> actionItemResponse) {
 }

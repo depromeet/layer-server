@@ -24,7 +24,7 @@ public record MemberActionItemElementResponse(
                                             String retrospectTitle,
                                             @NotNull
                                             @Schema(description = "회고의 실행 목표 리스트")
-                                            List<ActionItemResponse> teamActionItemList
+                                            List<ActionItemResponse> actionItemList
 ) {
 
     public static MemberActionItemElementResponse of(Space space, Retrospect retrospect, List<ActionItemResponse> actionItemList) {
@@ -33,7 +33,7 @@ public record MemberActionItemElementResponse(
                 .spaceName(space.getName())
                 .retrospectId(retrospect.getId())
                 .retrospectTitle(retrospect.getTitle())
-                .teamActionItemList(actionItemList)
+                .actionItemList(actionItemList)
                 .build();
     }
 }
