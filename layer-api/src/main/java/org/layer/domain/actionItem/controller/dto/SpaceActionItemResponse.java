@@ -3,6 +3,9 @@ package org.layer.domain.actionItem.controller.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
+import org.layer.domain.actionItem.entity.ActionItem;
+import org.layer.domain.retrospect.entity.Retrospect;
+import org.layer.domain.space.entity.Space;
 
 import java.util.List;
 
@@ -17,4 +20,16 @@ public record SpaceActionItemResponse(@NotNull
                                      @Schema(description = "스페이스의 액션아이템 리스트")
                                      List<SpaceActionItemElementResponse> teamActionItemList
                                      ) {
+
+    public static SpaceActionItemResponse of(Space space, Retrospect retrospect, List<ActionItem> spaceActionItemList) {
+        List<SpaceActionItemElementResponse> actionItemElements = spaceActionItemList.stream()
+                .map(a -> SpaceActionItemElementResponse.of(a, retrospect.getTitle()))
+                .toList();
+
+        return SpaceActionItemResponse.builder()
+                .spaceId(space.getId())
+                .spaceName(space.getName())
+                .teamActionItemList(actionItemElements)
+                .build();
+    }
 }

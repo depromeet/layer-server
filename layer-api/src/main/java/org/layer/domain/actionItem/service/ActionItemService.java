@@ -12,6 +12,7 @@ import org.layer.domain.actionItem.entity.ActionItem;
 import org.layer.domain.actionItem.repository.ActionItemRepository;
 import org.layer.domain.member.exception.MemberException;
 import org.layer.domain.retrospect.entity.Retrospect;
+import org.layer.domain.retrospect.entity.RetrospectStatus;
 import org.layer.domain.retrospect.repository.RetrospectRepository;
 import org.layer.domain.space.entity.MemberSpaceRelation;
 import org.layer.domain.space.entity.Space;
@@ -198,5 +199,26 @@ public class ActionItemService {
     }
 
 
+    public SpaceActionItemResponse getSpaceRecentActionItems(Long memberId, Long spaceId) {
+        // 스페이스가 있는지 검증
+        Space space = spaceRepository.findByIdOrThrow(spaceId);
+        
+        // 멤버가 스페이스에 속하는지 검증
+        memberSpaceRelationRepository.findBySpaceIdAndMemberId(spaceId, memberId);
 
+        List<Retrospect> retrospectList = retrospectRepository.findAllBySpaceId(spaceId);
+        // 종료된 것 중 가장 최근에 만들어진 회고 찾기
+        Optional<Retrospect> recentOpt = retrospectList.stream()
+                .filter(r -> r.getRetrospectStatus().equals(RetrospectStatus.DONE)) // 끝난 회고 찾기
+                .sorted((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt())) // createdAt 내림차순으로 정렬
+                .findFirst();
+
+        List<ActionItem> actionItems = new ArrayList<>(); // 존재하지 않으면 빈 리스트
+        if(recentOpt.isPresent()) {
+            Retrospect recent = recentOpt.get();
+            actionItems = actionItemRepository.findAllByRetrospectId(recent.getId());
+        }
+
+        return SpaceActionItemResponse.of(space, actionItems);
+    }
 }

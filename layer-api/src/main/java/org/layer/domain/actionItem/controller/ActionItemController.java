@@ -54,6 +54,13 @@ public class ActionItemController implements ActionItemApi {
     }
 
     @Override
+    public ResponseEntity<SpaceActionItemResponse> spaceRecentActionItem(@MemberId Long memberId, Long spaceId) {
+        SpaceActionItemResponse spaceRecentActionItems = actionItemService.getSpaceRecentActionItems(memberId, spaceId);
+
+        return new ResponseEntity<>(spaceRecentActionItems, HttpStatus.OK);
+    }
+
+    @Override
     @DeleteMapping("/{actionItemId}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<DeleteActionItemResponse> deleteActionItem(@MemberId Long memberId, @PathVariable("actionItemId") Long actionItemId) {

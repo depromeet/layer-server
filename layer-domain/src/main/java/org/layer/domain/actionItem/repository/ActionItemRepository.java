@@ -18,4 +18,6 @@ public interface ActionItemRepository extends JpaRepository<ActionItem, Long> {
         return findById(actionItemId)
                 .orElseThrow(() -> new ActionItemException(NOT_FOUND_ACTION_ITEM));
     }
+
+    List<ActionItem> findAllByRetrospectId(Long retrospectId);
 }

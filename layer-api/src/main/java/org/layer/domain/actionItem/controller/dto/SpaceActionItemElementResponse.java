@@ -8,24 +8,24 @@ import org.layer.domain.actionItem.entity.ActionItem;
 @Builder
 public record SpaceActionItemElementResponse(
                                     @NotNull
-                                    @Schema(description = "액션 아이템 ID")
+                                    @Schema(description = "행동 목표 ID")
                                     Long actionItemId,
                                     @NotNull
-                                    @Schema(description = "액션 아이템과 내용")
-                                    String actionItemContent,
+                                    @Schema(description = "행동 목표 내용")
+                                    String content,
                                     @NotNull
-                                    @Schema(description = "액션 아이템과 매핑되는 회고 ID")
+                                    @Schema(description = "행동 목표와 매핑되는 회고 ID")
                                     Long retrospectId,
                                     @NotNull
-                                    @Schema(description = "액션 아이템과 매핑되는 회고 이름")
-                                    String retrospectName) {
+                                    @Schema(description = "행동 목표와 매핑되는 회고 제목")
+                                    String retrospectTitle) {
 
-    public static SpaceActionItemElementResponse toResponse(ActionItem actionItem, String retrospectName) {
+    public static SpaceActionItemElementResponse of(ActionItem actionItem, String retrospectName) {
         return SpaceActionItemElementResponse.builder()
                 .actionItemId(actionItem.getId())
-                .actionItemContent(actionItem.getContent())
+                .content(actionItem.getContent())
                 .retrospectId(actionItem.getRetrospectId())
-                .retrospectName(retrospectName)
+                .retrospectTitle(retrospectName)
                 .build();
     }
 }

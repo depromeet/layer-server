@@ -74,6 +74,24 @@ public interface ActionItemApi {
     ResponseEntity<SpaceActionItemResponse> teamActionItem(@MemberId Long memberId,
                                                            @PathVariable Long spaceId);
 
+
+    @Operation(summary = "스페이스의 가장 최근 회고의 실행 목표 조회", method = "GET", description = """
+             특정 스페이스에서 완료된 가장 최근 회고를 찾고, 그 회고의 실행 목표 목록을 조회합니다.
+            """)
+    @ApiResponses({
+            @ApiResponse(responseCode = "200",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = SpaceActionItemElementResponse.class)
+                            )
+                    }
+            )
+    }
+    )
+    ResponseEntity<SpaceActionItemResponse> spaceRecentActionItem(@MemberId Long memberId,
+                                                           @PathVariable Long spaceId);
+
     @Operation(summary = "액션 아이템 삭제", method = "DELETE", description = """
             액션 아이템을 삭제합니다.
             """)
