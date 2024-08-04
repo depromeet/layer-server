@@ -76,7 +76,7 @@ public interface ActionItemApi {
 
 
     @Operation(summary = "스페이스의 가장 최근 회고의 실행 목표 조회", method = "GET", description = """
-             특정 스페이스에서 완료된 가장 최근 회고를 찾고, 그 회고의 실행 목표 목록을 조회합니다.
+             특정 스페이스에서 완료된 가장 최근 회고(데드라인 기준)를 찾고, 그 회고의 실행 목표 목록을 조회합니다.
              해당 스페이스에서 아직 완료된 회고가 없다면 null이 반환됩니다.
             """)
     @ApiResponses({
