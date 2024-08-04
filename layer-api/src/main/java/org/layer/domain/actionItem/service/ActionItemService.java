@@ -124,6 +124,37 @@ public class ActionItemService {
 
 
     public MemberActionItemResponse getMemberActionItemList(Long currentMemberId) {
-        return MemberActionItemResponse.builder().build();
+        // 멤버가 속한 스페이스 모두 가져오기
+        List<MemberSpaceRelation> memberSpaceRelations = memberSpaceRelationRepository.findAllByMemberId(currentMemberId);
+        List<Space> spaces = memberSpaceRelations.stream().map(MemberSpaceRelation::getSpace).toList(); // TODO: N+1 쿼리 나갈것 같은데.. 함 봐야겠다
+
+        // 스페이스에서 상태가 Done인 회고 모두 가져오기
+        List<Long> spaceIds = spaces.stream().map(Space::getId).toList();
+        List<Retrospect> doneRetrospects = retrospectRepository.findAllBySpaceIdIn(spaceIds).stream()
+                .filter(s -> s.getRetrospectStatus().equals(DONE))
+                .sorted((a, b) -> b.getDeadline().compareTo(a.getDeadline()))
+                .toList();
+
+        List<MemberActionItemElementResponse> response = new ArrayList<>();
+        for (Retrospect doneRetrospect : doneRetrospects) {
+            List<ActionItem> actionItems = actionItemRepository.findAllByRetrospectId(doneRetrospect.getId());
+            List<ActionItemResponse> actionItemResponse = actionItems.stream().map(ActionItemResponse::of).toList();
+            Space space = spaceRepository.findByIdOrThrow(doneRetrospect.getSpaceId());
+            List<MemberActionItemElementResponse> actionItemResponses = actionItems.stream()
+                    .map(actionItem -> MemberActionItemElementResponse.of(space, doneRetrospect, actionItemResponse))
+                    .toList();
+
+            MemberActionItemElementResponse responseElement = MemberActionItemElementResponse.builder()
+                    .retrospectId(doneRetrospect.getId())
+                    .retrospectTitle(doneRetrospect.getTitle())
+                    .spaceId(space.getId())
+                    .spaceName(space.getName())
+                    .teamActionItemList(actionItemResponse)
+                    .build();
+
+            response.add(responseElement);
+        }
+
+        return new MemberActionItemResponse(response);
     }
 }
