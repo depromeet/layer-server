@@ -25,6 +25,7 @@ import static org.layer.domain.retrospect.entity.RetrospectStatus.DONE;
 
 @Slf4j
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 @Service
 public class ActionItemService {
     private final ActionItemRepository actionItemRepository;
@@ -54,7 +55,7 @@ public class ActionItemService {
     }
 
 
-    public SpaceRetrospectActionItemResponse getSpaceActionItemList(Long memberId, Long spaceId) {
+    public GetSpaceRetrospectActionItemResponse getSpaceActionItemList(Long memberId, Long spaceId) {
         // space가 존재하는지 확인
         Space space = spaceRepository.findByIdOrThrow(spaceId);
 
@@ -87,7 +88,7 @@ public class ActionItemService {
             response.add(responseElement);
         }
 
-        return SpaceRetrospectActionItemResponse.of(space, response);
+        return GetSpaceRetrospectActionItemResponse.of(space, response);
     }
 
     @Transactional
@@ -99,7 +100,7 @@ public class ActionItemService {
     }
 
     // space에서 모든 끝난 회고에 대한 실행 목표 조회
-    public SpaceActionItemResponse getSpaceRecentActionItems(Long memberId, Long spaceId) {
+    public GetSpaceActionItemResponse getSpaceRecentActionItems(Long memberId, Long spaceId) {
         // 스페이스가 있는지 검증
         Space space = spaceRepository.findByIdOrThrow(spaceId);
         
@@ -117,7 +118,7 @@ public class ActionItemService {
         if(recentOpt.isPresent()) {
             Retrospect recent = recentOpt.get();
             List<ActionItem> actionItems = actionItemRepository.findAllByRetrospectId(recent.getId());
-            return SpaceActionItemResponse.of(space, recent, actionItems);
+            return GetSpaceActionItemResponse.of(space, recent, actionItems);
         }
         return null;
     }

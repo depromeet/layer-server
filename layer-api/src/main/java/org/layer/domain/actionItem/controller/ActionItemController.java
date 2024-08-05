@@ -5,8 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.layer.common.annotation.MemberId;
 import org.layer.domain.actionItem.controller.dto.CreateActionItemRequest;
 import org.layer.domain.actionItem.controller.dto.MemberActionItemResponse;
-import org.layer.domain.actionItem.controller.dto.SpaceActionItemResponse;
-import org.layer.domain.actionItem.controller.dto.SpaceRetrospectActionItemResponse;
+import org.layer.domain.actionItem.controller.dto.GetSpaceActionItemResponse;
+import org.layer.domain.actionItem.controller.dto.GetSpaceRetrospectActionItemResponse;
 import org.layer.domain.actionItem.service.ActionItemService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,16 +43,16 @@ public class ActionItemController implements ActionItemApi {
     @Override
     @GetMapping("/space/{spaceId}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<SpaceRetrospectActionItemResponse> teamActionItem(@MemberId Long memberId, @PathVariable(name = "spaceId") Long spaceId) {
-        SpaceRetrospectActionItemResponse teamActionItem = actionItemService.getSpaceActionItemList(memberId, spaceId);
+    public ResponseEntity<GetSpaceRetrospectActionItemResponse> teamActionItem(@MemberId Long memberId, @PathVariable(name = "spaceId") Long spaceId) {
+        GetSpaceRetrospectActionItemResponse teamActionItem = actionItemService.getSpaceActionItemList(memberId, spaceId);
 
         return new ResponseEntity<>(teamActionItem, HttpStatus.OK);
     }
 
     @Override
     @GetMapping("/space/{spaceId}/recent")
-    public ResponseEntity<SpaceActionItemResponse> spaceRecentActionItem(@MemberId Long memberId, @PathVariable(name = "spaceId") Long spaceId) {
-        SpaceActionItemResponse spaceRecentActionItems = actionItemService.getSpaceRecentActionItems(memberId, spaceId);
+    public ResponseEntity<GetSpaceActionItemResponse> spaceRecentActionItem(@MemberId Long memberId, @PathVariable(name = "spaceId") Long spaceId) {
+        GetSpaceActionItemResponse spaceRecentActionItems = actionItemService.getSpaceRecentActionItems(memberId, spaceId);
 
         return new ResponseEntity<>(spaceRecentActionItems, HttpStatus.OK);
     }

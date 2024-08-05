@@ -57,8 +57,8 @@ public interface ActionItemApi {
             )
     }
     )
-    ResponseEntity<SpaceRetrospectActionItemResponse> teamActionItem(@MemberId Long memberId,
-                                                                     @PathVariable Long spaceId);
+    ResponseEntity<GetSpaceRetrospectActionItemResponse> teamActionItem(@MemberId Long memberId,
+                                                                        @PathVariable Long spaceId);
 
 
     @Operation(summary = "스페이스의 가장 최근 회고의 실행 목표 조회", method = "GET", description = """
@@ -76,8 +76,8 @@ public interface ActionItemApi {
             )
     }
     )
-    ResponseEntity<SpaceActionItemResponse> spaceRecentActionItem(@MemberId Long memberId,
-                                                           @PathVariable Long spaceId);
+    ResponseEntity<GetSpaceActionItemResponse> spaceRecentActionItem(@MemberId Long memberId,
+                                                                     @PathVariable Long spaceId);
 
     @Operation(summary = "액션 아이템 삭제", method = "DELETE", description = """
             액션 아이템을 삭제합니다.

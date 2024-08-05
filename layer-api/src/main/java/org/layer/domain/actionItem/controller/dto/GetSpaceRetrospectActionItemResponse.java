@@ -8,19 +8,19 @@ import org.layer.domain.space.entity.Space;
 import java.util.List;
 
 @Builder
-public record SpaceRetrospectActionItemResponse(@NotNull
+public record GetSpaceRetrospectActionItemResponse(@NotNull
                                       @Schema(description = "액션 아이템이 속한 스페이스 ID")
                                       Long spaceId,
-                                      @NotNull
+                                                   @NotNull
                                       @Schema(description = "액션 아이템이 속한 스페이스 이름")
                                       String spaceName,
-                                      @NotNull
+                                                   @NotNull
                                       @Schema(description = "스페이스의 액션아이템 리스트")
                                       List<RetrospectActionItemResponse> teamActionItemList
 ) {
 
-    public static SpaceRetrospectActionItemResponse of(Space space, List<RetrospectActionItemResponse> actionItemList) {
-        return SpaceRetrospectActionItemResponse.builder()
+    public static GetSpaceRetrospectActionItemResponse of(Space space, List<RetrospectActionItemResponse> actionItemList) {
+        return GetSpaceRetrospectActionItemResponse.builder()
                 .spaceId(space.getId())
                 .spaceName(space.getName())
                 .teamActionItemList(actionItemList)
