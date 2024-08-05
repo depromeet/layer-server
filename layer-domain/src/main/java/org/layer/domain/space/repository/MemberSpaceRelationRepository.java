@@ -18,4 +18,6 @@ public interface MemberSpaceRelationRepository extends JpaRepository<MemberSpace
     @Modifying(clearAutomatically = true)
     @Query("DELETE FROM MemberSpaceRelation m where m.space.id = :spaceId")
     void deleteAllBySpaceIdInBatch(Long spaceId);
+
+    List<MemberSpaceRelation> findAllByMemberId(Long memberId);
 }

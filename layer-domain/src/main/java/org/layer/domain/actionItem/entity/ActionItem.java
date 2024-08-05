@@ -2,7 +2,10 @@ package org.layer.domain.actionItem.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.layer.domain.actionItem.enums.ActionItemStatus;
 import org.layer.domain.actionItem.exception.ActionItemException;
 import org.layer.domain.common.BaseTimeEntity;
@@ -34,13 +37,17 @@ public class ActionItem extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private ActionItemStatus actionItemStatus; // 액션 아이템 상태
 
+    @NotNull
+    Boolean isPinned; // 핀 돼있는지
+
     @Builder
-    private ActionItem(Long retrospectId, Long spaceId, Long memberId, String content, ActionItemStatus actionItemStatus) {
+    private ActionItem(Long retrospectId, Long spaceId, Long memberId, String content, ActionItemStatus actionItemStatus, Boolean isPinned) {
         this.retrospectId = retrospectId;
         this.spaceId = spaceId;
         this.memberId = memberId;
         this.content = content;
         this.actionItemStatus = actionItemStatus;
+        this.isPinned = isPinned;
     }
 
     public void isWriter(Long memberId) {
