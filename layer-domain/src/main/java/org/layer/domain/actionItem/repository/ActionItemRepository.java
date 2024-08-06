@@ -4,6 +4,9 @@ import org.layer.domain.actionItem.entity.ActionItem;
 import org.layer.domain.actionItem.enums.ActionItemStatus;
 import org.layer.domain.actionItem.exception.ActionItemException;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -23,5 +26,8 @@ public interface ActionItemRepository extends JpaRepository<ActionItem, Long> {
 
     List<ActionItem> findAllByRetrospectIdIn(List<Long> retrospectId);
 
-    void removeAllBySpaceId(Long spaceId);
+    @Modifying(clearAutomatically = true)
+    @Transactional
+    @Query("DELETE FROM ActionItem a WHERE a.spaceId = :spaceId")
+    void deleteAllBySpaceId(Long spaceId);
 }

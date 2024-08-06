@@ -199,10 +199,10 @@ public class SpaceService {
         var foundSpace = checkLeaderFromSpace(spaceId, leaderId);
 
         // 액션 아이템 삭제
-        actionItemRepository.removeAllBySpaceId(spaceId);
+        actionItemRepository.deleteAllBySpaceId(spaceId);
 
         // 진행중인 회고 삭제
-        retrospectRepository.removeAllBySpaceId(spaceId);
+        retrospectRepository.deleteAllBySpaceId(spaceId);
 
         memberSpaceRelationRepository.deleteAllBySpaceIdInBatch(foundSpace.getId());
         spaceRepository.delete(foundSpace);
