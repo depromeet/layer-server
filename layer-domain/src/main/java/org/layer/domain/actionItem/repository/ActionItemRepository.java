@@ -14,11 +14,14 @@ public interface ActionItemRepository extends JpaRepository<ActionItem, Long> {
 
     List<ActionItem> findAllBySpaceIdAndActionItemStatusOrderByCreatedAtDesc(Long spaceId, ActionItemStatus actionItemStatus);
 
-    default ActionItem findByIdOrThrow(Long actionItemId){
+    default ActionItem findByIdOrThrow(Long actionItemId) {
         return findById(actionItemId)
                 .orElseThrow(() -> new ActionItemException(NOT_FOUND_ACTION_ITEM));
     }
 
     List<ActionItem> findAllByRetrospectId(Long retrospectId);
+
     List<ActionItem> findAllByRetrospectIdIn(List<Long> retrospectId);
+
+    void removeAllBySpaceId(Long spaceId);
 }

@@ -9,15 +9,17 @@ import java.util.List;
 import static org.layer.common.exception.RetrospectExceptionType.NOT_FOUND_RETROSPECT;
 
 public interface RetrospectRepository extends JpaRepository<Retrospect, Long> {
-	List<Retrospect> findAllBySpaceId(Long spaceId);
+    List<Retrospect> findAllBySpaceId(Long spaceId);
 
-	List<Retrospect> findByIdIn(List<Long> ids);
+    List<Retrospect> findByIdIn(List<Long> ids);
 
 	List<Retrospect> findAllBySpaceIdIn(List<Long> spaceIds);
 
-	default Retrospect findByIdOrThrow(Long retrospectId){
-		return findById(retrospectId)
-			.orElseThrow(() -> new RetrospectException(NOT_FOUND_RETROSPECT));
-	}
+    default Retrospect findByIdOrThrow(Long retrospectId) {
+        return findById(retrospectId)
+                .orElseThrow(() -> new RetrospectException(NOT_FOUND_RETROSPECT));
+    }
+
+    void removeAllBySpaceId(Long spaceId);
 
 }

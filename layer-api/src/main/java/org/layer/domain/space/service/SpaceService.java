@@ -4,6 +4,8 @@ package org.layer.domain.space.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.layer.common.dto.Meta;
+import org.layer.domain.actionItem.repository.ActionItemRepository;
+import org.layer.domain.retrospect.repository.RetrospectRepository;
 import org.layer.domain.space.controller.dto.SpaceRequest;
 import org.layer.domain.space.controller.dto.SpaceResponse;
 import org.layer.domain.space.entity.MemberSpaceRelation;
@@ -31,6 +33,8 @@ import static org.layer.common.exception.SpaceExceptionType.SPACE_ALREADY_JOINED
 public class SpaceService {
     private final SpaceRepository spaceRepository;
     private final MemberSpaceRelationRepository memberSpaceRelationRepository;
+    private final ActionItemRepository actionItemRepository;
+    private final RetrospectRepository retrospectRepository;
 
     public SpaceResponse.SpacePage getSpaceListFromMemberId(Long memberId, SpaceRequest.GetSpaceRequest getSpaceRequest) {
 
@@ -188,11 +192,17 @@ public class SpaceService {
          */
         return memberSpaceRelationRepository.findBySpaceIdAndMemberId(spaceId, memberId).orElseThrow(() -> new SpaceException(SPACE_ALREADY_JOINED));
     }
-  
+
     @Transactional
     public void removeSpace(Long spaceId, Long leaderId) {
         // 스페이스 리더 여부 확인
         var foundSpace = checkLeaderFromSpace(spaceId, leaderId);
+
+        // 액션 아이템 삭제
+        actionItemRepository.removeAllBySpaceId(spaceId);
+
+        // 진행중인 회고 삭제
+        retrospectRepository.removeAllBySpaceId(spaceId);
 
         memberSpaceRelationRepository.deleteAllBySpaceIdInBatch(foundSpace.getId());
         spaceRepository.delete(foundSpace);
