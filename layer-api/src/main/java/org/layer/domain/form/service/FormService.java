@@ -9,6 +9,7 @@ import java.util.Random;
 
 import org.layer.domain.form.controller.dto.request.FormNameUpdateRequest;
 import org.layer.domain.form.controller.dto.request.RecommendFormQueryDto;
+import org.layer.domain.form.controller.dto.request.RecommendFormSetRequest;
 import org.layer.domain.form.controller.dto.response.CustomTemplateListResponse;
 import org.layer.domain.form.controller.dto.response.CustomTemplateResponse;
 import org.layer.domain.form.controller.dto.response.FormGetResponse;
@@ -77,7 +78,7 @@ public class FormService {
 	}
 
 	@Transactional
-	public void updateFormTitle(Long formId, FormNameUpdateRequest request, Long memberId){
+	public void updateFormTitle(Long formId, FormNameUpdateRequest request, Long memberId) {
 		Form form = formRepository.findByIdOrThrow(formId);
 
 		validateIsLeader(memberId, form);
@@ -86,7 +87,7 @@ public class FormService {
 	}
 
 	@Transactional
-	public void deleteFormTitle(Long formId, Long memberId){
+	public void deleteFormTitle(Long formId, Long memberId) {
 		Form form = formRepository.findByIdOrThrow(formId);
 
 		validateIsLeader(memberId, form);
@@ -104,17 +105,31 @@ public class FormService {
 
 	public CustomTemplateListResponse getCustomTemplateList(Pageable pageable, Long spaceId, Long memberId) {
 		// 멤버가 스페이스에 속하는지 검증
-		Optional<MemberSpaceRelation> spaceMemberRelation = memberSpaceRelationRepository.findBySpaceIdAndMemberId(spaceId, memberId);
-		if(spaceMemberRelation.isEmpty()) {
+		Optional<MemberSpaceRelation> spaceMemberRelation = memberSpaceRelationRepository.findBySpaceIdAndMemberId(
+			spaceId, memberId);
+		if (spaceMemberRelation.isEmpty()) {
 			throw new FormException(UNAUTHORIZED_GET_FORM);
 		}
 
 		Page<Form> customFormList = formRepository.findAllByFormTypeOrderByIdDesc(pageable, CUSTOM);
 
-		Page<CustomTemplateResponse> customFormResList = customFormList.map(form -> new CustomTemplateResponse(form.getTitle(), form.getFormTag().getTag(), form.getCreatedAt()));
+		Page<CustomTemplateResponse> customFormResList = customFormList.map(
+			form -> new CustomTemplateResponse(form.getTitle(), form.getFormTag().getTag(), form.getCreatedAt()));
 
 		return CustomTemplateListResponse.builder()
-				.customTemplateList(customFormResList)
-				.build();
+			.customTemplateList(customFormResList)
+			.build();
+	}
+
+	@Transactional
+	public void setRecommendTemplate(RecommendFormSetRequest request, Long memberId) {
+		// 팀 소속 여부 검증 로직
+		Team team = new Team(memberSpaceRelationRepository.findAllBySpaceId(request.spaceId()));
+		team.validateTeamMembership(memberId);
+
+		Form form = formRepository.findByIdOrThrow(request.formId());
+
+		Space space = spaceRepository.findByIdOrThrow(request.spaceId());
+		space.updateRecentFormId(form.getId(), memberId);
 	}
 }
