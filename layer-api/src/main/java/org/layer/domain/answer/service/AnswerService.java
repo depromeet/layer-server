@@ -47,12 +47,9 @@ public class AnswerService {
 
     @Transactional
     public void create(AnswerListCreateRequest request, Long spaceId, Long retrospectId, Long memberId) {
-        // 스페이스 팀원인지 검증
-        Optional<MemberSpaceRelation> team = memberSpaceRelationRepository.findBySpaceIdAndMemberId(
-                spaceId, memberId);
-        if (team.isEmpty()) {
-            throw new MemberSpaceRelationException(NOT_FOUND_MEMBER_SPACE_RELATION);
-        }
+        // 해당 스페이스 팀원인지 검증
+        Team team = new Team(memberSpaceRelationRepository.findAllBySpaceId(spaceId));
+        team.validateTeamMembership(memberId);
 
         // 회고 존재 검증
         Retrospect retrospect = retrospectRepository.findByIdOrThrow(retrospectId);
@@ -62,7 +59,7 @@ public class AnswerService {
         List<Long> questionIds = request.requests().stream()
                 .map(AnswerCreateRequest::questionId)
                 .toList();
-        Questions questions = new Questions(questionRepository.findAllByIdIn(questionIds));
+        Questions questions = new Questions(questionRepository.findAllByRetrospectIdOrderByQuestionOrder(retrospectId));
         questions.validateQuestionSize(questionIds.size());
 
         // 회고 질문 유효성 검사 - 이미 응답을 하지 않았는지
