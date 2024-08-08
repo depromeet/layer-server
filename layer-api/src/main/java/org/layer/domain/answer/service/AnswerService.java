@@ -66,10 +66,12 @@ public class AnswerService {
         questions.validateQuestionSize(questionIds.size());
 
         // 회고 질문 유효성 검사 - 이미 응답을 하지 않았는지
-        Answers answers = new Answers(
+		if (!request.isTemporarySave()) {
+            Answers answers = new Answers(
                 answerRepository.findByRetrospectIdAndMemberIdAndAnswerStatusAndQuestionIdIn(retrospectId, memberId,
-                        AnswerStatus.DONE, questionIds));
-        answers.validateNoAnswer();
+                    AnswerStatus.DONE, questionIds));
+            answers.validateNoAnswer();
+        }
 
         // 기존 임시답변 제거
         answerRepository.deleteAllByRetrospectIdAndMemberIdAndAnswerStatus(retrospectId, memberId,
