@@ -37,8 +37,6 @@ public class ActionItem extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private ActionItemStatus actionItemStatus; // 액션 아이템 상태
 
-    @NotNull
-    Boolean isPinned; // 핀 돼있는지
 
     @Builder
     private ActionItem(Long retrospectId, Long spaceId, Long memberId, String content, ActionItemStatus actionItemStatus, Boolean isPinned) {
@@ -47,7 +45,6 @@ public class ActionItem extends BaseTimeEntity {
         this.memberId = memberId;
         this.content = content;
         this.actionItemStatus = actionItemStatus;
-        this.isPinned = isPinned;
     }
 
     public void isWriter(Long memberId) {

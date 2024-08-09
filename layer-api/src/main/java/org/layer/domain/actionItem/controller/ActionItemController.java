@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.layer.common.annotation.MemberId;
 import org.layer.domain.actionItem.controller.dto.CreateActionItemRequest;
-import org.layer.domain.actionItem.controller.dto.MemberActionItemResponse;
+import org.layer.domain.actionItem.controller.dto.GetMemberActionItemResponse;
 import org.layer.domain.actionItem.controller.dto.GetSpaceActionItemResponse;
 import org.layer.domain.actionItem.controller.dto.GetSpaceRetrospectActionItemResponse;
 import org.layer.domain.actionItem.service.ActionItemService;
@@ -35,8 +35,8 @@ public class ActionItemController implements ActionItemApi {
     @Override
     @GetMapping("/member")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<MemberActionItemResponse> memberActionItem(@MemberId Long currentMemberId) {
-        MemberActionItemResponse memberActionItems = actionItemService.getMemberActionItemList(currentMemberId);
+    public ResponseEntity<GetMemberActionItemResponse> memberActionItem(@MemberId Long currentMemberId) {
+        GetMemberActionItemResponse memberActionItems = actionItemService.getMemberActionItemList(currentMemberId);
         return new ResponseEntity<>(memberActionItems, HttpStatus.OK);
     }
 

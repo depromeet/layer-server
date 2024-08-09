@@ -40,7 +40,7 @@ public interface ActionItemApi {
             )
     }
     )
-    ResponseEntity<MemberActionItemResponse> memberActionItem(@MemberId Long currentMemberId);
+    ResponseEntity<GetMemberActionItemResponse> memberActionItem(@MemberId Long currentMemberId);
 
     @Operation(summary = "팀의 액션 아이템 조회", method = "GET", description = """
             팀 아이디로 팀의 모든 액션아이템을 회고 별로 조회합니다.

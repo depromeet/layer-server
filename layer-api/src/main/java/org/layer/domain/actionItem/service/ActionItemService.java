@@ -44,6 +44,11 @@ public class ActionItemService {
             throw new MemberSpaceRelationException(NOT_FOUND_MEMBER_SPACE_RELATION);
         }
 
+        // debug
+        log.info("[create action item]");
+        log.info("spaceID: {}", retrospect.getSpaceId());
+
+
         // 액션 아이템 생성
         actionItemRepository.save(ActionItem.builder()
                 .retrospectId(retrospectId)
@@ -55,6 +60,7 @@ public class ActionItemService {
     }
 
 
+    //== 스페이스의 액션 아이템 조회 ==//
     public GetSpaceRetrospectActionItemResponse getSpaceActionItemList(Long memberId, Long spaceId) {
         // space가 존재하는지 확인
         Space space = spaceRepository.findByIdOrThrow(spaceId);
@@ -75,6 +81,12 @@ public class ActionItemService {
         List<RetrospectActionItemResponse> response = new ArrayList<>();
         for (Retrospect doneRetrospect : doneRetrospects) {
             List<ActionItem> actionItems = actionItemRepository.findAllByRetrospectId(doneRetrospect.getId());
+
+            // 액션 아이템이 없는 회고는 응답에서 제외
+            if(actionItems.isEmpty()) {
+                continue;
+            }
+
             List<ActionItemResponse> actionItemResponses = actionItems.stream()
                     .map(ActionItemResponse::of)
                     .toList();
@@ -99,7 +111,7 @@ public class ActionItemService {
         actionItemRepository.delete(actionItem);
     }
 
-    // space에서 모든 끝난 회고에 대한 실행 목표 조회
+    //== space에서 가장 최근에 끝난 회고에 대한 실행 목표 조회 ==//
     public GetSpaceActionItemResponse getSpaceRecentActionItems(Long memberId, Long spaceId) {
         // 스페이스가 있는지 검증
         Space space = spaceRepository.findByIdOrThrow(spaceId);
@@ -118,50 +130,48 @@ public class ActionItemService {
         if(recentOpt.isPresent()) {
             Retrospect recent = recentOpt.get();
             List<ActionItem> actionItems = actionItemRepository.findAllByRetrospectId(recent.getId());
+
             return GetSpaceActionItemResponse.of(space, recent, actionItems);
         }
-        return null;
+
+        // DONE인 회고가 없는 경우
+        return GetSpaceActionItemResponse.of(space, null, new ArrayList<>());
     }
 
 
-    public MemberActionItemResponse getMemberActionItemList(Long currentMemberId) {
+    //== 회원의 액션 아이템 조회 ==//
+    public GetMemberActionItemResponse getMemberActionItemList(Long currentMemberId) {
         // 멤버가 속한 스페이스 모두 가져오기
-        List<MemberSpaceRelation> memberSpaceRelations = memberSpaceRelationRepository.findAllByMemberId(currentMemberId);
-        List<Space> spaces = memberSpaceRelations.stream().map(MemberSpaceRelation::getSpace).toList(); // TODO: N+1 쿼리 나갈것 같은데.. 함 봐야겠다
+        List<Space> spaces = spaceRepository.findByMemberId(currentMemberId);
 
-        // 스페이스에서 상태가 Done인 회고 모두 가져오기
+        // 끝난 회고 모두 찾기 (데드라인 내림차순)
         List<Long> spaceIds = spaces.stream().map(Space::getId).toList();
-        List<Retrospect> doneRetrospects = retrospectRepository.findAllBySpaceIdIn(spaceIds).stream()
-                .filter(s -> s.getRetrospectStatus().equals(DONE))
+        List<Retrospect> doneRetrospects = retrospectRepository.findAllBySpaceIdIn(spaceIds)
+                .stream()
+                .filter(retrospect -> retrospect.getRetrospectStatus().equals(DONE))
+                .sorted((a, b) -> b.getDeadline().compareTo(a.getDeadline())) // 최근에 끝난 순으로 정렬
                 .toList();
 
-        // 액션 아이템 모두 뽑아오기
-        List<Long> idList = doneRetrospects.stream().map(Retrospect::getId).toList();
-        List<ActionItem> actionItemList = actionItemRepository.findAllByRetrospectIdIn(idList).stream()
-                .sorted((a, b) -> {
-                    if(a.getIsPinned() && b.getIsPinned()
-                            && a.getActionItemStatus().equals(b.getActionItemStatus())) {
-                        return b.getCreatedAt().compareTo(a.getCreatedAt()); // 둘다 핀 돼있고, 상태도 같으면 최신 순
-                    } else if(a.getIsPinned() && b.getIsPinned()) {
-                        return a.getActionItemStatus().getPriority() - b.getActionItemStatus().getPriority();
-                    } else if(a.getIsPinned() || b.getIsPinned()) {
-                        return a.getIsPinned() ? -1 : 1;
-                    } else if(!a.getActionItemStatus().equals(b.getActionItemStatus())) {
-                        return a.getActionItemStatus().getPriority() - b.getActionItemStatus().getPriority();
-                    } else {
-                        return b.getCreatedAt().compareTo(a.getCreatedAt()); // 둘다 핀 돼있고, proceeding 이면 최신 순
-                    }
-                }).toList();
 
-        List<MemberActionItemElementResponse> response = new ArrayList<>();
-        for (ActionItem actionItem : actionItemList) {
-            Space space = spaceRepository.findByIdOrThrow(actionItem.getSpaceId());
-            Retrospect retrospect = retrospectRepository.findByIdOrThrow(actionItem.getRetrospectId());
+        List<MemberActionItemResponse> responses = new ArrayList<>();
+        for (Retrospect doneRetrospect : doneRetrospects) {
+            // 해당 회고에 관련한 실행 목표 가져오기
+            List<ActionItem> actionItems = actionItemRepository.findAllByRetrospectId(doneRetrospect.getId());
 
-            MemberActionItemElementResponse responseElement = MemberActionItemElementResponse.of(space, retrospect, actionItem);
-            response.add(responseElement);
+            // 액션 아이템이 없는 회고는 응답에서 제외
+            if(actionItems.isEmpty()) {
+                continue;
+            }
+
+            List<ActionItemResponse> actionItemResponses = actionItems.stream()
+                    .map(ActionItemResponse::of)
+                    .toList();
+
+            // 회고가 어디 스페이스에 속하는지 찾기
+            Space space = spaceRepository.findByIdOrThrow(doneRetrospect.getSpaceId());
+            responses.add(MemberActionItemResponse.of(space, doneRetrospect, actionItemResponses));
         }
 
-        return new MemberActionItemResponse(response);
+        return new GetMemberActionItemResponse(responses);
     }
 }
