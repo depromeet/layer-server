@@ -2,9 +2,11 @@ package org.layer.domain.form.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
 import org.layer.common.annotation.MemberId;
 import org.layer.domain.form.controller.dto.request.FormNameUpdateRequest;
 import org.layer.domain.form.controller.dto.request.RecommendFormQueryDto;
+import org.layer.domain.form.controller.dto.request.RecommendFormSetRequest;
 import org.layer.domain.form.controller.dto.response.CustomTemplateListResponse;
 import org.layer.domain.form.controller.dto.response.FormGetResponse;
 import org.layer.domain.form.controller.dto.response.RecommendFormResponseDto;
@@ -40,6 +42,15 @@ public class FormController implements FormApi {
 	}
 
 	@Override
+	@PostMapping("/recommend")
+	public ResponseEntity<Void> setRecommendTemplate(@RequestBody @Valid RecommendFormSetRequest request,
+		@MemberId Long memberId) {
+
+		formService.setRecommendTemplate(request, memberId);
+		return ResponseEntity.ok().build();
+	}
+
+	@Override
 	@PatchMapping("/{formId}/title")
 	public ResponseEntity<Void> updateFormTitle(@PathVariable Long formId,
 		@RequestBody @Valid FormNameUpdateRequest request, @MemberId Long memberId) {
@@ -59,7 +70,9 @@ public class FormController implements FormApi {
 
 	@Override
 	@GetMapping("/space/{spaceId}/custom-template")
-	public ResponseEntity<CustomTemplateListResponse> getCustomTemplateList(@PageableDefault(size=10) Pageable pageable, @PathVariable(name = "spaceId") Long spaceId, @MemberId Long memberId) {
+	public ResponseEntity<CustomTemplateListResponse> getCustomTemplateList(
+		@PageableDefault(size = 10) Pageable pageable, @PathVariable(name = "spaceId") Long spaceId,
+		@MemberId Long memberId) {
 		CustomTemplateListResponse response = formService.getCustomTemplateList(pageable, spaceId, memberId);
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
