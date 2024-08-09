@@ -114,6 +114,11 @@ public class AnswerService {
                 answerRepository.findByRetrospectIdAndMemberIdAndAnswerStatusAndQuestionIdIn(retrospectId, memberId,
                         AnswerStatus.DONE, questionIds));
         answers.validateContainAnswers();
+
+        // 기존 임시답변 제거
+        answerRepository.deleteAllByRetrospectIdAndMemberIdAndAnswerStatus(retrospectId, memberId,
+            AnswerStatus.TEMPORARY);
+
         for (Answer a : answers.getAnswers()) {
             // 답변에 해당하는 질문이 존재하지 않을 경우 throw
             var foundAnswerRequest = request.requests().stream().filter(it -> it.questionId().equals(a.getQuestionId())).findFirst().orElseThrow(() -> new AnswerException(NOT_ANSWERED));
