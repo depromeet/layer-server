@@ -4,5 +4,5 @@ import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 
-public record GetMemberActionItemResponse(@NotNull List<MemberActionItemResponse> actionItems) {
+public record MemberActionItemGetResponse(@NotNull List<MemberActionItemResponse> actionItems) {
 }

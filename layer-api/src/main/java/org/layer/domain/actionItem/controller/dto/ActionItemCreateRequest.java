@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 
 @Schema(description = "액션 아이템 생성 요정")
-public record CreateActionItemRequest(@NotNull
+public record ActionItemCreateRequest(@NotNull
                                       @Schema(description = "액션 아이템과 매핑되는 회고 ID")
                                       Long retrospectId,
                                       @NotNull

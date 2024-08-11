@@ -8,7 +8,7 @@ import org.layer.domain.space.entity.Space;
 import java.util.List;
 
 @Builder
-public record GetSpaceRetrospectActionItemResponse(@NotNull
+public record SpaceRetrospectActionItemGetResponse(@NotNull
                                       @Schema(description = "액션 아이템이 속한 스페이스 ID")
                                       Long spaceId,
                                                    @NotNull
@@ -19,8 +19,8 @@ public record GetSpaceRetrospectActionItemResponse(@NotNull
                                       List<RetrospectActionItemResponse> teamActionItemList
 ) {
 
-    public static GetSpaceRetrospectActionItemResponse of(Space space, List<RetrospectActionItemResponse> actionItemList) {
-        return GetSpaceRetrospectActionItemResponse.builder()
+    public static SpaceRetrospectActionItemGetResponse of(Space space, List<RetrospectActionItemResponse> actionItemList) {
+        return SpaceRetrospectActionItemGetResponse.builder()
                 .spaceId(space.getId())
                 .spaceName(space.getName())
                 .teamActionItemList(actionItemList)

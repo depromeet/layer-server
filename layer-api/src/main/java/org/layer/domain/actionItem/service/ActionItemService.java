@@ -61,7 +61,7 @@ public class ActionItemService {
 
 
     //== 스페이스의 액션 아이템 조회 ==//
-    public GetSpaceRetrospectActionItemResponse getSpaceActionItemList(Long memberId, Long spaceId) {
+    public SpaceRetrospectActionItemGetResponse getSpaceActionItemList(Long memberId, Long spaceId) {
         // space가 존재하는지 확인
         Space space = spaceRepository.findByIdOrThrow(spaceId);
 
@@ -100,7 +100,7 @@ public class ActionItemService {
             response.add(responseElement);
         }
 
-        return GetSpaceRetrospectActionItemResponse.of(space, response);
+        return SpaceRetrospectActionItemGetResponse.of(space, response);
     }
 
     @Transactional
@@ -112,7 +112,7 @@ public class ActionItemService {
     }
 
     //== space에서 가장 최근에 끝난 회고에 대한 실행 목표 조회 ==//
-    public GetSpaceActionItemResponse getSpaceRecentActionItems(Long memberId, Long spaceId) {
+    public SpaceActionItemGetResponse getSpaceRecentActionItems(Long memberId, Long spaceId) {
         // 스페이스가 있는지 검증
         Space space = spaceRepository.findByIdOrThrow(spaceId);
         
@@ -131,16 +131,16 @@ public class ActionItemService {
             Retrospect recent = recentOpt.get();
             List<ActionItem> actionItems = actionItemRepository.findAllByRetrospectId(recent.getId());
 
-            return GetSpaceActionItemResponse.of(space, recent, actionItems);
+            return SpaceActionItemGetResponse.of(space, recent, actionItems);
         }
 
         // DONE인 회고가 없는 경우
-        return GetSpaceActionItemResponse.of(space, null, new ArrayList<>());
+        return SpaceActionItemGetResponse.of(space, null, new ArrayList<>());
     }
 
 
     //== 회원의 액션 아이템 조회 ==//
-    public GetMemberActionItemResponse getMemberActionItemList(Long currentMemberId) {
+    public MemberActionItemGetResponse getMemberActionItemList(Long currentMemberId) {
         // 멤버가 속한 스페이스 모두 가져오기
         List<Space> spaces = spaceRepository.findByMemberId(currentMemberId);
 
@@ -172,6 +172,6 @@ public class ActionItemService {
             responses.add(MemberActionItemResponse.of(space, doneRetrospect, actionItemResponses));
         }
 
-        return new GetMemberActionItemResponse(responses);
+        return new MemberActionItemGetResponse(responses);
     }
 }
