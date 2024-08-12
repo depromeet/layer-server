@@ -3,7 +3,12 @@ package org.layer.domain.form.service;
 import lombok.RequiredArgsConstructor;
 import org.layer.domain.form.controller.dto.request.FormNameUpdateRequest;
 import org.layer.domain.form.controller.dto.request.RecommendFormQueryDto;
-import org.layer.domain.form.controller.dto.response.*;
+import org.layer.domain.form.controller.dto.request.RecommendFormSetRequest;
+import org.layer.domain.form.controller.dto.response.CustomTemplateListResponse;
+import org.layer.domain.form.controller.dto.response.CustomTemplateResponse;
+import org.layer.domain.form.controller.dto.response.FormGetResponse;
+import org.layer.domain.form.controller.dto.response.QuestionGetResponse;
+import org.layer.domain.form.controller.dto.response.RecommendFormResponseDto;
 import org.layer.domain.form.entity.Form;
 import org.layer.domain.form.exception.FormException;
 import org.layer.domain.form.repository.FormRepository;
@@ -72,7 +77,7 @@ public class FormService {
 	}
 
 	@Transactional
-	public void updateFormTitle(Long formId, FormNameUpdateRequest request, Long memberId){
+	public void updateFormTitle(Long formId, FormNameUpdateRequest request, Long memberId) {
 		Form form = formRepository.findByIdOrThrow(formId);
 
 		validateIsLeader(memberId, form);
@@ -81,7 +86,7 @@ public class FormService {
 	}
 
 	@Transactional
-	public void deleteFormTitle(Long formId, Long memberId){
+	public void deleteFormTitle(Long formId, Long memberId) {
 		Form form = formRepository.findByIdOrThrow(formId);
 
 		validateIsLeader(memberId, form);
@@ -109,7 +114,19 @@ public class FormService {
 		Page<CustomTemplateResponse> customFormResList = customFormList.map(form -> new CustomTemplateResponse(form.getId(), form.getTitle(), form.getFormTag().getTag(), form.getCreatedAt()));
 
 		return CustomTemplateListResponse.builder()
-				.customTemplateList(customFormResList)
-				.build();
+			.customTemplateList(customFormResList)
+			.build();
+	}
+
+	@Transactional
+	public void setRecommendTemplate(RecommendFormSetRequest request, Long memberId) {
+		// 팀 소속 여부 검증 로직
+		Team team = new Team(memberSpaceRelationRepository.findAllBySpaceId(request.spaceId()));
+		team.validateTeamMembership(memberId);
+
+		Form form = formRepository.findByIdOrThrow(request.formId());
+
+		Space space = spaceRepository.findByIdOrThrow(request.spaceId());
+		space.updateRecentFormId(form.getId(), memberId);
 	}
 }

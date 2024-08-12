@@ -65,7 +65,12 @@ public class RetrospectService {
 
 			List<Question> myQuestions = getQuestions(request.questions(), null, savedForm.getId());
 			questionRepository.saveAll(myQuestions);
+
+			// 스페이스 최근 폼 수정
+			Space space = spaceRepository.findByIdOrThrow(spaceId);
+			space.updateRecentFormId(savedForm.getId(), memberId);
 		}
+
 		return savedRetrospect.getId();
 	}
 

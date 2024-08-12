@@ -3,6 +3,7 @@ package org.layer.domain.form.controller;
 import org.layer.common.annotation.MemberId;
 import org.layer.domain.form.controller.dto.request.FormNameUpdateRequest;
 import org.layer.domain.form.controller.dto.request.RecommendFormQueryDto;
+import org.layer.domain.form.controller.dto.request.RecommendFormSetRequest;
 import org.layer.domain.form.controller.dto.response.CustomTemplateListResponse;
 import org.layer.domain.form.controller.dto.response.FormGetResponse;
 import org.layer.domain.form.controller.dto.response.RecommendFormResponseDto;
@@ -43,4 +44,7 @@ public interface FormApi {
 
 	@Operation(summary = "스페이스에 속한 커스텀 템플릿 목록 조회", method = "GET", description = "스페이스의 커스텀 템플릿을 모두 조회합니다. (스페이스에 속한 팀원이라면 조회 가능)")
 	ResponseEntity<CustomTemplateListResponse> getCustomTemplateList(Pageable pageable, @PathVariable Long spaceId, @MemberId Long memberId);
+
+	@Operation(summary = "추천 템플릿 설정", method = "POST", description = "추천 템플릿을 설정하는 기능입니다.")
+	ResponseEntity<Void> setRecommendTemplate(@RequestBody @Valid RecommendFormSetRequest request, @MemberId Long memberId);
 }
