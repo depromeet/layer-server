@@ -12,13 +12,15 @@ public record MemberInfoResponse(Long memberId,
                                  String email,
                                  MemberRole memberRole,
                                  String socialId,
-                                 SocialType socialType) {
+                                 SocialType socialType,
+                                 String imageUrl) {
     public static MemberInfoResponse of(Member member) {
         return new MemberInfoResponse(member.getId(),
                 member.getName(),
                 member.getEmail(),
                 member.getMemberRole(),
                 member.getSocialId(),
-                member.getSocialType());
+                member.getSocialType(),
+                member.getProfileImageUrl());
     }
 }

@@ -81,7 +81,8 @@ public interface AuthApi {
                         "memberRole": "USER",
                         "socialId": "123456789",
                         "socialType": "KAKAO",
-                        "accessToken": "[토큰값]"
+                        "accessToken": "[토큰값]",
+                        "imageUrl": null
                     }
                     """
                             )
