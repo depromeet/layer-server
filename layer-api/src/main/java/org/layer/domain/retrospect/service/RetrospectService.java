@@ -1,7 +1,6 @@
 package org.layer.domain.retrospect.service;
 
 import lombok.RequiredArgsConstructor;
-
 import org.layer.domain.answer.entity.Answers;
 import org.layer.domain.answer.repository.AnswerRepository;
 import org.layer.domain.common.time.Time;
@@ -21,20 +20,15 @@ import org.layer.domain.retrospect.entity.RetrospectStatus;
 import org.layer.domain.retrospect.repository.RetrospectRepository;
 import org.layer.domain.retrospect.service.dto.response.RetrospectGetServiceResponse;
 import org.layer.domain.retrospect.service.dto.response.RetrospectListGetServiceResponse;
-import org.layer.domain.space.entity.MemberSpaceRelation;
 import org.layer.domain.space.entity.Space;
 import org.layer.domain.space.entity.Team;
-import org.layer.domain.space.exception.MemberSpaceRelationException;
 import org.layer.domain.space.repository.MemberSpaceRelationRepository;
 import org.layer.domain.space.repository.SpaceRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static org.layer.common.exception.MemberSpaceRelationExceptionType.NOT_FOUND_MEMBER_SPACE_RELATION;
 
 @Service
 @RequiredArgsConstructor
@@ -65,7 +59,7 @@ public class RetrospectService {
 		// 새로운 폼 생성(수정)인지 확인
 		if (request.isNewForm()) {
 			// 내 회고 폼에 추가
-			Form form = new Form(memberId, spaceId, request.title(), request.introduction(), FormType.CUSTOM,
+			Form form = new Form(memberId, spaceId, request.formName(), request.introduction(), FormType.CUSTOM,
 				FormTag.CUSTOM);
 			Form savedForm = formRepository.save(form);
 

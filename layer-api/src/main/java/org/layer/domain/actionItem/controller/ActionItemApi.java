@@ -23,7 +23,7 @@ public interface ActionItemApi {
     }
     )
     ResponseEntity<Void> createActionItem(@MemberId Long memberId,
-                                                              @Validated @RequestBody CreateActionItemRequest createActionItemRequest);
+                                                              @Validated @RequestBody ActionItemCreateRequest actionItemCreateRequest);
 
 
     @Operation(summary = "개인의 액션 아이템 조회", method = "GET", description = """
@@ -40,7 +40,7 @@ public interface ActionItemApi {
             )
     }
     )
-    ResponseEntity<MemberActionItemResponse> memberActionItem(@MemberId Long currentMemberId);
+    ResponseEntity<MemberActionItemGetResponse> memberActionItem(@MemberId Long currentMemberId);
 
     @Operation(summary = "팀의 액션 아이템 조회", method = "GET", description = """
             팀 아이디로 팀의 모든 액션아이템을 회고 별로 조회합니다.
@@ -57,7 +57,7 @@ public interface ActionItemApi {
             )
     }
     )
-    ResponseEntity<GetSpaceRetrospectActionItemResponse> teamActionItem(@MemberId Long memberId,
+    ResponseEntity<SpaceRetrospectActionItemGetResponse> teamActionItem(@MemberId Long memberId,
                                                                         @PathVariable Long spaceId);
 
 
@@ -76,7 +76,7 @@ public interface ActionItemApi {
             )
     }
     )
-    ResponseEntity<GetSpaceActionItemResponse> spaceRecentActionItem(@MemberId Long memberId,
+    ResponseEntity<SpaceActionItemGetResponse> spaceRecentActionItem(@MemberId Long memberId,
                                                                      @PathVariable Long spaceId);
 
     @Operation(summary = "액션 아이템 삭제", method = "DELETE", description = """

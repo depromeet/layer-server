@@ -10,7 +10,7 @@ import org.layer.domain.space.entity.Space;
 import java.util.List;
 
 @Builder
-public record GetSpaceActionItemResponse(@NotNull
+public record SpaceActionItemGetResponse(@NotNull
                                       @Schema(description = "액션 아이템이 속한 스페이스 ID")
                                       Long spaceId,
                                          @NotNull
@@ -21,12 +21,12 @@ public record GetSpaceActionItemResponse(@NotNull
                                       List<SpaceActionItemElementResponse> teamActionItemList
                                      ) {
 
-    public static GetSpaceActionItemResponse of(Space space, Retrospect retrospect, List<ActionItem> spaceActionItemList) {
+    public static SpaceActionItemGetResponse of(Space space, Retrospect retrospect, List<ActionItem> spaceActionItemList) {
         List<SpaceActionItemElementResponse> actionItemElements = spaceActionItemList.stream()
                 .map(a -> SpaceActionItemElementResponse.of(a, retrospect))
                 .toList();
 
-        return GetSpaceActionItemResponse.builder()
+        return SpaceActionItemGetResponse.builder()
                 .spaceId(space.getId())
                 .spaceName(space.getName())
                 .teamActionItemList(actionItemElements)

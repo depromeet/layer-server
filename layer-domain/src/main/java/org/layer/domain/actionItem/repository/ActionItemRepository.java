@@ -25,7 +25,7 @@ public interface ActionItemRepository extends JpaRepository<ActionItem, Long> {
     List<ActionItem> findAllByRetrospectId(Long retrospectId);
 
     List<ActionItem> findAllByRetrospectIdIn(List<Long> retrospectId);
-
+  
     @Modifying(clearAutomatically = true)
     @Transactional
     @Query("DELETE FROM ActionItem a WHERE a.spaceId = :spaceId")

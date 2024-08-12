@@ -3,10 +3,10 @@ package org.layer.domain.actionItem.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.layer.common.annotation.MemberId;
-import org.layer.domain.actionItem.controller.dto.CreateActionItemRequest;
-import org.layer.domain.actionItem.controller.dto.MemberActionItemResponse;
-import org.layer.domain.actionItem.controller.dto.GetSpaceActionItemResponse;
-import org.layer.domain.actionItem.controller.dto.GetSpaceRetrospectActionItemResponse;
+import org.layer.domain.actionItem.controller.dto.ActionItemCreateRequest;
+import org.layer.domain.actionItem.controller.dto.MemberActionItemGetResponse;
+import org.layer.domain.actionItem.controller.dto.SpaceActionItemGetResponse;
+import org.layer.domain.actionItem.controller.dto.SpaceRetrospectActionItemGetResponse;
 import org.layer.domain.actionItem.service.ActionItemService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,10 +24,10 @@ public class ActionItemController implements ActionItemApi {
     @PostMapping("/create")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Void> createActionItem(@MemberId Long memberId,
-                                              @Validated @RequestBody CreateActionItemRequest createActionItemRequest) {
+                                              @Validated @RequestBody ActionItemCreateRequest actionItemCreateRequest) {
         actionItemService.createActionItem(memberId,
-                createActionItemRequest.retrospectId(),
-                createActionItemRequest.content());
+                actionItemCreateRequest.retrospectId(),
+                actionItemCreateRequest.content());
 
         return new ResponseEntity<>(null, HttpStatus.CREATED);
     }
@@ -35,24 +35,24 @@ public class ActionItemController implements ActionItemApi {
     @Override
     @GetMapping("/member")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<MemberActionItemResponse> memberActionItem(@MemberId Long currentMemberId) {
-        MemberActionItemResponse memberActionItems = actionItemService.getMemberActionItemList(currentMemberId);
+    public ResponseEntity<MemberActionItemGetResponse> memberActionItem(@MemberId Long currentMemberId) {
+        MemberActionItemGetResponse memberActionItems = actionItemService.getMemberActionItemList(currentMemberId);
         return new ResponseEntity<>(memberActionItems, HttpStatus.OK);
     }
 
     @Override
     @GetMapping("/space/{spaceId}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<GetSpaceRetrospectActionItemResponse> teamActionItem(@MemberId Long memberId, @PathVariable(name = "spaceId") Long spaceId) {
-        GetSpaceRetrospectActionItemResponse teamActionItem = actionItemService.getSpaceActionItemList(memberId, spaceId);
+    public ResponseEntity<SpaceRetrospectActionItemGetResponse> teamActionItem(@MemberId Long memberId, @PathVariable(name = "spaceId") Long spaceId) {
+        SpaceRetrospectActionItemGetResponse teamActionItem = actionItemService.getSpaceActionItemList(memberId, spaceId);
 
         return new ResponseEntity<>(teamActionItem, HttpStatus.OK);
     }
 
     @Override
     @GetMapping("/space/{spaceId}/recent")
-    public ResponseEntity<GetSpaceActionItemResponse> spaceRecentActionItem(@MemberId Long memberId, @PathVariable(name = "spaceId") Long spaceId) {
-        GetSpaceActionItemResponse spaceRecentActionItems = actionItemService.getSpaceRecentActionItems(memberId, spaceId);
+    public ResponseEntity<SpaceActionItemGetResponse> spaceRecentActionItem(@MemberId Long memberId, @PathVariable(name = "spaceId") Long spaceId) {
+        SpaceActionItemGetResponse spaceRecentActionItems = actionItemService.getSpaceRecentActionItems(memberId, spaceId);
 
         return new ResponseEntity<>(spaceRecentActionItems, HttpStatus.OK);
     }
