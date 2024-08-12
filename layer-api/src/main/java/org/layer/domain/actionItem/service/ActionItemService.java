@@ -44,10 +44,6 @@ public class ActionItemService {
             throw new MemberSpaceRelationException(NOT_FOUND_MEMBER_SPACE_RELATION);
         }
 
-        // debug
-        log.info("[create action item]");
-        log.info("spaceID: {}", retrospect.getSpaceId());
-
 
         // 액션 아이템 생성
         actionItemRepository.save(ActionItem.builder()
