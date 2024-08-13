@@ -1,12 +1,14 @@
 package org.layer.domain.actionItem.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.layer.domain.actionItem.enums.ActionItemStatus;
 import org.layer.domain.actionItem.exception.ActionItemException;
 import org.layer.domain.common.BaseTimeEntity;
 
@@ -34,20 +36,15 @@ public class ActionItem extends BaseTimeEntity {
     private String content; // 실행 목표 내용
 
     @NotNull
-    @Enumerated(EnumType.STRING)
-    private ActionItemStatus actionItemStatus; // 실행 목표 상태
-
-    @NotNull
     private int actionItemOrder; // 회고 내에서 실행 목표의 순서
 
 
     @Builder
-    private ActionItem(Long retrospectId, Long spaceId, Long memberId, String content, ActionItemStatus actionItemStatus, Boolean isPinned) {
+    private ActionItem(Long retrospectId, Long spaceId, Long memberId, String content, Boolean isPinned) {
         this.retrospectId = retrospectId;
         this.spaceId = spaceId;
         this.memberId = memberId;
         this.content = content;
-        this.actionItemStatus = actionItemStatus;
     }
 
     public void isWriter(Long memberId) {

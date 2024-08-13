@@ -2,7 +2,10 @@ package org.layer.domain.actionItem.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.layer.domain.actionItem.controller.dto.*;
+import org.layer.domain.actionItem.controller.dto.MemberActionItemGetResponse;
+import org.layer.domain.actionItem.controller.dto.RetrospectActionItemResponse;
+import org.layer.domain.actionItem.controller.dto.SpaceActionItemGetResponse;
+import org.layer.domain.actionItem.controller.dto.SpaceRetrospectActionItemGetResponse;
 import org.layer.domain.actionItem.dto.ActionItemResponse;
 import org.layer.domain.actionItem.dto.MemberActionItemResponse;
 import org.layer.domain.actionItem.entity.ActionItem;
@@ -22,7 +25,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.layer.common.exception.MemberSpaceRelationExceptionType.NOT_FOUND_MEMBER_SPACE_RELATION;
-import static org.layer.domain.actionItem.enums.ActionItemStatus.PROCEEDING;
 import static org.layer.domain.retrospect.entity.RetrospectStatus.DONE;
 
 @Slf4j
@@ -53,7 +55,6 @@ public class ActionItemService {
                 .spaceId(retrospect.getSpaceId())
                 .memberId(memberId)
                 .content(content)
-                .actionItemStatus(PROCEEDING)
                 .build());
     }
 
@@ -152,8 +153,6 @@ public class ActionItemService {
 
         List<MemberActionItemResponse> responses = actionItemRepository.findAllMemberActionItemResponses(doneRetrospects);
         for (MemberActionItemResponse response : responses) {
-            log.info("actionItemBundle: {}", response);
-
             List<ActionItem> actionItems = actionItemRepository.findAllByRetrospectId(response.getRetrospectId());
             List<ActionItemResponse> actionItemResList = actionItems.stream().map(ActionItemResponse::of).toList();
             response.updateActionItemList(actionItemResList);
