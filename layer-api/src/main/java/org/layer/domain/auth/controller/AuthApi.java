@@ -32,7 +32,8 @@ public interface AuthApi {
                         "memberRole": "USER",
                         "socialId": "123456789",
                         "socialType": "KAKAO",
-                        "accessToken": "[토큰값]"
+                        "accessToken": "[토큰값]",
+                        "imageUrl": null
                     }
                     """
                             )
@@ -172,7 +173,8 @@ public interface AuthApi {
                         "email": "kimlayer@kakao.com",
                         "memberRole": "USER",
                         "socialId": "123456789",
-                        "socialType": "KAKAO"
+                        "socialType": "KAKAO",
+                        "imageUrl": null
                     }
                     """)}))
     public MemberInfoResponse getMemberInfo(@MemberId Long memberId);

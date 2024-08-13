@@ -6,8 +6,6 @@ import org.layer.common.annotation.DisableSwaggerSecurity;
 import org.layer.common.annotation.MemberId;
 import org.layer.domain.auth.controller.dto.*;
 import org.layer.domain.auth.service.AuthService;
-import org.layer.domain.auth.controller.dto.SignInResponse;
-import org.layer.domain.auth.service.dto.SignUpServiceResponse;
 import org.layer.domain.member.repository.MemberRepository;
 import org.layer.oauth.service.GoogleService;
 import org.layer.oauth.service.KakaoService;
@@ -39,8 +37,8 @@ public class AuthController implements AuthApi {
     @DisableSwaggerSecurity
     @PostMapping("/sign-up")
     public ResponseEntity<SignUpResponse> signUp(@RequestHeader(SOCIAL_TOKEN_NAME) final String socialAccessToken, @RequestBody final SignUpRequest signUpRequest) {
-        SignUpServiceResponse signUpServiceResponse = authService.signUp(socialAccessToken, signUpRequest);
-        return new ResponseEntity<>(SignUpResponse.of(signUpServiceResponse), HttpStatus.CREATED);
+        SignUpResponse signUpResponse = authService.signUp(socialAccessToken, signUpRequest);
+        return new ResponseEntity<>(signUpResponse, HttpStatus.CREATED);
     }
 
 
