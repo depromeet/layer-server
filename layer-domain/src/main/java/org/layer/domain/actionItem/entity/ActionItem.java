@@ -31,11 +31,14 @@ public class ActionItem extends BaseTimeEntity {
     private Long memberId; // 작성자
 
     @NotNull
-    private String content; // 액션 아이템 내용
+    private String content; // 실행 목표 내용
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    private ActionItemStatus actionItemStatus; // 액션 아이템 상태
+    private ActionItemStatus actionItemStatus; // 실행 목표 상태
+
+    @NotNull
+    private int actionItemOrder; // 회고 내에서 실행 목표의 순서
 
 
     @Builder
