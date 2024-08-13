@@ -14,7 +14,8 @@ public record SignInResponse(Long memberId,
                              String socialId,
                              SocialType socialType,
                              String accessToken,
-                             String refreshToken) {
+                             String refreshToken,
+                             String imageUrl) {
     public static SignInResponse of(Member member, JwtToken jwtToken) {
         return SignInResponse.builder()
                 .memberId(member.getId())
@@ -25,6 +26,7 @@ public record SignInResponse(Long memberId,
                 .socialId(member.getSocialId())
                 .accessToken(jwtToken.getAccessToken())
                 .refreshToken(jwtToken.getRefreshToken())
+                .imageUrl(member.getProfileImageUrl())
                 .build();
     }
 }
