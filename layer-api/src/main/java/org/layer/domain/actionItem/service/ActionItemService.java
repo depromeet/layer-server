@@ -3,6 +3,8 @@ package org.layer.domain.actionItem.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.layer.domain.actionItem.controller.dto.*;
+import org.layer.domain.actionItem.dto.ActionItemResponse;
+import org.layer.domain.actionItem.dto.MemberActionItemResponse;
 import org.layer.domain.actionItem.entity.ActionItem;
 import org.layer.domain.actionItem.repository.ActionItemRepository;
 import org.layer.domain.retrospect.entity.Retrospect;
@@ -148,24 +150,13 @@ public class ActionItemService {
                 .sorted((a, b) -> b.getDeadline().compareTo(a.getDeadline())) // 최근에 끝난 순으로 정렬
                 .toList();
 
+        List<MemberActionItemResponse> responses = actionItemRepository.findAllMemberActionItemResponses(doneRetrospects);
+        for (MemberActionItemResponse response : responses) {
+            log.info("actionItemBundle: {}", response);
 
-        List<MemberActionItemResponse> responses = new ArrayList<>();
-        for (Retrospect doneRetrospect : doneRetrospects) {
-            // 해당 회고에 관련한 실행 목표 가져오기
-            List<ActionItem> actionItems = actionItemRepository.findAllByRetrospectId(doneRetrospect.getId());
-
-            // 액션 아이템이 없는 회고는 응답에서 제외
-            if(actionItems.isEmpty()) {
-                continue;
-            }
-
-            List<ActionItemResponse> actionItemResponses = actionItems.stream()
-                    .map(ActionItemResponse::of)
-                    .toList();
-
-            // 회고가 어디 스페이스에 속하는지 찾기
-            Space space = spaceRepository.findByIdOrThrow(doneRetrospect.getSpaceId());
-            responses.add(MemberActionItemResponse.of(space, doneRetrospect, actionItemResponses));
+            List<ActionItem> actionItems = actionItemRepository.findAllByRetrospectId(response.getRetrospectId());
+            List<ActionItemResponse> actionItemResList = actionItems.stream().map(ActionItemResponse::of).toList();
+            response.updateActionItemList(actionItemResList);
         }
 
         return new MemberActionItemGetResponse(responses);

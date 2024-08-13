@@ -3,6 +3,7 @@ package org.layer.domain.actionItem.controller.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
+import org.layer.domain.actionItem.dto.ActionItemResponse;
 
 import java.util.List;
 

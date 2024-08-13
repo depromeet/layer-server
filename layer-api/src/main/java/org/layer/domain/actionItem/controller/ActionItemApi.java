@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.layer.common.annotation.MemberId;
 import org.layer.domain.actionItem.controller.dto.*;
+import org.layer.domain.actionItem.dto.MemberActionItemResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
