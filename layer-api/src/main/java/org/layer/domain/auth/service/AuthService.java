@@ -4,10 +4,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.layer.common.exception.BaseCustomException;
 import org.layer.domain.auth.controller.dto.MemberInfoResponse;
-import org.layer.domain.auth.controller.dto.SignUpRequest;
-import org.layer.domain.auth.service.dto.ReissueTokenServiceResponse;
 import org.layer.domain.auth.controller.dto.SignInResponse;
-import org.layer.domain.auth.service.dto.SignUpServiceResponse;
+import org.layer.domain.auth.controller.dto.SignUpRequest;
+import org.layer.domain.auth.controller.dto.SignUpResponse;
+import org.layer.domain.auth.service.dto.ReissueTokenServiceResponse;
 import org.layer.domain.jwt.JwtToken;
 import org.layer.domain.jwt.exception.AuthExceptionType;
 import org.layer.domain.jwt.service.JwtService;
@@ -42,7 +42,7 @@ public class AuthService {
 
     //== 회원가입(이름을 입력 받기) ==//
     @Transactional
-    public SignUpServiceResponse signUp(final String socialAccessToken, final SignUpRequest signUpRequest) {
+    public SignUpResponse signUp(final String socialAccessToken, final SignUpRequest signUpRequest) {
         MemberInfoServiceResponse memberInfo = getMemberInfo(signUpRequest.socialType(), socialAccessToken);
 
         // 이미 있는 회원인지 확인
@@ -53,7 +53,7 @@ public class AuthService {
 
         // 토큰 발급
         JwtToken jwtToken = jwtService.issueToken(member.getId(), member.getMemberRole());
-        return SignUpServiceResponse.of(member, jwtToken);
+        return SignUpResponse.of(member, jwtToken);
     }
 
     //== 로그아웃 ==//
