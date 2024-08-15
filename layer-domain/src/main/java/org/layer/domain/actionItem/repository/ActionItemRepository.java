@@ -33,7 +33,7 @@ public interface ActionItemRepository extends JpaRepository<ActionItem, Long> {
     void deleteAllBySpaceId(Long spaceId);
 
 
-    @Query("SELECT new org.layer.domain.actionItem.dto.MemberActionItemResponse(s, r) " +
+    @Query("SELECT DISTINCT new org.layer.domain.actionItem.dto.MemberActionItemResponse(s, r) " +
             "FROM Retrospect r " +
             "JOIN Space s ON r.spaceId = s.id " +
             "JOIN ActionItem ai ON ai.retrospectId = r.id " +

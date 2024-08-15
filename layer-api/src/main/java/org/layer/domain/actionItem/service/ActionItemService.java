@@ -155,7 +155,11 @@ public class ActionItemService {
                 .sorted((a, b) -> b.getDeadline().compareTo(a.getDeadline())) // 최근에 끝난 순으로 정렬
                 .toList();
 
-        List<MemberActionItemResponse> responses = actionItemRepository.findAllMemberActionItemResponses(doneRetrospects);
+        List<MemberActionItemResponse> responses = actionItemRepository
+                .findAllMemberActionItemResponses(doneRetrospects)
+                .stream()
+                .toList();
+
         for (MemberActionItemResponse response : responses) {
             List<ActionItem> actionItems = actionItemRepository.findAllByRetrospectId(response.getRetrospectId());
             List<ActionItemResponse> actionItemResList = actionItems.stream().map(ActionItemResponse::of).toList();
