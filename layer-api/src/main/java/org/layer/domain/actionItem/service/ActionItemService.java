@@ -153,32 +153,26 @@ public class ActionItemService {
 
     //== 회원의 실행 목표 조회 ==//
     public MemberActionItemGetResponse getMemberActionItemList(Long currentMemberId) {
-        // 멤버가 속한 스페이스 모두 가져오기
-        List<Space> spaces = spaceRepository.findByMemberId(currentMemberId);
+        // 멤버가 속한 스페이스 정보와 회고 모두 가져오기 (회고 데드라인 내림차순)
+        List<MemberActionItemResponse> dtoList = retrospectRepository.findAllMemberActionItemResponsesByMemberId(currentMemberId);
 
-        // 끝난 회고 모두 찾기 (데드라인 내림차순)
-        List<Long> spaceIds = spaces.stream().map(Space::getId).toList();
-        List<Retrospect> doneRetrospects = retrospectRepository.findAllBySpaceIdIn(spaceIds)
-                .stream()
-                .filter(retrospect -> retrospect.getRetrospectStatus().equals(DONE))
-                .sorted((a, b) -> b.getDeadline().compareTo(a.getDeadline())) // 최근에 끝난 순으로 정렬
+        List<Long> doneRetrospectIds = dtoList.stream()
+                .map(MemberActionItemResponse::getRetrospectId)
                 .toList();
 
-        List<MemberActionItemResponse> responses = actionItemRepository
-                .findAllMemberActionItemResponses(doneRetrospects)
-                .stream()
-                .toList();
+        // 실행 목표 모두 찾기
+        List<ActionItem> actionItemList = actionItemRepository.findAllByRetrospectIdIn(doneRetrospectIds);
 
-        for (MemberActionItemResponse response : responses) {
-            List<ActionItem> actionItems = actionItemRepository.findAllByRetrospectId(response.getRetrospectId());
-            List<ActionItemResponse> actionItemResList = actionItems.stream()
+        for(MemberActionItemResponse dto : dtoList) {
+            List<ActionItemResponse> actionItems = actionItemList.stream()
+                    .filter(ai -> ai.getRetrospectId().equals(dto.getRetrospectId()))
                     .sorted(Comparator.comparingInt(ActionItem::getActionItemOrder)) // order 순으로 정렬
-                    .map(ActionItemResponse::of)
-                    .toList();
-            response.updateActionItemList(actionItemResList);
+                    .map(ActionItemResponse::of).toList();
+
+            dto.updateActionItemList(actionItems);
         }
 
-        return new MemberActionItemGetResponse(responses);
+        return new MemberActionItemGetResponse(dtoList);
     }
 
     //== 실행 목표 수정 ==//

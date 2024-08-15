@@ -28,6 +28,7 @@ public class MemberActionItemResponse {
     @NotNull
     List<ActionItemResponse> actionItemList;
 
+
     public MemberActionItemResponse(Space space, Retrospect retrospect, List<ActionItem> actionItemList) {
         List<ActionItemResponse> actionItemResList = actionItemList.stream().map(ActionItemResponse::of).toList();
 

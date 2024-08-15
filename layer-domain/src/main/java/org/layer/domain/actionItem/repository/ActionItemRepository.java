@@ -1,13 +1,10 @@
 package org.layer.domain.actionItem.repository;
 
-import org.layer.domain.actionItem.dto.MemberActionItemResponse;
 import org.layer.domain.actionItem.entity.ActionItem;
 import org.layer.domain.actionItem.exception.ActionItemException;
-import org.layer.domain.retrospect.entity.Retrospect;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -25,20 +22,10 @@ public interface ActionItemRepository extends JpaRepository<ActionItem, Long> {
 
     int countByRetrospectId(Long retrospectId);
 
-    List<ActionItem> findAllByRetrospectIdIn(List<Long> retrospectId);
+    List<ActionItem> findAllByRetrospectIdIn(List<Long> retrospectIds);
   
     @Modifying(clearAutomatically = true)
     @Transactional
     @Query("DELETE FROM ActionItem a WHERE a.spaceId = :spaceId")
     void deleteAllBySpaceId(Long spaceId);
-
-
-    @Query("SELECT DISTINCT new org.layer.domain.actionItem.dto.MemberActionItemResponse(s, r) " +
-            "FROM Retrospect r " +
-            "JOIN Space s ON r.spaceId = s.id " +
-            "JOIN ActionItem ai ON ai.retrospectId = r.id " +
-            "WHERE r IN :doneRetrospects")
-    List<MemberActionItemResponse> findAllMemberActionItemResponses(@Param("doneRetrospects") List<Retrospect> doneRetrospects);
-
-
 }
