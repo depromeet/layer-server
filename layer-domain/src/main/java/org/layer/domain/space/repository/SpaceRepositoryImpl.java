@@ -42,7 +42,7 @@ public class SpaceRepositoryImpl implements SpaceCustomRepository {
         return getSpaceWithMemberCountQuery()
                 .where(predicate)
                 .groupBy(space.id)
-                .orderBy(space.id.asc())
+                .orderBy(space.createdAt.desc())
                 .limit(pageSize + 1)
                 .fetch();
     }
