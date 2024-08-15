@@ -9,10 +9,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.layer.domain.actionItem.exception.ActionItemException;
 import org.layer.domain.common.BaseTimeEntity;
-
-import static org.layer.common.exception.ActionItemExceptionType.CANNOT_DELETE_ACTION_ITEM;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -48,12 +45,6 @@ public class ActionItem extends BaseTimeEntity {
         this.actionItemOrder = actionItemOrder;
     }
 
-    public void isWriter(Long memberId) {
-        // 액션 아이템을 작성한 사람이 아님
-        if(!this.getMemberId().equals(memberId)) {
-            throw new ActionItemException(CANNOT_DELETE_ACTION_ITEM);
-        }
-    }
 
     public void updateContent(String content) {
         this.content = content;

@@ -27,6 +27,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import static org.layer.common.exception.ActionItemExceptionType.INVALID_ACTION_ITEM_LIST;
 import static org.layer.common.exception.MemberSpaceRelationExceptionType.NOT_FOUND_MEMBER_SPACE_RELATION;
 import static org.layer.domain.retrospect.entity.RetrospectStatus.DONE;
 
@@ -43,13 +44,11 @@ public class ActionItemService {
     @Transactional
     public void createActionItem(Long memberId, Long retrospectId, String content) {
 
-        // 멤버가 해당 회고가 진행 중인 스페이스에 속하는지 확인
+        // 만드는 사람이 스페이스 리더인지 확인
         Retrospect retrospect = retrospectRepository.findByIdOrThrow(retrospectId);
-        Optional<MemberSpaceRelation> team = memberSpaceRelationRepository.findBySpaceIdAndMemberId(retrospect.getSpaceId(), memberId);
+        Space space = spaceRepository.findByIdOrThrow(retrospect.getSpaceId());
+        space.isLeaderSpace(memberId);
 
-        if(team.isEmpty()) {
-            throw new MemberSpaceRelationException(NOT_FOUND_MEMBER_SPACE_RELATION);
-        }
 
         // order 설정을 위해 회고 아이디로 액션아이템 개수 찾기
         int actionItemCount = actionItemRepository.countByRetrospectId(retrospectId);
@@ -139,7 +138,10 @@ public class ActionItemService {
 
         if(recentOpt.isPresent()) {
             Retrospect recent = recentOpt.get();
-            List<ActionItem> actionItems = actionItemRepository.findAllByRetrospectId(recent.getId());
+            List<ActionItem> actionItems = actionItemRepository
+                    .findAllByRetrospectId(recent.getId()).stream()
+                    .sorted(Comparator.comparingInt(ActionItem::getActionItemOrder)) // order 순으로 정렬
+                    .toList();
 
             return SpaceActionItemGetResponse.of(space, recent, actionItems);
         }
@@ -189,6 +191,11 @@ public class ActionItemService {
         Retrospect retrospect = retrospectRepository.findByIdOrThrow(retrospectId);
         Space space = spaceRepository.findByIdOrThrow(retrospect.getSpaceId());
         space.isLeaderSpace(memberId);
+
+        // 요청 리스트와 DB에 저장된 실행 목표 개수가 다를 때
+        if(updateDto.actionItems().size() != actionItems.size()) {
+            throw new ActionItemException(INVALID_ACTION_ITEM_LIST);
+        }
 
 
         // O(1) 접근을 위해서 map으로 변경
