@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.layer.common.exception.MemberSpaceRelationExceptionType.NOT_FOUND_MEMBER_SPACE_RELATION;
@@ -176,7 +177,10 @@ public class SpaceService {
         /*
             스페이스 소속 여부 조회
          */
-        findSpaceByIdAndJoinedMemberIdOrThrow(spaceId, memberId);
+        var isExist = findSpaceByIdAndJoinedMemberId(spaceId, memberId);
+        if (isExist.isEmpty()) {
+            throw new SpaceException(NOT_FOUND_SPACE);
+        }
 
         var SpaceMembers = spaceRepository.findAllSpaceMemberBySpaceIdWithIsLeader(spaceId);
         return SpaceMembers.stream()
@@ -186,11 +190,11 @@ public class SpaceService {
                 .toList();
     }
 
-    private MemberSpaceRelation findSpaceByIdAndJoinedMemberIdOrThrow(Long spaceId, Long memberId) {
+    private Optional<MemberSpaceRelation> findSpaceByIdAndJoinedMemberId(Long spaceId, Long memberId) {
         /*
           이미 참여중인 스페이스 여부 확인
          */
-        return memberSpaceRelationRepository.findBySpaceIdAndMemberId(spaceId, memberId).orElseThrow(() -> new SpaceException(SPACE_ALREADY_JOINED));
+        return memberSpaceRelationRepository.findBySpaceIdAndMemberId(spaceId, memberId);
     }
 
     @Transactional
