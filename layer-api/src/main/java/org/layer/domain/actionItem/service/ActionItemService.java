@@ -23,10 +23,7 @@ import org.layer.domain.space.repository.SpaceRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -97,6 +94,7 @@ public class ActionItemService {
             }
 
             List<ActionItemResponse> actionItemResponses = actionItems.stream()
+                    .sorted(Comparator.comparingInt(ActionItem::getActionItemOrder)) // order 순으로 정렬
                     .map(ActionItemResponse::of)
                     .toList();
 
@@ -148,7 +146,7 @@ public class ActionItemService {
     }
 
 
-    //== 회원의 액션 아이템 조회 ==//
+    //== 회원의 실행 목표 조회 ==//
     public MemberActionItemGetResponse getMemberActionItemList(Long currentMemberId) {
         // 멤버가 속한 스페이스 모두 가져오기
         List<Space> spaces = spaceRepository.findByMemberId(currentMemberId);
@@ -168,13 +166,17 @@ public class ActionItemService {
 
         for (MemberActionItemResponse response : responses) {
             List<ActionItem> actionItems = actionItemRepository.findAllByRetrospectId(response.getRetrospectId());
-            List<ActionItemResponse> actionItemResList = actionItems.stream().map(ActionItemResponse::of).toList();
+            List<ActionItemResponse> actionItemResList = actionItems.stream()
+                    .sorted(Comparator.comparingInt(ActionItem::getActionItemOrder)) // order 순으로 정렬
+                    .map(ActionItemResponse::of)
+                    .toList();
             response.updateActionItemList(actionItemResList);
         }
 
         return new MemberActionItemGetResponse(responses);
     }
 
+    //== 실행 목표 수정 ==//
     @Transactional
     public void updateActionItems(Long memberId, Long retrospectId, ActionItemUpdateRequest updateDto) {
         // 실행 목표 가져오기
