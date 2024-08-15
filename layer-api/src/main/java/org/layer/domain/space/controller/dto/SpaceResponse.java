@@ -11,6 +11,7 @@ import org.layer.domain.space.entity.SpaceCategory;
 import org.layer.domain.space.entity.SpaceField;
 import org.layer.domain.space.exception.SpaceException;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -48,7 +49,10 @@ public class SpaceResponse {
             Long memberCount,
 
             @Schema(description = "스페이스 배너 이미지")
-            String bannerUrl
+            String bannerUrl,
+
+            @Schema(description = "스페이스 생성 일자")
+            LocalDateTime createdAt
     ) {
         public static SpaceWithMemberCountInfo toResponse(SpaceWithMemberCount space) {
             return Optional.ofNullable(space)
@@ -61,7 +65,9 @@ public class SpaceResponse {
                             .formId(it.getFormId())
                             .memberCount(it.getMemberCount())
                             .bannerUrl(it.getBannerUrl())
-                            .build())
+                            .createdAt(it.getCreatedAt())
+                            .build()
+                    )
                     .orElseThrow(() -> new BaseCustomException(INVALID_REFRESH_TOKEN));
         }
     }
