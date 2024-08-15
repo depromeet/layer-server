@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.layer.common.annotation.MemberId;
 import org.layer.domain.actionItem.controller.dto.request.ActionItemCreateRequest;
+import org.layer.domain.actionItem.controller.dto.request.ActionItemUpdateRequest;
 import org.layer.domain.actionItem.controller.dto.response.MemberActionItemGetResponse;
 import org.layer.domain.actionItem.controller.dto.response.SpaceActionItemElementResponse;
 import org.layer.domain.actionItem.controller.dto.response.SpaceActionItemGetResponse;
@@ -92,4 +93,16 @@ public interface ActionItemApi {
     }
     )
     ResponseEntity<Void> deleteActionItem(@MemberId Long memberId, @PathVariable("actionItemId") Long actionItemId);
+
+
+    @Operation(summary = "실행 목표 편집", method = "PATCH", description = """
+            특정 회고의 실행 목표 리스트를 편집합니다.
+            """)
+    @ApiResponses({
+            @ApiResponse(responseCode = "200")
+    }
+    )
+    ResponseEntity<Void> updateActionItem(@MemberId Long memberId,
+                                          @PathVariable("retrospectId") Long retrospectId,
+                                          @RequestBody ActionItemUpdateRequest actionItemUpdateRequest);
 }

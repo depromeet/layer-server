@@ -2,6 +2,8 @@ package org.layer.domain.actionItem.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.layer.common.exception.ActionItemExceptionType;
+import org.layer.domain.actionItem.controller.dto.request.ActionItemUpdateRequest;
 import org.layer.domain.actionItem.controller.dto.response.MemberActionItemGetResponse;
 import org.layer.domain.actionItem.controller.dto.response.RetrospectActionItemResponse;
 import org.layer.domain.actionItem.controller.dto.response.SpaceActionItemGetResponse;
@@ -9,6 +11,7 @@ import org.layer.domain.actionItem.controller.dto.response.SpaceRetrospectAction
 import org.layer.domain.actionItem.dto.ActionItemResponse;
 import org.layer.domain.actionItem.dto.MemberActionItemResponse;
 import org.layer.domain.actionItem.entity.ActionItem;
+import org.layer.domain.actionItem.exception.ActionItemException;
 import org.layer.domain.actionItem.repository.ActionItemRepository;
 import org.layer.domain.retrospect.entity.Retrospect;
 import org.layer.domain.retrospect.repository.RetrospectRepository;
@@ -22,7 +25,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import static org.layer.common.exception.MemberSpaceRelationExceptionType.NOT_FOUND_MEMBER_SPACE_RELATION;
 import static org.layer.domain.retrospect.entity.RetrospectStatus.DONE;
@@ -170,7 +176,30 @@ public class ActionItemService {
     }
 
     @Transactional
-    public void updateActionItems() {
+    public void updateActionItems(Long memberId, Long retrospectId, ActionItemUpdateRequest updateDto) {
+        // 실행 목표 가져오기
+        List<ActionItem> actionItems = actionItemRepository.findAllByRetrospectId(retrospectId);
 
+        // 리더인지 검증
+        Retrospect retrospect = retrospectRepository.findByIdOrThrow(retrospectId);
+        Space space = spaceRepository.findByIdOrThrow(retrospect.getSpaceId());
+        space.isLeaderSpace(memberId);
+
+
+        // O(1) 접근을 위해서 map으로 변경
+        Map<Long, ActionItem> actionItemMap = actionItems.stream().collect(Collectors.toMap(
+                ActionItem::getId,
+                actionItem -> actionItem
+        ));
+
+        AtomicInteger order = new AtomicInteger(1);
+        for(ActionItemUpdateRequest.ActionItemUpdateElementRequest updateItem : updateDto.actionItems()) {
+            ActionItem actionItem = actionItemMap.getOrDefault(updateItem.getId(), null);
+            if(actionItem == null) {
+                throw new ActionItemException(ActionItemExceptionType.INVALID_ACTION_ITEM_ID);
+            }
+            actionItem.updateContent(updateItem.getContent());
+            actionItem.updateActionItemOrder(order.getAndIncrement());
+        }
     }
 }

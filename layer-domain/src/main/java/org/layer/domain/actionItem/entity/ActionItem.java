@@ -54,4 +54,12 @@ public class ActionItem extends BaseTimeEntity {
             throw new ActionItemException(CANNOT_DELETE_ACTION_ITEM);
         }
     }
+
+    public void updateContent(String content) {
+        this.content = content;
+    }
+
+    public void updateActionItemOrder(int actionItemOrder) {
+        this.actionItemOrder = actionItemOrder;
+    }
 }
