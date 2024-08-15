@@ -48,6 +48,8 @@ public class ActionItemService {
             throw new MemberSpaceRelationException(NOT_FOUND_MEMBER_SPACE_RELATION);
         }
 
+        // order 설정을 위해 회고 아이디로 액션아이템 개수 찾기
+        int actionItemCount = actionItemRepository.countByRetrospectId(retrospectId);
 
         // 액션 아이템 생성
         actionItemRepository.save(ActionItem.builder()
@@ -55,6 +57,7 @@ public class ActionItemService {
                 .spaceId(retrospect.getSpaceId())
                 .memberId(memberId)
                 .content(content)
+                .actionItemOrder(actionItemCount + 1)
                 .build());
     }
 
@@ -82,6 +85,7 @@ public class ActionItemService {
             List<ActionItem> actionItems = actionItemRepository.findAllByRetrospectId(doneRetrospect.getId());
 
             // 액션 아이템이 없는 회고는 응답에서 제외
+            // TODO: 이부분은 디자인팀에게 질문이 필요. "실행 중"인것만 데이터를 줘야하나, 아니면 실행 중 아님 & 실행 목표가 없는 애들도 다 줘야하나
             if(actionItems.isEmpty()) {
                 continue;
             }
@@ -160,4 +164,7 @@ public class ActionItemService {
 
         return new MemberActionItemGetResponse(responses);
     }
+
+//    @Transactional
+//    public void updateActionItems()
 }

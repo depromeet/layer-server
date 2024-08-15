@@ -18,6 +18,7 @@ public interface RetrospectRepository extends JpaRepository<Retrospect, Long> {
 
     List<Retrospect> findAllBySpaceIdIn(List<Long> spaceIds);
 
+
     default Retrospect findByIdOrThrow(Long retrospectId) {
         return findById(retrospectId)
                 .orElseThrow(() -> new RetrospectException(NOT_FOUND_RETROSPECT));

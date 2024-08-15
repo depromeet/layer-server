@@ -40,11 +40,12 @@ public class ActionItem extends BaseTimeEntity {
 
 
     @Builder
-    private ActionItem(Long retrospectId, Long spaceId, Long memberId, String content, Boolean isPinned) {
+    private ActionItem(Long retrospectId, Long spaceId, Long memberId, String content, int actionItemOrder) {
         this.retrospectId = retrospectId;
         this.spaceId = spaceId;
         this.memberId = memberId;
         this.content = content;
+        this.actionItemOrder = actionItemOrder;
     }
 
     public void isWriter(Long memberId) {
