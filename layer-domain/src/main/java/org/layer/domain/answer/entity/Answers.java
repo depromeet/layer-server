@@ -2,9 +2,12 @@ package org.layer.domain.answer.entity;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.layer.domain.answer.enums.AnswerStatus;
 import org.layer.domain.answer.exception.AnswerException;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.layer.common.exception.AnswerExceptionType.*;
 
@@ -29,10 +32,22 @@ public class Answers {
                 .anyMatch(answer -> answer.getMemberId().equals(memberId));
     }
 
-    public long getWriteCount(Long retrospectId) {
-        return answers.stream()
-                .filter(answer -> answer.getRetrospectId().equals(retrospectId))
-                .count();
+    public long getWriteCount() {
+
+//        answers.stream()
+//                .filter(answer -> answer.getRetrospectId().equals(retrospectId))
+//                .count();
+
+        Set<Long> set = new HashSet<>();
+
+        answers.forEach(answer -> {
+            // 임시저장된 회고일 경우 제외
+            if (answer.getAnswerStatus() != AnswerStatus.TEMPORARY) {
+                set.add(answer.getMemberId());
+            }
+        });
+
+        return set.size();
     }
 
     public void validateNoAnswer() {
