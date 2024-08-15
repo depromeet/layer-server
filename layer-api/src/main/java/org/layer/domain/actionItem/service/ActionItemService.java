@@ -82,31 +82,30 @@ public class ActionItemService {
                 .sorted((a, b) -> b.getDeadline().compareTo(a.getDeadline()))
                 .toList();
 
-        List<RetrospectActionItemResponse> response = new ArrayList<>();
+        List<Long> doneRetrospectIds = doneRetrospects.stream().map(Retrospect::getId).toList();
+        List<ActionItem> actionItemList = actionItemRepository.findAllByRetrospectIdIn(doneRetrospectIds);
+
+        List<RetrospectActionItemResponse> responses = new ArrayList<>();
         for (Retrospect doneRetrospect : doneRetrospects) {
-            List<ActionItem> actionItems = actionItemRepository.findAllByRetrospectId(doneRetrospect.getId());
 
-            // 액션 아이템이 없는 회고는 응답에서 제외
-            // TODO: 이부분은 디자인팀에게 질문이 필요. "실행 중"인것만 데이터를 줘야하나, 아니면 실행 중 아님 & 실행 목표가 없는 애들도 다 줘야하나
-            if(actionItems.isEmpty()) {
-                continue;
-            }
+            List<ActionItemResponse> actionItems = actionItemList.stream()
+                    .filter(ai -> ai.getRetrospectId().equals(doneRetrospect.getId()))
+                    .sorted(Comparator.comparingInt(ActionItem::getActionItemOrder)) // order순 정렬
+                    .map(ActionItemResponse::of).toList();
 
-            List<ActionItemResponse> actionItemResponses = actionItems.stream()
-                    .sorted(Comparator.comparingInt(ActionItem::getActionItemOrder)) // order 순으로 정렬
-                    .map(ActionItemResponse::of)
-                    .toList();
-
-            RetrospectActionItemResponse responseElement = RetrospectActionItemResponse.builder()
+            RetrospectActionItemResponse response = RetrospectActionItemResponse.builder()
                     .retrospectId(doneRetrospect.getId())
                     .retrospectTitle(doneRetrospect.getTitle())
-                    .actionItemList(actionItemResponses)
+                    .actionItemList(actionItems)
                     .build();
 
-            response.add(responseElement);
+            responses.add(response);
         }
 
-        return SpaceRetrospectActionItemGetResponse.of(space, response);
+
+
+
+        return SpaceRetrospectActionItemGetResponse.of(space, responses);
     }
 
     @Transactional
