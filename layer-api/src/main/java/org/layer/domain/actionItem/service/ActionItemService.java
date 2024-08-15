@@ -113,8 +113,11 @@ public class ActionItemService {
     @Transactional
     public void deleteActionItem(Long memberId, Long actionItemId) {
         ActionItem actionItem = actionItemRepository.findByIdOrThrow(actionItemId);
-        // 액션 아이템을 작성한 사람이 맞는지 확인
-        actionItem.isWriter(memberId);
+        Space space = spaceRepository.findByIdOrThrow(actionItem.getSpaceId());
+
+        // 지우는 사람이 space leader인지 확인
+        space.isLeaderSpace(memberId);
+
         actionItemRepository.delete(actionItem);
     }
 

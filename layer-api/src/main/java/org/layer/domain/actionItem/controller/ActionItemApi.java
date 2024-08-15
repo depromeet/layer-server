@@ -19,10 +19,10 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@Tag(name = "액션아이템 API")
+@Tag(name = "실행 목표 API")
 public interface ActionItemApi {
-    @Operation(summary = "액션 아이템 생성", method = "POST", description = """
-            특정 회고와 매핑되는 액션 아이템을 생성합니다.
+    @Operation(summary = "실행 목표 생성", method = "POST", description = """
+            특정 회고와 매핑되는 실행 목표를 생성합니다.
             """)
     @ApiResponses({
             @ApiResponse(responseCode = "201")
@@ -33,7 +33,7 @@ public interface ActionItemApi {
 
 
     @Operation(summary = "개인의 액션 아이템 조회", method = "GET", description = """
-            회원 아이디로 개인이 작성한 모든 액션아이템을 조회합니다.
+            회원이 속한 스페이스의 모든 실행 목표를 회고 별로 조회합니다.
             """)
     @ApiResponses({
             @ApiResponse(responseCode = "200",
@@ -48,8 +48,8 @@ public interface ActionItemApi {
     )
     ResponseEntity<MemberActionItemGetResponse> memberActionItem(@MemberId Long currentMemberId);
 
-    @Operation(summary = "팀의 액션 아이템 조회", method = "GET", description = """
-            팀 아이디로 팀의 모든 액션아이템을 회고 별로 조회합니다.
+    @Operation(summary = "팀의 실행 목표 조회", method = "GET", description = """
+            팀 아이디로 팀의 모든 실행 목표를 회고 별로 조회합니다.
             정렬 기준: 최신순(데드라인 내림차순)
             """)
     @ApiResponses({
@@ -85,8 +85,8 @@ public interface ActionItemApi {
     ResponseEntity<SpaceActionItemGetResponse> spaceRecentActionItem(@MemberId Long memberId,
                                                                      @PathVariable Long spaceId);
 
-    @Operation(summary = "액션 아이템 삭제", method = "DELETE", description = """
-            액션 아이템을 삭제합니다.
+    @Operation(summary = "실행 목표 삭제", method = "DELETE", description = """
+            실행 목표를 삭제합니다.
             """)
     @ApiResponses({
             @ApiResponse(responseCode = "200")
