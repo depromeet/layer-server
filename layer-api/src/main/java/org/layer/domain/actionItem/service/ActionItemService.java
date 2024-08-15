@@ -2,10 +2,10 @@ package org.layer.domain.actionItem.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.layer.domain.actionItem.controller.dto.MemberActionItemGetResponse;
-import org.layer.domain.actionItem.controller.dto.RetrospectActionItemResponse;
-import org.layer.domain.actionItem.controller.dto.SpaceActionItemGetResponse;
-import org.layer.domain.actionItem.controller.dto.SpaceRetrospectActionItemGetResponse;
+import org.layer.domain.actionItem.controller.dto.response.MemberActionItemGetResponse;
+import org.layer.domain.actionItem.controller.dto.response.RetrospectActionItemResponse;
+import org.layer.domain.actionItem.controller.dto.response.SpaceActionItemGetResponse;
+import org.layer.domain.actionItem.controller.dto.response.SpaceRetrospectActionItemGetResponse;
 import org.layer.domain.actionItem.dto.ActionItemResponse;
 import org.layer.domain.actionItem.dto.MemberActionItemResponse;
 import org.layer.domain.actionItem.entity.ActionItem;
@@ -169,6 +169,8 @@ public class ActionItemService {
         return new MemberActionItemGetResponse(responses);
     }
 
-//    @Transactional
-//    public void updateActionItems()
+    @Transactional
+    public void updateActionItems() {
+
+    }
 }
