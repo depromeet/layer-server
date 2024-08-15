@@ -96,7 +96,7 @@ public interface ActionItemApi {
 
 
     @Operation(summary = "실행 목표 편집", method = "PATCH", description = """
-            특정 회고의 실행 목표 리스트를 편집합니다.
+            특정 회고의 실행 목표 리스트를 편집합니다. 요청 데이터 리스트의 순서를 편집된 순서와 일치하게 넘겨주세요!
             """)
     @ApiResponses({
             @ApiResponse(responseCode = "200")

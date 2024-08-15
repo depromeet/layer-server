@@ -8,7 +8,7 @@ import java.util.List;
 
 @Schema(description = "실행 목표 리스트 편집 요청 dto. 리스트의 순서를 편집된 순서와 일치하게 넘겨주세요!")
 public record ActionItemUpdateRequest(@NotNull
-                                      @Schema(description = "실행 목표와 매핑되는 회고 ID")
+                                      @Schema(description = "실행 목표 리스트")
                                       List<ActionItemUpdateElementRequest> actionItems) {
 
     @Getter
