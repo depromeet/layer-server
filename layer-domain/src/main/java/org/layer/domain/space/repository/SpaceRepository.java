@@ -21,4 +21,5 @@ public interface SpaceRepository extends JpaRepository<Space, Long>, SpaceCustom
 
     @Query("select s from Space s inner join MemberSpaceRelation ms on s.id = ms.space.id where ms.memberId = :memberId")
     List<Space> findByMemberId(@Param("memberId") Long memberId);
+
 }

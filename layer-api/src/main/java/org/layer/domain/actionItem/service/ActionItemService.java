@@ -2,8 +2,16 @@ package org.layer.domain.actionItem.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.layer.domain.actionItem.controller.dto.*;
+import org.layer.common.exception.ActionItemExceptionType;
+import org.layer.domain.actionItem.controller.dto.request.ActionItemUpdateRequest;
+import org.layer.domain.actionItem.controller.dto.response.MemberActionItemGetResponse;
+import org.layer.domain.actionItem.controller.dto.response.RetrospectActionItemResponse;
+import org.layer.domain.actionItem.controller.dto.response.SpaceActionItemGetResponse;
+import org.layer.domain.actionItem.controller.dto.response.SpaceRetrospectActionItemGetResponse;
+import org.layer.domain.actionItem.dto.ActionItemResponse;
+import org.layer.domain.actionItem.dto.MemberActionItemResponse;
 import org.layer.domain.actionItem.entity.ActionItem;
+import org.layer.domain.actionItem.exception.ActionItemException;
 import org.layer.domain.actionItem.repository.ActionItemRepository;
 import org.layer.domain.retrospect.entity.Retrospect;
 import org.layer.domain.retrospect.repository.RetrospectRepository;
@@ -15,12 +23,12 @@ import org.layer.domain.space.repository.SpaceRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
+import static org.layer.common.exception.ActionItemExceptionType.INVALID_ACTION_ITEM_LIST;
 import static org.layer.common.exception.MemberSpaceRelationExceptionType.NOT_FOUND_MEMBER_SPACE_RELATION;
-import static org.layer.domain.actionItem.enums.ActionItemStatus.PROCEEDING;
 import static org.layer.domain.retrospect.entity.RetrospectStatus.DONE;
 
 @Slf4j
@@ -36,14 +44,14 @@ public class ActionItemService {
     @Transactional
     public void createActionItem(Long memberId, Long retrospectId, String content) {
 
-        // 멤버가 해당 회고가 진행 중인 스페이스에 속하는지 확인
+        // 만드는 사람이 스페이스 리더인지 확인
         Retrospect retrospect = retrospectRepository.findByIdOrThrow(retrospectId);
-        Optional<MemberSpaceRelation> team = memberSpaceRelationRepository.findBySpaceIdAndMemberId(retrospect.getSpaceId(), memberId);
+        Space space = spaceRepository.findByIdOrThrow(retrospect.getSpaceId());
+        space.isLeaderSpace(memberId);
 
-        if(team.isEmpty()) {
-            throw new MemberSpaceRelationException(NOT_FOUND_MEMBER_SPACE_RELATION);
-        }
 
+        // order 설정을 위해 회고 아이디로 액션아이템 개수 찾기
+        int actionItemCount = actionItemRepository.countByRetrospectId(retrospectId);
 
         // 액션 아이템 생성
         actionItemRepository.save(ActionItem.builder()
@@ -51,7 +59,7 @@ public class ActionItemService {
                 .spaceId(retrospect.getSpaceId())
                 .memberId(memberId)
                 .content(content)
-                .actionItemStatus(PROCEEDING)
+                .actionItemOrder(actionItemCount + 1)
                 .build());
     }
 
@@ -74,36 +82,40 @@ public class ActionItemService {
                 .sorted((a, b) -> b.getDeadline().compareTo(a.getDeadline()))
                 .toList();
 
-        List<RetrospectActionItemResponse> response = new ArrayList<>();
+        List<Long> doneRetrospectIds = doneRetrospects.stream().map(Retrospect::getId).toList();
+        List<ActionItem> actionItemList = actionItemRepository.findAllByRetrospectIdIn(doneRetrospectIds);
+
+        List<RetrospectActionItemResponse> responses = new ArrayList<>();
         for (Retrospect doneRetrospect : doneRetrospects) {
-            List<ActionItem> actionItems = actionItemRepository.findAllByRetrospectId(doneRetrospect.getId());
 
-            // 액션 아이템이 없는 회고는 응답에서 제외
-            if(actionItems.isEmpty()) {
-                continue;
-            }
+            List<ActionItemResponse> actionItems = actionItemList.stream()
+                    .filter(ai -> ai.getRetrospectId().equals(doneRetrospect.getId()))
+                    .sorted(Comparator.comparingInt(ActionItem::getActionItemOrder)) // order순 정렬
+                    .map(ActionItemResponse::of).toList();
 
-            List<ActionItemResponse> actionItemResponses = actionItems.stream()
-                    .map(ActionItemResponse::of)
-                    .toList();
-
-            RetrospectActionItemResponse responseElement = RetrospectActionItemResponse.builder()
+            RetrospectActionItemResponse response = RetrospectActionItemResponse.builder()
                     .retrospectId(doneRetrospect.getId())
                     .retrospectTitle(doneRetrospect.getTitle())
-                    .actionItemList(actionItemResponses)
+                    .actionItemList(actionItems)
                     .build();
 
-            response.add(responseElement);
+            responses.add(response);
         }
 
-        return SpaceRetrospectActionItemGetResponse.of(space, response);
+
+
+
+        return SpaceRetrospectActionItemGetResponse.of(space, responses);
     }
 
     @Transactional
     public void deleteActionItem(Long memberId, Long actionItemId) {
         ActionItem actionItem = actionItemRepository.findByIdOrThrow(actionItemId);
-        // 액션 아이템을 작성한 사람이 맞는지 확인
-        actionItem.isWriter(memberId);
+        Space space = spaceRepository.findByIdOrThrow(actionItem.getSpaceId());
+
+        // 지우는 사람이 space leader인지 확인
+        space.isLeaderSpace(memberId);
+
         actionItemRepository.delete(actionItem);
     }
 
@@ -125,7 +137,10 @@ public class ActionItemService {
 
         if(recentOpt.isPresent()) {
             Retrospect recent = recentOpt.get();
-            List<ActionItem> actionItems = actionItemRepository.findAllByRetrospectId(recent.getId());
+            List<ActionItem> actionItems = actionItemRepository
+                    .findAllByRetrospectId(recent.getId()).stream()
+                    .sorted(Comparator.comparingInt(ActionItem::getActionItemOrder)) // order 순으로 정렬
+                    .toList();
 
             return SpaceActionItemGetResponse.of(space, recent, actionItems);
         }
@@ -135,39 +150,61 @@ public class ActionItemService {
     }
 
 
-    //== 회원의 액션 아이템 조회 ==//
+    //== 회원의 실행 목표 조회 ==//
     public MemberActionItemGetResponse getMemberActionItemList(Long currentMemberId) {
-        // 멤버가 속한 스페이스 모두 가져오기
-        List<Space> spaces = spaceRepository.findByMemberId(currentMemberId);
+        // 멤버가 속한 스페이스 정보와 회고 모두 가져오기 (회고 데드라인 내림차순)
+        List<MemberActionItemResponse> dtoList = retrospectRepository.findAllMemberActionItemResponsesByMemberId(currentMemberId);
 
-        // 끝난 회고 모두 찾기 (데드라인 내림차순)
-        List<Long> spaceIds = spaces.stream().map(Space::getId).toList();
-        List<Retrospect> doneRetrospects = retrospectRepository.findAllBySpaceIdIn(spaceIds)
-                .stream()
-                .filter(retrospect -> retrospect.getRetrospectStatus().equals(DONE))
-                .sorted((a, b) -> b.getDeadline().compareTo(a.getDeadline())) // 최근에 끝난 순으로 정렬
+        List<Long> doneRetrospectIds = dtoList.stream()
+                .map(MemberActionItemResponse::getRetrospectId)
                 .toList();
 
+        // 실행 목표 모두 찾기
+        List<ActionItem> actionItemList = actionItemRepository.findAllByRetrospectIdIn(doneRetrospectIds);
 
-        List<MemberActionItemResponse> responses = new ArrayList<>();
-        for (Retrospect doneRetrospect : doneRetrospects) {
-            // 해당 회고에 관련한 실행 목표 가져오기
-            List<ActionItem> actionItems = actionItemRepository.findAllByRetrospectId(doneRetrospect.getId());
+        for(MemberActionItemResponse dto : dtoList) {
+            List<ActionItemResponse> actionItems = actionItemList.stream()
+                    .filter(ai -> ai.getRetrospectId().equals(dto.getRetrospectId()))
+                    .sorted(Comparator.comparingInt(ActionItem::getActionItemOrder)) // order 순으로 정렬
+                    .map(ActionItemResponse::of).toList();
 
-            // 액션 아이템이 없는 회고는 응답에서 제외
-            if(actionItems.isEmpty()) {
-                continue;
-            }
-
-            List<ActionItemResponse> actionItemResponses = actionItems.stream()
-                    .map(ActionItemResponse::of)
-                    .toList();
-
-            // 회고가 어디 스페이스에 속하는지 찾기
-            Space space = spaceRepository.findByIdOrThrow(doneRetrospect.getSpaceId());
-            responses.add(MemberActionItemResponse.of(space, doneRetrospect, actionItemResponses));
+            dto.updateActionItemList(actionItems);
         }
 
-        return new MemberActionItemGetResponse(responses);
+        return new MemberActionItemGetResponse(dtoList);
+    }
+
+    //== 실행 목표 수정 ==//
+    @Transactional
+    public void updateActionItems(Long memberId, Long retrospectId, ActionItemUpdateRequest updateDto) {
+        // 실행 목표 가져오기
+        List<ActionItem> actionItems = actionItemRepository.findAllByRetrospectId(retrospectId);
+
+        // 리더인지 검증
+        Retrospect retrospect = retrospectRepository.findByIdOrThrow(retrospectId);
+        Space space = spaceRepository.findByIdOrThrow(retrospect.getSpaceId());
+        space.isLeaderSpace(memberId);
+
+        // 요청 리스트와 DB에 저장된 실행 목표 개수가 다를 때
+        if(updateDto.actionItems().size() != actionItems.size()) {
+            throw new ActionItemException(INVALID_ACTION_ITEM_LIST);
+        }
+
+
+        // O(1) 접근을 위해서 map으로 변경
+        Map<Long, ActionItem> actionItemMap = actionItems.stream().collect(Collectors.toMap(
+                ActionItem::getId,
+                actionItem -> actionItem
+        ));
+
+        AtomicInteger order = new AtomicInteger(1);
+        for(ActionItemUpdateRequest.ActionItemUpdateElementRequest updateItem : updateDto.actionItems()) {
+            ActionItem actionItem = actionItemMap.getOrDefault(updateItem.getId(), null);
+            if(actionItem == null) {
+                throw new ActionItemException(ActionItemExceptionType.INVALID_ACTION_ITEM_ID);
+            }
+            actionItem.updateContent(updateItem.getContent());
+            actionItem.updateActionItemOrder(order.getAndIncrement());
+        }
     }
 }

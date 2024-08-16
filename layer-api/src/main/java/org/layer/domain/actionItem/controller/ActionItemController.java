@@ -3,10 +3,11 @@ package org.layer.domain.actionItem.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.layer.common.annotation.MemberId;
-import org.layer.domain.actionItem.controller.dto.ActionItemCreateRequest;
-import org.layer.domain.actionItem.controller.dto.MemberActionItemGetResponse;
-import org.layer.domain.actionItem.controller.dto.SpaceActionItemGetResponse;
-import org.layer.domain.actionItem.controller.dto.SpaceRetrospectActionItemGetResponse;
+import org.layer.domain.actionItem.controller.dto.request.ActionItemCreateRequest;
+import org.layer.domain.actionItem.controller.dto.request.ActionItemUpdateRequest;
+import org.layer.domain.actionItem.controller.dto.response.MemberActionItemGetResponse;
+import org.layer.domain.actionItem.controller.dto.response.SpaceActionItemGetResponse;
+import org.layer.domain.actionItem.controller.dto.response.SpaceRetrospectActionItemGetResponse;
 import org.layer.domain.actionItem.service.ActionItemService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -62,6 +63,15 @@ public class ActionItemController implements ActionItemApi {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Void> deleteActionItem(@MemberId Long memberId, @PathVariable("actionItemId") Long actionItemId) {
         actionItemService.deleteActionItem(memberId, actionItemId);
+        return new ResponseEntity<>(null, HttpStatus.OK);
+    }
+
+    @Override
+    @PatchMapping("/retrospect/{retrospectId}/update")
+    public ResponseEntity<Void> updateActionItem(@MemberId Long memberId,
+                                          @PathVariable("retrospectId") Long retrospectId,
+                                          @RequestBody ActionItemUpdateRequest actionItemUpdateRequest) {
+        actionItemService.updateActionItems(memberId, retrospectId, actionItemUpdateRequest);
         return new ResponseEntity<>(null, HttpStatus.OK);
     }
 }
