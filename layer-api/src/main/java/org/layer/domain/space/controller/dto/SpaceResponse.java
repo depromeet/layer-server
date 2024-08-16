@@ -52,7 +52,10 @@ public class SpaceResponse {
             String bannerUrl,
 
             @Schema(description = "스페이스 생성 일자")
-            LocalDateTime createdAt
+            LocalDateTime createdAt,
+
+            @Schema(description = "스페이스 리더 아이디")
+            Long leaderId
     ) {
         public static SpaceWithMemberCountInfo toResponse(SpaceWithMemberCount space) {
             return Optional.ofNullable(space)
@@ -66,6 +69,7 @@ public class SpaceResponse {
                             .memberCount(it.getMemberCount())
                             .bannerUrl(it.getBannerUrl())
                             .createdAt(it.getCreatedAt())
+                            .leaderId(it.getLeaderId())
                             .build()
                     )
                     .orElseThrow(() -> new BaseCustomException(INVALID_REFRESH_TOKEN));
