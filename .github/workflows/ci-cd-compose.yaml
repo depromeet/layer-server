@@ -69,8 +69,8 @@ jobs:
       - name: Build ${{ env.MODULE }} module
         run: ./gradlew :${{ env.MODULE }}:build
 
-      - name: Run tests:${{ env.MODULE }}
-        run: ./gradlew :${{ env.MODULE }}:test
+      #      - name: Run tests:${{ env.MODULE }}
+      #        run: ./gradlew :${{ env.MODULE }}:test
 
       - name: login github container registry
         uses: docker/login-action@v2
