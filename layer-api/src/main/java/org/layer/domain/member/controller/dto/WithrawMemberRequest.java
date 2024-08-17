@@ -1,4 +1,4 @@
-package org.layer.domain.auth.controller.dto;
+package org.layer.domain.member.controller.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
@@ -7,7 +7,7 @@ import lombok.Builder;
 
 @Builder
 @Schema(description = "회원 탈퇴하기 요청 DTO")
-public record WithdrawMemberRequest(
+public record WithrawMemberRequest(
         @NotNull
         @Size(min = 3, max = 3)
         @Schema(title = "삭제 이유 체크박스")

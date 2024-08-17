@@ -5,11 +5,15 @@ import org.layer.common.exception.BaseCustomException;
 import org.layer.common.exception.MemberExceptionType;
 import org.layer.domain.auth.controller.dto.SignUpRequest;
 import org.layer.domain.jwt.SecurityUtil;
+import org.layer.domain.member.controller.dto.CreateFeedbackRequest;
 import org.layer.domain.member.controller.dto.UpdateMemberInfoRequest;
 import org.layer.domain.member.controller.dto.UpdateMemberInfoResponse;
 import org.layer.domain.member.entity.Member;
+import org.layer.domain.member.entity.MemberFeedback;
 import org.layer.domain.member.entity.SocialType;
 import org.layer.domain.member.repository.MemberRepository;
+import org.layer.external.google.enums.SheetType;
+import org.layer.external.google.service.GoogleApiService;
 import org.layer.oauth.dto.service.MemberInfoServiceResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +29,9 @@ import static org.layer.domain.member.entity.MemberRole.USER;
 public class MemberService {
     private final SecurityUtil securityUtil;
     private final MemberRepository memberRepository;
+
+    private final GoogleApiService googleApiService;
+
     public Member findMemberById(Long memberId) {
         return memberRepository.findById(memberId).orElse(null);
     }
@@ -46,10 +53,20 @@ public class MemberService {
     public void checkIsNewMember(String socialId, SocialType socialType) {
         Optional<Member> memberOpt = memberRepository.findBySocialIdAndSocialType(socialId, socialType);
 
-        if(memberOpt.isPresent()) {
+        if (memberOpt.isPresent()) {
             throw new BaseCustomException(NOT_A_NEW_MEMBER);
         }
     }
+
+
+    public void createFeedback(Long memberId, CreateFeedbackRequest createFeedbackRequest) {
+        var foundMemberFeedback = findFeedback(memberId);
+        if (foundMemberFeedback.isEmpty()) {
+            return;
+        }
+        googleApiService.writeFeedback(SheetType.FEEDBACK, foundMemberFeedback.get(), createFeedbackRequest.satisfaction(), createFeedbackRequest.description());
+    }
+
 
     @Transactional
     public Member saveMember(SignUpRequest signUpRequest, MemberInfoServiceResponse memberInfo) {
@@ -98,4 +115,9 @@ public class MemberService {
                 .profileImageUrl(member.getProfileImageUrl())
                 .build();
     }
+
+    public Optional<MemberFeedback> findFeedback(Long memberId) {
+        return memberRepository.findAllMemberFeedback(memberId);
+    }
+
 }

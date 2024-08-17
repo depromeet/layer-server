@@ -6,11 +6,12 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.layer.domain.common.BaseTimeEntity;
 
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Member {
+public class Member extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -36,7 +37,7 @@ public class Member {
 
 
     @Builder(access = AccessLevel.PUBLIC)
-    private Member(String name,String email, MemberRole memberRole,
+    private Member(String name, String email, MemberRole memberRole,
                    SocialType socialType, String socialId) {
         this.name = name;
         this.email = email;

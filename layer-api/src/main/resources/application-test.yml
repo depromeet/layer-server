@@ -50,6 +50,8 @@ google:
     client_secret: ${DEV_GOOGLE_CLIENT_SECRET}
     redirect_uri: ${DEV_GOOGLE_REDIRECT_URI}
     code_redirect_uri: http://localhost:8080/api/auth/oauth2/google/code
+  sheet:
+    id: ${GOOGLE_SHEET_ID}
 
 
 webmvc:
