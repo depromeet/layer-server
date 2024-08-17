@@ -1,11 +1,11 @@
-package org.layer.external.google.service;
+package org.layer.domain.external.google.service;
 
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.ValueRange;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.layer.domain.external.google.enums.SheetType;
 import org.layer.domain.member.entity.MemberFeedback;
-import org.layer.external.google.enums.SheetType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 

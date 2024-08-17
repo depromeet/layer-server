@@ -1,4 +1,4 @@
-package org.layer.external.google.enums;
+package org.layer.domain.external.google.enums;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

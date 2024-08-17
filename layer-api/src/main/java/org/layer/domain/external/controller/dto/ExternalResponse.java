@@ -3,7 +3,7 @@ package org.layer.domain.external.controller.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
-import org.layer.external.ncp.exception.ExternalException;
+import org.layer.domain.external.ncp.exception.ExternalException;
 
 import java.util.Optional;
 

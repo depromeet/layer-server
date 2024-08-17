@@ -5,14 +5,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.layer.common.exception.BaseCustomException;
 import org.layer.domain.auth.controller.dto.*;
 import org.layer.domain.auth.service.dto.ReissueTokenServiceResponse;
+import org.layer.domain.external.google.enums.SheetType;
+import org.layer.domain.external.google.service.GoogleApiService;
 import org.layer.domain.jwt.JwtToken;
 import org.layer.domain.jwt.exception.AuthExceptionType;
 import org.layer.domain.jwt.service.JwtService;
 import org.layer.domain.member.entity.Member;
 import org.layer.domain.member.entity.SocialType;
 import org.layer.domain.member.service.MemberService;
-import org.layer.external.google.enums.SheetType;
-import org.layer.external.google.service.GoogleApiService;
 import org.layer.oauth.dto.service.MemberInfoServiceResponse;
 import org.layer.oauth.service.GoogleService;
 import org.layer.oauth.service.KakaoService;
@@ -77,7 +77,7 @@ public class AuthService {
         // 구글시트 적재
         var foundMemberFeedback = memberService.findFeedback(memberId);
         if (foundMemberFeedback.isPresent()) {
-            /**
+            /*
              * 체크박스 배열을 boolean[]로써 길이 3을 고정으로 한다.
              * 0번 인덱스가 true -> +1
              * 1번 인덱스가 true -> +2

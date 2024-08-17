@@ -1,4 +1,4 @@
-package org.layer.external.ncp.service;
+package org.layer.domain.external.ncp.service;
 
 import com.amazonaws.HttpMethod;
 import com.amazonaws.services.s3.AmazonS3Client;
@@ -7,8 +7,8 @@ import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.layer.external.ncp.dto.NcpResponse;
-import org.layer.external.ncp.enums.ImageDomain;
+import org.layer.domain.external.ncp.dto.NcpResponse;
+import org.layer.domain.external.ncp.enums.ImageDomain;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 

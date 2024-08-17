@@ -1,4 +1,4 @@
-package org.layer.external.ncp.config;
+package org.layer.domain.external.ncp.config;
 
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;

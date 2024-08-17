@@ -1,4 +1,4 @@
-package org.layer.external.ncp.exception;
+package org.layer.domain.external.ncp.exception;
 
 import org.layer.common.exception.BaseCustomException;
 import org.layer.common.exception.ExceptionType;
