@@ -47,6 +47,7 @@ jobs:
       # TODO:  멀티모듈 적용시 동적 할당 필요
       MODULE: "layer-api"
       APPLICATION_SECRET_PROPERTIES: ${{ secrets.APPLICATION_SECRET_PROPERTIES }}
+      GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
 
     steps:
       - name: Setup Java
@@ -67,11 +68,8 @@ jobs:
 
       - name: Create Credentials
         run: |
-          echo "${{ secrets.GOOGLE_CREDENTIALS }}" > ./${{ env.MODULE }}/src/main/resources/credentials.json
-      - name: test
-        run: |
-          cat ./${{ env.MODULE }}/src/main/resources/credentials.json
-          
+          echo "${GOOGLE_CREDENTIALS}" > ./${{ env.MODULE }}/src/main/resources/credentials.json
+
       - name: Build ${{ env.MODULE }} module
         run: ./gradlew :${{ env.MODULE }}:build
 
