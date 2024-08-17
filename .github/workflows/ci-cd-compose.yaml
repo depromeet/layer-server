@@ -66,10 +66,6 @@ jobs:
         run: |
           echo "${APPLICATION_SECRET_PROPERTIES}" > ./${{ env.MODULE }}/src/main/resources/application-secret.properties
 
-      - name: Create Credentials
-        run: |
-          echo "${GOOGLE_CREDENTIALS}" > ./${{ env.MODULE }}/src/main/resources/credentials.json
-
       - name: Build ${{ env.MODULE }} module
         run: ./gradlew :${{ env.MODULE }}:build
 
