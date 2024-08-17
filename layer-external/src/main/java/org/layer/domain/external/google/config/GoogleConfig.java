@@ -15,12 +15,13 @@ import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.SheetsScopes;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
 
-import java.io.IOException;
+import java.io.*;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.List;
@@ -35,7 +36,8 @@ public class GoogleConfig {
 
     private final List<String> SCOPES = Collections.singletonList(SheetsScopes.SPREADSHEETS);
 
-    private final ResourceLoader resourceLoader;
+    @Value("${google.sheet.token_path}")
+    private String tokenPath;
 
     @Bean
     public Sheets getGoogleSheetService() throws GeneralSecurityException, IOException {
@@ -52,14 +54,27 @@ public class GoogleConfig {
         GoogleClientSecrets clientSecrets = createGoogleClientSecrets();
 
 
-        Resource resource = resourceLoader.getResource("classpath:tokens");
+        File tokensDirectory = new File(tokenPath);
+        if (!tokensDirectory.exists()) {
+            tokensDirectory.mkdirs();
+        }  // StoredCredential 파일을 복사
+        copyStoredCredentialFile(tokensDirectory);
 
+        log.info("{} <<<tokensDirectorytokensDirectory", tokensDirectory.getAbsolutePath());
 
         GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
                 HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
-                .setDataStoreFactory(new FileDataStoreFactory(resource.getFile()))
+                .setDataStoreFactory(new FileDataStoreFactory(tokensDirectory))
                 .setAccessType("offline")
                 .build();
+//        Resource resource = resourceLoader.getResource("classpath:tokens");
+//
+//
+//        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
+//                HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
+//                .setDataStoreFactory(new FileDataStoreFactory(resource.getFile()))
+//                .setAccessType("offline")
+//                .build();
         LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(8888).build();
         return new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
     }
@@ -75,5 +90,21 @@ public class GoogleConfig {
 
         // GoogleClientSecrets 객체 생성 및 Details 설정
         return new GoogleClientSecrets().setInstalled(details);
+    }
+
+
+    private void copyStoredCredentialFile(File tokensDirectory) throws IOException {
+        File storedCredentialFile = new File(tokensDirectory, "StoredCredential");
+        if (!storedCredentialFile.exists()) {
+            Resource storedCredentialResource = new ClassPathResource("tokens/StoredCredential");
+            try (InputStream is = storedCredentialResource.getInputStream();
+                 OutputStream os = new FileOutputStream(storedCredentialFile)) {
+                byte[] buffer = new byte[1024];
+                int length;
+                while ((length = is.read(buffer)) > 0) {
+                    os.write(buffer, 0, length);
+                }
+            }
+        }
     }
 }

@@ -52,6 +52,7 @@ google:
     code_redirect_uri: http://localhost:8080/api/auth/oauth2/google/code
   sheet:
     id: ${GOOGLE_SHEET_ID}
+    token_path: ${LOCAL_GOOGLE_TOKEN_PATH}
 
 
 webmvc:
