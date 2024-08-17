@@ -146,6 +146,7 @@ project(":layer-external") {
     jar.enabled = true
 
     dependencies {
+        implementation project(path: ':layer-api')
         implementation project(path: ':layer-common')
         implementation project(path: ':layer-domain')
 
