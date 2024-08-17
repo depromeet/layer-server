@@ -68,8 +68,10 @@ jobs:
       - name: Create Credentials
         run: |
           echo "${{ secrets.GOOGLE_CREDENTIALS }}" > ./${{ env.MODULE }}/src/main/resources/credentials.json
+      - name: test
+        run: |
+          cat ./${{ env.MODULE }}/src/main/resources/credentials.json
           
-
       - name: Build ${{ env.MODULE }} module
         run: ./gradlew :${{ env.MODULE }}:build
 
