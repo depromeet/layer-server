@@ -49,3 +49,5 @@ layer-domain/src/main/generated
 
 
 log/
+credentials.json
+layer-api/src/main/resources/tokens

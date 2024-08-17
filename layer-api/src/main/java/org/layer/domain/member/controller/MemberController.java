@@ -3,6 +3,7 @@ package org.layer.domain.member.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.layer.common.annotation.MemberId;
+import org.layer.domain.member.controller.dto.CreateFeedbackRequest;
 import org.layer.domain.member.controller.dto.UpdateMemberInfoRequest;
 import org.layer.domain.member.controller.dto.UpdateMemberInfoResponse;
 import org.layer.domain.member.service.MemberService;
@@ -22,5 +23,12 @@ public class MemberController implements MemberApi {
         UpdateMemberInfoResponse response = memberService.updateMemberInfo(memberId, updateMemberInfoRequest);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @Override
+    @PostMapping("/feedback")
+    public ResponseEntity<Void> createFeedback(@MemberId Long memberId, @Valid @RequestBody CreateFeedbackRequest createFeedbackRequest) {
+        memberService.createFeedback(memberId, createFeedbackRequest);
+        return null;
     }
 }

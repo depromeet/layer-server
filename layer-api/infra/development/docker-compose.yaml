@@ -9,6 +9,9 @@ services:
       - SPRING_PROFILES_ACTIVE=dev
     volumes:
       - ./application-secret.properties:/config/application-secret.properties
+      - ./log:/log
+      - ./tokens:/config/tokens
+      - ./credentials.json:/config/credentials.json
     networks:
       - app-network
 

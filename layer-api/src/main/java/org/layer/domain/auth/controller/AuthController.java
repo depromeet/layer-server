@@ -51,8 +51,8 @@ public class AuthController implements AuthApi {
 
     // 회원 탈퇴
     @PostMapping("/withdraw")
-    public ResponseEntity<?> withdraw(WithdrawMemberRequest withdrawMemberRequest) {
-        authService.withdraw(withdrawMemberRequest.memberId());
+    public ResponseEntity<?> withdraw(@MemberId Long memberId, WithdrawMemberRequest withdrawMemberRequest) {
+        authService.withdraw(memberId, withdrawMemberRequest);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -64,6 +64,7 @@ public class AuthController implements AuthApi {
                 ReissueTokenResponse.of(authService.reissueToken(refreshToken, reissueTokenRequest.memberId())),
                 HttpStatus.CREATED);
     }
+
 
     // 액세스 토큰으로 회원 정보 얻기
     @GetMapping("/member-info")

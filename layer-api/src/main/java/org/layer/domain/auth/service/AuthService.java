@@ -3,10 +3,7 @@ package org.layer.domain.auth.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.layer.common.exception.BaseCustomException;
-import org.layer.domain.auth.controller.dto.MemberInfoResponse;
-import org.layer.domain.auth.controller.dto.SignInResponse;
-import org.layer.domain.auth.controller.dto.SignUpRequest;
-import org.layer.domain.auth.controller.dto.SignUpResponse;
+import org.layer.domain.auth.controller.dto.*;
 import org.layer.domain.auth.service.dto.ReissueTokenServiceResponse;
 import org.layer.domain.jwt.JwtToken;
 import org.layer.domain.jwt.exception.AuthExceptionType;
@@ -14,11 +11,15 @@ import org.layer.domain.jwt.service.JwtService;
 import org.layer.domain.member.entity.Member;
 import org.layer.domain.member.entity.SocialType;
 import org.layer.domain.member.service.MemberService;
+import org.layer.external.google.enums.SheetType;
+import org.layer.external.google.service.GoogleApiService;
 import org.layer.oauth.dto.service.MemberInfoServiceResponse;
 import org.layer.oauth.service.GoogleService;
 import org.layer.oauth.service.KakaoService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.stream.IntStream;
 
 
 @Slf4j
@@ -29,6 +30,10 @@ public class AuthService {
     private final GoogleService googleService;
     private final JwtService jwtService;
     private final MemberService memberService;
+
+
+    private final GoogleApiService googleApiService;
+
     //== 로그인 ==//
     @Transactional
     public SignInResponse signIn(final String socialAccessToken, final SocialType socialType) {
@@ -67,7 +72,25 @@ public class AuthService {
 
     //== 회원 탈퇴 ==//
     @Transactional
-    public void withdraw(final Long memberId) {
+    public void withdraw(final Long memberId, WithdrawMemberRequest withdrawMemberRequest) {
+
+        // 구글시트 적재
+        var foundMemberFeedback = memberService.findFeedback(memberId);
+        if (foundMemberFeedback.isPresent()) {
+            /**
+             * 체크박스 배열을 boolean[]로써 길이 3을 고정으로 한다.
+             * 0번 인덱스가 true -> +1
+             * 1번 인덱스가 true -> +2
+             * 3번 인덱스가 true -> +4
+             */
+            var score = IntStream.range(0, 3)
+                    .filter(i -> Boolean.TRUE.equals(withdrawMemberRequest.booleans()[i]))
+                    .map(i -> (int) Math.pow(2, i))
+                    .sum();
+            googleApiService.writeFeedback(SheetType.WITHDRAW, foundMemberFeedback.get(), score, withdrawMemberRequest.description());
+        }
+
+
         // hard delete
         memberService.withdrawMember(memberId);
     }
@@ -104,7 +127,7 @@ public class AuthService {
     // 현재 로그인 된 사용자와 해당 멤버 아이디가 일치하는지 확인
     private void isValidMember(Long memberId) {
         Member currentMember = memberService.getCurrentMember();
-        if(!currentMember.getId().equals(memberId)) {
+        if (!currentMember.getId().equals(memberId)) {
             throw new BaseCustomException(AuthExceptionType.FORBIDDEN);
         }
     }

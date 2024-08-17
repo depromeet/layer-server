@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.layer.common.annotation.MemberId;
 import org.layer.domain.auth.controller.dto.*;
 import org.springframework.http.ResponseEntity;
@@ -24,18 +25,18 @@ public interface AuthApi {
                             @Header(name = "X-AUTH-TOKEN", description = "소셜 액세스 토큰(Bearer 없이 토큰만)", schema = @Schema(type = "string", format = "jwt"), required = true)
                     },
                     content = @Content(mediaType = "application/json", examples = {
-                            @ExampleObject(name="로그인 성공", value = """
-                    {
-                        "memberId": 3,
-                        "name": "김회고",
-                        "email": "kimlayer@kakao.com",
-                        "memberRole": "USER",
-                        "socialId": "123456789",
-                        "socialType": "KAKAO",
-                        "accessToken": "[토큰값]",
-                        "imageUrl": null
-                    }
-                    """
+                            @ExampleObject(name = "로그인 성공", value = """
+                                    {
+                                        "memberId": 3,
+                                        "name": "김회고",
+                                        "email": "kimlayer@kakao.com",
+                                        "memberRole": "USER",
+                                        "socialId": "123456789",
+                                        "socialType": "KAKAO",
+                                        "accessToken": "[토큰값]",
+                                        "imageUrl": null
+                                    }
+                                    """
                             )
                     })),
             @ApiResponse(responseCode = "400", description = "로그인 실패 - 토큰이 유효하지 않음",
@@ -43,12 +44,12 @@ public interface AuthApi {
                             @Header(name = "X-AUTH-TOKEN", description = "소셜 액세스 토큰(Bearer 없이 토큰만)", schema = @Schema(type = "string", format = "jwt"), required = true)
                     },
                     content = @Content(mediaType = "application/json", examples = {
-                            @ExampleObject(name="토큰이 유효하지 않음", value = """
-                    {
-                        "name": "FAIL_TO_AUTH",
-                        "message": "인증에 실패했습니다."
-                    }
-                    """
+                            @ExampleObject(name = "토큰이 유효하지 않음", value = """
+                                    {
+                                        "name": "FAIL_TO_AUTH",
+                                        "message": "인증에 실패했습니다."
+                                    }
+                                    """
                             )
                     })),
             @ApiResponse(responseCode = "404", description = "로그인 실패 - 회원이 DB에 없음",
@@ -56,12 +57,12 @@ public interface AuthApi {
                             @Header(name = "X-AUTH_TOKEN", description = "소셜 액세스 토큰(Bearer 없이 토큰만)", schema = @Schema(type = "string", format = "jwt"), required = true)
                     },
                     content = @Content(mediaType = "application/json", examples = {
-                            @ExampleObject(name="회원이 DB에 없음", value = """
-                    {
-                        "name": "NOT_FOUND_USER",
-                        "message": "유효한 유저를 찾지 못했습니다."
-                    }
-                    """
+                            @ExampleObject(name = "회원이 DB에 없음", value = """
+                                    {
+                                        "name": "NOT_FOUND_USER",
+                                        "message": "유효한 유저를 찾지 못했습니다."
+                                    }
+                                    """
                             )
                     }))
     })
@@ -74,18 +75,18 @@ public interface AuthApi {
                             @Header(name = "X-AUTH_TOKEN", description = "소셜 액세스 토큰(Bearer 없이 토큰만)", schema = @Schema(type = "string", format = "jwt"), required = true)
                     },
                     content = @Content(mediaType = "application/json", examples = {
-                            @ExampleObject(name="회원 가입 성공. 유저의 정보를 리턴", value = """
-                    {
-                        "memberId": 3,
-                        "name": "김회고",
-                        "email": "kimlayer@kakao.com",
-                        "memberRole": "USER",
-                        "socialId": "123456789",
-                        "socialType": "KAKAO",
-                        "accessToken": "[토큰값]",
-                        "imageUrl": null
-                    }
-                    """
+                            @ExampleObject(name = "회원 가입 성공. 유저의 정보를 리턴", value = """
+                                    {
+                                        "memberId": 3,
+                                        "name": "김회고",
+                                        "email": "kimlayer@kakao.com",
+                                        "memberRole": "USER",
+                                        "socialId": "123456789",
+                                        "socialType": "KAKAO",
+                                        "accessToken": "[토큰값]",
+                                        "imageUrl": null
+                                    }
+                                    """
                             )
                     })),
             @ApiResponse(responseCode = "400", description = "회원가입 실패",
@@ -93,19 +94,19 @@ public interface AuthApi {
                             @Header(name = "X-AUTH-TOKEN", description = "소셜 액세스 토큰", schema = @Schema(type = "string", format = "jwt"), required = true)
                     },
                     content = @Content(mediaType = "application/json", examples = {
-                            @ExampleObject(name="이미 가입된 회원", value = """
-                            {
-                                "name": "NOT_A_NEW_MEMBER",
-                                "message": "이미 가입된 회원입니다."
-                            }
-                    """
+                            @ExampleObject(name = "이미 가입된 회원", value = """
+                                            {
+                                                "name": "NOT_A_NEW_MEMBER",
+                                                "message": "이미 가입된 회원입니다."
+                                            }
+                                    """
                             ),
-                            @ExampleObject(name="토큰이 유효하지 않음", value = """
-                            {
-                                "name": "FAIL_TO_AUTH",
-                                "message": "인증에 실패했습니다."
-                            }
-                            """)
+                            @ExampleObject(name = "토큰이 유효하지 않음", value = """
+                                    {
+                                        "name": "FAIL_TO_AUTH",
+                                        "message": "인증에 실패했습니다."
+                                    }
+                                    """)
                     }))
     })
     public ResponseEntity<SignUpResponse> signUp(@RequestHeader("Authorization") final String socialAccessToken, @RequestBody final SignUpRequest signUpRequest);
@@ -117,18 +118,18 @@ public interface AuthApi {
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "토큰 재발급 성공",
                     content = @Content(mediaType = "application/json", examples = {
-                            @ExampleObject(name="토큰 재발급 성공(리프레시 토큰이 DB에 남아있음, 기한 2주)", value = """
-                    {
-                        "memberId": 4,
-                        "name": "김세정",
-                        "email": "clearrworld@kakao.com",
-                        "memberRole": "USER",
-                        "socialId": "3612007072",
-                        "socialType": "KAKAO",
-                        "accessToken": "[토큰 값]",
-                        "refreshToken": "[토큰 값]"
-                    }
-                    """
+                            @ExampleObject(name = "토큰 재발급 성공(리프레시 토큰이 DB에 남아있음, 기한 2주)", value = """
+                                    {
+                                        "memberId": 4,
+                                        "name": "김세정",
+                                        "email": "clearrworld@kakao.com",
+                                        "memberRole": "USER",
+                                        "socialId": "3612007072",
+                                        "socialType": "KAKAO",
+                                        "accessToken": "[토큰 값]",
+                                        "refreshToken": "[토큰 값]"
+                                    }
+                                    """
                             )
                     })),
             @ApiResponse(responseCode = "401", description = "토큰 재발급 실패",
@@ -136,19 +137,19 @@ public interface AuthApi {
                             @Header(name = "Refresh", description = "자체 refresh token", schema = @Schema(type = "string", format = "jwt"), required = true)
                     },
                     content = @Content(mediaType = "application/json", examples = {
-                            @ExampleObject(name="토큰 재발급 실패(리프레시 토큰이 DB에 없음)", value = """
-                    {
-                      "name": "NOT_FOUND_USER",
-                      "message": "유효한 유저를 찾지 못했습니다."
-                    }
-                    """
+                            @ExampleObject(name = "토큰 재발급 실패(리프레시 토큰이 DB에 없음)", value = """
+                                    {
+                                      "name": "NOT_FOUND_USER",
+                                      "message": "유효한 유저를 찾지 못했습니다."
+                                    }
+                                    """
                             ),
-                    @ExampleObject(name="토큰 재발급 실패(잘못된 리프레시 토큰)", value = """
-                    {
-                        "name": "INVALID_REFRESH_TOKEN",
-                        "message": "refresh token이 유효하지 않습니다."
-                    }
-                    """
+                            @ExampleObject(name = "토큰 재발급 실패(잘못된 리프레시 토큰)", value = """
+                                    {
+                                        "name": "INVALID_REFRESH_TOKEN",
+                                        "message": "refresh token이 유효하지 않습니다."
+                                    }
+                                    """
                             )
                     }))
     })
@@ -161,22 +162,22 @@ public interface AuthApi {
             headers = {
                     @Header(name = "Authorization", description = "자체 jwt 액세스 토큰", schema = @Schema(type = "string", format = "jwt"), required = true)
             })
-    public ResponseEntity<?> withdraw(WithdrawMemberRequest withdrawMemberRequest);
+    public ResponseEntity<?> withdraw(@MemberId Long memberId, @Valid @RequestBody WithdrawMemberRequest withdrawMemberRequest);
 
     @Operation(summary = "회원 정보 얻기", description = "header Authorization에 Bearer [액세스토큰]을 넣어 인증하면 회원 정보를 얻을 수 있습니다.")
     @ApiResponse(responseCode = "200", description = "회원 정보 얻기 성공",
             content = @Content(mediaType = "application/json", examples = {
-                    @ExampleObject(name="회원 정보 얻기 성공", value = """
-                    {
-                        "memberId": 3,
-                        "name": "김회고",
-                        "email": "kimlayer@kakao.com",
-                        "memberRole": "USER",
-                        "socialId": "123456789",
-                        "socialType": "KAKAO",
-                        "imageUrl": null
-                    }
-                    """)}))
+                    @ExampleObject(name = "회원 정보 얻기 성공", value = """
+                            {
+                                "memberId": 3,
+                                "name": "김회고",
+                                "email": "kimlayer@kakao.com",
+                                "memberRole": "USER",
+                                "socialId": "123456789",
+                                "socialType": "KAKAO",
+                                "imageUrl": null
+                            }
+                            """)}))
     public MemberInfoResponse getMemberInfo(@MemberId Long memberId);
 
     // TODO: 토큰 확인용 임시 API 추후 삭제
