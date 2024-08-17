@@ -35,10 +35,13 @@ public record TemplateDetailInfoResponse(
 
         @Schema(description = "템플릿 질문과 그 설명 리스트")
         @NotNull
-        List<TemplateDetailQuestionResponse> templateDetailQuestionList // 질문(회고 과정)에 대한 설명
+        List<TemplateDetailQuestionResponse> templateDetailQuestionList, // 질문(회고 과정)에 대한 설명
+
+        @Schema(description = "템플릿 목적 태그 리스트")
+        List<TemplatePurposeResponse> templatePurposeResponseList // 질문(회고 과정)에 대한 설명
 
 ) {
-    public static TemplateDetailInfoResponse toResponse(Form form, TemplateMetadata templateMetadata, List<TemplateDetailQuestionResponse> templateQuestionList) {
+    public static TemplateDetailInfoResponse toResponse(Form form, TemplateMetadata templateMetadata, List<TemplateDetailQuestionResponse> templateQuestionList, List<TemplatePurposeResponse> templatePurposeResponseList) {
         return TemplateDetailInfoResponse.builder()
                 .id(form.getId())
                 .title(form.getTitle())
@@ -48,6 +51,7 @@ public record TemplateDetailInfoResponse(
                 .tipTitle(templateMetadata.getTipTitle())
                 .tipDescription(templateMetadata.getTipDescription())
                 .templateDetailQuestionList(templateQuestionList)
+                .templatePurposeResponseList(templatePurposeResponseList)
                 .build();
     }
 }

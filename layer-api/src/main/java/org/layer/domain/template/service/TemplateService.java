@@ -8,11 +8,14 @@ import org.layer.domain.question.entity.Question;
 import org.layer.domain.question.repository.QuestionRepository;
 import org.layer.domain.template.controller.dto.TemplateDetailInfoResponse;
 import org.layer.domain.template.controller.dto.TemplateDetailQuestionResponse;
+import org.layer.domain.template.controller.dto.TemplatePurposeResponse;
 import org.layer.domain.template.controller.dto.TemplateSimpleInfoResponse;
 import org.layer.domain.template.entity.QuestionDescription;
 import org.layer.domain.template.entity.TemplateMetadata;
+import org.layer.domain.template.entity.TemplatePurpose;
 import org.layer.domain.template.repository.QuestionDescriptionRepository;
 import org.layer.domain.template.repository.TemplateMetadataRepository;
+import org.layer.domain.template.repository.TemplatePurposeRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,6 +30,7 @@ public class TemplateService {
     private final TemplateMetadataRepository templateMetadataRepository;
     private final QuestionRepository questionRepository;
     private final QuestionDescriptionRepository questionDescriptionRepository;
+    private final TemplatePurposeRepository templatePurposeRepository;
 
     //== 간단 정보 단건 조회 ==//
     public TemplateSimpleInfoResponse getTemplateSimpleInfo(Long formId) {
@@ -41,7 +45,9 @@ public class TemplateService {
         TemplateMetadata template = templateMetadataRepository.findByFormIdOrThrow(formId);
         List<Question> questionList = questionRepository.findAllByFormId(formId);
 
+        List<TemplatePurpose> templatePurposeList = templatePurposeRepository.findAllByFormId(formId);
 
+        List<TemplatePurposeResponse> templatePurposeResponses = templatePurposeList.stream().map(TemplatePurposeResponse::toResponse).toList();
         List<TemplateDetailQuestionResponse> questionDesList = questionList.stream().map(q -> {
             QuestionDescription description = questionDescriptionRepository.findByQuestionIdOrThrow(q.getId());
             return TemplateDetailQuestionResponse.builder()
@@ -50,7 +56,7 @@ public class TemplateService {
                     .description(description.getDescription()).build();
         }).toList();
 
-        return TemplateDetailInfoResponse.toResponse(form, template, questionDesList);
+        return TemplateDetailInfoResponse.toResponse(form, template, questionDesList, templatePurposeResponses);
     }
 
 
