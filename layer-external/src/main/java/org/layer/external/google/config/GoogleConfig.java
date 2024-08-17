@@ -31,7 +31,6 @@ import java.util.List;
 public class GoogleConfig {
     private final GoogleCredentials googleCredentials;
 
-    private final String APPLICATION_NAME = "Google Sheets API Java Quickstart";
     private final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
 
     private final List<String> SCOPES = Collections.singletonList(SheetsScopes.SPREADSHEETS);
@@ -42,6 +41,7 @@ public class GoogleConfig {
     public Sheets getGoogleSheetService() throws GeneralSecurityException, IOException {
         final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
 
+        String APPLICATION_NAME = "Google Sheets API Java Quickstart";
         return new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
                 .setApplicationName(APPLICATION_NAME)
                 .build();
