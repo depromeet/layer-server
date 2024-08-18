@@ -27,6 +27,7 @@ public class Answer {
     private Long memberId;
 
     @NotNull
+    @Column(columnDefinition = "TEXT")
     private String content;
 
     @NotNull

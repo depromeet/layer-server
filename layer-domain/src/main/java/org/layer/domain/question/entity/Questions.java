@@ -26,4 +26,12 @@ public class Questions {
 			.findAny()
 			.orElseThrow(() -> new QuestionException(INVALID_QUESTION));
 	}
+
+	public Long extractEssentialQuestionIdBy(QuestionType number) {
+		return questions.stream()
+			.filter(q -> q.getQuestionType().equals(number))
+			.mapToLong(Question::getId)
+			.findAny()
+			.orElseThrow(() -> new QuestionException(NOT_INCLUDED_ESSENTIAL_QUESTION));
+	}
 }
