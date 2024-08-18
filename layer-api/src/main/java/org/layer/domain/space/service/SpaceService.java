@@ -24,8 +24,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.layer.common.exception.MemberSpaceRelationExceptionType.NOT_FOUND_MEMBER_SPACE_RELATION;
-import static org.layer.common.exception.SpaceExceptionType.NOT_FOUND_SPACE;
-import static org.layer.common.exception.SpaceExceptionType.SPACE_ALREADY_JOINED;
+import static org.layer.common.exception.SpaceExceptionType.*;
 
 @Service
 @RequiredArgsConstructor
@@ -122,7 +121,10 @@ public class SpaceService {
         /*
           스페이스 팀장 여부 확인
          */
-        foundSpace.isLeaderSpace(memberId);
+        if (foundSpace.getLeaderId().equals(memberId)) {
+            throw new SpaceException(SPACE_LEADER_CANNOT_LEAVE);
+        }
+
 
         /*
           개인 스페이스의 경우, 이탈 시 Space 엔티티의 로직이 된다.
