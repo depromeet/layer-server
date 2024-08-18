@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import org.layer.common.dto.Meta;
 import org.layer.common.exception.BaseCustomException;
+import org.layer.domain.space.dto.Leader;
 import org.layer.domain.space.dto.SpaceMember;
 import org.layer.domain.space.dto.SpaceWithMemberCount;
 import org.layer.domain.space.entity.SpaceCategory;
@@ -55,7 +56,7 @@ public class SpaceResponse {
             LocalDateTime createdAt,
 
             @Schema(description = "스페이스 리더 아이디")
-            Long leaderId
+            Leader leader
     ) {
         public static SpaceWithMemberCountInfo toResponse(SpaceWithMemberCount space) {
             return Optional.ofNullable(space)
@@ -69,7 +70,7 @@ public class SpaceResponse {
                             .memberCount(it.getMemberCount())
                             .bannerUrl(it.getBannerUrl())
                             .createdAt(it.getCreatedAt())
-                            .leaderId(it.getLeaderId())
+                            .leader(space.getLeader())
                             .build()
                     )
                     .orElseThrow(() -> new BaseCustomException(INVALID_REFRESH_TOKEN));
