@@ -50,17 +50,8 @@ public class SpaceRepositoryImpl implements SpaceCustomRepository {
     @Override
     public Optional<SpaceWithMemberCount> findByIdAndJoinedMemberId(Long spaceId, Long memberId) {
 
-        var query = getSpaceWithMemberCountQuery();
+        var foundSpace = getSpaceWithMemberCountQuery().where(memberSpaceRelation.memberId.eq(memberId).and(space.id.eq(spaceId))).fetchOne();
 
-        if (memberId != null) {
-            query = query.where(memberSpaceRelation.memberId.eq(memberId));
-        }
-
-        SpaceWithMemberCount foundSpace = query
-                .groupBy(space.id, space.createdAt, space.updatedAt, space.category,
-                        space.fieldList, space.name, space.introduction, member,
-                        space.formId, space.bannerUrl)
-                .fetchOne();
 
         if (foundSpace == null || isSpaceWithMemberCountEmpty(foundSpace)) {
             return Optional.empty();
