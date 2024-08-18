@@ -27,6 +27,7 @@ import org.layer.domain.space.repository.SpaceRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -191,7 +192,9 @@ public class ActionItemService {
 
             dto.updateActionItemList(actionItems);
             dto.updateStatus(status);
-            dto.updateAnsweredAt(answerList.get(0).getCreatedAt());
+
+            LocalDateTime answeredAt = answerList.isEmpty() ? null : answerList.get(0).getCreatedAt();
+            dto.updateAnsweredAt(answeredAt);
 
         }
 
