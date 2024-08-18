@@ -191,6 +191,7 @@ public class ActionItemService {
 
             dto.updateActionItemList(actionItems);
             dto.updateStatus(status);
+            dto.updateAnsweredAt(answerList.get(0).getCreatedAt());
 
         }
 
