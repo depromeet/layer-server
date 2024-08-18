@@ -50,9 +50,16 @@ public class SpaceRepositoryImpl implements SpaceCustomRepository {
     @Override
     public Optional<SpaceWithMemberCount> findByIdAndJoinedMemberId(Long spaceId, Long memberId) {
 
-        var foundSpace = getSpaceWithMemberCountQuery()
-                .where(space.id.eq(spaceId)
-                        .and(memberSpaceRelation.memberId.eq(memberId)))
+        var query = getSpaceWithMemberCountQuery();
+
+        if (memberId != null) {
+            query = query.where(memberSpaceRelation.memberId.eq(memberId));
+        }
+
+        SpaceWithMemberCount foundSpace = query
+                .groupBy(space.id, space.createdAt, space.updatedAt, space.category,
+                        space.fieldList, space.name, space.introduction, member,
+                        space.formId, space.bannerUrl)
                 .fetchOne();
 
         if (foundSpace == null || isSpaceWithMemberCountEmpty(foundSpace)) {
@@ -107,7 +114,7 @@ public class SpaceRepositoryImpl implements SpaceCustomRepository {
                                 space.fieldList,
                                 space.name,
                                 space.introduction,
-                                space.leaderId,
+                                member,
                                 space.formId,
                                 memberCountRelationTable.space.id.count().as("memberCount"),
                                 space.bannerUrl
@@ -115,6 +122,7 @@ public class SpaceRepositoryImpl implements SpaceCustomRepository {
                 .from(space)
                 .leftJoin(memberSpaceRelation).on(space.id.eq(memberSpaceRelation.space.id))
                 .leftJoin(memberCountRelationTable).on(space.id.eq(memberCountRelationTable.space.id))
+                .leftJoin(member).on(space.leaderId.eq(member.id))
                 .leftJoin(form).on(space.formId.eq(form.spaceId));
 
     }
