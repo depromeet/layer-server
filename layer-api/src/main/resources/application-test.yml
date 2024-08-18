@@ -70,3 +70,9 @@ ncp:
     endpoint: ${STORAGE_ENDPOINT}
     accessKey: ${STORAGE_ACCESS_KEY}
     secretKey: ${STORAGE_SECRET_KEY}
+
+openai:
+  systemContent: ${OPENAI_SYSTEM_CONTENT}
+  apiKey: ${OPENAI_API_KEY}
+  model: ${OPENAI_MODEL}
+  maxTokens: ${OPENAI_MAX_TOKENS}
