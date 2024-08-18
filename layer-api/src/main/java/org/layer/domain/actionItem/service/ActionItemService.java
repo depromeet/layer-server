@@ -11,8 +11,12 @@ import org.layer.domain.actionItem.controller.dto.response.SpaceRetrospectAction
 import org.layer.domain.actionItem.dto.ActionItemResponse;
 import org.layer.domain.actionItem.dto.MemberActionItemResponse;
 import org.layer.domain.actionItem.entity.ActionItem;
+import org.layer.domain.actionItem.enums.ActionItemStatus;
 import org.layer.domain.actionItem.exception.ActionItemException;
 import org.layer.domain.actionItem.repository.ActionItemRepository;
+import org.layer.domain.answer.entity.Answer;
+import org.layer.domain.answer.enums.AnswerStatus;
+import org.layer.domain.answer.repository.AnswerRepository;
 import org.layer.domain.retrospect.entity.Retrospect;
 import org.layer.domain.retrospect.repository.RetrospectRepository;
 import org.layer.domain.space.entity.MemberSpaceRelation;
@@ -23,6 +27,7 @@ import org.layer.domain.space.repository.SpaceRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -40,6 +45,7 @@ public class ActionItemService {
     private final RetrospectRepository retrospectRepository;
     private final MemberSpaceRelationRepository memberSpaceRelationRepository;
     private final SpaceRepository spaceRepository;
+    private final AnswerRepository answerRepository;
 
     @Transactional
     public void createActionItem(Long memberId, Long retrospectId, String content) {
@@ -150,6 +156,8 @@ public class ActionItemService {
     }
 
 
+
+
     //== 회원의 실행 목표 조회 ==//
     public MemberActionItemGetResponse getMemberActionItemList(Long currentMemberId) {
         // 멤버가 속한 스페이스 정보와 회고 모두 가져오기 (회고 데드라인 내림차순)
@@ -162,13 +170,32 @@ public class ActionItemService {
         // 실행 목표 모두 찾기
         List<ActionItem> actionItemList = actionItemRepository.findAllByRetrospectIdIn(doneRetrospectIds);
 
+
+        Set<Long> spaceIdSet = new HashSet<>();
         for(MemberActionItemResponse dto : dtoList) {
             List<ActionItemResponse> actionItems = actionItemList.stream()
                     .filter(ai -> ai.getRetrospectId().equals(dto.getRetrospectId()))
                     .sorted(Comparator.comparingInt(ActionItem::getActionItemOrder)) // order 순으로 정렬
                     .map(ActionItemResponse::of).toList();
 
+            // 답변 찾기
+            List<Answer> answerList = answerRepository.findAllByRetrospectIdAndMemberIdAndAnswerStatus(dto.getRetrospectId(), currentMemberId, AnswerStatus.DONE);
+
+            // 상태 확인
+            ActionItemStatus status;
+            if(spaceIdSet.contains(dto.getSpaceId())) {
+                status = ActionItemStatus.DONE;
+            } else {
+                spaceIdSet.add(dto.getSpaceId());
+                status = ActionItemStatus.PROCEEDING;
+            }
+
             dto.updateActionItemList(actionItems);
+            dto.updateStatus(status);
+
+            LocalDateTime answeredAt = answerList.isEmpty() ? null : answerList.get(0).getCreatedAt();
+            dto.updateAnsweredAt(answeredAt);
+
         }
 
         return new MemberActionItemGetResponse(dtoList);
