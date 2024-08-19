@@ -13,6 +13,7 @@ import org.layer.domain.form.entity.Form;
 import org.layer.domain.form.exception.FormException;
 import org.layer.domain.form.repository.FormRepository;
 import org.layer.domain.question.entity.Question;
+import org.layer.domain.question.enums.QuestionType;
 import org.layer.domain.question.repository.QuestionRepository;
 import org.layer.domain.space.entity.MemberSpaceRelation;
 import org.layer.domain.space.entity.Space;
@@ -44,8 +45,13 @@ public class FormService {
 	private final TemplateMetadataRepository metadataRepository;
 
 	private static final int MIN = 10000;
-	private static final int MAX = 10002;
+	private static final int MAX = 10005;
 
+	/**
+	 * 회고 폼 질문을 조회한다.
+	 *
+	 * @apiNote 필수질문(답변이 텍스트가 아닌 질문)은 모두 제외
+	 * */
 	public FormGetResponse getForm(Long formId, Long memberId) {
 		Form form = formRepository.findByIdOrThrow(formId);
 
@@ -58,6 +64,7 @@ public class FormService {
 		List<Question> questions = questionRepository.findAllByFormId(formId);
 
 		List<QuestionGetResponse> questionResponses = questions.stream()
+			.filter(question -> question.getQuestionType().equals(QuestionType.PLAIN_TEXT))
 			.map(question -> QuestionGetResponse.of(question.getContent(),
 				question.getQuestionType().getStyle()))
 			.toList();
