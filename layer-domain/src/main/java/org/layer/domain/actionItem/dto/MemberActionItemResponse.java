@@ -27,7 +27,8 @@ public class MemberActionItemResponse {
     @NotNull
     String spaceName;
     @NotNull
-    LocalDateTime answeredAt;
+    LocalDateTime deadline;
+
     @NotNull
     ActionItemStatus status;
 
@@ -38,7 +39,6 @@ public class MemberActionItemResponse {
     public MemberActionItemResponse(Space space,
                                     Retrospect retrospect,
                                     List<ActionItem> actionItemList,
-                                    LocalDateTime answeredAt,
                                     ActionItemStatus status) {
         List<ActionItemResponse> actionItemResList = actionItemList.stream().map(ActionItemResponse::of).toList();
 
@@ -47,7 +47,7 @@ public class MemberActionItemResponse {
         this.spaceId = space.getId();
         this.spaceName = space.getName();
         this.actionItemList = actionItemResList;
-        this.answeredAt = answeredAt;
+        this.deadline = retrospect.getDeadline();
         this.status = status;
     }
 
@@ -56,15 +56,12 @@ public class MemberActionItemResponse {
         this.retrospectId = retrospect.getId();
         this.retrospectTitle = retrospect.getTitle();
         this.spaceId = space.getId();
+        this.deadline = retrospect.getDeadline();
         this.spaceName = space.getName();
     }
 
     public void updateActionItemList(List<ActionItemResponse> actionItemList) {
         this.actionItemList = actionItemList;
-    }
-
-    public void updateAnsweredAt(LocalDateTime answeredAt) {
-        this.answeredAt = answeredAt;
     }
 
     public void updateStatus(ActionItemStatus status) {
