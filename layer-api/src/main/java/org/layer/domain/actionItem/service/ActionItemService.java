@@ -225,7 +225,6 @@ public class ActionItemService {
             dto.updateStatus(status);
 
             LocalDateTime answeredAt = answerList.isEmpty() ? null : answerList.get(0).getCreatedAt();
-            dto.updateAnsweredAt(answeredAt);
 
         }
 
