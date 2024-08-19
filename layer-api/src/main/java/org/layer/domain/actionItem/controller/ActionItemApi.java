@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.layer.common.annotation.MemberId;
+import org.layer.domain.actionItem.controller.dto.request.ActionItemCreateBySpaceIdRequest;
 import org.layer.domain.actionItem.controller.dto.request.ActionItemCreateRequest;
 import org.layer.domain.actionItem.controller.dto.request.ActionItemUpdateRequest;
 import org.layer.domain.actionItem.controller.dto.response.MemberActionItemGetResponse;
@@ -105,4 +106,14 @@ public interface ActionItemApi {
     ResponseEntity<Void> updateActionItem(@MemberId Long memberId,
                                           @PathVariable("retrospectId") Long retrospectId,
                                           @RequestBody ActionItemUpdateRequest actionItemUpdateRequest);
+
+    @Operation(summary = "스페이스 아이디로 실행 목표 생성", method = "POST", description = """
+            특정 스페이스에서 "실행 중"인 회고(=가장 최근 종료된 회고)
+            """)
+    @ApiResponses({
+            @ApiResponse(responseCode = "201")
+    }
+    )
+    ResponseEntity<Void> createActionItemBySpaceId(@MemberId Long memberId,
+                                                   @Validated @RequestBody ActionItemCreateBySpaceIdRequest actionItemCreateRequest);
 }

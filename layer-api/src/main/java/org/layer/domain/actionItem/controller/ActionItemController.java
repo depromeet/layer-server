@@ -3,6 +3,7 @@ package org.layer.domain.actionItem.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.layer.common.annotation.MemberId;
+import org.layer.domain.actionItem.controller.dto.request.ActionItemCreateBySpaceIdRequest;
 import org.layer.domain.actionItem.controller.dto.request.ActionItemCreateRequest;
 import org.layer.domain.actionItem.controller.dto.request.ActionItemUpdateRequest;
 import org.layer.domain.actionItem.controller.dto.response.MemberActionItemGetResponse;
@@ -73,5 +74,17 @@ public class ActionItemController implements ActionItemApi {
                                           @RequestBody ActionItemUpdateRequest actionItemUpdateRequest) {
         actionItemService.updateActionItems(memberId, retrospectId, actionItemUpdateRequest);
         return new ResponseEntity<>(null, HttpStatus.OK);
+    }
+
+    @Override
+    @PostMapping("/create/space/{spaceId}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Void> createActionItemBySpaceId(@MemberId Long memberId,
+                                                 @Validated @RequestBody ActionItemCreateBySpaceIdRequest actionItemCreateRequest) {
+        actionItemService.createActionItemBySpaceId(memberId,
+                actionItemCreateRequest.spaceId(),
+                actionItemCreateRequest.content());
+
+        return new ResponseEntity<>(null, HttpStatus.CREATED);
     }
 }
