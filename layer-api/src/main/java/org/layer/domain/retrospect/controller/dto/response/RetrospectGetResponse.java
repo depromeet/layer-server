@@ -21,10 +21,8 @@ public record RetrospectGetResponse(
         long writeCount,
         @Schema(description = "전체 인원", example = "10")
         long totalCount,
-
         @Schema(description = "회고 생성 일자")
         LocalDateTime createdAt,
-
         @Schema(description = "회고 종료 일자")
         LocalDateTime deadline
 ) {
