@@ -1,6 +1,9 @@
 package org.layer.domain.answer.service;
 
 import lombok.RequiredArgsConstructor;
+
+import org.layer.domain.analyze.entity.Analyze;
+import org.layer.domain.analyze.repository.AnalyzeRepository;
 import org.layer.domain.answer.controller.dto.request.AnswerCreateRequest;
 import org.layer.domain.answer.controller.dto.request.AnswerListCreateRequest;
 import org.layer.domain.answer.controller.dto.request.AnswerListUpdateRequest;
@@ -42,6 +45,7 @@ public class AnswerService {
     private final RetrospectRepository retrospectRepository;
     private final QuestionRepository questionRepository;
     private final MemberRepository memberRepository;
+    private final AnalyzeRepository analyzeRepository;
 
     private final Time time;
 
@@ -181,7 +185,10 @@ public class AnswerService {
         List<AnswerByPersonGetResponse> answerByPerson = getAnswerByPersonGetResponses(
                 answers, members, questions);
 
-        return new AnswerListGetResponse(answerByQuestions, answerByPerson);
+        // AI 기반 분석 여부 확인
+        Optional<Analyze> analyze = analyzeRepository.findByRetrospectId(retrospectId);
+
+        return new AnswerListGetResponse(answerByQuestions, answerByPerson, analyze.isPresent());
     }
 
     public List<WrittenAnswerGetResponse> getWrittenAnswer(Long spaceId, Long retrospectId, Long memberId) {

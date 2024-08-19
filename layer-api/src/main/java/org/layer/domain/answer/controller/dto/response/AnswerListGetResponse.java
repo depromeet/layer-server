@@ -9,6 +9,8 @@ public record AnswerListGetResponse(
 	@Schema(description = "질문 기준 결과", example = "")
 	List<AnswerByQuestionGetResponse> questions,
 	@Schema(description = "개별 기준 결과", example = "")
-	List<AnswerByPersonGetResponse> individuals
+	List<AnswerByPersonGetResponse> individuals,
+	@Schema(description = "AI 분석 완료 여부", example = "true")
+	boolean hasAIAnalyzed
 ) {
 }
