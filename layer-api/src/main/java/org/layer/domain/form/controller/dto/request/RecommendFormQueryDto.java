@@ -1,5 +1,7 @@
 package org.layer.domain.form.controller.dto.request;
 
+import java.util.List;
+
 import org.layer.domain.form.enums.RetrospectPeriod;
 import org.layer.domain.form.enums.RetrospectPeriodic;
 import org.layer.domain.form.enums.RetrospectPurpose;
@@ -16,6 +18,6 @@ public record RecommendFormQueryDto(
 	RetrospectPeriod period,
 	@NotNull
 	@Schema(description = "회고 목적", example = "TEAM_GROWTH")
-	RetrospectPurpose purpose
+	List<RetrospectPurpose> purpose
 ) {
 }
