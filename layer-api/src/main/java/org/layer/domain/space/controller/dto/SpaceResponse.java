@@ -59,6 +59,14 @@ public class SpaceResponse {
             Leader leader
     ) {
         public static SpaceWithMemberCountInfo toResponse(SpaceWithMemberCount space) {
+
+            // FIXME: 빠른 배포를 위한 임시코드..!
+            if (space.getBannerUrl() == null && !space.getFieldList().isEmpty()) {
+                space.setBannerUrl("https://layer-bucket.kr.object.ncloudstorage.com/category/" + space.getFieldList().get(0).getValue() + ".png");
+
+            }
+
+
             return Optional.ofNullable(space)
                     .map(it -> SpaceWithMemberCountInfo.builder()
                             .id(it.getId())
