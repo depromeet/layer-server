@@ -36,7 +36,7 @@ public class SpaceRepositoryImpl implements SpaceCustomRepository {
     @Override
     public List<SpaceWithMemberCount> findAllSpacesByMemberIdAndCategoryAndCursor(Long memberId, Long cursorId, Optional<SpaceCategory> category, int pageSize) {
         BooleanExpression predicate = memberSpaceRelation.memberId.eq(memberId)
-                .and(cursorId == null ? null : space.id.lt(cursorId))
+                .and(cursorId == 0 ? null : space.id.lt(cursorId))
                 .and(hasCategory(category));
 
         return getSpaceWithMemberCountQuery()
