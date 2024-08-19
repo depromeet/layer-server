@@ -13,8 +13,6 @@ import org.layer.domain.actionItem.entity.ActionItem;
 import org.layer.domain.actionItem.enums.ActionItemStatus;
 import org.layer.domain.actionItem.exception.ActionItemException;
 import org.layer.domain.actionItem.repository.ActionItemRepository;
-import org.layer.domain.answer.entity.Answer;
-import org.layer.domain.answer.enums.AnswerStatus;
 import org.layer.domain.answer.repository.AnswerRepository;
 import org.layer.domain.retrospect.entity.Retrospect;
 import org.layer.domain.retrospect.repository.RetrospectRepository;
@@ -26,7 +24,6 @@ import org.layer.domain.space.repository.SpaceRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -123,7 +120,14 @@ public class ActionItemService {
         List<ActionItem> actionItemList = actionItemRepository.findAllByRetrospectIdIn(doneRetrospectIds);
 
         List<RetrospectActionItemResponse> responses = new ArrayList<>();
-        for (Retrospect doneRetrospect : doneRetrospects) {
+        for (int index = 0; index < doneRetrospects.size(); index++) {
+            Retrospect doneRetrospect = doneRetrospects.get(index);
+            ActionItemStatus status;
+            if(index == 0L) {
+                status = ActionItemStatus.PROCEEDING;
+            } else {
+                status = ActionItemStatus.DONE;
+            }
 
             List<ActionItemResponse> actionItems = actionItemList.stream()
                     .filter(ai -> ai.getRetrospectId().equals(doneRetrospect.getId()))
@@ -134,6 +138,8 @@ public class ActionItemService {
                     .retrospectId(doneRetrospect.getId())
                     .retrospectTitle(doneRetrospect.getTitle())
                     .actionItemList(actionItems)
+                    .deadline(doneRetrospect.getDeadline())
+                    .status(status)
                     .build();
 
             responses.add(response);
@@ -209,8 +215,6 @@ public class ActionItemService {
                     .sorted(Comparator.comparingInt(ActionItem::getActionItemOrder)) // order 순으로 정렬
                     .map(ActionItemResponse::of).toList();
 
-            // 답변 찾기
-            List<Answer> answerList = answerRepository.findAllByRetrospectIdAndMemberIdAndAnswerStatus(dto.getRetrospectId(), currentMemberId, AnswerStatus.DONE);
 
             // 상태 확인
             ActionItemStatus status;
@@ -223,8 +227,6 @@ public class ActionItemService {
 
             dto.updateActionItemList(actionItems);
             dto.updateStatus(status);
-
-            LocalDateTime answeredAt = answerList.isEmpty() ? null : answerList.get(0).getCreatedAt();
 
         }
 

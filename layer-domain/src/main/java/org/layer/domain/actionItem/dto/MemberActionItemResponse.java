@@ -56,6 +56,7 @@ public class MemberActionItemResponse {
         this.retrospectId = retrospect.getId();
         this.retrospectTitle = retrospect.getTitle();
         this.spaceId = space.getId();
+        this.deadline = retrospect.getDeadline();
         this.spaceName = space.getName();
     }
 
