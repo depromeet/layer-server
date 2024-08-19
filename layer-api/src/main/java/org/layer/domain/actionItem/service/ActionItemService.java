@@ -2,7 +2,6 @@ package org.layer.domain.actionItem.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.layer.common.exception.ActionItemExceptionType;
 import org.layer.domain.actionItem.controller.dto.request.ActionItemUpdateRequest;
 import org.layer.domain.actionItem.controller.dto.response.MemberActionItemGetResponse;
 import org.layer.domain.actionItem.controller.dto.response.RetrospectActionItemResponse;
@@ -27,7 +26,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import static org.layer.common.exception.ActionItemExceptionType.INVALID_ACTION_ITEM_LIST;
+import static org.layer.common.exception.ActionItemExceptionType.*;
 import static org.layer.common.exception.MemberSpaceRelationExceptionType.NOT_FOUND_MEMBER_SPACE_RELATION;
 import static org.layer.domain.retrospect.entity.RetrospectStatus.DONE;
 
@@ -56,6 +55,38 @@ public class ActionItemService {
         // 액션 아이템 생성
         actionItemRepository.save(ActionItem.builder()
                 .retrospectId(retrospectId)
+                .spaceId(retrospect.getSpaceId())
+                .memberId(memberId)
+                .content(content)
+                .actionItemOrder(actionItemCount + 1)
+                .build());
+    }
+
+    @Transactional
+    public void createActionItemBySpaceId(Long memberId, Long spaceId, String content) {
+        // 만드는 사람이 스페이스 리더인지 확인
+        Space space = spaceRepository.findByIdOrThrow(spaceId);
+        space.isLeaderSpace(memberId);
+
+        // 가장 최근 실행 목표 찾기
+        Optional<Retrospect> retrospectOpt = retrospectRepository.findAllBySpaceId(spaceId)
+                .stream()
+                .filter(retrospect -> retrospect.getRetrospectStatus().equals(DONE))
+                .sorted((a, b) -> b.getDeadline().compareTo(a.getDeadline()))
+                .findFirst();
+
+        if(retrospectOpt.isEmpty()) { // "실행 중" 회고가 존재하지 않음
+            throw new ActionItemException(NO_PROCEEDING_ACTION_ITEMS);
+        }
+
+        Retrospect retrospect = retrospectOpt.get();
+
+        // order 설정을 위해 회고 아이디로 실행 목표 개수 찾기
+        int actionItemCount = actionItemRepository.countByRetrospectId(retrospect.getId());
+
+        // 액션 아이템 생성
+        actionItemRepository.save(ActionItem.builder()
+                .retrospectId(retrospect.getId())
                 .spaceId(retrospect.getSpaceId())
                 .memberId(memberId)
                 .content(content)
@@ -201,7 +232,7 @@ public class ActionItemService {
         for(ActionItemUpdateRequest.ActionItemUpdateElementRequest updateItem : updateDto.actionItems()) {
             ActionItem actionItem = actionItemMap.getOrDefault(updateItem.getId(), null);
             if(actionItem == null) {
-                throw new ActionItemException(ActionItemExceptionType.INVALID_ACTION_ITEM_ID);
+                throw new ActionItemException(INVALID_ACTION_ITEM_ID);
             }
             actionItem.updateContent(updateItem.getContent());
             actionItem.updateActionItemOrder(order.getAndIncrement());
