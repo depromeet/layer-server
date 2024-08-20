@@ -107,6 +107,7 @@ public class SpaceRepositoryImpl implements SpaceCustomRepository {
                                 space.introduction,
                                 member,
                                 space.formId,
+                                form.formTag,
                                 memberCountRelationTable.space.id.count().as("memberCount"),
                                 space.bannerUrl
                         ))
@@ -114,7 +115,9 @@ public class SpaceRepositoryImpl implements SpaceCustomRepository {
                 .leftJoin(memberSpaceRelation).on(space.id.eq(memberSpaceRelation.space.id))
                 .leftJoin(memberCountRelationTable).on(space.id.eq(memberCountRelationTable.space.id))
                 .leftJoin(member).on(space.leaderId.eq(member.id))
-                .leftJoin(form).on(space.formId.eq(form.spaceId));
+                .leftJoin(form).on(space.formId.eq(form.id))
+				.orderBy(form.id.desc())
+            	.limit(1);
 
     }
 

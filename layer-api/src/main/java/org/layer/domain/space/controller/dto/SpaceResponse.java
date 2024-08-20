@@ -45,6 +45,8 @@ public class SpaceResponse {
 
             @Schema(description = "설정된 회고 폼 아이디")
             Long formId,
+            @Schema(description = "설정된 회고 폼 태그")
+            String formTag,
 
             @Schema(description = "소속된 회원 수")
             Long memberCount,
@@ -67,6 +69,7 @@ public class SpaceResponse {
                             .name(it.getName())
                             .introduction(it.getIntroduction())
                             .formId(it.getFormId())
+                            .formTag(it.getFormTag())
                             .memberCount(it.getMemberCount())
                             .bannerUrl(it.getBannerUrl())
                             .createdAt(it.getCreatedAt())
