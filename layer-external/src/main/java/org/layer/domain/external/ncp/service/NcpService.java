@@ -9,11 +9,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.layer.domain.external.ncp.dto.NcpResponse;
 import org.layer.domain.external.ncp.enums.ImageDomain;
+import org.layer.domain.external.ncp.exception.ExternalException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.UUID;
+
+import static org.layer.common.exception.ExternalExceptionType.OBJECT_INVALID_ERROR;
 
 @Service
 @Slf4j
@@ -37,6 +40,15 @@ public class NcpService {
         );
     }
 
+    public void checkObjectExistOrThrow(String url) {
+
+        String objectKey = extractObjectKey(url);
+        boolean isExist = amazonS3Client.doesObjectExist(bucket, objectKey);
+        if (!isExist) {
+            throw new ExternalException(OBJECT_INVALID_ERROR);
+        }
+    }
+
     private GeneratePresignedUrlRequest getGeneratePreSignedUrlRequest(String fileName) {
         GeneratePresignedUrlRequest generatePresignedUrlRequest =
                 new GeneratePresignedUrlRequest(bucket, fileName)
@@ -56,5 +68,14 @@ public class NcpService {
         expTimeMillis += 1000 * 15;
         expiration.setTime(expTimeMillis);
         return expiration;
+    }
+
+    private String extractObjectKey(String url) {
+        String expectedPrefix = "https://layer-bucket.kr.object.ncloudstorage.com";
+
+        if (!url.startsWith(expectedPrefix)) {
+            throw new ExternalException(OBJECT_INVALID_ERROR);
+        }
+        return url.substring(expectedPrefix.length() + 1); // "/" 이후부터 추출
     }
 }

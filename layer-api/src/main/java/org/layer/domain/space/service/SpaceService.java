@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.layer.common.dto.Meta;
 import org.layer.domain.actionItem.repository.ActionItemRepository;
+import org.layer.domain.external.ncp.service.NcpService;
 import org.layer.domain.retrospect.repository.RetrospectRepository;
 import org.layer.domain.space.controller.dto.SpaceRequest;
 import org.layer.domain.space.controller.dto.SpaceResponse;
@@ -31,6 +32,7 @@ import static org.layer.common.exception.SpaceExceptionType.*;
 @Slf4j
 @Transactional(readOnly = true)
 public class SpaceService {
+    private final NcpService ncpService;
     private final SpaceRepository spaceRepository;
     private final MemberSpaceRelationRepository memberSpaceRelationRepository;
     private final ActionItemRepository actionItemRepository;
@@ -55,8 +57,9 @@ public class SpaceService {
 
     @Transactional
     public Long createSpace(Long memberId, SpaceRequest.CreateSpaceRequest createSpaceRequest) {
-
-
+        if (createSpaceRequest.bannerUrl() != null) {
+            ncpService.checkObjectExistOrThrow(createSpaceRequest.bannerUrl());
+        }
         var newSpace = spaceRepository.save(createSpaceRequest.toEntity(memberId));
         var memberSpaceRelation = MemberSpaceRelation.builder().memberId(memberId).space(newSpace).build();
 
