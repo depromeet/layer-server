@@ -3,10 +3,7 @@ package org.layer.domain.actionItem.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.layer.domain.actionItem.controller.dto.request.ActionItemUpdateRequest;
-import org.layer.domain.actionItem.controller.dto.response.MemberActionItemGetResponse;
-import org.layer.domain.actionItem.controller.dto.response.RetrospectActionItemResponse;
-import org.layer.domain.actionItem.controller.dto.response.SpaceActionItemGetResponse;
-import org.layer.domain.actionItem.controller.dto.response.SpaceRetrospectActionItemGetResponse;
+import org.layer.domain.actionItem.controller.dto.response.*;
 import org.layer.domain.actionItem.dto.ActionItemResponse;
 import org.layer.domain.actionItem.dto.MemberActionItemResponse;
 import org.layer.domain.actionItem.entity.ActionItem;
@@ -44,7 +41,7 @@ public class ActionItemService {
     private final AnswerRepository answerRepository;
 
     @Transactional
-    public void createActionItem(Long memberId, Long retrospectId, String content) {
+    public ActionItemCreateResponse createActionItem(Long memberId, Long retrospectId, String content) {
 
         // 만드는 사람이 스페이스 리더인지 확인
         Retrospect retrospect = retrospectRepository.findByIdOrThrow(retrospectId);
@@ -56,17 +53,19 @@ public class ActionItemService {
         int actionItemCount = actionItemRepository.countByRetrospectId(retrospectId);
 
         // 액션 아이템 생성
-        actionItemRepository.save(ActionItem.builder()
+        ActionItem savedActionItem = actionItemRepository.save(ActionItem.builder()
                 .retrospectId(retrospectId)
                 .spaceId(retrospect.getSpaceId())
                 .memberId(memberId)
                 .content(content)
                 .actionItemOrder(actionItemCount + 1)
                 .build());
+
+        return new ActionItemCreateResponse(savedActionItem.getId());
     }
 
     @Transactional
-    public void createActionItemBySpaceId(Long memberId, Long spaceId, String content) {
+    public ActionItemCreateResponse createActionItemBySpaceId(Long memberId, Long spaceId, String content) {
         // 만드는 사람이 스페이스 리더인지 확인
         Space space = spaceRepository.findByIdOrThrow(spaceId);
         space.isLeaderSpace(memberId);
@@ -88,13 +87,15 @@ public class ActionItemService {
         int actionItemCount = actionItemRepository.countByRetrospectId(retrospect.getId());
 
         // 액션 아이템 생성
-        actionItemRepository.save(ActionItem.builder()
+        ActionItem savedActionItem = actionItemRepository.save(ActionItem.builder()
                 .retrospectId(retrospect.getId())
                 .spaceId(retrospect.getSpaceId())
                 .memberId(memberId)
                 .content(content)
                 .actionItemOrder(actionItemCount + 1)
                 .build());
+
+        return new ActionItemCreateResponse(savedActionItem.getId());
     }
 
 
