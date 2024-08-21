@@ -1,6 +1,7 @@
 package org.layer.domain.retrospect.service;
 
 import lombok.RequiredArgsConstructor;
+
 import org.layer.domain.answer.entity.Answers;
 import org.layer.domain.answer.repository.AnswerRepository;
 import org.layer.domain.common.time.Time;
@@ -35,113 +36,117 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Transactional(readOnly = true)
 public class RetrospectService {
 
-    private final RetrospectRepository retrospectRepository;
-    private final MemberSpaceRelationRepository memberSpaceRelationRepository;
-    private final QuestionRepository questionRepository;
-    private final AnswerRepository answerRepository;
-    private final FormRepository formRepository;
-    private final SpaceRepository spaceRepository;
+	private final RetrospectRepository retrospectRepository;
+	private final MemberSpaceRelationRepository memberSpaceRelationRepository;
+	private final QuestionRepository questionRepository;
+	private final AnswerRepository answerRepository;
+	private final FormRepository formRepository;
+	private final SpaceRepository spaceRepository;
 
-    private final Time time;
+	private final Time time;
 
-    @Transactional
-    public Long createRetrospect(RetrospectCreateRequest request, Long spaceId, Long memberId) {
-        // 해당 스페이스 팀원인지 검증
-        Team team = new Team(memberSpaceRelationRepository.findAllBySpaceId(spaceId));
-        team.validateTeamMembership(memberId);
+	@Transactional
+	public Long createRetrospect(RetrospectCreateRequest request, Long spaceId, Long memberId) {
+		// 해당 스페이스 팀원인지 검증
+		Team team = new Team(memberSpaceRelationRepository.findAllBySpaceId(spaceId));
+		team.validateTeamMembership(memberId);
 
-        Retrospect retrospect = getRetrospect(request, spaceId);
-        Retrospect savedRetrospect = retrospectRepository.save(retrospect);
+		Retrospect retrospect = getRetrospect(request, spaceId);
+		Retrospect savedRetrospect = retrospectRepository.save(retrospect);
 
-        List<Question> questions = getQuestions(request.questions(), savedRetrospect.getId(), null);
-        questionRepository.saveAll(questions);
+		List<Question> questions = getQuestions(request.questions(), savedRetrospect.getId(), null);
+		questionRepository.saveAll(questions);
 
-        // 새로운 폼 생성(수정)인지 확인
-        if (request.isNewForm()) {
-            // 내 회고 폼에 추가
-            Form form = new Form(memberId, spaceId, request.formName(), request.introduction(), FormType.CUSTOM,
-                    FormTag.CUSTOM);
-            Form savedForm = formRepository.save(form);
+		Space space = spaceRepository.findByIdOrThrow(spaceId);
 
-            List<Question> myQuestions = getQuestions(request.questions(), null, savedForm.getId());
-            questionRepository.saveAll(myQuestions);
+		// 새로운 폼 생성(수정)인지 확인
+		if (!request.isNewForm()) {
+			space.updateRecentFormId(request.curFormId(), memberId);
+			return savedRetrospect.getId();
+		}
 
-            // 스페이스 최근 폼 수정
-            Space space = spaceRepository.findByIdOrThrow(spaceId);
-            space.updateRecentFormId(savedForm.getId(), memberId);
-        }
+		// 내 회고 폼에 추가
+		Form form = new Form(memberId, spaceId, request.formName(), request.introduction(), FormType.CUSTOM,
+			FormTag.CUSTOM);
+		Form savedForm = formRepository.save(form);
 
-        return savedRetrospect.getId();
-    }
+		List<Question> myQuestions = getQuestions(request.questions(), null, savedForm.getId());
+		questionRepository.saveAll(myQuestions);
 
-    private Retrospect getRetrospect(RetrospectCreateRequest request, Long spaceId) {
-        return Retrospect.builder()
-                .spaceId(spaceId)
-                .title(request.title())
-                .introduction(request.introduction())
-                .retrospectStatus(RetrospectStatus.PROCEEDING)
-                .deadline(request.deadline())
-                .build();
-    }
+		// 스페이스 최근 폼 수정
+		space.updateRecentFormId(savedForm.getId(), memberId);
 
-    public RetrospectListGetServiceResponse getRetrospects(Long spaceId, Long memberId) {
-        // 해당 스페이스 팀원인지 검증
-        Team team = new Team(memberSpaceRelationRepository.findAllBySpaceId(spaceId));
-        team.validateTeamMembership(memberId);
+		return savedRetrospect.getId();
+	}
 
-        List<Retrospect> retrospects = retrospectRepository.findAllBySpaceId(spaceId);
-        List<Long> retrospectIds = retrospects.stream().map(Retrospect::getId).toList();
-        Answers answers = new Answers(answerRepository.findAllByRetrospectIdIn(retrospectIds));
+	private Retrospect getRetrospect(RetrospectCreateRequest request, Long spaceId) {
+		return Retrospect.builder()
+			.spaceId(spaceId)
+			.title(request.title())
+			.introduction(request.introduction())
+			.retrospectStatus(RetrospectStatus.PROCEEDING)
+			.deadline(request.deadline())
+			.build();
+	}
 
-        List<RetrospectGetServiceResponse> retrospectDtos = retrospects.stream()
-                .map(r -> RetrospectGetServiceResponse.of(r.getId(), r.getTitle(), r.getIntroduction(),
-                        answers.hasRetrospectAnswer(memberId, r.getId()), r.getRetrospectStatus(),
-                        answers.getWriteCount(), team.getTeamMemberCount(), r.getCreatedAt(), r.getDeadline()))
-                .toList();
+	public RetrospectListGetServiceResponse getRetrospects(Long spaceId, Long memberId) {
+		// 해당 스페이스 팀원인지 검증
+		Team team = new Team(memberSpaceRelationRepository.findAllBySpaceId(spaceId));
+		team.validateTeamMembership(memberId);
 
-        return RetrospectListGetServiceResponse.of(retrospects.size(), retrospectDtos);
-    }
+		List<Retrospect> retrospects = retrospectRepository.findAllBySpaceId(spaceId);
+		List<Long> retrospectIds = retrospects.stream().map(Retrospect::getId).toList();
+		Answers answers = new Answers(answerRepository.findAllByRetrospectIdIn(retrospectIds));
 
-    private List<Question> getQuestions(List<QuestionCreateRequest> questions, Long savedRetrospectId, Long formId) {
-        AtomicInteger index = new AtomicInteger(1);
+		List<RetrospectGetServiceResponse> retrospectDtos = retrospects.stream()
+			.map(r -> RetrospectGetServiceResponse.of(r.getId(), r.getTitle(), r.getIntroduction(),
+				answers.hasRetrospectAnswer(memberId, r.getId()), r.getRetrospectStatus(),
+				answers.getWriteCount(), team.getTeamMemberCount(), r.getCreatedAt(), r.getDeadline()))
+			.toList();
 
-        return questions.stream()
-                .map(question -> Question.builder()
-                        .retrospectId(savedRetrospectId)
-                        .formId(formId)
-                        .content(question.questionContent())
-                        .questionOrder(index.getAndIncrement())
-                        .questionOwner(QuestionOwner.TEAM)
-                        .questionType(QuestionType.stringToEnum(question.questionType()))
-                        .build())
-                .toList();
-    }
+		return RetrospectListGetServiceResponse.of(retrospects.size(), retrospectDtos);
+	}
 
-    @Transactional
-    public void updateRetrospect(Long spaceId, Long retrospectId, RetrospectUpdateRequest request, Long memberId) {
-        // 해당 스페이스 팀원인지 검증
-        Team team = new Team(memberSpaceRelationRepository.findAllBySpaceId(spaceId));
-        team.validateTeamMembership(memberId);
+	private List<Question> getQuestions(List<QuestionCreateRequest> questions, Long savedRetrospectId, Long formId) {
+		AtomicInteger index = new AtomicInteger(1);
 
-        // 팀장인지 검증
-        Space space = spaceRepository.findByIdOrThrow(spaceId);
-        space.isLeaderSpace(memberId);
+		return questions.stream()
+			.map(question -> Question.builder()
+				.retrospectId(savedRetrospectId)
+				.formId(formId)
+				.content(question.questionContent())
+				.questionOrder(index.getAndIncrement())
+				.questionOwner(QuestionOwner.TEAM)
+				.questionType(QuestionType.stringToEnum(question.questionType()))
+				.build())
+			.toList();
+	}
 
-        Retrospect retrospect = retrospectRepository.findByIdOrThrow(retrospectId);
-        retrospect.updateRetrospect(request.title(), request.introduction(), request.deadline(), time);
-    }
+	@Transactional
+	public void updateRetrospect(Long spaceId, Long retrospectId, RetrospectUpdateRequest request, Long memberId) {
+		// 해당 스페이스 팀원인지 검증
+		Team team = new Team(memberSpaceRelationRepository.findAllBySpaceId(spaceId));
+		team.validateTeamMembership(memberId);
 
-    @Transactional
-    public void deleteRetrospect(Long spaceId, Long retrospectId, Long memberId) {
-        // 해당 스페이스 팀원인지 검증
-        Team team = new Team(memberSpaceRelationRepository.findAllBySpaceId(spaceId));
-        team.validateTeamMembership(memberId);
+		// 팀장인지 검증
+		Space space = spaceRepository.findByIdOrThrow(spaceId);
+		space.isLeaderSpace(memberId);
 
-        // 팀장인지 검증
-        Space space = spaceRepository.findByIdOrThrow(spaceId);
-        space.isLeaderSpace(memberId);
+		Retrospect retrospect = retrospectRepository.findByIdOrThrow(retrospectId);
+		retrospect.updateRetrospect(request.title(), request.introduction(), request.deadline(), time);
+	}
 
-        Retrospect retrospect = retrospectRepository.findByIdOrThrow(retrospectId);
-        retrospectRepository.delete(retrospect);
-    }
+	@Transactional
+	public void deleteRetrospect(Long spaceId, Long retrospectId, Long memberId) {
+		// 해당 스페이스 팀원인지 검증
+		Team team = new Team(memberSpaceRelationRepository.findAllBySpaceId(spaceId));
+		team.validateTeamMembership(memberId);
+
+		// 팀장인지 검증
+		Space space = spaceRepository.findByIdOrThrow(spaceId);
+		space.isLeaderSpace(memberId);
+
+		Retrospect retrospect = retrospectRepository.findByIdOrThrow(retrospectId);
+		retrospectRepository.delete(retrospect);
+	}
 }
