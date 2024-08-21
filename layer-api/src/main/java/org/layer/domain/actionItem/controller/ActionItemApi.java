@@ -10,10 +10,7 @@ import org.layer.common.annotation.MemberId;
 import org.layer.domain.actionItem.controller.dto.request.ActionItemCreateBySpaceIdRequest;
 import org.layer.domain.actionItem.controller.dto.request.ActionItemCreateRequest;
 import org.layer.domain.actionItem.controller.dto.request.ActionItemUpdateRequest;
-import org.layer.domain.actionItem.controller.dto.response.MemberActionItemGetResponse;
-import org.layer.domain.actionItem.controller.dto.response.SpaceActionItemElementResponse;
-import org.layer.domain.actionItem.controller.dto.response.SpaceActionItemGetResponse;
-import org.layer.domain.actionItem.controller.dto.response.SpaceRetrospectActionItemGetResponse;
+import org.layer.domain.actionItem.controller.dto.response.*;
 import org.layer.domain.actionItem.dto.MemberActionItemResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -29,7 +26,7 @@ public interface ActionItemApi {
             @ApiResponse(responseCode = "201")
     }
     )
-    ResponseEntity<Void> createActionItem(@MemberId Long memberId,
+    ResponseEntity<ActionItemCreateResponse> createActionItem(@MemberId Long memberId,
                                                               @Validated @RequestBody ActionItemCreateRequest actionItemCreateRequest);
 
 
@@ -114,6 +111,6 @@ public interface ActionItemApi {
             @ApiResponse(responseCode = "201")
     }
     )
-    ResponseEntity<Void> createActionItemBySpaceId(@MemberId Long memberId,
+    ResponseEntity<ActionItemCreateResponse> createActionItemBySpaceId(@MemberId Long memberId,
                                                    @Validated @RequestBody ActionItemCreateBySpaceIdRequest actionItemCreateRequest);
 }

@@ -6,6 +6,7 @@ import org.layer.common.annotation.MemberId;
 import org.layer.domain.actionItem.controller.dto.request.ActionItemCreateBySpaceIdRequest;
 import org.layer.domain.actionItem.controller.dto.request.ActionItemCreateRequest;
 import org.layer.domain.actionItem.controller.dto.request.ActionItemUpdateRequest;
+import org.layer.domain.actionItem.controller.dto.response.ActionItemCreateResponse;
 import org.layer.domain.actionItem.controller.dto.response.MemberActionItemGetResponse;
 import org.layer.domain.actionItem.controller.dto.response.SpaceActionItemGetResponse;
 import org.layer.domain.actionItem.controller.dto.response.SpaceRetrospectActionItemGetResponse;
@@ -25,13 +26,13 @@ public class ActionItemController implements ActionItemApi {
     @Override
     @PostMapping("/create")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<Void> createActionItem(@MemberId Long memberId,
-                                              @Validated @RequestBody ActionItemCreateRequest actionItemCreateRequest) {
-        actionItemService.createActionItem(memberId,
+    public ResponseEntity<ActionItemCreateResponse> createActionItem(@MemberId Long memberId,
+                                                                     @Validated @RequestBody ActionItemCreateRequest actionItemCreateRequest) {
+        ActionItemCreateResponse response = actionItemService.createActionItem(memberId,
                 actionItemCreateRequest.retrospectId(),
                 actionItemCreateRequest.content());
 
-        return new ResponseEntity<>(null, HttpStatus.CREATED);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @Override
@@ -79,12 +80,12 @@ public class ActionItemController implements ActionItemApi {
     @Override
     @PostMapping("/create/space/{spaceId}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<Void> createActionItemBySpaceId(@MemberId Long memberId,
+    public ResponseEntity<ActionItemCreateResponse> createActionItemBySpaceId(@MemberId Long memberId,
                                                  @Validated @RequestBody ActionItemCreateBySpaceIdRequest actionItemCreateRequest) {
-        actionItemService.createActionItemBySpaceId(memberId,
+        ActionItemCreateResponse response = actionItemService.createActionItemBySpaceId(memberId,
                 actionItemCreateRequest.spaceId(),
                 actionItemCreateRequest.content());
 
-        return new ResponseEntity<>(null, HttpStatus.CREATED);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 }
