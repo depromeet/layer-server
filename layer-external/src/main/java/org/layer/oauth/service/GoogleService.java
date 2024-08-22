@@ -50,7 +50,6 @@ public class GoogleService implements OAuthService {
     }
 
     public String getToken(String code) {
-//        log.info("redirect uri: {}", googleOAuthConfig.getGoogleRedirectUri());
         // 토큰 요청 데이터
         String uri = UriComponentsBuilder.fromOriginHeader(GOOGLE_TOKEN_URI)
                 .toUriString();
