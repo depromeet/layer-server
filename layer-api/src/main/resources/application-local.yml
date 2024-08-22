@@ -55,7 +55,10 @@ google:
     id: ${GOOGLE_SHEET_ID}
     token_path: ${LOCAL_GOOGLE_TOKEN_PATH}
 
-
+apple:
+  login:
+    issuer: ${DEV_APPLE_ISSUER}
+    key_id: ${DEV_APPLE_KEYID}
 
 webmvc:
   cors:
