@@ -22,9 +22,9 @@ public class Answers {
 
 	private final List<Answer> answers;
 
-	public String getAnswerToQuestion(Long questionId) {
+	public String getAnswerToQuestion(Long questionId, Long memberId) {
 		return answers.stream()
-			.filter(answer -> answer.getQuestionId().equals(questionId))
+			.filter(answer -> answer.getQuestionId().equals(questionId) && answer.getMemberId().equals(memberId))
 			.map(Answer::getContent)
 			.findFirst()
 			.orElse(null);

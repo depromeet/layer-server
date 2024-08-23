@@ -152,7 +152,7 @@ public class AnswerService {
         List<TemporaryAnswerGetResponse> temporaryAnswers = questions.stream()
                 .map(question -> TemporaryAnswerGetResponse.of(question.getId(), question.getQuestionType().getStyle(),
                         answers.getAnswerToQuestion(
-                                question.getId())))
+                                question.getId(), memberId)))
                 .toList();
 
         return TemporaryAnswerListResponse.of(temporaryAnswers);
@@ -215,7 +215,7 @@ public class AnswerService {
                                 question.getQuestionType().getStyle(),
                                 question.getContent(),
                                 answers.getAnswerToQuestion(
-                                        question.getId())
+                                        question.getId(), memberId)
                         )
                 )
                 .toList();
@@ -228,7 +228,7 @@ public class AnswerService {
                     List<QuestionAndAnswerGetResponse> questionAndAnswer = questions.stream()
                             .map(question -> new QuestionAndAnswerGetResponse(question.getContent(),
                                     question.getQuestionType().getStyle(), answers.getAnswerToQuestion(
-                                    question.getId())))
+                                    question.getId(), member.getId())))
                             .toList();
 
                     return new AnswerByPersonGetResponse(member.getName(), questionAndAnswer);
