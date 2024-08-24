@@ -65,7 +65,6 @@ public class SpaceRepositoryImpl implements SpaceCustomRepository {
 
         var foundSpace = getSpaceWithMemberCountQuery().where(space.id.eq(spaceId)).fetchOne();
 
-
         if (foundSpace == null || isSpaceWithMemberCountEmpty(foundSpace)) {
             return Optional.empty();
         }
