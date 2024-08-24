@@ -80,6 +80,12 @@ public class SpaceService {
         return SpaceResponse.SpaceWithMemberCountInfo.toResponse(foundSpace);
     }
 
+    public SpaceResponse.SpaceWithMemberCountInfo getPublicSpaceById(Long spaceId) {
+        var foundSpace = spaceRepository.findByIdAndJoinedMemberId(spaceId).orElseThrow(() -> new SpaceException(NOT_FOUND_SPACE));
+
+        return SpaceResponse.SpaceWithMemberCountInfo.toResponse(foundSpace);
+    }
+
     @Transactional
     public void createMemberSpace(Long memberId, Long spaceId) {
 

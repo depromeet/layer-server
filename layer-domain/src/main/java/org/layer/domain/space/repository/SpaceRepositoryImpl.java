@@ -61,6 +61,19 @@ public class SpaceRepositoryImpl implements SpaceCustomRepository {
     }
 
     @Override
+    public Optional<SpaceWithMemberCount> findByIdAndJoinedMemberId(Long spaceId) {
+
+        var foundSpace = getSpaceWithMemberCountQuery().where(space.id.eq(spaceId)).fetchOne();
+
+
+        if (foundSpace == null || isSpaceWithMemberCountEmpty(foundSpace)) {
+            return Optional.empty();
+        }
+        // TODO: 커스텀 에러로 변경
+        return Optional.of(foundSpace);
+    }
+
+    @Override
     public Long updateSpace(Long spaceId, SpaceCategory category, List<SpaceField> fieldList, String name, String introduction, String bannerUrl) {
         var query = queryFactory.update(space);
 
@@ -116,8 +129,8 @@ public class SpaceRepositoryImpl implements SpaceCustomRepository {
                 .leftJoin(memberCountRelationTable).on(space.id.eq(memberCountRelationTable.space.id))
                 .leftJoin(member).on(space.leaderId.eq(member.id))
                 .leftJoin(form).on(space.formId.eq(form.id))
-				.orderBy(form.id.desc())
-            	.limit(1);
+                .orderBy(form.id.desc())
+                .limit(1);
 
     }
 

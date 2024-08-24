@@ -51,6 +51,13 @@ public class SpaceController implements SpaceApi {
         return ResponseEntity.ok((foundSpace));
     }
 
+
+    @GetMapping("/public/{spaceId}")
+    public ResponseEntity<SpaceResponse.SpaceWithMemberCountInfo> getPublicSpaceById(@PathVariable Long spaceId) {
+        var foundSpace = spaceService.getPublicSpaceById(spaceId);
+        return ResponseEntity.ok((foundSpace));
+    }
+
     @Override
     @PostMapping("/join")
     @ResponseStatus(HttpStatus.ACCEPTED)

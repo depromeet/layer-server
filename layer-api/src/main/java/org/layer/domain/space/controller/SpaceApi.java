@@ -85,6 +85,17 @@ public interface SpaceApi {
     })
     ResponseEntity<SpaceResponse.SpaceWithMemberCountInfo> getSpaceById(@MemberId Long memberId, @PathVariable Long spaceId);
 
+    @Operation(summary = "PUBLIC/ 스페이스 단건 조회하기", method = "GET", description = """
+            스페이스 아이디를 통해 하나의 스페이스를 조회합니다.
+            내가 속하지 않은 공간만 조회할 수 있습니다.
+            """)
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = SpaceResponse.SpaceWithMemberCountInfo.class))
+            })
+    })
+    ResponseEntity<SpaceResponse.SpaceWithMemberCountInfo> getPublicSpaceById(@PathVariable Long spaceId);
+
 
     @Operation(summary = "스페이스 입장하기", method = "POST", description = """
             공유받은 링크를 통해 스페이스에 입장합니다.

@@ -52,7 +52,7 @@ public class SecurityConfig {
                                 .requestMatchers(new AntPathRequestMatcher("/api/auth/sign-up")).permitAll()
                                 .requestMatchers(new AntPathRequestMatcher("/api/auth/oauth2/google")).permitAll()
                                 .requestMatchers(new AntPathRequestMatcher("/api/auth/oauth2/kakao")).permitAll()
-                                .requestMatchers(new AntPathRequestMatcher("/api/test")).permitAll()
+                                .requestMatchers(new AntPathRequestMatcher("/api/space/public/*")).permitAll()
                                 .requestMatchers(new AntPathRequestMatcher("/api/auth/test")).permitAll()
                                 .requestMatchers(new AntPathRequestMatcher("/h2-console/**")).permitAll()
                                 .requestMatchers(new AntPathRequestMatcher("/external/image/presigned")).permitAll()
