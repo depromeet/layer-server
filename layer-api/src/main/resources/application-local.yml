@@ -60,8 +60,8 @@ apple:
     issuer: ${DEV_APPLE_ISSUER}
     key_id: ${DEV_APPLE_KEYID}
     audience: https://appleid.apple.com
-#    client_id:
-    secret_key: ${DEV_APPLE_SECRET_KEY}
+    client_id: ${DEV_APPLE_CLIENT_ID}
+    private_key: ${DEV_APPLE_PRIVATE_KEY}
 
 
 webmvc:

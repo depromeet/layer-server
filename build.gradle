@@ -51,7 +51,6 @@ subprojects {
 
         annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 
-
     }
 
     test {
@@ -97,6 +96,7 @@ project(":layer-api") {
 
         // aop
         implementation 'org.springframework.boot:spring-boot-starter-aop'
+
     }
 
     jar.enabled = false
@@ -176,5 +176,6 @@ project(":layer-external") {
         implementation 'io.jsonwebtoken:jjwt-api:0.12.5'
         runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.5'
         runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.5'
+
     }
 }

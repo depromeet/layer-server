@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 @Getter
 @Configuration
 public class AppleOAuthConfig {
-    @Value("apple.login.issuer")
+    @Value("${apple.login.issuer}")
     private String issuer;
 
     @Value("${apple.login.key_id}")
@@ -19,8 +19,8 @@ public class AppleOAuthConfig {
     @Value("${apple.login.key_id}")
     private String clientId;
 
-    @Value("${apple.login.secret_key}")
-    private String secretKey;
+    @Value("${apple.login.private_key}")
+    private String privateKey;
 
 
 }
