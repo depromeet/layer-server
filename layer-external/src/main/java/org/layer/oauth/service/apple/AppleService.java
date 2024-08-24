@@ -22,6 +22,7 @@ public class AppleService {
     private final AppleAuthClient appleClient;
     private final ApplePublicKeyGenerator applePublicKeyGenerator;
 
+
     private final String DEFAULT_NAME = "apple";
     private final String CLAIM_EMAIL = "email";
 

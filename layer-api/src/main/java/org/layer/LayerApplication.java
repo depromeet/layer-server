@@ -15,7 +15,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @SpringBootApplication
 @EnableJpaAuditing
 @EnableAspectJAutoProxy
-@EnableFeignClients(basePackages = "org.layer.external.ai.infra")
+@EnableFeignClients
+//@EnableFeignClients(basePackages = "org.layer.external.ai.infra")
 public class LayerApplication {
     public static void main(String[] args) {
         SpringApplication.run(LayerApplication.class, args);

@@ -77,7 +77,7 @@ public class AuthController implements AuthApi {
     @DisableSwaggerSecurity
     //== google OAuth2 test용 API 액세스 토큰 발급 ==//
     @PostMapping("/oauth2/apple")
-    public Boolean appleTest(@RequestBody Map<String, String> body) {
+    public Boolean appleTest(@RequestParam Map<String, String> body) {
         appleService.createAppleUser(body.get("id_token"));
         return true;
     }
