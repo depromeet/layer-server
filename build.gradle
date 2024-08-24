@@ -155,6 +155,10 @@ project(":layer-external") {
         implementation project(path: ':layer-common')
         implementation project(path: ':layer-domain')
 
+        implementation 'io.jsonwebtoken:jjwt-api:0.12.5'
+        runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.5'
+        runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.5'
+
         annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 
         implementation 'com.google.api-client:google-api-client:2.0.0'

@@ -6,12 +6,14 @@ import org.layer.common.annotation.DisableSwaggerSecurity;
 import org.layer.common.annotation.MemberId;
 import org.layer.domain.auth.controller.dto.*;
 import org.layer.domain.auth.service.AuthService;
-import org.layer.domain.member.repository.MemberRepository;
 import org.layer.oauth.service.GoogleService;
 import org.layer.oauth.service.KakaoService;
+import org.layer.oauth.service.apple.AppleService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -21,7 +23,7 @@ public class AuthController implements AuthApi {
     private final AuthService authService;
     private final GoogleService googleService;
     private final KakaoService kakaoService;
-    private final MemberRepository memberRepository;
+    private final AppleService appleService;
 
     private static final String SOCIAL_TOKEN_NAME = "X-AUTH-TOKEN";
 
@@ -70,6 +72,14 @@ public class AuthController implements AuthApi {
     @GetMapping("/member-info")
     public MemberInfoResponse getMemberInfo(@MemberId Long memberId) {
         return authService.getMemberInfo(memberId);
+    }
+
+    @DisableSwaggerSecurity
+    //== google OAuth2 test용 API 액세스 토큰 발급 ==//
+    @PostMapping("/oauth2/apple")
+    public Boolean appleTest(@RequestBody Map<String, String> body) {
+        appleService.createAppleUser(body.get("id_token"));
+        return true;
     }
 
     @DisableSwaggerSecurity
