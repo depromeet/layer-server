@@ -1,26 +1,30 @@
 spring:
   config:
-    import: optional:file:/config/application-secret.properties
+    import: application-secret.properties
   datasource:
-    url: ${DEV_DB_URL}
-    username: ${DEV_DB_NAME}
-    password: ${DEV_DB_PASSWORD}
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:layer-local-db;DATABASE_TO_UPPER=FALSE;mode=mysql  # H2 접속 정보 (전부 소문자로 지정)
+    username: sa
+    password:
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
   jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     properties:
       hibernate:
         format_sql: true
         show_sql: true
     open-in-view: false
-    database: mysql
 
   data:
     redis:
-      host: ${DEV_REDIS_HOST}
-      port: ${DEV_REDIS_PORT}
-      password: ${DEV_REDIS_PASSWORD}
+      host: localhost
+      port: 6379
+      password:
 
 jwt:
   secret: ${DEV_JWT_SECRET}
@@ -28,7 +32,7 @@ jwt:
 kakao:
   login:
     api_key: ${DEV_KAKAO_API_KEY}
-    redirect_uri: ${DEV_KAKAO_REDIRECT_URI}
+    redirect_uri: http://localhost:8080/api/auth/oauth2/kakao
     uri:
       base: https://kauth.kakao.com
       code: /oauth/authorize
@@ -48,7 +52,7 @@ google:
     code_redirect_uri: http://localhost:8080/api/auth/oauth2/google/code
   sheet:
     id: ${GOOGLE_SHEET_ID}
-    token_path: ${DEV_GOOGLE_TOKEN_PATH}
+    token_path: ${LOCAL_GOOGLE_TOKEN_PATH}
 
 apple:
   login:
