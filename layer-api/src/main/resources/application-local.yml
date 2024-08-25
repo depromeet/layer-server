@@ -55,6 +55,12 @@ google:
     id: ${GOOGLE_SHEET_ID}
     token_path: ${LOCAL_GOOGLE_TOKEN_PATH}
 
+apple:
+  login:
+    issuer: ${DEV_APPLE_ISSUER}
+    client_id: ${DEV_APPLE_CLIENT_ID}
+    audience: ${DEV_APPLE_AUD}
+
 
 
 webmvc:
