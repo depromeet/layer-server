@@ -1,0 +1,215 @@
+name: Spring Boot Multi-module K3s Deployment
+
+on:
+  push:
+    branches:
+      - chire/k3s
+
+env:
+  REGISTRY: "ghcr.io"
+  NAMESPACE: "depromeet"
+  IMAGE_NAME: "kasukabe-server"
+  MODULE: "layer-api"
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      deploy_target: ${{ steps.set-env.outputs.DEPLOY_TARGET }}
+    steps:
+      - name: Setup Env
+        id: set-env
+        run: |
+          if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
+            echo "DEPLOY_TARGET=production" >> $GITHUB_OUTPUT
+          else
+            echo "DEPLOY_TARGET=development" >> $GITHUB_OUTPUT
+          fi
+
+  build:
+    name: build
+    needs: [ setup ]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    env:
+      DEPLOY_TARGET: ${{ needs.setup.outputs.deploy_target }}
+      REGISTRY: "ghcr.io"
+      NAMESPACE: "depromeet"
+      IMAGE_NAME: "kasukabe-server"
+      # TODO:  멀티모듈 적용시 동적 할당 필요
+      MODULE: "layer-api"
+      APPLICATION_SECRET_PROPERTIES: ${{ secrets.APPLICATION_SECRET_PROPERTIES }}
+      GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+
+    steps:
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'corretto'
+
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@bd5760595778326ba7f1441bcf7e88b49de61a25 # v2.6.0
+
+      - name: Create application-secret.properties
+        run: |
+          echo "${APPLICATION_SECRET_PROPERTIES}" > ./${{ env.MODULE }}/src/main/resources/application-secret.properties
+
+      - name: Build ${{ env.MODULE }} module
+        run: ./gradlew :${{ env.MODULE }}:build
+
+      - name: Run tests:${{ env.MODULE }}
+        run: ./gradlew :${{ env.MODULE }}:test
+
+      - name: login github container registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}/${{ env.MODULE }}
+
+      - name: push
+        uses: docker/build-push-action@v4
+        with:
+          context: ./${{ env.MODULE }}
+          platforms: linux/amd64
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}/${{ env.MODULE }}:latest
+  #            ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}/${{ env.MODULE }}:${{ github.run_id }}
+
+
+  deploy:
+    name: Deploy to K3s
+    needs: [ build, setup ]
+    runs-on: ubuntu-latest
+    env:
+      DEPLOY_TARGET: ${{ needs.setup.outputs.deploy_target }}
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v1
+        with:
+          version: 'v1.21.0'
+
+      - name: Set up kubeconfig
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBE_CONFIG }}" > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+
+      - name: Create K3s deployment files
+        run: |
+          cat <<EOF > deployment.yaml
+          apiVersion: apps/v1
+          kind: Deployment
+          metadata:
+            name: ${{ env.MODULE }}-deployment
+            namespace: ${{ env.NAMESPACE }}
+          spec:
+            replicas: 1
+            selector:
+              matchLabels:
+                app: ${{ env.MODULE }}
+            template:
+              metadata:
+                labels:
+                  app: ${{ env.MODULE }}
+              spec:
+                containers:
+                - name: ${{ env.MODULE }}
+                  image: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}/${{ env.MODULE }}:${{ github.sha }}
+                  ports:
+                  - containerPort: 8080
+                  env:
+                  - name: TZ
+                    value: "Asia/Seoul"
+                  - name: SPRING_PROFILES_ACTIVE
+                    value: "${{ env.DEPLOY_TARGET }}"
+                  volumeMounts:
+                  - name: secret-volume
+                    mountPath: /config/application-secret.properties
+                    subPath: application-secret.properties
+                  - name: log-volume
+                    mountPath: /log
+                  - name: tokens-volume
+                    mountPath: /config/tokens
+                volumes:
+                - name: secret-volume
+                  secret:
+                    secretName: app-secret
+                - name: log-volume
+                  emptyDir: {}
+                - name: tokens-volume
+                  emptyDir: {}
+          ---
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: ${{ env.MODULE }}-service
+            namespace: ${{ env.NAMESPACE }}
+          spec:
+            selector:
+              app: ${{ env.MODULE }}
+            ports:
+            - protocol: TCP
+              port: 80
+              targetPort: 8080
+          ---
+          apiVersion: networking.k8s.io/v1
+          kind: Ingress
+          metadata:
+            name: ${{ env.MODULE }}-ingress
+            namespace: ${{ env.NAMESPACE }}
+            annotations:
+              kubernetes.io/ingress.class: nginx
+          spec:
+            rules:
+            - http:
+                paths:
+                - path: /
+                  pathType: Prefix
+                  backend:
+                    service:
+                      name: ${{ env.MODULE }}-service
+                      port: 
+                        number: 80
+          EOF
+
+      - name: Create secret for application-secret.properties
+        run: |
+          kubectl create secret generic app-secret \
+            --from-file=application-secret.properties=./${{ env.MODULE }}/src/main/resources/application-secret.properties \
+            -n ${{ env.NAMESPACE }} \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Deploy to K3s
+        run: |
+          kubectl apply -f deployment.yaml
+
+      - name: Verify deployment
+        run: |
+          kubectl rollout status deployment/${{ env.MODULE }}-deployment -n ${{ env.NAMESPACE }}
+#
+#      - name: Clean up old images
+#        if: success()
+#        run: |
+#          kubectl exec -it $(kubectl get pods -l app=${{ env.MODULE }} -n ${{ env.NAMESPACE }} -o jsonpath='{.items[0].metadata.name}') -n ${{ env.NAMESPACE }} -- docker image prune -a -f
