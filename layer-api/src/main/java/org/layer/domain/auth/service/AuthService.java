@@ -16,6 +16,7 @@ import org.layer.domain.member.service.MemberService;
 import org.layer.oauth.dto.service.MemberInfoServiceResponse;
 import org.layer.oauth.service.GoogleService;
 import org.layer.oauth.service.KakaoService;
+import org.layer.oauth.service.apple.AppleService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +29,7 @@ import java.util.stream.IntStream;
 public class AuthService {
     private final KakaoService kakaoService;
     private final GoogleService googleService;
+    private final AppleService appleService;
     private final JwtService jwtService;
     private final MemberService memberService;
 
@@ -119,6 +121,7 @@ public class AuthService {
         return switch (socialType) {
             case KAKAO -> kakaoService.getMemberInfo(socialAccessToken);
             case GOOGLE -> googleService.getMemberInfo(socialAccessToken);
+            case APPLE -> appleService.getMemberInfo(socialAccessToken);
             default -> throw new BaseCustomException(AuthExceptionType.INVALID_SOCIAL_TYPE);
         };
     }

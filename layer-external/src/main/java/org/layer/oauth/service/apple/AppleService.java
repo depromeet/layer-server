@@ -6,10 +6,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.layer.domain.member.repository.MemberRepository;
 import org.layer.oauth.config.AppleAuthClient;
+import org.layer.oauth.dto.service.MemberInfoServiceResponse;
 import org.layer.oauth.dto.service.apple.ApplePublicKeyGenerator;
 import org.layer.oauth.dto.service.apple.ApplePublicKeys;
 import org.layer.oauth.dto.service.apple.AppleTokenParser;
 import org.layer.oauth.exception.OAuthException;
+import org.layer.oauth.service.OAuthService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -18,11 +20,12 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 
 import static org.layer.common.exception.TokenExceptionType.INVALID_APPLE_ID_TOKEN;
+import static org.layer.domain.member.entity.SocialType.APPLE;
 
 @RequiredArgsConstructor
 @Component
 @Slf4j
-public class AppleService {
+public class AppleService implements OAuthService {
 
     private final AppleTokenParser appleTokenParser;
     private final AppleAuthClient appleClient;
@@ -45,7 +48,7 @@ public class AppleService {
     @Value("${apple.login.client_id}")
     private String APPLE_CLIENT_ID;
 
-    public void getAppleSocialId(final String appleToken) {
+    public MemberInfoServiceResponse getMemberInfo(final String appleToken) {
         final Map<String, String> appleTokenHeader = appleTokenParser.parseHeader(appleToken);
         final ApplePublicKeys applePublicKeys = appleClient.getApplePublicKeys();
         final PublicKey publicKey = applePublicKeyGenerator.generate(appleTokenHeader, applePublicKeys);
@@ -56,21 +59,9 @@ public class AppleService {
         log.info("line 58: {}", (String) claims.get(CLAIM_ISSUER));
         validateIdToken(claims);
 
-        // DB에서 회원 찾기. 없다면 NEED_TO_REGISTER Exception 발생 => 이름 입력 창으로
-//        Member member = getMemberBySocialInfoForSignIn((String) claims.get(CLAIM_SUBJECT), SocialType.APPLE);
-//        JwtToken jwtToken = issueToken(member.getId(), member.getMemberRole());
-//        return SignInResponse.of(member, jwtToken);
-
-        // 있으면 로그인
-
-        // 없으면 throw
+        return new MemberInfoServiceResponse((String) claims.get(CLAIM_SUBJECT), APPLE, (String) claims.get(CLAIM_EMAIL));
 
     }
-
-//    public Member getMemberBySocialInfoForSignIn(String socialId, SocialType socialType) {
-//        return memberRepository.findBySocialIdAndSocialType(socialId, socialType)
-//                .orElseThrow(() -> new BaseCustomException(MemberExceptionType.NEED_TO_REGISTER));
-//    }
 
     // id token Claim 검증
     private void validateIdToken(Claims claims) {

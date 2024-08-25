@@ -6,6 +6,7 @@ import org.layer.common.annotation.DisableSwaggerSecurity;
 import org.layer.common.annotation.MemberId;
 import org.layer.domain.auth.controller.dto.*;
 import org.layer.domain.auth.service.AuthService;
+import org.layer.domain.member.entity.SocialType;
 import org.layer.oauth.service.GoogleService;
 import org.layer.oauth.service.KakaoService;
 import org.layer.oauth.service.apple.AppleService;
@@ -60,8 +61,7 @@ public class AuthController implements AuthApi {
 
     // 토큰 재발급
     @PostMapping("/reissue-token")
-    public ResponseEntity<ReissueTokenResponse> reissueToken(@RequestHeader(value = "Refresh", required = false) String refreshToken,
-                                                             ReissueTokenRequest reissueTokenRequest) {
+    public ResponseEntity<ReissueTokenResponse> reissueToken(@RequestHeader(value = "Refresh", required = false) String refreshToken, ReissueTokenRequest reissueTokenRequest) {
         return new ResponseEntity<>(
                 ReissueTokenResponse.of(authService.reissueToken(refreshToken, reissueTokenRequest.memberId())),
                 HttpStatus.CREATED);
@@ -76,9 +76,9 @@ public class AuthController implements AuthApi {
 
     @DisableSwaggerSecurity
     @PostMapping("/oauth2/apple")
-    public Boolean appleLogin(@RequestParam Map<String, String> body) {
-        appleService.getAppleSocialId(body.get("id_token"));
-        return true;
+    public ResponseEntity<SignInResponse> appleLogin(@RequestParam Map<String, String> body) {
+        SignInResponse signInResponse = authService.signIn(body.get("id_token"), SocialType.APPLE);
+        return new ResponseEntity<>(signInResponse, HttpStatus.OK);
     }
 
     @DisableSwaggerSecurity
