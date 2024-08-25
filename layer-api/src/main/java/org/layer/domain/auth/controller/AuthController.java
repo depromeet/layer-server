@@ -6,12 +6,14 @@ import org.layer.common.annotation.DisableSwaggerSecurity;
 import org.layer.common.annotation.MemberId;
 import org.layer.domain.auth.controller.dto.*;
 import org.layer.domain.auth.service.AuthService;
-import org.layer.domain.member.repository.MemberRepository;
+import org.layer.domain.member.entity.SocialType;
 import org.layer.oauth.service.GoogleService;
 import org.layer.oauth.service.KakaoService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -21,7 +23,6 @@ public class AuthController implements AuthApi {
     private final AuthService authService;
     private final GoogleService googleService;
     private final KakaoService kakaoService;
-    private final MemberRepository memberRepository;
 
     private static final String SOCIAL_TOKEN_NAME = "X-AUTH-TOKEN";
 
@@ -58,8 +59,7 @@ public class AuthController implements AuthApi {
 
     // 토큰 재발급
     @PostMapping("/reissue-token")
-    public ResponseEntity<ReissueTokenResponse> reissueToken(@RequestHeader(value = "Refresh", required = false) String refreshToken,
-                                                             ReissueTokenRequest reissueTokenRequest) {
+    public ResponseEntity<ReissueTokenResponse> reissueToken(@RequestHeader(value = "Refresh", required = false) String refreshToken, ReissueTokenRequest reissueTokenRequest) {
         return new ResponseEntity<>(
                 ReissueTokenResponse.of(authService.reissueToken(refreshToken, reissueTokenRequest.memberId())),
                 HttpStatus.CREATED);
@@ -70,6 +70,13 @@ public class AuthController implements AuthApi {
     @GetMapping("/member-info")
     public MemberInfoResponse getMemberInfo(@MemberId Long memberId) {
         return authService.getMemberInfo(memberId);
+    }
+
+    @DisableSwaggerSecurity
+    @PostMapping("/oauth2/apple")
+    public ResponseEntity<SignInResponse> appleLogin(@RequestParam Map<String, String> body) {
+        SignInResponse signInResponse = authService.signIn(body.get("id_token"), SocialType.APPLE);
+        return new ResponseEntity<>(signInResponse, HttpStatus.OK);
     }
 
     @DisableSwaggerSecurity
