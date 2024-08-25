@@ -3,7 +3,7 @@ name: deploy action
 on:
   push:
     branches:
-      - develop
+      - develop/compose
       - main
 
 env:
