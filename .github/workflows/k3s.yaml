@@ -148,7 +148,7 @@ jobs:
               spec:
                 containers:
                 - name: ${{ env.MODULE }}
-                  image: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}/${{ env.MODULE }}:latest
+                  image: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ needs.setup.outputs.sha_short }}
                   ports:
                   - containerPort: 8080
                   env:
@@ -194,21 +194,20 @@ jobs:
             name: ${{ env.MODULE }}-ingress
             namespace: default
             annotations:
-                kubernetes.io/ingress.class: 'traefik'Q
+              kubernetes.io/ingress.class: traefik
           spec:
             rules:
-              - host: stgapi.layerapp.io
-                http:
-                  paths:
-                    - path: /
-                      pathType: Prefix
-                      backend:
-                        service:
-                          name: layer-api-service
-                          port:
-                            number: 80
+            - host: stgapi.layerapp.io
+              http:
+                paths:
+                - path: /
+                  pathType: Prefix
+                  backend:
+                    service:
+                      name: ${{ env.MODULE }}-service
+                      port: 
+                        number: 80
           EOF
-
       - name: Deploy to K3s
         run: |
           kubectl apply -f deployment.yaml
