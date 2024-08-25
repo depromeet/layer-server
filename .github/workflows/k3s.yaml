@@ -108,11 +108,11 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DEPLOY_TARGET: ${{ needs.setup.outputs.deploy_target }}
-      SELECTOR: ${{ env.MODULE }}-dev
       MODULE: ${{ env.MODULE }}
       REGISTRY: ${{ env.REGISTRY }}
       NAMESPACE: ${{ env.NAMESPACE }}
       IMAGE_NAME: ${{ env.IMAGE_NAME }}
+      SELECTOR: ${{ env.MODULE }}-dev
 
     steps:
       - name: Checkout sources
@@ -131,34 +131,42 @@ jobs:
 
       - name: Create K3s deployment files
         run: |
+          MODULE=${{ env.MODULE }}
+          REGISTRY=${{ env.REGISTRY }}
+          NAMESPACE=${{ env.NAMESPACE }}
+          IMAGE_NAME=${{ env.IMAGE_NAME }}
+          SHA_SHORT=${{ needs.setup.outputs.sha_short }}
+          SELECTOR=${{ env.SELECTOR }}
+          DEPLOY_TARGET=${{ env.DEPLOY_TARGET }}
+
           cat <<EOF > deployment.yaml
           apiVersion: apps/v1
           kind: Deployment
           metadata:
-            name: ${{ env.MODULE }}-deployment
+            name: ${MODULE}-deployment
             namespace: default
             labels:
-              app: ${{ env.SELECTOR }}
+              app: ${SELECTOR}
           spec:
             replicas: 1
             selector:
               matchLabels:
-                app: ${{ env.SELECTOR }}
+                app: ${SELECTOR}
             template:
               metadata:
                 labels:
-                  app: ${{ env.SELECTOR }}
+                  app: ${SELECTOR}
               spec:
                 containers:
-                - name: ${{ env.MODULE }}
-                  image: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ needs.setup.outputs.sha_short }}
+                - name: ${MODULE}
+                  image: ${REGISTRY}/${NAMESPACE}/${IMAGE_NAME}:${SHA_SHORT}
                   ports:
                   - containerPort: 8080
                   env:
                   - name: TZ
                     value: "Asia/Seoul"
                   - name: SPRING_PROFILES_ACTIVE
-                    value: "${{ env.DEPLOY_TARGET }}"
+                    value: "${DEPLOY_TARGET}"
                   volumeMounts:
                   - name: secret-volume
                     mountPath: /config/application-secret.properties
@@ -173,7 +181,7 @@ jobs:
                     secretName: app-secret-dev
                 - name: log-volume
                   hostPath:
-                    path: /${{ env.DEPLOY_TARGET }}/log/${{ env.MODULE }}
+                    path: /${DEPLOY_TARGET}/log/${MODULE}
                     type: DirectoryOrCreate
                 - name: tokens-volume
                   emptyDir: {}
@@ -181,13 +189,13 @@ jobs:
           apiVersion: v1
           kind: Service
           metadata:
-            name: ${{ env.MODULE }}-service
+            name: ${MODULE}-service
             namespace: default
             labels:
-              app: ${{ env.SELECTOR }}
+              app: ${SELECTOR}
           spec:
             selector:
-              app: ${{ env.SELECTOR }}
+              app: ${SELECTOR}
             ports:
             - protocol: TCP
               port: 80
@@ -196,7 +204,7 @@ jobs:
           apiVersion: networking.k8s.io/v1
           kind: Ingress
           metadata:
-            name: ${{ env.MODULE }}-ingress
+            name: ${MODULE}-ingress
             namespace: default
             annotations:
               kubernetes.io/ingress.class: traefik
@@ -209,7 +217,7 @@ jobs:
                   pathType: Prefix
                   backend:
                     service:
-                      name: ${{ env.MODULE }}-service
+                      name: ${MODULE}-service
                       port: 
                         number: 80
           EOF
@@ -217,4 +225,5 @@ jobs:
       - name: Deploy to K3s
         run: |
           kubectl apply -f deployment.yaml
+  
 
