@@ -105,7 +105,7 @@ jobs:
   
   
   
-
+  
   deploy:
     name: Deploy to K3s
     needs: [ build, setup ]
@@ -194,18 +194,19 @@ jobs:
             name: ${{ env.MODULE }}-ingress
             namespace: default
             annotations:
-              kubernetes.io/ingress.class: nginx
+                kubernetes.io/ingress.class: 'traefik'Q
           spec:
             rules:
-            - http:
-                paths:
-                - path: /
-                  pathType: Prefix
-                  backend:
-                    service:
-                      name: ${{ env.MODULE }}-service
-                      port: 
-                        number: 80
+              - host: stgapi.layerapp.io
+                http:
+                  paths:
+                    - path: /
+                      pathType: Prefix
+                      backend:
+                        service:
+                          name: layer-api-service
+                          port:
+                            number: 80
           EOF
 
       - name: Deploy to K3s
