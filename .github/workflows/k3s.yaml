@@ -3,7 +3,7 @@ name: Spring Boot Multi-module K3s Deployment
 on:
   push:
     branches:
-      - chire/k3s
+      - chore/k3s
 
 env:
   REGISTRY: "ghcr.io"
