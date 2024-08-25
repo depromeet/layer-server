@@ -126,6 +126,11 @@ jobs:
           echo "${{ secrets.KUBE_CONFIG }}" > $HOME/.kube/config
           chmod 600 $HOME/.kube/config
 
+      - name: Delete existing deployment (if exists)
+        run: |
+          kubectl delete deployment ${{ env.MODULE }}-deployment --ignore-not-found
+
+
       - name: Create K3s deployment files
         run: |
           cat <<EOF > deployment.yaml
