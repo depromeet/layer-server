@@ -10,6 +10,7 @@ env:
   NAMESPACE: "depromeet"
   IMAGE_NAME: "kasukabe-server"
   MODULE: "layer-api"
+  
 
 jobs:
   setup:
@@ -48,11 +49,6 @@ jobs:
 
     env:
       DEPLOY_TARGET: ${{ needs.setup.outputs.deploy_target }}
-      REGISTRY: "ghcr.io"
-      NAMESPACE: "depromeet"
-      IMAGE_NAME: "kasukabe-server"
-      # TODO:  멀티모듈 적용시 동적 할당 필요
-      MODULE: "layer-api"
       APPLICATION_SECRET_PROPERTIES: ${{ secrets.APPLICATION_SECRET_PROPERTIES }}
       GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
       SHA_SHORT: ${{ needs.setup.outputs.sha_short }}
@@ -112,7 +108,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DEPLOY_TARGET: ${{ needs.setup.outputs.deploy_target }}
-      SELECTOR: ${{env.MODULE}}-dev
+      SELECTOR: ${{ env.MODULE }}-dev
 
     steps:
       - name: Checkout sources
