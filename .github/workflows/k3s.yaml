@@ -194,13 +194,6 @@ jobs:
                         number: 80
           EOF
 
-      - name: Create secret for application-secret.properties
-        run: |
-          kubectl create secret generic app-secret \
-            --from-file=application-secret.properties=./${{ env.MODULE }}/src/main/resources/application-secret.properties \
-            -n ${{ env.NAMESPACE }} \
-            --dry-run=client -o yaml | kubectl apply -f -
-
       - name: Deploy to K3s
         run: |
           kubectl apply -f deployment.yaml
