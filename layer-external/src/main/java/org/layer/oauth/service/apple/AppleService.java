@@ -54,9 +54,6 @@ public class AppleService implements OAuthService {
         final PublicKey publicKey = applePublicKeyGenerator.generate(appleTokenHeader, applePublicKeys);
         final Claims claims = appleTokenParser.extractClaims(appleToken, publicKey);
 
-        claims.entrySet().stream().forEach(it -> log.info("[line 34] key: {} / value: {}", it.getKey(), it.getValue()));
-        log.info("line 58: {}", (String) claims.get(CLAIM_SUBJECT));
-        log.info("line 58: {}", (String) claims.get(CLAIM_ISSUER));
         validateIdToken(claims);
 
         return new MemberInfoServiceResponse((String) claims.get(CLAIM_SUBJECT), APPLE, (String) claims.get(CLAIM_EMAIL));
@@ -66,9 +63,6 @@ public class AppleService implements OAuthService {
     // id token Claim 검증
     private void validateIdToken(Claims claims) {
         LinkedHashSet<String> auds = (LinkedHashSet<String>)(claims.get(CLAIM_AUDIENCE));
-
-        log.info("line 79: {}", claims.get(CLAIM_ISSUER));
-        log.info("line 80: {}", auds);
 
         // issuer가 apple인지, audience에 layer가 있는지 검증
         if(!claims.get(CLAIM_ISSUER).equals(APPLE_ISSUER)
