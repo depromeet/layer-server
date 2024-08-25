@@ -10,7 +10,7 @@ env:
   NAMESPACE: "depromeet"
   IMAGE_NAME: "kasukabe-server"
   MODULE: "layer-api"
-  
+
 
 jobs:
   setup:
@@ -101,7 +101,7 @@ jobs:
   
   
   
-  
+
   deploy:
     name: Deploy to K3s
     needs: [ build, setup ]
@@ -109,6 +109,10 @@ jobs:
     env:
       DEPLOY_TARGET: ${{ needs.setup.outputs.deploy_target }}
       SELECTOR: ${{ env.MODULE }}-dev
+      MODULE: ${{ env.MODULE }}
+      REGISTRY: ${{ env.REGISTRY }}
+      NAMESPACE: ${{ env.NAMESPACE }}
+      IMAGE_NAME: ${{ env.IMAGE_NAME }}
 
     steps:
       - name: Checkout sources
@@ -209,6 +213,7 @@ jobs:
                       port: 
                         number: 80
           EOF
+
       - name: Deploy to K3s
         run: |
           kubectl apply -f deployment.yaml
