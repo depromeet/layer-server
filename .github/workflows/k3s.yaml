@@ -108,6 +108,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DEPLOY_TARGET: ${{ needs.setup.outputs.deploy_target }}
+      SELECTOR: layer-dev
+      SHA_SHORT: ${{ needs.setup.outputs.sha_short }}
 
     steps:
       - name: Checkout sources
@@ -126,12 +128,6 @@ jobs:
 
       - name: Create K3s deployment files
         run: |
-          MODULE=$MODULE
-          SELECTOR="$MODULE-dev"
-          REGISTRY=$REGISTRY
-          NAMESPACE=$NAMESPACE
-          IMAGE_NAME=$IMAGE_NAME
-          
           cat <<EOF > deployment.yaml
           apiVersion: apps/v1
           kind: Deployment
@@ -152,7 +148,7 @@ jobs:
               spec:
                 containers:
                 - name: ${{ env.MODULE }}
-                  image: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ needs.setup.outputs.sha_short }}
+                  image: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ env.SHA_SHORT }}
                   ports:
                   - containerPort: 8080
                   env:
