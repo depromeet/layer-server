@@ -112,6 +112,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DEPLOY_TARGET: ${{ needs.setup.outputs.deploy_target }}
+      SELECTOR: ${{env.MODULE}}-dev
 
     steps:
       - name: Checkout sources
@@ -136,15 +137,17 @@ jobs:
           metadata:
             name: ${{ env.MODULE }}-deployment
             namespace: default
+            labels:
+              app: ${{ env.SELECTOR }}
           spec:
             replicas: 1
             selector:
               matchLabels:
-                app: ${{ env.MODULE }}
+                app: ${{ env.SELECTOR }}
             template:
               metadata:
                 labels:
-                  app: ${{ env.MODULE }}
+                  app: ${{ env.SELECTOR }}
               spec:
                 containers:
                 - name: ${{ env.MODULE }}
@@ -180,9 +183,11 @@ jobs:
           metadata:
             name: ${{ env.MODULE }}-service
             namespace: default
+            labels:
+              app: ${{ env.SELECTOR }}
           spec:
             selector:
-              app: ${{ env.MODULE }}
+              app: ${{ env.SELECTOR }}
             ports:
             - protocol: TCP
               port: 80
