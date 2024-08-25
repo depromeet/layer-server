@@ -4,7 +4,6 @@ package org.layer.oauth.service.apple;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.layer.domain.member.repository.MemberRepository;
 import org.layer.oauth.config.AppleAuthClient;
 import org.layer.oauth.dto.service.MemberInfoServiceResponse;
 import org.layer.oauth.dto.service.apple.ApplePublicKeyGenerator;
@@ -30,7 +29,6 @@ public class AppleService implements OAuthService {
     private final AppleTokenParser appleTokenParser;
     private final AppleAuthClient appleClient;
     private final ApplePublicKeyGenerator applePublicKeyGenerator;
-    private final MemberRepository memberRepository;
 
 
     private final String DEFAULT_NAME = "apple";
