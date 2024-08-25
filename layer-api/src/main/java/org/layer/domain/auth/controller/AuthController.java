@@ -9,7 +9,6 @@ import org.layer.domain.auth.service.AuthService;
 import org.layer.domain.member.entity.SocialType;
 import org.layer.oauth.service.GoogleService;
 import org.layer.oauth.service.KakaoService;
-import org.layer.oauth.service.apple.AppleService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +23,6 @@ public class AuthController implements AuthApi {
     private final AuthService authService;
     private final GoogleService googleService;
     private final KakaoService kakaoService;
-    private final AppleService appleService;
 
     private static final String SOCIAL_TOKEN_NAME = "X-AUTH-TOKEN";
 
