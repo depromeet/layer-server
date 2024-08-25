@@ -19,7 +19,11 @@ jobs:
       packages: write
     outputs:
       deploy_target: ${{ steps.set-env.outputs.DEPLOY_TARGET }}
+      sha_short: ${{ steps.sha_short.outputs.sha_short }}
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
       - name: Setup Env
         id: set-env
         run: |
@@ -28,6 +32,11 @@ jobs:
           else
             echo "DEPLOY_TARGET=development" >> $GITHUB_OUTPUT
           fi
+
+      - name: Get short SHA
+        id: sha_short
+        run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
 
   build:
     name: build
@@ -46,6 +55,7 @@ jobs:
       MODULE: "layer-api"
       APPLICATION_SECRET_PROPERTIES: ${{ secrets.APPLICATION_SECRET_PROPERTIES }}
       GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+      SHA_SHORT: ${{ needs.setup.outputs.sha_short }}
 
     steps:
       - name: Setup Java
@@ -90,9 +100,11 @@ jobs:
           platforms: linux/amd64
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}/${{ env.MODULE }}:latest
-  #            ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}/${{ env.MODULE }}:${{ github.run_id }}
-
+            ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ env.SHA_SHORT }}
+            ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}:latest
+  
+  
+  
 
   deploy:
     name: Deploy to K3s
@@ -136,7 +148,7 @@ jobs:
               spec:
                 containers:
                 - name: ${{ env.MODULE }}
-                  image: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}/${{ env.MODULE }}:${{ github.sha }}
+                  image: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}/${{ env.MODULE }}:latest
                   ports:
                   - containerPort: 8080
                   env:
@@ -200,8 +212,34 @@ jobs:
 
       - name: Verify deployment
         run: |
-          kubectl rollout status deployment/${{ env.MODULE }}-deployment -n default
-#
+          # 최대 대기 시간 설정 
+          # 120 = 2분
+          timeout=120
+          elapsed=0
+          interval=10
+
+          while true; do
+            # 배포 상태 확인
+            STATUS=$(kubectl rollout status deployment/${{ env.MODULE }}-deployment -n default --timeout=10s)
+            EXIT_CODE=$?
+
+            if [ $EXIT_CODE -eq 0 ]; then
+              echo "Deployment successful!"
+              exit 0
+            fi
+
+            # 타임아웃 체크
+            if [ $elapsed -ge $timeout ]; then
+              echo "Deployment verification timed out after ${timeout} seconds"
+              kubectl get pods -n default -l app=${{ env.MODULE }}
+              kubectl describe deployment ${{ env.MODULE }}-deployment -n default
+              exit 1
+            fi
+
+            echo "Waiting for deployment to complete... (${elapsed}s elapsed)"
+            sleep $interval
+            elapsed=$((elapsed + interval))
+          done
 #      - name: Clean up old images
 #        if: success()
 #        run: |
