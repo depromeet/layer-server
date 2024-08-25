@@ -108,11 +108,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DEPLOY_TARGET: ${{ needs.setup.outputs.deploy_target }}
-      SELECTOR: "$MODULE-dev"
-      MODULE: $MODULE
-      REGISTRY: $REGISTRY
-      NAMESPACE: $NAMESPACE
-      IMAGE_NAME: $IMAGE_NAME
 
     steps:
       - name: Checkout sources
@@ -131,6 +126,12 @@ jobs:
 
       - name: Create K3s deployment files
         run: |
+          MODULE=$MODULE
+          SELECTOR="$MODULE-dev"
+          REGISTRY=$REGISTRY
+          NAMESPACE=$NAMESPACE
+          IMAGE_NAME=$IMAGE_NAME
+          
           cat <<EOF > deployment.yaml
           apiVersion: apps/v1
           kind: Deployment
