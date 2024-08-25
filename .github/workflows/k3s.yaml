@@ -214,22 +214,23 @@ jobs:
 
       - name: Verify deployment
         run: |
-          # 최대 대기 시간 설정 
-          # 120 = 2분
+          # 최대 대기 시간 설정 (2분 = 120초)
           timeout=120
-          elapsed=0
-          interval=10
-
+          start_time=$(date +%s)
+          
           while true; do
+            current_time=$(date +%s)
+            elapsed=$((current_time - start_time))
+          
             # 배포 상태 확인
             STATUS=$(kubectl rollout status deployment/${{ env.MODULE }}-deployment -n default --timeout=10s)
             EXIT_CODE=$?
-
+          
             if [ $EXIT_CODE -eq 0 ]; then
               echo "Deployment successful!"
               exit 0
             fi
-
+          
             # 타임아웃 체크
             if [ $elapsed -ge $timeout ]; then
               echo "Deployment verification timed out after ${timeout} seconds"
@@ -237,10 +238,16 @@ jobs:
               kubectl describe deployment ${{ env.MODULE }}-deployment -n default
               exit 1
             fi
-
-            echo "Waiting for deployment to complete... (${elapsed}s elapsed)"
-            sleep $interval
-            elapsed=$((elapsed + interval))
+          
+            remaining=$((timeout - elapsed))
+            echo "Waiting for deployment to complete... (${elapsed}s elapsed, ${remaining}s remaining)"
+          
+            # 남은 시간이 10초 이하면 1초씩, 그 외에는 10초씩 대기
+            if [ $remaining -le 10 ]; then
+              sleep 1
+            else
+              sleep 10
+            fi
           done
 #      - name: Clean up old images
 #        if: success()
