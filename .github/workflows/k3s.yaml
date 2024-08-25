@@ -3,7 +3,7 @@ name: Spring Boot Multi-module K3s Deployment
 on:
   push:
     branches:
-      - chore/k3s
+      - develop
 
 env:
   REGISTRY: "ghcr.io"
@@ -167,7 +167,7 @@ jobs:
                 volumes:
                 - name: secret-volume
                   secret:
-                    secretName: app-secret
+                    secretName: app-secret-dev
                 - name: log-volume
                   emptyDir: {}
                 - name: tokens-volume

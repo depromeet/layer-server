@@ -50,8 +50,9 @@ public class SpaceRepositoryImpl implements SpaceCustomRepository {
     @Override
     public Optional<SpaceWithMemberCount> findByIdAndJoinedMemberId(Long spaceId, Long memberId) {
 
-        var foundSpace = getSpaceWithMemberCountQuery().where(memberSpaceRelation.memberId.eq(memberId).and(space.id.eq(spaceId))).fetchOne();
-
+        var foundSpace = getSpaceWithMemberCountQuery(memberId)
+                .where(space.id.eq(spaceId))
+                .fetchOne();
 
         if (foundSpace == null || isSpaceWithMemberCountEmpty(foundSpace)) {
             return Optional.empty();
@@ -133,12 +134,42 @@ public class SpaceRepositoryImpl implements SpaceCustomRepository {
 
     }
 
+    private JPAQuery<SpaceWithMemberCount> getSpaceWithMemberCountQuery(Long memberId) {
+        log.info("CALL");
+        QMemberSpaceRelation memberCountRelationTable = new QMemberSpaceRelation("msr");
+        return queryFactory.select(
+                        new QSpaceWithMemberCount(
+                                space.id,
+                                space.createdAt,
+                                space.updatedAt,
+                                space.category,
+                                space.fieldList,
+                                space.name,
+                                space.introduction,
+                                member,
+                                space.formId,
+                                form.formTag,
+                                memberCountRelationTable.space.id.count().as("memberCount"),
+                                space.bannerUrl
+                        ))
+                .from(space)
+                .innerJoin(memberSpaceRelation).on(space.id.eq(memberSpaceRelation.space.id)
+                        .and(memberSpaceRelation.memberId.eq(memberId))) // INNER JOIN 사용
+                .leftJoin(memberCountRelationTable).on(space.id.eq(memberCountRelationTable.space.id))
+                .leftJoin(member).on(space.leaderId.eq(member.id))
+                .leftJoin(form).on(space.formId.eq(form.id))
+                .orderBy(form.id.desc())
+                .limit(1);
+    }
+
+
+    private boolean isSpaceWithMemberCountEmpty(SpaceWithMemberCount spaceWithMemberCount) {
+        // spaceWithMemberCount의 필드들이 null 또는 기본값인지 확인
+        return spaceWithMemberCount.getId() == null ||
+                spaceWithMemberCount.getMemberCount() == null || spaceWithMemberCount.getLeader() == null;
+    }
 
     private BooleanExpression hasCategory(Optional<SpaceCategory> category) {
         return category.map(space.category::eq).orElse(null);
-    }
-
-    private boolean isSpaceWithMemberCountEmpty(SpaceWithMemberCount space) {
-        return space.getId() == null && space.getName() == null && space.getMemberCount() == 0;
     }
 }
