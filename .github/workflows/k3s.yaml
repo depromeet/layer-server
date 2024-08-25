@@ -169,7 +169,9 @@ jobs:
                   secret:
                     secretName: app-secret-dev
                 - name: log-volume
-                  emptyDir: {}
+                  hostPath:
+                  path: /${{ env.DEPLOY_TARGET }}/log/${{ env.MODULE }}
+                  type: DirectoryOrCreate
                 - name: tokens-volume
                   emptyDir: {}
           ---
