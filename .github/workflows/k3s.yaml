@@ -123,7 +123,7 @@ jobs:
           kind: Deployment
           metadata:
             name: ${{ env.MODULE }}-deployment
-            namespace: ${{ env.NAMESPACE }}
+            namespace: default
           spec:
             replicas: 1
             selector:
@@ -165,7 +165,7 @@ jobs:
           kind: Service
           metadata:
             name: ${{ env.MODULE }}-service
-            namespace: ${{ env.NAMESPACE }}
+            namespace: default
           spec:
             selector:
               app: ${{ env.MODULE }}
@@ -178,7 +178,7 @@ jobs:
           kind: Ingress
           metadata:
             name: ${{ env.MODULE }}-ingress
-            namespace: ${{ env.NAMESPACE }}
+            namespace: default
             annotations:
               kubernetes.io/ingress.class: nginx
           spec:
@@ -200,7 +200,7 @@ jobs:
 
       - name: Verify deployment
         run: |
-          kubectl rollout status deployment/${{ env.MODULE }}-deployment -n ${{ env.NAMESPACE }}
+          kubectl rollout status deployment/${{ env.MODULE }}-deployment -n default
 #
 #      - name: Clean up old images
 #        if: success()
