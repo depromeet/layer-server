@@ -27,4 +27,5 @@ public class RetrospectScheduler {
 		retrospectRepository.updateRetrospectStatus(now);
 		log.info("Batch : updateRetrospectStatusToDone");
 	}
+
 }
