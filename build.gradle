@@ -177,3 +177,19 @@ project(":layer-external") {
         testImplementation 'org.springframework.boot:spring-boot-starter-test'
     }
 }
+
+project(":layer-batch") {
+    bootJar.enabled = false
+    jar.enabled = true
+
+    dependencies {
+        implementation project(path: ':layer-common')
+        implementation project(path: ':layer-domain')
+
+        implementation 'org.springframework.boot:spring-boot-starter-web'
+		implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+        runtimeOnly 'com.mysql:mysql-connector-j'
+    }
+
+}

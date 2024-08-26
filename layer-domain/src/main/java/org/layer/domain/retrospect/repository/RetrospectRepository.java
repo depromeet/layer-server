@@ -13,7 +13,7 @@ import java.util.List;
 
 import static org.layer.common.exception.RetrospectExceptionType.NOT_FOUND_RETROSPECT;
 
-public interface RetrospectRepository extends JpaRepository<Retrospect, Long> {
+public interface RetrospectRepository extends JpaRepository<Retrospect, Long>, RetrospectCustomRepository {
     List<Retrospect> findAllBySpaceId(Long spaceId);
 
     List<Retrospect> findByIdIn(List<Long> ids);
