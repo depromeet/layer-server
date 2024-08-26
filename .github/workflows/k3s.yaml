@@ -41,10 +41,10 @@ jobs:
         id: detect-changes
         run: |
           CHANGED_MODULES=""
-          if git diff --name-only HEAD~1 HEAD | grep -q "^layer-api/"; then
+          if git diff --name-only HEAD^ HEAD | grep -q "^layer-api/"; then
             CHANGED_MODULES="layer-api"
           fi
-          if git diff --name-only HEAD~1 HEAD | grep -q "^layer-batch/"; then
+          if git diff --name-only HEAD^ HEAD | grep -q "^layer-batch/"; then
             if [ -z "$CHANGED_MODULES" ]; then
               CHANGED_MODULES="layer-batch"
             else
