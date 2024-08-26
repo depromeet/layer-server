@@ -6,9 +6,11 @@ import java.util.List;
 
 import org.layer.domain.space.exception.MemberSpaceRelationException;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
+@Getter
 public class Team {
 	private final List<MemberSpaceRelation> memberSpaceRelations;
 
