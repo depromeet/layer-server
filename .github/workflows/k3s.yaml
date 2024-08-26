@@ -22,7 +22,7 @@ jobs:
       changed_modules: ${{ steps.detect-changes.outputs.changed_modules }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v1
 
       - name: Setup Env
         id: set-env
