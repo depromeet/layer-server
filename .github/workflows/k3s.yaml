@@ -249,8 +249,8 @@ jobs:
                         port:
                           number: 80
             EOF
-            fi
-          done
+              fi
+            done
 
       - name: Deploy to K3s
         run: |
