@@ -2,8 +2,8 @@ package org.layer.domain.analyze.controller;
 
 import org.layer.common.annotation.MemberId;
 import org.layer.domain.analyze.controller.dto.response.AnalyzeGetResponse;
+import org.layer.domain.analyze.enums.AnalyzeType;
 import org.layer.domain.analyze.service.AnalyzeService;
-import org.layer.external.ai.dto.response.OpenAIResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,7 +28,7 @@ public class AnalyzeController implements AnalyzeApi {
 		@PathVariable("retrospectId") Long retrospectId,
 		@MemberId Long memberId) {
 
-		analyzeService.createAnalyze(spaceId, retrospectId, memberId);
+		analyzeService.createAnalyze(spaceId, retrospectId, memberId, true);
 		return ResponseEntity.status(HttpStatus.CREATED).build();
 	}
 
@@ -37,9 +37,10 @@ public class AnalyzeController implements AnalyzeApi {
 	public ResponseEntity<AnalyzeGetResponse> getAnalyze(
 		@PathVariable("spaceId") Long spaceId,
 		@PathVariable("retrospectId") Long retrospectId,
+		@PathVariable("analyzeType") AnalyzeType analyzeType,
 		@MemberId Long memberId) {
 
-		AnalyzeGetResponse response = analyzeService.getAnalyze(spaceId, retrospectId, memberId);
+		AnalyzeGetResponse response = analyzeService.getAnalyze(spaceId, retrospectId, memberId, analyzeType);
 
 		return ResponseEntity.ok().body(response);
 	}

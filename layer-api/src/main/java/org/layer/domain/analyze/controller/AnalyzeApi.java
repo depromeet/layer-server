@@ -2,6 +2,7 @@ package org.layer.domain.analyze.controller;
 
 import org.layer.common.annotation.MemberId;
 import org.layer.domain.analyze.controller.dto.response.AnalyzeGetResponse;
+import org.layer.domain.analyze.enums.AnalyzeType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 
@@ -30,5 +31,5 @@ public interface AnalyzeApi {
 	}
 	)
 	ResponseEntity<AnalyzeGetResponse> getAnalyze(@PathVariable("spaceId") Long spaceId,
-		@PathVariable("retrospectId") Long retrospectId, @MemberId Long memberId);
+		@PathVariable("retrospectId") Long retrospectId, @PathVariable("analyzeType") AnalyzeType analyzeType,@MemberId Long memberId);
 }
