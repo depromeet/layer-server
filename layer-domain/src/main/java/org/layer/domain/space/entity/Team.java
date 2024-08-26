@@ -19,7 +19,7 @@ public class Team {
 			.orElseThrow(() -> new MemberSpaceRelationException(NOT_FOUND_MEMBER_SPACE_RELATION));
 	}
 
-	public int getTeamMemberCount(){
+	public long getTeamMemberCount(){
 		return memberSpaceRelations.size();
 	}
 }

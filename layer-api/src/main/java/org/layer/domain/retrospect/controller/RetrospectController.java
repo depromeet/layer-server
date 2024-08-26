@@ -75,4 +75,16 @@ public class RetrospectController implements RetrospectApi {
 		return ResponseEntity.ok().build();
 	}
 
+	@Override
+	@PatchMapping("/{retrospectId}/close")
+	public ResponseEntity<Void> closeRetrospect(
+		@PathVariable("spaceId") Long spaceId,
+		@PathVariable("retrospectId") Long retrospectId,
+		@MemberId Long memberId) {
+
+		retrospectService.closeRetrospect(spaceId, retrospectId, memberId);
+
+		return ResponseEntity.ok().build();
+	}
+
 }

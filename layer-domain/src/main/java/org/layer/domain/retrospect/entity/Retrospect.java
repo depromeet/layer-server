@@ -82,4 +82,10 @@ public class Retrospect extends BaseTimeEntity {
 		this.introduction = introduction;
 		this.deadline = deadline;
 	}
+
+	public void updateRetrospectStatus(RetrospectStatus retrospectStatus){
+		isProceedingRetrospect();
+
+		this.retrospectStatus = retrospectStatus;
+	}
 }

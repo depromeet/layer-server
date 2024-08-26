@@ -1,6 +1,12 @@
 package org.layer.domain.retrospect.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.headers.Header;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
@@ -31,4 +37,24 @@ public interface RetrospectApi {
 	@Operation(summary = "회고 삭제", description = "특정 팀 스페이스에서 작성했던 회고를 삭제하는 기능입니다.")
 	ResponseEntity<RetrospectListGetResponse> deleteRetrospect(@PathVariable("spaceId") Long spaceId,
 		@PathVariable("retrospectId") Long retrospectId, @MemberId Long memberId);
+
+	@Operation(summary = "회고 마감", description = "특정 팀 스페이스에서 작성했던 회고를 마감하는 기능입니다. </br> Note: 스페이스 내 모든 인원이 작성해야 가능합니다.")
+	@ApiResponses({
+		@ApiResponse(responseCode = "200", description = "회고 마감 성공",
+			content = @Content(mediaType = "application/json")),
+		@ApiResponse(responseCode = "400", description = "회고 마감 실패",
+			content = @Content(mediaType = "application/json", examples = {
+				@ExampleObject(name = "회고 마감 실패", value = """
+                                    {
+                                      "name": "NOT_COMPLETE_RETROSPECT_MEMBER",
+                                      "message": "회고를 작성하지 않은 팀원이 있습니다."
+                                    }
+                                    """
+				)
+			}))
+	})
+	ResponseEntity<Void> closeRetrospect(
+		@PathVariable("spaceId") Long spaceId,
+		@PathVariable("retrospectId") Long retrospectId,
+		@MemberId Long memberId);
 }
