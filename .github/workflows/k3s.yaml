@@ -164,93 +164,93 @@ jobs:
         run: |
           for MODULE in $(echo $CHANGED_MODULES | tr "," "\n"); do
             cat <<EOF > deployment-$MODULE.yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: $MODULE-deployment
-  namespace: default
-  labels:
-    app: ${{ env.SELECTOR }}
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: ${{ env.SELECTOR }}
-  template:
-    metadata:
-      labels:
-        app: ${{ env.SELECTOR }}
-    spec:
-      containers:
-      - name: $MODULE
-        image: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}/$MODULE:${{ env.SHA_SHORT }}
-        ports:
-        - containerPort: 8080
-        env:
-        - name: TZ
-          value: "Asia/Seoul"
-        - name: SPRING_PROFILES_ACTIVE
-          value: "${{ env.DEPLOY_TARGET }}"
-        volumeMounts:
-        - name: secret-volume
-          mountPath: /config/application-secret.properties
-          subPath: application-secret.properties
-        - name: log-volume
-          mountPath: /log
-        - name: tokens-volume
-          mountPath: /config/tokens
-      volumes:
-      - name: secret-volume
-        secret:
-          secretName: app-secret-dev
-      - name: log-volume
-        hostPath:
-          path: /${{ env.DEPLOY_TARGET }}/log/$MODULE
-          type: DirectoryOrCreate
-      - name: tokens-volume
-        emptyDir: {}
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: $MODULE-service
-  namespace: default
-  labels:
-    app: ${{ env.SELECTOR }}
-spec:
-  selector:
-    app: ${{ env.SELECTOR }}
-  ports:
-  - protocol: TCP
-    port: 80
-    targetPort: 8080
-EOF
-
-            if [ "$MODULE" != "layer-batch" ]; then
-              cat <<EOF >> deployment-$MODULE.yaml
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: $MODULE-ingress
-  namespace: default
-  annotations:
-    kubernetes.io/ingress.class: traefik
-spec:
-  rules:
-  - host: stgapi.layerapp.io
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: $MODULE-service
-            port:
-              number: 80
-EOF
-            fi
-          done
+            apiVersion: apps/v1
+            kind: Deployment
+            metadata:
+              name: $MODULE-deployment
+              namespace: default
+              labels:
+                app: ${{ env.SELECTOR }}
+            spec:
+              replicas: 1
+              selector:
+                matchLabels:
+                  app: ${{ env.SELECTOR }}
+              template:
+                metadata:
+                  labels:
+                    app: ${{ env.SELECTOR }}
+                spec:
+                  containers:
+                  - name: $MODULE
+                    image: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}/$MODULE:${{ env.SHA_SHORT }}
+                    ports:
+                    - containerPort: 8080
+                    env:
+                    - name: TZ
+                      value: "Asia/Seoul"
+                    - name: SPRING_PROFILES_ACTIVE
+                      value: "${{ env.DEPLOY_TARGET }}"
+                    volumeMounts:
+                    - name: secret-volume
+                      mountPath: /config/application-secret.properties
+                      subPath: application-secret.properties
+                    - name: log-volume
+                      mountPath: /log
+                    - name: tokens-volume
+                      mountPath: /config/tokens
+                  volumes:
+                  - name: secret-volume
+                    secret:
+                      secretName: app-secret-dev
+                  - name: log-volume
+                    hostPath:
+                      path: /${{ env.DEPLOY_TARGET }}/log/$MODULE
+                      type: DirectoryOrCreate
+                  - name: tokens-volume
+                    emptyDir: {}
+            ---
+            apiVersion: v1
+            kind: Service
+            metadata:
+              name: $MODULE-service
+              namespace: default
+              labels:
+                app: ${{ env.SELECTOR }}
+            spec:
+              selector:
+                app: ${{ env.SELECTOR }}
+              ports:
+              - protocol: TCP
+                port: 80
+                targetPort: 8080
+            EOF
+            
+                        if [ "$MODULE" != "layer-batch" ]; then
+                          cat <<EOF >> deployment-$MODULE.yaml
+            ---
+            apiVersion: networking.k8s.io/v1
+            kind: Ingress
+            metadata:
+              name: $MODULE-ingress
+              namespace: default
+              annotations:
+                kubernetes.io/ingress.class: traefik
+            spec:
+              rules:
+              - host: stgapi.layerapp.io
+                http:
+                  paths:
+                  - path: /
+                    pathType: Prefix
+                    backend:
+                      service:
+                        name: $MODULE-service
+                        port:
+                          number: 80
+            EOF
+                        fi
+                      done
 
       - name: Deploy to K3s
         run: |
