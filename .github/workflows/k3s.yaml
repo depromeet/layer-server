@@ -57,7 +57,8 @@ jobs:
               CHANGED_MODULES="$CHANGED_MODULES,layer-batch"
             fi
           fi
-      
+          
+          echo "changed_modules=$CHANGED_MODULES"
           echo "changed_modules=$CHANGED_MODULES" >> $GITHUB_OUTPUT
 
   build:
