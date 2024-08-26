@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class RetrospectScheduler {
+
 	private final RetrospectRepository retrospectRepository;
 	private final Time time;
 
