@@ -1,5 +1,7 @@
 package org.layer.domain.retrospect.service;
 
+import static org.layer.common.exception.RetrospectExceptionType.*;
+
 import lombok.RequiredArgsConstructor;
 
 import org.layer.domain.answer.entity.Answers;
@@ -18,6 +20,7 @@ import org.layer.domain.retrospect.controller.dto.request.RetrospectCreateReques
 import org.layer.domain.retrospect.controller.dto.request.RetrospectUpdateRequest;
 import org.layer.domain.retrospect.entity.Retrospect;
 import org.layer.domain.retrospect.entity.RetrospectStatus;
+import org.layer.domain.retrospect.exception.RetrospectException;
 import org.layer.domain.retrospect.repository.RetrospectRepository;
 import org.layer.domain.retrospect.service.dto.response.RetrospectGetServiceResponse;
 import org.layer.domain.retrospect.service.dto.response.RetrospectListGetServiceResponse;
@@ -27,6 +30,7 @@ import org.layer.domain.space.repository.MemberSpaceRelationRepository;
 import org.layer.domain.space.repository.SpaceRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -148,5 +152,27 @@ public class RetrospectService {
 
 		Retrospect retrospect = retrospectRepository.findByIdOrThrow(retrospectId);
 		retrospectRepository.delete(retrospect);
+	}
+
+	@Transactional
+	public void closeRetrospect(Long spaceId, Long retrospectId, Long memberId) {
+		// 해당 스페이스 팀원인지 검증
+		Team team = new Team(memberSpaceRelationRepository.findAllBySpaceId(spaceId));
+		team.validateTeamMembership(memberId);
+
+		// 팀장인지 검증
+		Space space = spaceRepository.findByIdOrThrow(spaceId);
+		space.isLeaderSpace(memberId);
+
+		// 팀원 모두 회고를 작성했는지 검증
+		Retrospect retrospect = retrospectRepository.findByIdOrThrow(retrospectId);
+
+		Answers answers = new Answers(answerRepository.findAllByRetrospectId(retrospectId));
+
+		if (answers.getWriteCount() != team.getTeamMemberCount()) {
+			throw new RetrospectException(NOT_COMPLETE_RETROSPECT_MEMBER);
+		}
+
+		retrospect.updateRetrospectStatus(RetrospectStatus.DONE);
 	}
 }
