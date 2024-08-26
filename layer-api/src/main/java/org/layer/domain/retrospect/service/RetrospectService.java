@@ -178,10 +178,7 @@ public class RetrospectService {
 		retrospect.updateRetrospectStatus(RetrospectStatus.DONE);
 
 		// 회고 ai 분석 시작
-		analyzeService.createAnalyze(spaceId, retrospectId, null, true);
-		for(MemberSpaceRelation m : team.getMemberSpaceRelations()){
-			analyzeService.createAnalyze(spaceId, retrospectId, m.getMemberId(), false);
-		}
-
+		List<Long> memberIds = team.getMemberSpaceRelations().stream().map(MemberSpaceRelation::getMemberId).toList();
+		analyzeService.createAnalyze(spaceId, retrospectId, memberIds);
 	}
 }

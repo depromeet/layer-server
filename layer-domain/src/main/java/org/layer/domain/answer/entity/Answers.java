@@ -80,6 +80,21 @@ public class Answers {
 		return String.join("\n&&\n", answerMap.values());
 	}
 
+	public String getIndividualAnswer(Long rangeQuestionId, Long numberQuestionId, Long memberId){
+		Map<Long, String> answerConcatMap = answers.stream()
+			.filter(answer -> answer.getMemberId().equals(memberId))
+			.filter(answer -> !answer.getQuestionId().equals(rangeQuestionId) && !answer.getQuestionId().equals(numberQuestionId))
+			.collect(Collectors.groupingBy(
+				Answer::getMemberId, Collectors.mapping(Answer::getContent, Collectors.joining(" "))));
+
+		Map<Long, String> answerMap = answerConcatMap.entrySet().stream()
+			.collect(Collectors.toMap(
+				Map.Entry::getKey, entry -> entry.getKey() + " 번 사용자: " + entry.getValue()
+			));
+
+		return String.join("\n&&\n", answerMap.values());
+	}
+
 
 	public int getGoalCompletionRate(Long questionId) {
 

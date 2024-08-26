@@ -1,5 +1,7 @@
 package org.layer.domain.analyze.controller;
 
+import java.util.List;
+
 import org.layer.common.annotation.MemberId;
 import org.layer.domain.analyze.controller.dto.response.AnalyzeGetResponse;
 import org.layer.domain.analyze.enums.AnalyzeType;
@@ -28,7 +30,7 @@ public class AnalyzeController implements AnalyzeApi {
 		@PathVariable("retrospectId") Long retrospectId,
 		@MemberId Long memberId) {
 
-		analyzeService.createAnalyze(spaceId, retrospectId, memberId, true);
+		analyzeService.createAnalyze(spaceId, retrospectId, List.of(2L,4L));
 		return ResponseEntity.status(HttpStatus.CREATED).build();
 	}
 

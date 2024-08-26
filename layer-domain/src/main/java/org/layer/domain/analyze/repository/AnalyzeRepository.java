@@ -16,4 +16,11 @@ public interface AnalyzeRepository extends JpaRepository<Analyze, Long> {
 		return findByRetrospectIdAndAnalyzeType(retrospectId, analyzeType)
 			.orElseThrow(() -> new AnalyzeExcepiton(NOT_FOUND_ANALYZE));
 	}
+
+	Optional<Analyze> findByRetrospectIdAndAnalyzeTypeAndMemberId(Long retrospectId, AnalyzeType analyzeType, Long MemberId);
+
+	default Analyze findByRetrospectIdAndAnalyzeTypeAndMemberIdOrThrow(Long retrospectId, AnalyzeType analyzeType, Long memberId){
+		return findByRetrospectIdAndAnalyzeTypeAndMemberId(retrospectId, analyzeType, memberId)
+			.orElseThrow(() -> new AnalyzeExcepiton(NOT_FOUND_ANALYZE));
+	}
 }

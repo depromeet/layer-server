@@ -19,7 +19,6 @@ import org.layer.domain.retrospect.entity.Retrospect;
 import org.layer.domain.retrospect.repository.RetrospectRepository;
 import org.layer.domain.space.entity.Team;
 import org.layer.domain.space.repository.MemberSpaceRelationRepository;
-import org.layer.domain.space.repository.SpaceRepository;
 import org.layer.external.ai.dto.response.OpenAIResponse;
 import org.layer.external.ai.service.OpenAIService;
 import org.springframework.scheduling.annotation.Async;
@@ -27,10 +26,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j
 public class AnalyzeService {
 
 	private static final int FIRST_RANK = 1;
@@ -45,10 +46,12 @@ public class AnalyzeService {
 
 	@Transactional
 	@Async
-	public void createAnalyze(Long spaceId, Long retrospectId, Long memberId, boolean isTeamAnalyze) {
+	public void createAnalyze(Long spaceId, Long retrospectId, List<Long> memberIds) {
 		// 해당 스페이스 팀원인지 검증
+		long startTime = System.currentTimeMillis(); // 시작 시간 기록
+		log.info("createAnalyze started");
 		Team team = new Team(memberSpaceRelationRepository.findAllBySpaceId(spaceId));
-		team.validateTeamMembership(memberId);
+		memberIds.forEach(team::validateTeamMembership);
 
 		// 회고 마감 여부 확인
 		Retrospect retrospect = retrospectRepository.findByIdOrThrow(retrospectId);
@@ -56,43 +59,55 @@ public class AnalyzeService {
 
 		// 답변 조회
 		Questions questions = new Questions(questionRepository.findAllByRetrospectIdOrderByQuestionOrder(retrospectId));
-		Answers answers;
-		AnalyzeType analyzeType;
+		Answers answers = new Answers(answerRepository.findAllByRetrospectIdAndAnswerStatus(retrospectId, AnswerStatus.DONE));
 
-		if(isTeamAnalyze){
-			answers = new Answers(answerRepository.findAllByRetrospectIdAndAnswerStatus(retrospectId, AnswerStatus.DONE));
-			analyzeType = AnalyzeType.TEAM;
-		}
-		else{
-			answers = new Answers(answerRepository.findAllByRetrospectIdAndMemberIdAndAnswerStatus(retrospectId, memberId, AnswerStatus.DONE));
-			analyzeType = AnalyzeType.INDIVIDUAL;
-		}
-
-		String totalAnswer = answers.getTotalAnswer(
-			questions.extractEssentialQuestionIdBy(QuestionType.RANGER),
-			questions.extractEssentialQuestionIdBy(QuestionType.NUMBER));
+		Long rangeQuestionId = questions.extractEssentialQuestionIdBy(QuestionType.RANGER);
+		Long numberQuestionId = questions.extractEssentialQuestionIdBy(QuestionType.NUMBER);
+		String totalAnswer = answers.getTotalAnswer(rangeQuestionId, numberQuestionId);
 
 		// 분석 요청
-		OpenAIResponse aiResponse = openAIService.createAnalyze(totalAnswer);
+		List<Analyze> analyzes = new ArrayList<>();
+
+		Analyze teamAnalyze = getAnalyzeEntity(retrospectId, answers, rangeQuestionId, numberQuestionId, totalAnswer, null, AnalyzeType.TEAM);
+		analyzes.add(teamAnalyze);
+
+		List<Analyze> individualAnalyzes = memberIds.stream()
+			.map(memberId -> {
+				String individualAnswer = answers.getIndividualAnswer(rangeQuestionId, numberQuestionId, memberId);
+				return getAnalyzeEntity(retrospectId, answers, rangeQuestionId, numberQuestionId, individualAnswer, memberId, AnalyzeType.INDIVIDUAL);
+			}).toList();
+		analyzes.addAll(individualAnalyzes);
+
+		analyzeRepository.saveAll(analyzes);
+
+		long endTime = System.currentTimeMillis(); // 종료 시간 기록
+		long duration = endTime - startTime; // 경과 시간 계산
+		log.info("createAnalyze completed in {} ms", duration);
+	}
+
+	private Analyze getAnalyzeEntity(Long retrospectId, Answers answers, Long rangeQuestionId, Long numberQuestionId,
+		String userAnswer, Long memberId, AnalyzeType analyzeType) {
+		OpenAIResponse aiResponse = openAIService.createAnalyze(userAnswer);
 		OpenAIResponse.Content content = aiResponse.parseContent();
 
-		Long numberQuestionId = questions.extractEssentialQuestionIdBy(QuestionType.NUMBER);
-		Long rangeQuestionId = questions.extractEssentialQuestionIdBy(QuestionType.RANGER);
-
 		List<AnalyzeDetail> analyzeDetails = createAnalyzeDetails(content);
-		Analyze analyze = createAnalyze(retrospectId, memberId, answers.getSatisfactionCount(rangeQuestionId),
+
+		return createAnalyze(retrospectId, memberId, answers.getSatisfactionCount(rangeQuestionId),
 			answers.getNormalCount(rangeQuestionId), answers.getRegretCount(rangeQuestionId),
 			answers.getGoalCompletionRate(numberQuestionId), analyzeType, analyzeDetails);
-
-		analyzeRepository.save(analyze);
 	}
 
 	public AnalyzeGetResponse getAnalyze(Long spaceId, Long retrospectId, Long memberId, AnalyzeType analyzeType) {
 		// 해당 스페이스 팀원인지 검증
 		Team team = new Team(memberSpaceRelationRepository.findAllBySpaceId(spaceId));
 		team.validateTeamMembership(memberId);
-
-		Analyze analyze = analyzeRepository.findByRetrospectIdAndAnalyzeTypeOrThrow(retrospectId, analyzeType);
+		Analyze analyze;
+		if (analyzeType.equals(AnalyzeType.TEAM)) {
+			analyze = analyzeRepository.findByRetrospectIdAndAnalyzeTypeOrThrow(retrospectId, analyzeType);
+		} else {
+			analyze = analyzeRepository.findByRetrospectIdAndAnalyzeTypeAndMemberIdOrThrow(retrospectId, analyzeType,
+				memberId);
+		}
 
 		return AnalyzeGetResponse.of(analyze);
 	}
@@ -114,7 +129,7 @@ public class AnalyzeService {
 		List<AnalyzeDetail> analyzeDetails = new ArrayList<>();
 		int rank = FIRST_RANK;
 
-		for(OpenAIResponse.ContentDetail detail : contentDetails){
+		for (OpenAIResponse.ContentDetail detail : contentDetails) {
 			AnalyzeDetail analyzeDetail = AnalyzeDetail.builder()
 				.content(detail.getPoint())
 				.count(detail.getCount())
@@ -128,8 +143,8 @@ public class AnalyzeService {
 		return analyzeDetails;
 	}
 
-	private Analyze createAnalyze(Long retrospectId, Long memberId, int satisfactionCount, int normalCount, int regretCount,
-		int goalCompletionRate, AnalyzeType analyzeType, List<AnalyzeDetail> analyzeDetails) {
+	private Analyze createAnalyze(Long retrospectId, Long memberId, int satisfactionCount, int normalCount,
+		int regretCount, int goalCompletionRate, AnalyzeType analyzeType, List<AnalyzeDetail> analyzeDetails) {
 
 		return Analyze.builder()
 			.retrospectId(retrospectId)
