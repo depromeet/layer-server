@@ -16,6 +16,8 @@ import org.layer.domain.question.repository.QuestionRepository;
 import org.layer.domain.retrospect.entity.Retrospect;
 import org.layer.domain.retrospect.repository.RetrospectRepository;
 import org.layer.domain.space.entity.Space;
+import org.layer.domain.space.entity.Team;
+import org.layer.domain.space.repository.MemberSpaceRelationRepository;
 import org.layer.domain.space.repository.SpaceRepository;
 import org.layer.external.ai.dto.response.OpenAIResponse;
 import org.layer.external.ai.service.OpenAIService;
@@ -36,6 +38,7 @@ public class AnalyzeService {
 	private final AnalyzeRepository analyzeRepository;
 	private final QuestionRepository questionRepository;
 	private final AnswerRepository answerRepository;
+	private final MemberSpaceRelationRepository memberSpaceRelationRepository;
 
 	private final OpenAIService openAIService;
 
@@ -73,9 +76,9 @@ public class AnalyzeService {
 	}
 
 	public AnalyzeGetResponse getAnalyze(Long spaceId, Long retrospectId, Long memberId) {
-		// 리더인지 확인
-		Space space = spaceRepository.findByIdOrThrow(spaceId);
-		space.isLeaderSpace(memberId);
+		// 해당 스페이스 팀원인지 검증
+		Team team = new Team(memberSpaceRelationRepository.findAllBySpaceId(spaceId));
+		team.validateTeamMembership(memberId);
 
 		Analyze analyze = analyzeRepository.findByRetrospectIdOrThrow(retrospectId);
 
