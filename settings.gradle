@@ -3,4 +3,5 @@ include 'layer-api'
 include 'layer-common'
 include 'layer-domain'
 include 'layer-external'
+include 'layer-batch'
 
