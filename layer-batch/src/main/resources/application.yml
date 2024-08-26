@@ -3,7 +3,7 @@ server:
 
 spring:
   config:
-    import: optional:file:/config/application-batch-secret.properties
+    import: optional:file:/config/application-secret.properties
   datasource:
     url: ${DEV_DB_URL}
     username: ${DEV_DB_NAME}

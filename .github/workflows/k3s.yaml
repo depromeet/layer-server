@@ -9,8 +9,6 @@ env:
   REGISTRY: "ghcr.io"
   NAMESPACE: "depromeet"
   IMAGE_NAME: "kasukabe-server"
-  MODULE: "layer-api"
-
 
 jobs:
   setup:
@@ -21,6 +19,7 @@ jobs:
     outputs:
       deploy_target: ${{ steps.set-env.outputs.DEPLOY_TARGET }}
       sha_short: ${{ steps.sha_short.outputs.sha_short }}
+      changed_modules: ${{ steps.detect-changes.outputs.changed_modules }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -38,11 +37,27 @@ jobs:
         id: sha_short
         run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
+      - name: Detect Changed Modules
+        id: detect-changes
+        run: |
+          CHANGED_MODULES=""
+          if git diff --name-only HEAD~1 HEAD | grep -q "^layer-api/"; then
+            CHANGED_MODULES="layer-api"
+          fi
+          if git diff --name-only HEAD~1 HEAD | grep -q "^layer-batch/"; then
+            if [ -z "$CHANGED_MODULES" ]; then
+              CHANGED_MODULES="layer-batch"
+            else
+              CHANGED_MODULES="$CHANGED_MODULES,layer-batch"
+            fi
+          fi
+          echo "changed_modules=$CHANGED_MODULES" >> $GITHUB_OUTPUT
 
   build:
     name: build
     needs: [ setup ]
     runs-on: ubuntu-latest
+    if: ${{ needs.setup.outputs.changed_modules != '' }}
     permissions:
       contents: read
       packages: write
@@ -52,6 +67,7 @@ jobs:
       APPLICATION_SECRET_PROPERTIES: ${{ secrets.APPLICATION_SECRET_PROPERTIES }}
       GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
       SHA_SHORT: ${{ needs.setup.outputs.sha_short }}
+      CHANGED_MODULES: ${{ needs.setup.outputs.changed_modules }}
 
     steps:
       - name: Setup Java
@@ -68,15 +84,23 @@ jobs:
 
       - name: Create application-secret.properties
         run: |
-          echo "${APPLICATION_SECRET_PROPERTIES}" > ./${{ env.MODULE }}/src/main/resources/application-secret.properties
+          for MODULE in $(echo $CHANGED_MODULES | tr "," "\n"); do
+            echo "${APPLICATION_SECRET_PROPERTIES}" > ./$MODULE/src/main/resources/application-secret.properties
+          done
 
-      - name: Build ${{ env.MODULE }} module
-        run: ./gradlew :${{ env.MODULE }}:build
+      - name: Build Changed Modules
+        run: |
+          for MODULE in $(echo $CHANGED_MODULES | tr "," "\n"); do
+            ./gradlew :$MODULE:build
+          done
 
-      - name: Run tests:${{ env.MODULE }}
-        run: ./gradlew :${{ env.MODULE }}:test
+      - name: Run Tests for Changed Modules
+        run: |
+          for MODULE in $(echo $CHANGED_MODULES | tr "," "\n"); do
+            ./gradlew :$MODULE:test
+          done
 
-      - name: login github container registry
+      - name: Login to GitHub Container Registry
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
@@ -87,29 +111,26 @@ jobs:
         id: meta
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
         with:
-          images: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}/${{ env.MODULE }}
+          images: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}/$MODULE
 
-      - name: push
-        uses: docker/build-push-action@v4
-        with:
-          context: ./${{ env.MODULE }}
-          platforms: linux/amd64
-          push: true
-          tags: |
-            ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}/${{ env.MODULE }}:${{ env.SHA_SHORT }}
-            ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}/${{ env.MODULE }}:latest
-  
-  
-  
+      - name: Push Docker Images for Changed Modules
+        run: |
+          for MODULE in $(echo $CHANGED_MODULES | tr "," "\n"); do
+            IMAGE_TAG="${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}/$MODULE:${{ env.SHA_SHORT }}"
+            docker build ./$MODULE -t $IMAGE_TAG
+            docker push $IMAGE_TAG
+          done
 
   deploy:
     name: Deploy to K3s
     needs: [ build, setup ]
     runs-on: ubuntu-latest
+    if: ${{ needs.setup.outputs.changed_modules != '' }}
     env:
       DEPLOY_TARGET: ${{ needs.setup.outputs.deploy_target }}
       SELECTOR: layer-dev
       SHA_SHORT: ${{ needs.setup.outputs.sha_short }}
+      CHANGED_MODULES: ${{ needs.setup.outputs.changed_modules }}
 
     steps:
       - name: Checkout sources
@@ -126,97 +147,106 @@ jobs:
           echo "${{ secrets.KUBE_CONFIG }}" > $HOME/.kube/config
           chmod 600 $HOME/.kube/config
 
-      - name: Delete existing deployment (if exists)
+      - name: Delete existing deployments (if exists)
         run: |
-          kubectl delete deployment ${{ env.MODULE }}-deployment --ignore-not-found
-
+          for MODULE in $(echo $CHANGED_MODULES | tr "," "\n"); do
+            kubectl delete deployment $MODULE-deployment --ignore-not-found
+          done
 
       - name: Create K3s deployment files
         run: |
-          cat <<EOF > deployment.yaml
-          apiVersion: apps/v1
-          kind: Deployment
-          metadata:
-            name: ${{ env.MODULE }}-deployment
-            namespace: default
-            labels:
-              app: ${{ env.SELECTOR }}
-          spec:
-            replicas: 1
-            selector:
-              matchLabels:
+          for MODULE in $(echo $CHANGED_MODULES | tr "," "\n"); do
+            cat <<EOF > deployment-$MODULE.yaml
+            apiVersion: apps/v1
+            kind: Deployment
+            metadata:
+              name: $MODULE-deployment
+              namespace: default
+              labels:
                 app: ${{ env.SELECTOR }}
-            template:
-              metadata:
-                labels:
+            spec:
+              replicas: 1
+              selector:
+                matchLabels:
                   app: ${{ env.SELECTOR }}
-              spec:
-                containers:
-                - name: ${{ env.MODULE }}
-                  image: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}/${{ env.MODULE }}:${{ env.SHA_SHORT }}
-                  ports:
-                  - containerPort: 8080
-                  env:
-                  - name: TZ
-                    value: "Asia/Seoul"
-                  - name: SPRING_PROFILES_ACTIVE
-                    value: "${{ env.DEPLOY_TARGET }}"
-                  volumeMounts:
+              template:
+                metadata:
+                  labels:
+                    app: ${{ env.SELECTOR }}
+                spec:
+                  containers:
+                  - name: $MODULE
+                    image: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}/$MODULE:${{ env.SHA_SHORT }}
+                    ports:
+                    - containerPort: 8080
+                    env:
+                    - name: TZ
+                      value: "Asia/Seoul"
+                    - name: SPRING_PROFILES_ACTIVE
+                      value: "${{ env.DEPLOY_TARGET }}"
+                    volumeMounts:
+                    - name: secret-volume
+                      mountPath: /config/application-secret.properties
+                      subPath: application-secret.properties
+                    - name: log-volume
+                      mountPath: /log
+                    - name: tokens-volume
+                      mountPath: /config/tokens
+                  volumes:
                   - name: secret-volume
-                    mountPath: /config/application-secret.properties
-                    subPath: application-secret.properties
+                    secret:
+                      secretName: app-secret-dev
                   - name: log-volume
-                    mountPath: /log
+                    hostPath:
+                      path: /${{ env.DEPLOY_TARGET }}/log/$MODULE
+                      type: DirectoryOrCreate
                   - name: tokens-volume
-                    mountPath: /config/tokens
-                volumes:
-                - name: secret-volume
-                  secret:
-                    secretName: app-secret-dev
-                - name: log-volume
-                  hostPath:
-                    path: /${{ env.DEPLOY_TARGET }}/log/${{ env.MODULE }}
-                    type: DirectoryOrCreate
-                - name: tokens-volume
-                  emptyDir: {}
-          ---
-          apiVersion: v1
-          kind: Service
-          metadata:
-            name: ${{ env.MODULE }}-service
-            namespace: default
-            labels:
-              app: ${{ env.SELECTOR }}
-          spec:
-            selector:
-              app: ${{ env.SELECTOR }}
-            ports:
-            - protocol: TCP
-              port: 80
-              targetPort: 8080
-          ---
-          apiVersion: networking.k8s.io/v1
-          kind: Ingress
-          metadata:
-            name: ${{ env.MODULE }}-ingress
-            namespace: default
-            annotations:
-              kubernetes.io/ingress.class: traefik
-          spec:
-            rules:
-            - host: stgapi.layerapp.io
-              http:
-                paths:
-                - path: /
-                  pathType: Prefix
-                  backend:
-                    service:
-                      name: ${{ env.MODULE }}-service
-                      port: 
-                        number: 80
-          EOF
+                    emptyDir: {}
+            ---
+            apiVersion: v1
+            kind: Service
+            metadata:
+              name: $MODULE-service
+              namespace: default
+              labels:
+                app: ${{ env.SELECTOR }}
+            spec:
+              selector:
+                app: ${{ env.SELECTOR }}
+              ports:
+              - protocol: TCP
+                port: 80
+                targetPort: 8080
+            EOF
+          
+            if [ "$MODULE" != "layer-batch" ]; then
+              cat <<EOF >> deployment-$MODULE.yaml
+            ---
+            apiVersion: networking.k8s.io/v1
+            kind: Ingress
+            metadata:
+              name: $MODULE-ingress
+              namespace: default
+              annotations:
+                kubernetes.io/ingress.class: traefik
+            spec:
+              rules:
+              - host: stgapi.layerapp.io
+                http:
+                  paths:
+                  - path: /
+                    pathType: Prefix
+                    backend:
+                      service:
+                        name: $MODULE-service
+                        port:
+                          number: 80
+            EOF
+            fi
+          done
 
       - name: Deploy to K3s
         run: |
-          kubectl apply -f deployment.yaml
-
+          for MODULE in $(echo $CHANGED_MODULES | tr "," "\n"); do
+            kubectl apply -f deployment-$MODULE.yaml
+          done
