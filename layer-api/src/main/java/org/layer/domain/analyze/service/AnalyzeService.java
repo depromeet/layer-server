@@ -21,8 +21,11 @@ import org.layer.domain.question.enums.QuestionType;
 import org.layer.domain.question.repository.QuestionRepository;
 import org.layer.domain.retrospect.entity.Retrospect;
 import org.layer.domain.retrospect.repository.RetrospectRepository;
+import org.layer.domain.space.entity.Space;
+import org.layer.domain.space.entity.SpaceCategory;
 import org.layer.domain.space.entity.Team;
 import org.layer.domain.space.repository.MemberSpaceRelationRepository;
+import org.layer.domain.space.repository.SpaceRepository;
 import org.layer.external.ai.dto.response.OpenAIResponse;
 import org.layer.external.ai.service.OpenAIService;
 import org.springframework.scheduling.annotation.Async;
@@ -45,6 +48,7 @@ public class AnalyzeService {
 	private final QuestionRepository questionRepository;
 	private final AnswerRepository answerRepository;
 	private final MemberSpaceRelationRepository memberSpaceRelationRepository;
+	private final SpaceRepository spaceRepository;
 
 	private final OpenAIService openAIService;
 
@@ -101,12 +105,19 @@ public class AnalyzeService {
 		Team team = new Team(memberSpaceRelationRepository.findAllBySpaceId(spaceId));
 		team.validateTeamMembership(memberId);
 
-		Analyze teamAnalyze = analyzeRepository.findByRetrospectIdAndAnalyzeTypeOrThrow(retrospectId, AnalyzeType.TEAM);
+		Space space = spaceRepository.findByIdOrThrow(spaceId);
+
+		AnalyzeTeamGetResponse analyzeTeamGetResponse = null;
+		if(space.getCategory().equals(SpaceCategory.TEAM)) {
+			Analyze teamAnalyze = analyzeRepository.findByRetrospectIdAndAnalyzeTypeOrThrow(retrospectId,
+				AnalyzeType.TEAM);
+			analyzeTeamGetResponse = AnalyzeTeamGetResponse.of(teamAnalyze);
+		}
 
 		Analyze individualAnalyze = analyzeRepository.findByRetrospectIdAndAnalyzeTypeAndMemberIdOrThrow(retrospectId,
 			AnalyzeType.INDIVIDUAL, memberId);
 
-		return AnalyzesGetResponse.of(AnalyzeTeamGetResponse.of(teamAnalyze), AnalyzeIndividualGetResponse.of(individualAnalyze));
+		return AnalyzesGetResponse.of(analyzeTeamGetResponse, AnalyzeIndividualGetResponse.of(individualAnalyze));
 	}
 
 	private Analyze getAnalyzeEntity(Long retrospectId, Answers answers, Long rangeQuestionId, Long numberQuestionId,
