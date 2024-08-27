@@ -57,6 +57,7 @@ public class SecurityConfig {
                                 .requestMatchers(new AntPathRequestMatcher("/h2-console/**")).permitAll()
                                 .requestMatchers(new AntPathRequestMatcher("/external/image/presigned")).permitAll()
                                 .requestMatchers(new AntPathRequestMatcher("/api/auth/oauth2/apple")).permitAll()
+                                .requestMatchers(new AntPathRequestMatcher("/api/auth/create-token")).permitAll()
                                 .anyRequest().authenticated()
                 )
                 .headers(headers -> headers
