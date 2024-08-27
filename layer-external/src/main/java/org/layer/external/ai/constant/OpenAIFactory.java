@@ -27,12 +27,13 @@ public class OpenAIFactory {
 		ArrayProperty goodProperty = new ArrayProperty("array", "Top 3 good points", items);
 		ArrayProperty badProperty = new ArrayProperty("array", "Top 3 bad points", items);
 		ArrayProperty improvementProperty = new ArrayProperty("array", "Top 3 improvement points", items);
+		ArrayProperty highFrequencyWordsProperty = new ArrayProperty("array", "Top 5 most mentioned words in all documents", items);
 
 		// Properties object containing the "responses" property
-		Properties properties = new Properties(goodProperty, badProperty, improvementProperty);
+		Properties properties = new Properties(goodProperty, badProperty, improvementProperty, highFrequencyWordsProperty);
 
 		// Schema object
-		Schema schema = new Schema("object", properties, List.of("good_points", "bad_points", "improvement_points"), false);
+		Schema schema = new Schema("object", properties, List.of("good_points", "bad_points", "improvement_points", "high_frequency_words"), false);
 
 		// Final ResponseFormat object
 		JsonSchema jsonSchema = new JsonSchema("retrospect_analyze", true, schema);

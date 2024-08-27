@@ -18,7 +18,11 @@ import static org.layer.common.exception.AnswerExceptionType.*;
 @Getter
 public class Answers {
 	private static final int ZERO = 0;
-	private static final int MID_NUMBER = 3;
+	public static final int SCORE_ONE = 1;
+	public static final int SCORE_TWO = 2;
+	public static final int SCORE_THREE = 3;
+	public static final int SCORE_FOUR = 4;
+	public static final int SCORE_FIVE = 5;
 
 	private final List<Answer> answers;
 
@@ -80,6 +84,21 @@ public class Answers {
 		return String.join("\n&&\n", answerMap.values());
 	}
 
+	public String getIndividualAnswer(Long rangeQuestionId, Long numberQuestionId, Long memberId){
+		Map<Long, String> answerConcatMap = answers.stream()
+			.filter(answer -> answer.getMemberId().equals(memberId))
+			.filter(answer -> !answer.getQuestionId().equals(rangeQuestionId) && !answer.getQuestionId().equals(numberQuestionId))
+			.collect(Collectors.groupingBy(
+				Answer::getMemberId, Collectors.mapping(Answer::getContent, Collectors.joining(" "))));
+
+		Map<Long, String> answerMap = answerConcatMap.entrySet().stream()
+			.collect(Collectors.toMap(
+				Map.Entry::getKey, entry -> entry.getKey() + " 번 사용자: " + entry.getValue()
+			));
+
+		return String.join("\n&&\n", answerMap.values());
+	}
+
 
 	public int getGoalCompletionRate(Long questionId) {
 
@@ -99,24 +118,11 @@ public class Answers {
 		return sum / count;
 	}
 
-	public int getSatisfactionCount(Long questionId) {
+	public int getScoreCount(Long questionId, int score, Long memberId) {
 		return (int)answers.stream()
 			.filter(answer -> answer.getQuestionId().equals(questionId))
-			.filter(answer -> Integer.parseInt(answer.getContent()) > MID_NUMBER)
-			.count();
-	}
-
-	public int getNormalCount(Long questionId) {
-		return (int)answers.stream()
-			.filter(answer -> answer.getQuestionId().equals(questionId))
-			.filter(answer -> Integer.parseInt(answer.getContent()) == MID_NUMBER)
-			.count();
-	}
-
-	public int getRegretCount(Long questionId) {
-		return (int)answers.stream()
-			.filter(answer -> answer.getQuestionId().equals(questionId))
-			.filter(answer -> Integer.parseInt(answer.getContent()) < MID_NUMBER)
+			.filter(answer -> Integer.parseInt(answer.getContent()) == score)
+			.filter(answer -> memberId == null || answer.getMemberId().equals(memberId))
 			.count();
 	}
 

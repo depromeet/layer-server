@@ -4,6 +4,7 @@ import static org.layer.common.exception.RetrospectExceptionType.*;
 
 import lombok.RequiredArgsConstructor;
 
+import org.layer.domain.analyze.service.AnalyzeService;
 import org.layer.domain.answer.entity.Answers;
 import org.layer.domain.answer.repository.AnswerRepository;
 import org.layer.domain.common.time.Time;
@@ -24,13 +25,13 @@ import org.layer.domain.retrospect.exception.RetrospectException;
 import org.layer.domain.retrospect.repository.RetrospectRepository;
 import org.layer.domain.retrospect.service.dto.response.RetrospectGetServiceResponse;
 import org.layer.domain.retrospect.service.dto.response.RetrospectListGetServiceResponse;
+import org.layer.domain.space.entity.MemberSpaceRelation;
 import org.layer.domain.space.entity.Space;
 import org.layer.domain.space.entity.Team;
 import org.layer.domain.space.repository.MemberSpaceRelationRepository;
 import org.layer.domain.space.repository.SpaceRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -46,6 +47,7 @@ public class RetrospectService {
 	private final AnswerRepository answerRepository;
 	private final FormRepository formRepository;
 	private final SpaceRepository spaceRepository;
+	private final AnalyzeService analyzeService;
 
 	private final Time time;
 
@@ -174,5 +176,10 @@ public class RetrospectService {
 		}
 
 		retrospect.updateRetrospectStatus(RetrospectStatus.DONE);
+		retrospectRepository.saveAndFlush(retrospect);
+
+		// 회고 ai 분석 시작
+		List<Long> memberIds = team.getMemberSpaceRelations().stream().map(MemberSpaceRelation::getMemberId).toList();
+		analyzeService.createAnalyze(spaceId, retrospectId, memberIds);
 	}
 }

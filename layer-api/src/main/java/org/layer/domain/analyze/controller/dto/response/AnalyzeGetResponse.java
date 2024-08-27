@@ -5,12 +5,14 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.layer.domain.analyze.entity.Analyze;
-import org.layer.domain.analyze.enums.AnalyzeType;
+import org.layer.domain.analyze.enums.AnalyzeDetailType;
 
 public record AnalyzeGetResponse(
-	int satisfactionCount,
-	int normalCount,
-	int regretCount,
+	int scoreOne,
+	int scoreTwo,
+	int scoreThree,
+	int scoreFour,
+	int scoreFive,
 	int goalCompletionRate,
 	List<AnalyzeDetailResponse> goodPoints,
 	List<AnalyzeDetailResponse> badPoints,
@@ -19,13 +21,13 @@ public record AnalyzeGetResponse(
 ) {
 	public static AnalyzeGetResponse of(Analyze analyze) {
 
-		Map<AnalyzeType, List<AnalyzeDetailResponse>> map = analyze.getAnalyzeDetails().stream()
+		Map<AnalyzeDetailType, List<AnalyzeDetailResponse>> map = analyze.getAnalyzeDetails().stream()
 			.map(analyzeDetail -> AnalyzeDetailResponse.of(analyzeDetail.getContent(), analyzeDetail.getCount(),
-				analyzeDetail.getAnalyzeType()))
-			.collect(Collectors.groupingBy(AnalyzeDetailResponse::analyzeType));
+				analyzeDetail.getAnalyzeDetailType()))
+			.collect(Collectors.groupingBy(AnalyzeDetailResponse::analyzeDetailType));
 
-		return new AnalyzeGetResponse(analyze.getSatisfactionCount(), analyze.getNormalCount(),
-			analyze.getRegretCount(), analyze.getGoalCompletionRate(),
-			map.get(AnalyzeType.GOOD), map.get(AnalyzeType.BAD), map.get(AnalyzeType.IMPROVEMENT));
+		return new AnalyzeGetResponse(analyze.getScoreOne(), analyze.getScoreTwo(),
+			analyze.getScoreThree(), analyze.getScoreFour(), analyze.getScoreFive(), analyze.getGoalCompletionRate(),
+			map.get(AnalyzeDetailType.GOOD), map.get(AnalyzeDetailType.BAD), map.get(AnalyzeDetailType.IMPROVEMENT));
 	}
 }

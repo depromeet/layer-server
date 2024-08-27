@@ -17,5 +17,8 @@ public class Properties {
 
 	@JsonProperty("improvement_points")
 	private final ArrayProperty improvementPoints;
+
+	@JsonProperty("high_frequency_words")
+	private final ArrayProperty highFrequencyWords;
 }
 

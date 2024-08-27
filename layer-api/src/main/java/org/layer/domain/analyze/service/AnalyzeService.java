@@ -1,39 +1,44 @@
 package org.layer.domain.analyze.service;
 
+import static org.layer.domain.answer.entity.Answers.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import org.layer.domain.analyze.controller.dto.response.AnalyzeGetResponse;
+import org.layer.domain.analyze.controller.dto.response.AnalyzesGetResponse;
 import org.layer.domain.analyze.entity.Analyze;
 import org.layer.domain.analyze.entity.AnalyzeDetail;
+import org.layer.domain.analyze.enums.AnalyzeDetailType;
 import org.layer.domain.analyze.enums.AnalyzeType;
 import org.layer.domain.analyze.repository.AnalyzeRepository;
 import org.layer.domain.answer.entity.Answers;
+import org.layer.domain.answer.enums.AnswerStatus;
 import org.layer.domain.answer.repository.AnswerRepository;
 import org.layer.domain.question.entity.Questions;
 import org.layer.domain.question.enums.QuestionType;
 import org.layer.domain.question.repository.QuestionRepository;
 import org.layer.domain.retrospect.entity.Retrospect;
 import org.layer.domain.retrospect.repository.RetrospectRepository;
-import org.layer.domain.space.entity.Space;
 import org.layer.domain.space.entity.Team;
 import org.layer.domain.space.repository.MemberSpaceRelationRepository;
-import org.layer.domain.space.repository.SpaceRepository;
 import org.layer.external.ai.dto.response.OpenAIResponse;
 import org.layer.external.ai.service.OpenAIService;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j
 public class AnalyzeService {
 
 	private static final int FIRST_RANK = 1;
 
-	private final SpaceRepository spaceRepository;
 	private final RetrospectRepository retrospectRepository;
 	private final AnalyzeRepository analyzeRepository;
 	private final QuestionRepository questionRepository;
@@ -43,10 +48,13 @@ public class AnalyzeService {
 	private final OpenAIService openAIService;
 
 	@Transactional
-	public void createAnalyze(Long spaceId, Long retrospectId, Long memberId) {
-		// 리더인지 확인
-		Space space = spaceRepository.findByIdOrThrow(spaceId);
-		space.isLeaderSpace(memberId);
+	@Async
+	public void createAnalyze(Long spaceId, Long retrospectId, List<Long> memberIds) {
+		// 해당 스페이스 팀원인지 검증
+		long startTime = System.currentTimeMillis(); // 시작 시간 기록
+		log.info("createAnalyze started");
+		Team team = new Team(memberSpaceRelationRepository.findAllBySpaceId(spaceId));
+		memberIds.forEach(team::validateTeamMembership);
 
 		// 회고 마감 여부 확인
 		Retrospect retrospect = retrospectRepository.findByIdOrThrow(retrospectId);
@@ -54,59 +62,85 @@ public class AnalyzeService {
 
 		// 답변 조회
 		Questions questions = new Questions(questionRepository.findAllByRetrospectIdOrderByQuestionOrder(retrospectId));
-		Answers answers = new Answers(answerRepository.findAllByRetrospectId(retrospectId));
-		String totalAnswer = answers.getTotalAnswer(
-			questions.extractEssentialQuestionIdBy(QuestionType.RANGER),
-			questions.extractEssentialQuestionIdBy(QuestionType.NUMBER));
+		Answers answers = new Answers(
+			answerRepository.findAllByRetrospectIdAndAnswerStatus(retrospectId, AnswerStatus.DONE));
+    
+		Long rangeQuestionId = questions.extractEssentialQuestionIdBy(QuestionType.RANGER);
+		Long numberQuestionId = questions.extractEssentialQuestionIdBy(QuestionType.NUMBER);
+		String totalAnswer = answers.getTotalAnswer(rangeQuestionId, numberQuestionId);
 
 		// 분석 요청
+		List<Analyze> analyzes = new ArrayList<>();
+
 		OpenAIResponse aiResponse = openAIService.createAnalyze(totalAnswer);
 		OpenAIResponse.Content content = aiResponse.parseContent();
+		Analyze teamAnalyze = getAnalyzeEntity(retrospectId, answers, rangeQuestionId, numberQuestionId, content,
+			null, AnalyzeType.TEAM);
+		analyzes.add(teamAnalyze);
 
-		Long numberQuestionId = questions.extractEssentialQuestionIdBy(QuestionType.NUMBER);
-		Long rangeQuestionId = questions.extractEssentialQuestionIdBy(QuestionType.RANGER);
+		List<Analyze> individualAnalyzes = memberIds.stream()
+			.map(memberId -> {
+				String individualAnswer = answers.getIndividualAnswer(rangeQuestionId, numberQuestionId, memberId);
+				OpenAIResponse aiIndividualResponse = openAIService.createAnalyze(individualAnswer);
+				OpenAIResponse.Content individualcontent = aiIndividualResponse.parseContent();
+				return getAnalyzeEntity(retrospectId, answers, rangeQuestionId, numberQuestionId, individualcontent,
+					memberId, AnalyzeType.INDIVIDUAL);
+			}).toList();
+		analyzes.addAll(individualAnalyzes);
 
-		List<AnalyzeDetail> analyzeDetails = createAnalyzeDetails(content);
-		Analyze analyze = createAnalyze(retrospectId, answers.getSatisfactionCount(rangeQuestionId),
-			answers.getNormalCount(rangeQuestionId), answers.getRegretCount(rangeQuestionId),
-			answers.getGoalCompletionRate(numberQuestionId),
-			analyzeDetails);
+		analyzeRepository.saveAll(analyzes);
 
-		analyzeRepository.save(analyze);
+		long endTime = System.currentTimeMillis(); // 종료 시간 기록
+		long duration = endTime - startTime; // 경과 시간 계산
+		log.info("createAnalyze completed in {} ms", duration);
 	}
 
-	public AnalyzeGetResponse getAnalyze(Long spaceId, Long retrospectId, Long memberId) {
+	public AnalyzesGetResponse getAnalyze(Long spaceId, Long retrospectId, Long memberId) {
 		// 해당 스페이스 팀원인지 검증
 		Team team = new Team(memberSpaceRelationRepository.findAllBySpaceId(spaceId));
 		team.validateTeamMembership(memberId);
 
-		Analyze analyze = analyzeRepository.findByRetrospectIdOrThrow(retrospectId);
+		Analyze teamAnalyze = analyzeRepository.findByRetrospectIdAndAnalyzeTypeOrThrow(retrospectId, AnalyzeType.TEAM);
 
-		return AnalyzeGetResponse.of(analyze);
+		Analyze individualAnalyze = analyzeRepository.findByRetrospectIdAndAnalyzeTypeAndMemberIdOrThrow(retrospectId,
+			AnalyzeType.INDIVIDUAL, memberId);
+
+		return AnalyzesGetResponse.of(AnalyzeGetResponse.of(teamAnalyze), AnalyzeGetResponse.of(individualAnalyze));
+	}
+
+	private Analyze getAnalyzeEntity(Long retrospectId, Answers answers, Long rangeQuestionId, Long numberQuestionId,
+		OpenAIResponse.Content content, Long memberId, AnalyzeType analyzeType) {
+		List<AnalyzeDetail> analyzeDetails = createAnalyzeDetails(content);
+
+		return createAnalyzeEntity(retrospectId, memberId, answers.getScoreCount(rangeQuestionId, SCORE_ONE, memberId),
+			answers.getScoreCount(rangeQuestionId, SCORE_TWO, memberId), answers.getScoreCount(rangeQuestionId, SCORE_THREE, memberId),
+			answers.getScoreCount(rangeQuestionId, SCORE_FOUR, memberId), answers.getScoreCount(rangeQuestionId, SCORE_FIVE, memberId),
+			answers.getGoalCompletionRate(numberQuestionId), analyzeType, analyzeDetails);
 	}
 
 	private List<AnalyzeDetail> createAnalyzeDetails(OpenAIResponse.Content content) {
 		List<AnalyzeDetail> analyzeDetails = new ArrayList<>();
 
-		analyzeDetails.addAll(createAnalyzeDetail(content.getGoodPoints(), AnalyzeType.GOOD));
-		analyzeDetails.addAll(createAnalyzeDetail(content.getBadPoints(), AnalyzeType.BAD));
-		analyzeDetails.addAll(createAnalyzeDetail(content.getImprovementPoints(), AnalyzeType.IMPROVEMENT));
+		analyzeDetails.addAll(createAnalyzeDetail(content.getGoodPoints(), AnalyzeDetailType.GOOD));
+		analyzeDetails.addAll(createAnalyzeDetail(content.getBadPoints(), AnalyzeDetailType.BAD));
+		analyzeDetails.addAll(createAnalyzeDetail(content.getImprovementPoints(), AnalyzeDetailType.IMPROVEMENT));
+		analyzeDetails.addAll(createAnalyzeDetail(content.getImprovementPoints(), AnalyzeDetailType.FREQUENCY));
 
 		return analyzeDetails;
 	}
 
 	private List<AnalyzeDetail> createAnalyzeDetail(List<OpenAIResponse.ContentDetail> contentDetails,
-		AnalyzeType analyzeType) {
+		AnalyzeDetailType analyzeDetailType) {
 
 		List<AnalyzeDetail> analyzeDetails = new ArrayList<>();
 		int rank = FIRST_RANK;
 
-		for(OpenAIResponse.ContentDetail detail : contentDetails){
+		for (OpenAIResponse.ContentDetail detail : contentDetails) {
 			AnalyzeDetail analyzeDetail = AnalyzeDetail.builder()
 				.content(detail.getPoint())
 				.count(detail.getCount())
 				.rank(rank)
-				.analyzeType(analyzeType)
+				.analyzeDetailType(analyzeDetailType)
 				.build();
 			analyzeDetails.add(analyzeDetail);
 			rank++;
@@ -115,15 +149,19 @@ public class AnalyzeService {
 		return analyzeDetails;
 	}
 
-	private Analyze createAnalyze(Long retrospectId, int satisfactionCount, int normalCount, int regretCount,
-		int goalCompletionRate, List<AnalyzeDetail> analyzeDetails) {
+	private Analyze createAnalyzeEntity(Long retrospectId, Long memberId,int scoreOne, int scoreTwo, int scoreThree, int scoreFour,
+		int scoreFive, int goalCompletionRate, AnalyzeType analyzeType, List<AnalyzeDetail> analyzeDetails) {
 
 		return Analyze.builder()
 			.retrospectId(retrospectId)
-			.satisfactionCount(satisfactionCount)
-			.normalCount(normalCount)
-			.regretCount(regretCount)
+			.memberId(memberId)
+			.scoreOne(scoreOne)
+			.scoreTwo(scoreTwo)
+			.scoreThree(scoreThree)
+			.scoreFour(scoreFour)
+			.scoreFive(scoreFive)
 			.goalCompletionRate(goalCompletionRate)
+			.analyzeType(analyzeType)
 			.analyzeDetails(analyzeDetails)
 			.build();
 	}

@@ -53,6 +53,9 @@ public class OpenAIResponse {
 
 		@JsonProperty("improvement_points")
 		private List<ContentDetail> improvementPoints;
+
+		@JsonProperty("high_frequency_words")
+		private List<ContentDetail> highFrequencyWords;
 	}
 
 	@Getter

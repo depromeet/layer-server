@@ -3,6 +3,7 @@ package org.layer.domain.answer.service;
 import lombok.RequiredArgsConstructor;
 
 import org.layer.domain.analyze.entity.Analyze;
+import org.layer.domain.analyze.enums.AnalyzeType;
 import org.layer.domain.analyze.repository.AnalyzeRepository;
 import org.layer.domain.answer.controller.dto.request.AnswerCreateRequest;
 import org.layer.domain.answer.controller.dto.request.AnswerListCreateRequest;
@@ -186,7 +187,7 @@ public class AnswerService {
                 answers, members, questions);
 
         // AI 기반 분석 여부 확인
-        Optional<Analyze> analyze = analyzeRepository.findByRetrospectId(retrospectId);
+        Optional<Analyze> analyze = analyzeRepository.findByRetrospectIdAndAnalyzeType(retrospectId, AnalyzeType.TEAM);
 
         return new AnswerListGetResponse(answerByQuestions, answerByPerson, analyze.isPresent());
     }

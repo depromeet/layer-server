@@ -1,6 +1,6 @@
 package org.layer.domain.analyze.entity;
 
-import org.layer.domain.analyze.enums.AnalyzeType;
+import org.layer.domain.analyze.enums.AnalyzeDetailType;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -29,14 +29,14 @@ public class AnalyzeDetail {
 	private int rank;
 
 	@Enumerated(EnumType.STRING)
-	private AnalyzeType analyzeType;
+	private AnalyzeDetailType analyzeDetailType;
 
 	@Builder
-	private AnalyzeDetail(String content, int count, int rank, AnalyzeType analyzeType) {
+	private AnalyzeDetail(String content, int count, int rank, AnalyzeDetailType analyzeDetailType) {
 		this.content = content;
 		this.count = count;
 		this.rank = rank;
-		this.analyzeType = analyzeType;
+		this.analyzeDetailType = analyzeDetailType;
 	}
 
 }
