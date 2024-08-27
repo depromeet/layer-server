@@ -20,12 +20,14 @@ public record RetrospectCreateRequest(
 	@NotNull
 	LocalDateTime deadline,
 	@Schema(description = "질문을 수정한 경우 true", example = "true")
-	boolean isNewForm,
+	Boolean isNewForm,
 	@Schema(description = "질문을 수정한 경우, 변경된 폼 이름", example = "변경된 커스텀 폼 제목")
 	String formName,
 	@Schema(description = "질문을 수정한 경우, 변경된 폼 한줄 소개", example = "변경된 커스텀 폼 한줄 소개")
 	String formIntroduction,
 	@Schema(description = "질문을 수정한 경우, 현재 form id", example = "3")
-	Long curFormId
+	Long curFormId,
+	@Schema(description = "질문을 수정한 경우, 현재 form id", example = "true")
+	Boolean hasChangedOriginal
 ) {
 }
