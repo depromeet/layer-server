@@ -5,7 +5,8 @@ import static org.layer.domain.answer.entity.Answers.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.layer.domain.analyze.controller.dto.response.AnalyzeGetResponse;
+import org.layer.domain.analyze.controller.dto.response.AnalyzeIndividualGetResponse;
+import org.layer.domain.analyze.controller.dto.response.AnalyzeTeamGetResponse;
 import org.layer.domain.analyze.controller.dto.response.AnalyzesGetResponse;
 import org.layer.domain.analyze.entity.Analyze;
 import org.layer.domain.analyze.entity.AnalyzeDetail;
@@ -105,7 +106,7 @@ public class AnalyzeService {
 		Analyze individualAnalyze = analyzeRepository.findByRetrospectIdAndAnalyzeTypeAndMemberIdOrThrow(retrospectId,
 			AnalyzeType.INDIVIDUAL, memberId);
 
-		return AnalyzesGetResponse.of(AnalyzeGetResponse.of(teamAnalyze), AnalyzeGetResponse.of(individualAnalyze));
+		return AnalyzesGetResponse.of(AnalyzeTeamGetResponse.of(teamAnalyze), AnalyzeIndividualGetResponse.of(individualAnalyze));
 	}
 
 	private Analyze getAnalyzeEntity(Long retrospectId, Answers answers, Long rangeQuestionId, Long numberQuestionId,
