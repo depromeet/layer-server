@@ -26,7 +26,6 @@ public class RetrospectScheduler {
 
 	private final RetrospectRepository retrospectRepository;
 	private final AnswerRepository answerRepository;
-
 	private final AIAnalyzeService aiAnalyzeService;
 
 	private final Time time;
