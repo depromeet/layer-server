@@ -1,9 +1,12 @@
 package org.layer.domain.analyze.service;
 
+import static org.layer.domain.answer.entity.Answers.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import org.layer.domain.analyze.controller.dto.response.AnalyzeGetResponse;
+import org.layer.domain.analyze.controller.dto.response.AnalyzesGetResponse;
 import org.layer.domain.analyze.entity.Analyze;
 import org.layer.domain.analyze.entity.AnalyzeDetail;
 import org.layer.domain.analyze.enums.AnalyzeDetailType;
@@ -59,7 +62,8 @@ public class AnalyzeService {
 
 		// 답변 조회
 		Questions questions = new Questions(questionRepository.findAllByRetrospectIdOrderByQuestionOrder(retrospectId));
-		Answers answers = new Answers(answerRepository.findAllByRetrospectIdAndAnswerStatus(retrospectId, AnswerStatus.DONE));
+		Answers answers = new Answers(
+			answerRepository.findAllByRetrospectIdAndAnswerStatus(retrospectId, AnswerStatus.DONE));
 
 		Long rangeQuestionId = questions.extractEssentialQuestionIdBy(QuestionType.RANGER);
 		Long numberQuestionId = questions.extractEssentialQuestionIdBy(QuestionType.NUMBER);
@@ -68,13 +72,19 @@ public class AnalyzeService {
 		// 분석 요청
 		List<Analyze> analyzes = new ArrayList<>();
 
-		Analyze teamAnalyze = getAnalyzeEntity(retrospectId, answers, rangeQuestionId, numberQuestionId, totalAnswer, null, AnalyzeType.TEAM);
+		OpenAIResponse aiResponse = openAIService.createAnalyze(totalAnswer);
+		OpenAIResponse.Content content = aiResponse.parseContent();
+		Analyze teamAnalyze = getAnalyzeEntity(retrospectId, answers, rangeQuestionId, numberQuestionId, content,
+			null, AnalyzeType.TEAM);
 		analyzes.add(teamAnalyze);
 
 		List<Analyze> individualAnalyzes = memberIds.stream()
 			.map(memberId -> {
 				String individualAnswer = answers.getIndividualAnswer(rangeQuestionId, numberQuestionId, memberId);
-				return getAnalyzeEntity(retrospectId, answers, rangeQuestionId, numberQuestionId, individualAnswer, memberId, AnalyzeType.INDIVIDUAL);
+				OpenAIResponse aiIndividualResponse = openAIService.createAnalyze(individualAnswer);
+				OpenAIResponse.Content individualcontent = aiIndividualResponse.parseContent();
+				return getAnalyzeEntity(retrospectId, answers, rangeQuestionId, numberQuestionId, individualcontent,
+					memberId, AnalyzeType.INDIVIDUAL);
 			}).toList();
 		analyzes.addAll(individualAnalyzes);
 
@@ -85,31 +95,27 @@ public class AnalyzeService {
 		log.info("createAnalyze completed in {} ms", duration);
 	}
 
-	private Analyze getAnalyzeEntity(Long retrospectId, Answers answers, Long rangeQuestionId, Long numberQuestionId,
-		String userAnswer, Long memberId, AnalyzeType analyzeType) {
-		OpenAIResponse aiResponse = openAIService.createAnalyze(userAnswer);
-		OpenAIResponse.Content content = aiResponse.parseContent();
-
-		List<AnalyzeDetail> analyzeDetails = createAnalyzeDetails(content);
-
-		return createAnalyze(retrospectId, memberId, answers.getSatisfactionCount(rangeQuestionId),
-			answers.getNormalCount(rangeQuestionId), answers.getRegretCount(rangeQuestionId),
-			answers.getGoalCompletionRate(numberQuestionId), analyzeType, analyzeDetails);
-	}
-
-	public AnalyzeGetResponse getAnalyze(Long spaceId, Long retrospectId, Long memberId, AnalyzeType analyzeType) {
+	public AnalyzesGetResponse getAnalyze(Long spaceId, Long retrospectId, Long memberId) {
 		// 해당 스페이스 팀원인지 검증
 		Team team = new Team(memberSpaceRelationRepository.findAllBySpaceId(spaceId));
 		team.validateTeamMembership(memberId);
-		Analyze analyze;
-		if (analyzeType.equals(AnalyzeType.TEAM)) {
-			analyze = analyzeRepository.findByRetrospectIdAndAnalyzeTypeOrThrow(retrospectId, analyzeType);
-		} else {
-			analyze = analyzeRepository.findByRetrospectIdAndAnalyzeTypeAndMemberIdOrThrow(retrospectId, analyzeType,
-				memberId);
-		}
 
-		return AnalyzeGetResponse.of(analyze);
+		Analyze teamAnalyze = analyzeRepository.findByRetrospectIdAndAnalyzeTypeOrThrow(retrospectId, AnalyzeType.TEAM);
+
+		Analyze individualAnalyze = analyzeRepository.findByRetrospectIdAndAnalyzeTypeAndMemberIdOrThrow(retrospectId,
+			AnalyzeType.INDIVIDUAL, memberId);
+
+		return AnalyzesGetResponse.of(AnalyzeGetResponse.of(teamAnalyze), AnalyzeGetResponse.of(individualAnalyze));
+	}
+
+	private Analyze getAnalyzeEntity(Long retrospectId, Answers answers, Long rangeQuestionId, Long numberQuestionId,
+		OpenAIResponse.Content content, Long memberId, AnalyzeType analyzeType) {
+		List<AnalyzeDetail> analyzeDetails = createAnalyzeDetails(content);
+
+		return createAnalyzeEntity(retrospectId, memberId, answers.getScoreCount(rangeQuestionId, SCORE_ONE, memberId),
+			answers.getScoreCount(rangeQuestionId, SCORE_TWO, memberId), answers.getScoreCount(rangeQuestionId, SCORE_THREE, memberId),
+			answers.getScoreCount(rangeQuestionId, SCORE_FOUR, memberId), answers.getScoreCount(rangeQuestionId, SCORE_FIVE, memberId),
+			answers.getGoalCompletionRate(numberQuestionId), analyzeType, analyzeDetails);
 	}
 
 	private List<AnalyzeDetail> createAnalyzeDetails(OpenAIResponse.Content content) {
@@ -143,15 +149,17 @@ public class AnalyzeService {
 		return analyzeDetails;
 	}
 
-	private Analyze createAnalyze(Long retrospectId, Long memberId, int satisfactionCount, int normalCount,
-		int regretCount, int goalCompletionRate, AnalyzeType analyzeType, List<AnalyzeDetail> analyzeDetails) {
+	private Analyze createAnalyzeEntity(Long retrospectId, Long memberId,int scoreOne, int scoreTwo, int scoreThree, int scoreFour,
+		int scoreFive, int goalCompletionRate, AnalyzeType analyzeType, List<AnalyzeDetail> analyzeDetails) {
 
 		return Analyze.builder()
 			.retrospectId(retrospectId)
 			.memberId(memberId)
-			.satisfactionCount(satisfactionCount)
-			.normalCount(normalCount)
-			.regretCount(regretCount)
+			.scoreOne(scoreOne)
+			.scoreTwo(scoreTwo)
+			.scoreThree(scoreThree)
+			.scoreFour(scoreFour)
+			.scoreFive(scoreFive)
 			.goalCompletionRate(goalCompletionRate)
 			.analyzeType(analyzeType)
 			.analyzeDetails(analyzeDetails)
