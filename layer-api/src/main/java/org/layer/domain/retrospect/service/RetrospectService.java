@@ -21,15 +21,14 @@ import org.layer.domain.retrospect.controller.dto.request.RetrospectCreateReques
 import org.layer.domain.retrospect.controller.dto.request.RetrospectUpdateRequest;
 import org.layer.domain.retrospect.entity.Retrospect;
 import org.layer.domain.retrospect.entity.RetrospectStatus;
-import org.layer.domain.retrospect.exception.RetrospectException;
 import org.layer.domain.retrospect.repository.RetrospectRepository;
 import org.layer.domain.retrospect.service.dto.response.RetrospectGetServiceResponse;
 import org.layer.domain.retrospect.service.dto.response.RetrospectListGetServiceResponse;
-import org.layer.domain.space.entity.MemberSpaceRelation;
 import org.layer.domain.space.entity.Space;
 import org.layer.domain.space.entity.Team;
 import org.layer.domain.space.repository.MemberSpaceRelationRepository;
 import org.layer.domain.space.repository.SpaceRepository;
+import org.layer.external.ai.service.AIAnalyzeService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,7 +46,8 @@ public class RetrospectService {
 	private final AnswerRepository answerRepository;
 	private final FormRepository formRepository;
 	private final SpaceRepository spaceRepository;
-	private final AnalyzeService analyzeService;
+
+	private final AIAnalyzeService aiAnalyzeService;
 
 	private final Time time;
 
@@ -158,28 +158,19 @@ public class RetrospectService {
 
 	@Transactional
 	public void closeRetrospect(Long spaceId, Long retrospectId, Long memberId) {
-		// 해당 스페이스 팀원인지 검증
-		Team team = new Team(memberSpaceRelationRepository.findAllBySpaceId(spaceId));
-		team.validateTeamMembership(memberId);
-
 		// 팀장인지 검증
 		Space space = spaceRepository.findByIdOrThrow(spaceId);
 		space.isLeaderSpace(memberId);
 
-		// 팀원 모두 회고를 작성했는지 검증
 		Retrospect retrospect = retrospectRepository.findByIdOrThrow(retrospectId);
+		retrospect.validateDeadline(time.now());
 
 		Answers answers = new Answers(answerRepository.findAllByRetrospectId(retrospectId));
-
-		if (answers.getWriteCount() != team.getTeamMemberCount()) {
-			throw new RetrospectException(NOT_COMPLETE_RETROSPECT_MEMBER);
-		}
 
 		retrospect.updateRetrospectStatus(RetrospectStatus.DONE);
 		retrospectRepository.saveAndFlush(retrospect);
 
 		// 회고 ai 분석 시작
-		List<Long> memberIds = team.getMemberSpaceRelations().stream().map(MemberSpaceRelation::getMemberId).toList();
-		analyzeService.createAnalyze(spaceId, retrospectId, memberIds);
+		aiAnalyzeService.createAnalyze(spaceId, retrospectId, answers.getWriteMemberIds());
 	}
 }

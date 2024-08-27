@@ -2,6 +2,7 @@ package org.layer.domain.retrospect.repository;
 
 import org.layer.domain.actionItem.dto.MemberActionItemResponse;
 import org.layer.domain.retrospect.entity.Retrospect;
+import org.layer.domain.retrospect.entity.RetrospectStatus;
 import org.layer.domain.retrospect.exception.RetrospectException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -9,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.layer.common.exception.RetrospectExceptionType.NOT_FOUND_RETROSPECT;
@@ -16,9 +18,7 @@ import static org.layer.common.exception.RetrospectExceptionType.NOT_FOUND_RETRO
 public interface RetrospectRepository extends JpaRepository<Retrospect, Long>, RetrospectCustomRepository {
     List<Retrospect> findAllBySpaceId(Long spaceId);
 
-    List<Retrospect> findByIdIn(List<Long> ids);
-
-    List<Retrospect> findAllBySpaceIdIn(List<Long> spaceIds);
+    List<Retrospect> findAllByDeadlineAfterAndRetrospectStatus(LocalDateTime now, RetrospectStatus retrospectStatus);
 
 
     default Retrospect findByIdOrThrow(Long retrospectId) {

@@ -30,7 +30,7 @@ public class AnalyzeController implements AnalyzeApi {
 		@PathVariable("retrospectId") Long retrospectId,
 		@RequestParam List<Long> memberIds) {
 
-		analyzeService.createAnalyze(spaceId, retrospectId, memberIds);
+		analyzeService.createAnalyzeTemp(spaceId, retrospectId, memberIds);
 		return ResponseEntity.status(HttpStatus.CREATED).build();
 	}
 
