@@ -35,6 +35,7 @@ public class MemberIdResolver implements HandlerMethodArgumentResolver {
     public Long resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
         try {
             var securityContext = SecurityContextHolder.getContext();
+            log.info("?");
             var memberId = Optional.ofNullable(securityContext).map(it -> it.getAuthentication().getName()).orElseThrow(() -> new BaseCustomException(UNAUTHORIZED_USER));
             return Long.parseLong(memberId);
         } catch (Exception e) {
