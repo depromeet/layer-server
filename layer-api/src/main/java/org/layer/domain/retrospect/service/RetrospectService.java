@@ -72,8 +72,13 @@ public class RetrospectService {
 		}
 
 		// 내 회고 폼에 추가
-		Form form = new Form(memberId, spaceId, request.formName(), request.introduction(), FormType.CUSTOM,
-			FormTag.CUSTOM);
+		FormTag formTag = FormTag.CUSTOM;
+		if (!request.hasChangedOriginal()) {
+			Form prevForm = formRepository.findByIdOrThrow(request.curFormId());
+			formTag = prevForm.getFormTag();
+		}
+
+		Form form = new Form(memberId, spaceId, request.formName(), request.introduction(), FormType.CUSTOM, formTag);
 		Form savedForm = formRepository.save(form);
 
 		List<Question> myQuestions = getQuestions(request.questions(), null, savedForm.getId());
