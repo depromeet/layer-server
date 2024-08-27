@@ -62,5 +62,4 @@ public class RetrospectScheduler {
 
 		log.info("Batch : updateRetrospectStatusToDone");
 	}
-
 }
