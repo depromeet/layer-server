@@ -10,7 +10,6 @@ import org.layer.domain.actionItem.entity.ActionItem;
 import org.layer.domain.actionItem.enums.ActionItemStatus;
 import org.layer.domain.actionItem.exception.ActionItemException;
 import org.layer.domain.actionItem.repository.ActionItemRepository;
-import org.layer.domain.answer.repository.AnswerRepository;
 import org.layer.domain.retrospect.entity.Retrospect;
 import org.layer.domain.retrospect.repository.RetrospectRepository;
 import org.layer.domain.space.entity.MemberSpaceRelation;
@@ -41,6 +40,8 @@ public class ActionItemService {
 
     @Transactional
     public ActionItemCreateResponse createActionItem(Long memberId, Long retrospectId, String content) {
+        log.info("?");
+        log.info("?");
 
         // 만드는 사람이 스페이스 리더인지 확인
         Retrospect retrospect = retrospectRepository.findByIdOrThrow(retrospectId);
@@ -76,7 +77,7 @@ public class ActionItemService {
                 .sorted((a, b) -> b.getDeadline().compareTo(a.getDeadline()))
                 .findFirst();
 
-        if(retrospectOpt.isEmpty()) { // "실행 중" 회고가 존재하지 않음
+        if (retrospectOpt.isEmpty()) { // "실행 중" 회고가 존재하지 않음
             throw new ActionItemException(NO_PROCEEDING_ACTION_ITEMS);
         }
 
@@ -105,7 +106,7 @@ public class ActionItemService {
 
         // 현재 로그인한 회원이 회고 스페이스에 속하는지 확인
         Optional<MemberSpaceRelation> team = memberSpaceRelationRepository.findBySpaceIdAndMemberId(spaceId, memberId);
-        if(team.isEmpty()) {
+        if (team.isEmpty()) {
             throw new MemberSpaceRelationException(NOT_FOUND_MEMBER_SPACE_RELATION);
         }
 
@@ -123,7 +124,7 @@ public class ActionItemService {
         for (int index = 0; index < doneRetrospects.size(); index++) {
             Retrospect doneRetrospect = doneRetrospects.get(index);
             ActionItemStatus status;
-            if(index == 0L) {
+            if (index == 0L) {
                 status = ActionItemStatus.PROCEEDING;
             } else {
                 status = ActionItemStatus.DONE;
@@ -146,8 +147,6 @@ public class ActionItemService {
         }
 
 
-
-
         return SpaceRetrospectActionItemGetResponse.of(space, responses);
     }
 
@@ -166,7 +165,7 @@ public class ActionItemService {
     public SpaceActionItemGetResponse getSpaceRecentActionItems(Long memberId, Long spaceId) {
         // 스페이스가 있는지 검증
         Space space = spaceRepository.findByIdOrThrow(spaceId);
-        
+
         // 멤버가 스페이스에 속하는지 검증
         memberSpaceRelationRepository.findBySpaceIdAndMemberId(spaceId, memberId);
 
@@ -178,7 +177,7 @@ public class ActionItemService {
                 .sorted((a, b) -> b.getDeadline().compareTo(a.getDeadline())) // deadline 내림차순으로 정렬
                 .findFirst();
 
-        if(recentOpt.isPresent()) {
+        if (recentOpt.isPresent()) {
             Retrospect recent = recentOpt.get();
             List<ActionItem> actionItems = actionItemRepository
                     .findAllByRetrospectId(recent.getId()).stream()
@@ -191,8 +190,6 @@ public class ActionItemService {
         // DONE인 회고가 없는 경우
         return SpaceActionItemGetResponse.of(space, null, new ArrayList<>());
     }
-
-
 
 
     //== 회원의 실행 목표 조회 ==//
@@ -209,7 +206,7 @@ public class ActionItemService {
 
 
         Set<Long> spaceIdSet = new HashSet<>();
-        for(MemberActionItemResponse dto : dtoList) {
+        for (MemberActionItemResponse dto : dtoList) {
             List<ActionItemResponse> actionItems = actionItemList.stream()
                     .filter(ai -> ai.getRetrospectId().equals(dto.getRetrospectId()))
                     .sorted(Comparator.comparingInt(ActionItem::getActionItemOrder)) // order 순으로 정렬
@@ -218,7 +215,7 @@ public class ActionItemService {
 
             // 상태 확인
             ActionItemStatus status;
-            if(spaceIdSet.contains(dto.getSpaceId())) {
+            if (spaceIdSet.contains(dto.getSpaceId())) {
                 status = ActionItemStatus.DONE;
             } else {
                 spaceIdSet.add(dto.getSpaceId());
@@ -245,7 +242,7 @@ public class ActionItemService {
         space.isLeaderSpace(memberId);
 
         // 요청 리스트와 DB에 저장된 실행 목표 개수가 다를 때
-        if(updateDto.actionItems().size() != actionItems.size()) {
+        if (updateDto.actionItems().size() != actionItems.size()) {
             throw new ActionItemException(INVALID_ACTION_ITEM_LIST);
         }
 
@@ -257,9 +254,9 @@ public class ActionItemService {
         ));
 
         AtomicInteger order = new AtomicInteger(1);
-        for(ActionItemUpdateRequest.ActionItemUpdateElementRequest updateItem : updateDto.actionItems()) {
+        for (ActionItemUpdateRequest.ActionItemUpdateElementRequest updateItem : updateDto.actionItems()) {
             ActionItem actionItem = actionItemMap.getOrDefault(updateItem.getId(), null);
-            if(actionItem == null) {
+            if (actionItem == null) {
                 throw new ActionItemException(INVALID_ACTION_ITEM_ID);
             }
             actionItem.updateContent(updateItem.getContent());
