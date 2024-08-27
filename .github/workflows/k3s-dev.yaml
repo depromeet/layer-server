@@ -221,7 +221,7 @@ jobs:
                 volumes:
                   - name: secret-volume
                     secret:
-                      secretName: app-secret-dev
+                      secretName: app-secret-$TARGET
                   - name: log-volume
                     hostPath:
                       path: /${{ env.DEPLOY_TARGET }}/log/$MODULE
