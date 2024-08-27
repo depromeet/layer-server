@@ -3,7 +3,7 @@ name: Spring Boot Multi-module K3s Deployment
 on:
   push:
     branches:
-      - develop
+      - develop-temp
 
 env:
   REGISTRY: "ghcr.io"
@@ -270,7 +270,7 @@ jobs:
           EOF
             fi
           done
-      
+
 
       - name: Deploy to K3s
         run: |
