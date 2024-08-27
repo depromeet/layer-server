@@ -1,5 +1,9 @@
 # auth
-layer-api/src/main/resources/application-auth.properties
+layer-api/src/main/resources/application.yml
+
+# q
+layer-domain/src/main/generated/
+
 
 HELP.md
 .gradle
@@ -38,3 +42,13 @@ out/
 
 ### VS Code ###
 .vscode/
+*.properties
+*.sql
+
+layer-domain/src/main/generated
+
+
+log/
+credentials.json
+
+

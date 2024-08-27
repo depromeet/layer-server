@@ -1,0 +1,42 @@
+package org.layer.domain.retrospect.repository;
+
+import org.layer.domain.actionItem.dto.MemberActionItemResponse;
+import org.layer.domain.retrospect.entity.Retrospect;
+import org.layer.domain.retrospect.entity.RetrospectStatus;
+import org.layer.domain.retrospect.exception.RetrospectException;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+import static org.layer.common.exception.RetrospectExceptionType.NOT_FOUND_RETROSPECT;
+
+public interface RetrospectRepository extends JpaRepository<Retrospect, Long>, RetrospectCustomRepository {
+    List<Retrospect> findAllBySpaceId(Long spaceId);
+
+    List<Retrospect> findAllByDeadlineAfterAndRetrospectStatus(LocalDateTime now, RetrospectStatus retrospectStatus);
+
+
+    default Retrospect findByIdOrThrow(Long retrospectId) {
+        return findById(retrospectId)
+                .orElseThrow(() -> new RetrospectException(NOT_FOUND_RETROSPECT));
+    }
+
+    @Modifying(clearAutomatically = true)
+    @Transactional
+    @Query("DELETE FROM Retrospect r WHERE r.spaceId = :spaceId")
+    void deleteAllBySpaceId(Long spaceId);
+
+    @Query("SELECT DISTINCT new org.layer.domain.actionItem.dto.MemberActionItemResponse(s, r) " +
+            "FROM Retrospect r " +
+            "JOIN Space s ON r.spaceId = s.id " +
+            "JOIN MemberSpaceRelation ms ON ms.space.id = s.id " +
+            "WHERE ms.memberId = :memberId AND r.retrospectStatus = 'DONE' " +
+            "ORDER BY r.deadline DESC")
+    List<MemberActionItemResponse> findAllMemberActionItemResponsesByMemberId(@Param("memberId") Long memberId);
+
+}

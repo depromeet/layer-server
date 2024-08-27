@@ -1,0 +1,65 @@
+server:
+  port: 8085
+
+spring:
+  config:
+    import: application-secret.properties
+  datasource:
+    url: ${DEV_DB_URL}
+    username: ${DEV_DB_NAME}
+    password: ${DEV_DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+    open-in-view: false
+    database: mysql
+
+apple:
+  login:
+    issuer: ${DEV_APPLE_ISSUER}
+    client_id: ${DEV_APPLE_CLIENT_ID}
+    audience: ${DEV_APPLE_AUD}
+
+kakao:
+  login:
+    api_key: ${DEV_KAKAO_API_KEY}
+    redirect_uri: ${DEV_KAKAO_REDIRECT_URI}
+    uri:
+      base: https://kauth.kakao.com
+      code: /oauth/authorize
+      token: /oauth/token
+  api:
+    uri:
+      base: https://kapi.kakao.com
+      user: /v2/user/me
+
+google:
+  login:
+    client_id: ${DEV_GOOGLE_CLIENT_ID}
+    code_uri: ${DEV_GOOGLE_CODE_URI}
+    token_uri: ${DEV_GOOGLE_TOKEN_URI}
+    client_secret: ${DEV_GOOGLE_CLIENT_SECRET}
+    redirect_uri: ${DEV_GOOGLE_REDIRECT_URI}
+    code_redirect_uri: http://localhost:8080/api/auth/oauth2/google/code
+  sheet:
+    id: ${GOOGLE_SHEET_ID}
+    token_path: ${DEV_GOOGLE_TOKEN_PATH}
+
+ncp:
+  storage:
+    region: ${STORAGE_REGION}
+    bucketName: ${STORAGE_NAME}
+    endpoint: ${STORAGE_ENDPOINT}
+    accessKey: ${STORAGE_ACCESS_KEY}
+    secretKey: ${STORAGE_SECRET_KEY}
+
+openai:
+  systemContent: ${OPENAI_SYSTEM_CONTENT}
+  apiKey: ${OPENAI_API_KEY}
+  model: ${OPENAI_MODEL}
+  maxTokens: ${OPENAI_MAX_TOKENS}
