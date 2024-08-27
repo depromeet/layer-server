@@ -167,15 +167,15 @@ jobs:
       - name: Create K3s deployment files
         run: |
           for MODULE in $(echo $CHANGED_MODULES | tr "," "\n"); do
-          cat <<EOF > deployment-$MODULE.yaml
-          apiVersion: apps/v1
-          kind: Deployment
-          metadata:
+            cat <<EOF > deployment-$MODULE.yaml
+            apiVersion: apps/v1
+            kind: Deployment
+            metadata:
             name: $MODULE-production
             namespace: default
             labels:
               app: $MODULE-production
-          spec:
+            spec:
             replicas: 1
             selector:
               matchLabels:
@@ -187,7 +187,7 @@ jobs:
               spec:
                 containers:
                   - name: $MODULE-production
-                    image: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}/$MODULE:${{ env.SHA_SHORT }}
+                    image: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}/$MODULE:latest
                     ports:
                       - containerPort: $PORT
                     env:
@@ -213,24 +213,24 @@ jobs:
                       type: DirectoryOrCreate
                   - name: tokens-volume
                     emptyDir: { }
-          ---
-          apiVersion: v1
-          kind: Service
-          metadata:
+            ---
+            apiVersion: v1
+            kind: Service
+            metadata:
             name: $MODULE-service-production
             namespace: default
             labels:
               app: $MODULE-production
-          spec:
+            spec:
             selector:
               app: $MODULE-production
             ports:
               - protocol: TCP
                 port: 80
                 targetPort: $PORT
-          EOF
-          fi
+            EOF
           done
+
 
 
       - name: Deploy to K3s
