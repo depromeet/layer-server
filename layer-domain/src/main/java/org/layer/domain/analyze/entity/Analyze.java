@@ -34,13 +34,18 @@ public class Analyze {
 	@NotNull
 	private Long retrospectId;
 
+	// 팀 회고일 경우 null
 	private Long memberId;
 
-	private int satisfactionCount;
+	private int scoreOne;
 
-	private int normalCount;
+	private int scoreTwo;
 
-	private int regretCount;
+	private int scoreThree;
+
+	private int scoreFour;
+
+	private int scoreFive;
 
 	private int goalCompletionRate;
 
@@ -52,13 +57,15 @@ public class Analyze {
 	private List<AnalyzeDetail> analyzeDetails = new ArrayList<>();
 
 	@Builder
-	private Analyze(Long retrospectId, Long memberId, int satisfactionCount, int normalCount, int regretCount, int goalCompletionRate,
-		AnalyzeType analyzeType, List<AnalyzeDetail> analyzeDetails) {
+	private Analyze(Long retrospectId, Long memberId, int scoreOne, int scoreTwo, int scoreThree, int scoreFour,
+		int scoreFive, int goalCompletionRate, AnalyzeType analyzeType, List<AnalyzeDetail> analyzeDetails) {
 		this.retrospectId = retrospectId;
 		this.memberId = memberId;
-		this.satisfactionCount = satisfactionCount;
-		this.normalCount = normalCount;
-		this.regretCount = regretCount;
+		this.scoreOne = scoreOne;
+		this.scoreTwo = scoreTwo;
+		this.scoreThree = scoreThree;
+		this.scoreFour = scoreFour;
+		this.scoreFive = scoreFive;
 		this.goalCompletionRate = goalCompletionRate;
 		this.analyzeType = analyzeType;
 		this.analyzeDetails = analyzeDetails;
