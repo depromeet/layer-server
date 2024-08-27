@@ -25,7 +25,7 @@ public class RetrospectScheduler {
 	public void updateRetrospectStatusToDone() {
 		LocalDateTime now = time.now();
 		retrospectRepository.updateRetrospectStatus(now);
+
 		log.info("Batch : updateRetrospectStatusToDone");
 	}
-
 }
