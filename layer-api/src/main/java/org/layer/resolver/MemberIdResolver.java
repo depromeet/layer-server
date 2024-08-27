@@ -25,7 +25,7 @@ public class MemberIdResolver implements HandlerMethodArgumentResolver {
         // 1. 어노테이션 체크
         var annotation = parameter.hasParameterAnnotation(MemberId.class);
 
-        // 2. 파라미터의 타입 체크
+        // 2. 파라미터의 타입체크
         var parameterType = parameter.getParameterType().equals(Long.class);
 
         return (annotation && parameterType);

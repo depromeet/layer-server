@@ -65,7 +65,7 @@ jobs:
     name: build
     needs: [ setup ]
     runs-on: ubuntu-latest
-    #    if: ${{ needs.setup.outputs.changed_modules != '' }}
+    if: ${{ needs.setup.outputs.changed_modules != '' }}
     permissions:
       contents: read
       packages: write
@@ -143,7 +143,7 @@ jobs:
     name: Deploy to K3s
     needs: [ build, setup ]
     runs-on: ubuntu-latest
-    #    if: ${{ needs.setup.outputs.changed_modules != '' }}
+    if: ${{ needs.setup.outputs.changed_modules != '' }}
     env:
       DEPLOY_TARGET: ${{ needs.setup.outputs.deploy_target }}
       SHA_SHORT: ${{ needs.setup.outputs.sha_short }}
