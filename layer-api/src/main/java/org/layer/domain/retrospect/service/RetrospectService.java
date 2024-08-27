@@ -176,6 +176,7 @@ public class RetrospectService {
 		}
 
 		retrospect.updateRetrospectStatus(RetrospectStatus.DONE);
+		retrospectRepository.saveAndFlush(retrospect);
 
 		// 회고 ai 분석 시작
 		List<Long> memberIds = team.getMemberSpaceRelations().stream().map(MemberSpaceRelation::getMemberId).toList();
