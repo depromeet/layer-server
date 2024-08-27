@@ -100,11 +100,11 @@ jobs:
       - name: Setup Gradle
         uses: gradle/gradle-build-action@bd5760595778326ba7f1441bcf7e88b49de61a25 # v2.6.0
 
-      #      - name: Create application-secret.properties
-      #        run: |
-      #          for MODULE in $(echo $CHANGED_MODULES | tr "," "\n"); do
-      #            echo "${APPLICATION_SECRET_PROPERTIES}" > ./$MODULE/src/main/resources/application-secret.properties
-      #          done
+      - name: Create application-secret.properties
+        run: |
+          for MODULE in $(echo $CHANGED_MODULES | tr "," "\n"); do
+            echo "${APPLICATION_SECRET_PROPERTIES}" > ./$MODULE/src/main/resources/application-secret.properties
+          done
 
       - name: Build Changed Modules
         run: |
