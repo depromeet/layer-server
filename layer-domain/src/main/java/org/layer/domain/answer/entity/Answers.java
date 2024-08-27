@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.layer.domain.answer.enums.AnswerStatus;
 import org.layer.domain.answer.exception.AnswerException;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -51,6 +52,19 @@ public class Answers {
 		});
 
 		return set.size();
+	}
+
+	public List<Long> getWriteMemberIds() {
+		Set<Long> set = new HashSet<>();
+
+		answers.forEach(answer -> {
+			// 임시저장된 회고일 경우 제외
+			if (answer.getAnswerStatus() != AnswerStatus.TEMPORARY) {
+				set.add(answer.getMemberId());
+			}
+		});
+
+		return new ArrayList<>(set);
 	}
 
 	public void validateNoAnswer() {

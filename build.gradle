@@ -112,7 +112,6 @@ project(":layer-common") {
         implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0")
 
         implementation 'org.springframework.boot:spring-boot-starter-web'
-//		implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     }
 
 }
@@ -159,12 +158,13 @@ project(":layer-external") {
         runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.5'
         runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.5'
 
+        implementation 'org.springframework.boot:spring-boot-starter'
+        implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
         annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 
         implementation 'com.google.api-client:google-api-client:2.0.0'
         implementation 'com.google.oauth-client:google-oauth-client-jetty:1.34.1'
         implementation 'com.google.apis:google-api-services-sheets:v4-rev20220927-2.0.0'
-
 
         // NCP Object Storage
         implementation 'io.awspring.cloud:spring-cloud-starter-aws:2.4.4'
@@ -185,6 +185,7 @@ project(":layer-batch") {
     dependencies {
         implementation project(path: ':layer-common')
         implementation project(path: ':layer-domain')
+        implementation project(path: ':layer-external')
 
         implementation 'org.springframework.boot:spring-boot-starter-web'
 		implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
