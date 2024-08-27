@@ -3,7 +3,7 @@ name: Spring Boot Multi-module K3s Deployment
 on:
   push:
     branches:
-      - develop-temp
+      - develop
 
 env:
   REGISTRY: "ghcr.io"
@@ -172,6 +172,7 @@ jobs:
 
       - name: Create K3s deployment files
         run: |
+          TARGET=${{ env.DEPLOY_TARGET}}
           for MODULE in $(echo $CHANGED_MODULES | tr "," "\n"); do
             if [ "$MODULE" = "layer-api" ]; then
               PORT=8080
@@ -185,22 +186,22 @@ jobs:
           apiVersion: apps/v1
           kind: Deployment
           metadata:
-            name: $MODULE-deployment
+            name: $MODULE-$TARGET
             namespace: default
             labels:
-              app: $MODULE
+              app: $MODULE-$TARGET
           spec:
             replicas: 1
             selector:
               matchLabels:
-                app: $MODULE
+                app: $MODULE-$TARGET
             template:
               metadata:
                 labels:
-                  app: $MODULE
+                  app: $MODULE-$TARGET
               spec:
                 containers:
-                  - name: $MODULE
+                  - name: $MODULE-$TARGET
                     image: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}/$MODULE:${{ env.SHA_SHORT }}
                     ports:
                       - containerPort: $PORT
@@ -231,44 +232,18 @@ jobs:
           apiVersion: v1
           kind: Service
           metadata:
-            name: $MODULE-service
+            name: $MODULE-service-$TARGET
             namespace: default
             labels:
-              app: $MODULE
+              app: $MODULE-$TARGET
           spec:
             selector:
-              app: $MODULE
+              app: $MODULE-$TARGET
             ports:
             - protocol: TCP
               port: 80
               targetPort: $PORT
           EOF
-
-            if [ "$MODULE" = "layer-api" ]; then
-              echo "layer-api processed"
-              cat <<EOF >> deployment-$MODULE.yaml
-          ---
-          apiVersion: networking.k8s.io/v1
-          kind: Ingress
-          metadata:
-            name: layer-api-ingress
-            namespace: default
-            annotations:
-              kubernetes.io/ingress.class: traefik
-          spec:
-            rules:
-              - host: stgapi.layerapp.io
-                http:
-                  paths:
-                    - path: /
-                      pathType: Prefix
-                      backend:
-                        service:
-                          name: layer-api-service
-                          port:
-                            number: 80
-          EOF
-            fi
           done
 
 

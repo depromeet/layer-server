@@ -3,7 +3,7 @@ name: Spring Boot Multi-module K3s Deployment
 on:
   push:
     branches:
-      - develop
+      - main
 
 env:
   REGISTRY: "ghcr.io"
@@ -27,7 +27,7 @@ jobs:
       - name: Setup Env
         id: set-env
         run: |
-          if [[ "${GITHUB_REF}" == "refs/heads/develop" ]]; then
+          if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
             echo "DEPLOY_TARGET=production" >> $GITHUB_OUTPUT
           else
             echo "DEPLOY_TARGET=development" >> $GITHUB_OUTPUT
@@ -166,27 +166,28 @@ jobs:
 
       - name: Create K3s deployment files
         run: |
+          TARGET=${{ env.DEPLOY_TARGET}}
           for MODULE in $(echo $CHANGED_MODULES | tr "," "\n"); do
             cat <<EOF > deployment-$MODULE.yaml
           apiVersion: apps/v1
           kind: Deployment
           metadata:
-            name: $MODULE-production
+            name: $MODULE-$TARGET
             namespace: default
             labels:
-              app: $MODULE-production
+              app: $MODULE-$TARGET
           spec:
             replicas: 1
             selector:
               matchLabels:
-                app: $MODULE-production
+                app: $MODULE-$TARGET
             template:
               metadata:
                 labels:
-                  app: $MODULE-production
+                  app: $MODULE-$TARGET
               spec:
                 containers:
-                  - name: $MODULE-production
+                  - name: $MODULE-$TARGET
                     image: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}/$MODULE:${{ env.SHA_SHORT }}
                     ports:
                       - containerPort: 8080
@@ -206,24 +207,24 @@ jobs:
                 volumes:
                   - name: secret-volume
                     secret:
-                      secretName: app-secret-dev
+                      secretName: app-secret-prod
                   - name: log-volume
                     hostPath:
                       path: /${{ env.DEPLOY_TARGET }}/log/$MODULE
                       type: DirectoryOrCreate
                   - name: tokens-volume
-                    emptyDir: { }
+                    emptyDir: {}
           ---
           apiVersion: v1
           kind: Service
           metadata:
-            name: $MODULE-service-production
+            name: $MODULE-service-$TARGET
             namespace: default
             labels:
-              app: $MODULE-production
+              app: $MODULE-$TARGET
           spec:
             selector:
-              app: $MODULE-production
+              app: $MODULE-$TARGET
             ports:
               - protocol: TCP
                 port: 80
