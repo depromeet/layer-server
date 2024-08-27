@@ -65,7 +65,7 @@ jobs:
     name: build
     needs: [ setup ]
     runs-on: ubuntu-latest
-    if: ${{ needs.setup.outputs.changed_modules != '' }}
+    #    if: ${{ needs.setup.outputs.changed_modules != '' }}
     permissions:
       contents: read
       packages: write
