@@ -56,7 +56,6 @@ apple:
     client_id: ${DEV_APPLE_CLIENT_ID}
     audience: ${DEV_APPLE_AUD}
 
-
 webmvc:
   cors:
     allowedOrigins:

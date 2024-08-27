@@ -64,7 +64,7 @@ public class AnalyzeService {
 		Questions questions = new Questions(questionRepository.findAllByRetrospectIdOrderByQuestionOrder(retrospectId));
 		Answers answers = new Answers(
 			answerRepository.findAllByRetrospectIdAndAnswerStatus(retrospectId, AnswerStatus.DONE));
-
+    
 		Long rangeQuestionId = questions.extractEssentialQuestionIdBy(QuestionType.RANGER);
 		Long numberQuestionId = questions.extractEssentialQuestionIdBy(QuestionType.NUMBER);
 		String totalAnswer = answers.getTotalAnswer(rangeQuestionId, numberQuestionId);

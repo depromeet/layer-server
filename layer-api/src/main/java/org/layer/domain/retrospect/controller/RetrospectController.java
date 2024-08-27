@@ -71,7 +71,6 @@ public class RetrospectController implements RetrospectApi {
 		@PathVariable("retrospectId") Long retrospectId, @MemberId Long memberId) {
 
 		retrospectService.deleteRetrospect(spaceId, retrospectId, memberId);
-
 		return ResponseEntity.ok().build();
 	}
 

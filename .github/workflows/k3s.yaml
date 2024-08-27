@@ -87,6 +87,16 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v4
 
+      - name: Gradle Caching
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
       - name: Setup Gradle
         uses: gradle/gradle-build-action@bd5760595778326ba7f1441bcf7e88b49de61a25 # v2.6.0
 
@@ -136,7 +146,6 @@ jobs:
     if: ${{ needs.setup.outputs.changed_modules != '' }}
     env:
       DEPLOY_TARGET: ${{ needs.setup.outputs.deploy_target }}
-      SELECTOR: layer-dev
       SHA_SHORT: ${{ needs.setup.outputs.sha_short }}
       CHANGED_MODULES: ${{ needs.setup.outputs.changed_modules }}
 
@@ -164,6 +173,14 @@ jobs:
       - name: Create K3s deployment files
         run: |
           for MODULE in $(echo $CHANGED_MODULES | tr "," "\n"); do
+            if [ "$MODULE" = "layer-api" ]; then
+              PORT=8080
+            elif [ "$MODULE" = "layer-batch" ]; then
+              PORT=8085
+            else
+              PORT=8080
+            fi
+          
             cat <<EOF > deployment-$MODULE.yaml
           apiVersion: apps/v1
           kind: Deployment
@@ -171,22 +188,22 @@ jobs:
             name: $MODULE-deployment
             namespace: default
             labels:
-              app: ${{ env.SELECTOR }}
+              app: $MODULE
           spec:
             replicas: 1
             selector:
               matchLabels:
-                app: ${{ env.SELECTOR }}
+                app: $MODULE
             template:
               metadata:
                 labels:
-                  app: ${{ env.SELECTOR }}
+                  app: $MODULE
               spec:
                 containers:
                   - name: $MODULE
                     image: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}/$MODULE:${{ env.SHA_SHORT }}
                     ports:
-                      - containerPort: 8080
+                      - containerPort: $PORT
                     env:
                       - name: TZ
                         value: "Asia/Seoul"
@@ -217,23 +234,24 @@ jobs:
             name: $MODULE-service
             namespace: default
             labels:
-              app: ${{ env.SELECTOR }}
+              app: $MODULE
           spec:
             selector:
-              app: ${{ env.SELECTOR }}
+              app: $MODULE
             ports:
             - protocol: TCP
               port: 80
-              targetPort: 8080
+              targetPort: $PORT
           EOF
 
-            if [ "$MODULE" != "layer-batch" ]; then
+            if [ "$MODULE" = "layer-api" ]; then
+              echo "layer-api processed"
               cat <<EOF >> deployment-$MODULE.yaml
           ---
           apiVersion: networking.k8s.io/v1
           kind: Ingress
           metadata:
-            name: $MODULE-ingress
+            name: layer-api-ingress
             namespace: default
             annotations:
               kubernetes.io/ingress.class: traefik
@@ -246,7 +264,7 @@ jobs:
                       pathType: Prefix
                       backend:
                         service:
-                          name: $MODULE-service
+                          name: layer-api-service
                           port:
                             number: 80
           EOF

@@ -20,11 +20,13 @@ public class RetrospectScheduler {
 
 	/**
 	 * @note: 1시간마다 실행된다.
+	 *
 	 * */
 	@Scheduled(cron = "0 0 * * * *")
 	public void updateRetrospectStatusToDone() {
 		LocalDateTime now = time.now();
 		retrospectRepository.updateRetrospectStatus(now);
+
 		log.info("Batch : updateRetrospectStatusToDone");
 	}
 

@@ -38,7 +38,6 @@ public class ActionItemService {
     private final RetrospectRepository retrospectRepository;
     private final MemberSpaceRelationRepository memberSpaceRelationRepository;
     private final SpaceRepository spaceRepository;
-    private final AnswerRepository answerRepository;
 
     @Transactional
     public ActionItemCreateResponse createActionItem(Long memberId, Long retrospectId, String content) {
