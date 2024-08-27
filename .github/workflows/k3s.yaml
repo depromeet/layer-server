@@ -164,6 +164,14 @@ jobs:
       - name: Create K3s deployment files
         run: |
           for MODULE in $(echo $CHANGED_MODULES | tr "," "\n"); do
+            if [ "$MODULE" = "layer-api" ]; then
+              PORT=8080
+            elif [ "$MODULE" = "layer-batch" ]; then
+              PORT=8085
+            else
+              PORT=8080
+            fi
+          
             cat <<EOF > deployment-$MODULE.yaml
           apiVersion: apps/v1
           kind: Deployment
@@ -186,7 +194,7 @@ jobs:
                   - name: $MODULE
                     image: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}/$MODULE:${{ env.SHA_SHORT }}
                     ports:
-                      - containerPort: 8080
+                      - containerPort: $PORT
                     env:
                       - name: TZ
                         value: "Asia/Seoul"
@@ -224,7 +232,7 @@ jobs:
             ports:
             - protocol: TCP
               port: 80
-              targetPort: 8080
+              targetPort: $PORT
           EOF
 
             if [ "$MODULE" != "layer-batch" ]; then
