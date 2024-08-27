@@ -58,10 +58,10 @@ public class AnalyzeService {
 		String totalAnswer = answers.getTotalAnswer(
 			questions.extractEssentialQuestionIdBy(QuestionType.RANGER),
 			questions.extractEssentialQuestionIdBy(QuestionType.NUMBER));
+
 		// 분석 요청
 		OpenAIResponse aiResponse = openAIService.createAnalyze(totalAnswer);
 		OpenAIResponse.Content content = aiResponse.parseContent();
-
 
 		Long numberQuestionId = questions.extractEssentialQuestionIdBy(QuestionType.NUMBER);
 		Long rangeQuestionId = questions.extractEssentialQuestionIdBy(QuestionType.RANGER);
