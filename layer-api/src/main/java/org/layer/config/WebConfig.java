@@ -20,7 +20,6 @@ public class WebConfig implements WebMvcConfigurer {
 
     private final MemberIdResolver memberIdResolver;
 
-
     @Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {

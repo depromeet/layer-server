@@ -252,7 +252,7 @@ jobs:
           apiVersion: networking.k8s.io/v1
           kind: Ingress
           metadata:
-            name: $MODULE-ingress
+            name: layer-api-ingress
             namespace: default
             annotations:
               kubernetes.io/ingress.class: traefik
@@ -265,7 +265,7 @@ jobs:
                       pathType: Prefix
                       backend:
                         service:
-                          name: $MODULE-service
+                          name: layer-api-service
                           port:
                             number: 80
           EOF
