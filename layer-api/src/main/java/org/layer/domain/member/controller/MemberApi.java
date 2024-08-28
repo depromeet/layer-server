@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.layer.common.annotation.MemberId;
 import org.layer.domain.member.controller.dto.CreateFeedbackRequest;
+import org.layer.domain.member.controller.dto.GetMemberAnalyzesResponse;
 import org.layer.domain.member.controller.dto.UpdateMemberInfoRequest;
 import org.layer.domain.member.controller.dto.UpdateMemberInfoResponse;
 import org.springframework.http.ResponseEntity;
@@ -16,5 +17,8 @@ public interface MemberApi {
 
     @Operation(summary = "서비스 사용에 대한 피드백 남기기", method = "POST")
     ResponseEntity<Void> createFeedback(@MemberId Long memberId, @Valid CreateFeedbackRequest createFeedbackRequest);
+
+    @Operation(summary = "내 회고 분석 조회", method = "GET")
+    ResponseEntity<GetMemberAnalyzesResponse> getMyAnalyzes(@MemberId Long memberId);
 
 }
