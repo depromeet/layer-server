@@ -6,6 +6,7 @@ import lombok.Builder;
 import org.layer.domain.form.entity.Form;
 import org.layer.domain.template.entity.TemplateMetadata;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,7 +40,11 @@ public record TemplateDetailInfoResponse(
         List<TemplateDetailQuestionResponse> templateDetailQuestionList, // 질문(회고 과정)에 대한 설명
 
         @Schema(description = "템플릿 목적 태그 리스트")
-        List<TemplatePurposeResponse> templatePurposeResponseList // 질문(회고 과정)에 대한 설명
+        List<TemplatePurposeResponse> templatePurposeResponseList, // 질문(회고 과정)에 대한 설명
+
+
+        @Schema(description = "템플릿 생성 일자")
+        LocalDateTime createdAt
 
 ) {
     public static TemplateDetailInfoResponse toResponse(Form form, Optional<TemplateMetadata> templateMetadata, List<TemplateDetailQuestionResponse> templateQuestionList, List<TemplatePurposeResponse> templatePurposeResponseList) {
@@ -53,6 +58,7 @@ public record TemplateDetailInfoResponse(
                 .tipDescription(templateMetadata.map(TemplateMetadata::getTipDescription).orElse(null))
                 .templateDetailQuestionList(templateQuestionList)
                 .templatePurposeResponseList(templatePurposeResponseList)
+                .createdAt(form.getCreatedAt())
                 .build();
     }
 }
