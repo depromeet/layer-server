@@ -2,6 +2,7 @@ package org.layer.domain.analyze.repository;
 
 import static org.layer.common.exception.AnalyzeExcepitonType.*;
 
+
 import java.util.List;
 import java.util.Optional;
 
@@ -11,6 +12,7 @@ import org.layer.domain.analyze.exception.AnalyzeExcepiton;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+
 
 public interface AnalyzeRepository extends JpaRepository<Analyze, Long> {
 	Optional<Analyze> findByRetrospectIdAndAnalyzeType(Long retrospectId, AnalyzeType analyzeType);

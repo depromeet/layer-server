@@ -1,5 +1,6 @@
 package org.layer.domain.analyze.service;
 
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.layer.domain.analyze.controller.dto.response.AnalyzeIndividualGetResponse;
@@ -58,5 +59,4 @@ public class AnalyzeService {
 
         return AnalyzesGetResponse.of(analyzeTeamGetResponse, individualAnalyze.map(AnalyzeIndividualGetResponse::of).orElse(null));
     }
-
 }

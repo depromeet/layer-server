@@ -72,7 +72,6 @@ public class Analyze {
 		this.analyzeType = analyzeType;
 		this.analyzeDetails = analyzeDetails;
 	}
-
 	public AnalyzeDetail getTopCountAnalyzeDetailBy(AnalyzeDetailType analyzeDetailType){
 		return analyzeDetails.stream()
 			.filter(analyzeDetail -> analyzeDetail.getAnalyzeDetailType().equals(analyzeDetailType))

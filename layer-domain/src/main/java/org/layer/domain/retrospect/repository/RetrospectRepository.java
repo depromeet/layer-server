@@ -50,4 +50,5 @@ public interface RetrospectRepository extends JpaRepository<Retrospect, Long>, R
 		"LIMIT 1")
 	Optional<SpaceRetrospectDto> findFirstBySpaceIdAndRetrospectStatusAndDeadlineAfterOrderByDeadline(Long spaceId,
 		RetrospectStatus retrospectStatus, LocalDateTime twoMonthsAgo);
+
 }

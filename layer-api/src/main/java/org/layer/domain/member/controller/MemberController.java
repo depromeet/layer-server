@@ -32,7 +32,6 @@ public class MemberController implements MemberApi {
         memberService.createFeedback(memberId, createFeedbackRequest);
         return null;
     }
-
     @Override
     @GetMapping("/analyze")
     public ResponseEntity<GetMemberAnalyzesResponse> getMyAnalyzes(@MemberId Long memberId) {

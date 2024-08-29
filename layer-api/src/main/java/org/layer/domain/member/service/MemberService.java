@@ -1,7 +1,6 @@
 package org.layer.domain.member.service;
 
 import lombok.RequiredArgsConstructor;
-
 import org.layer.common.exception.BaseCustomException;
 import org.layer.common.exception.MemberExceptionType;
 import org.layer.domain.analyze.entity.Analyze;
@@ -49,8 +48,7 @@ import static org.layer.domain.member.entity.MemberRole.USER;
 @RequiredArgsConstructor
 @Service
 public class MemberService {
-
-	private static final int TWO_MONTHS = 2;
+private static final int TWO_MONTHS = 2;
 
 	private final MemberRepository memberRepository;
 	private final MemberSpaceRelationRepository memberSpaceRelationRepository;
@@ -186,5 +184,4 @@ public class MemberService {
 
 		return GetMemberAnalyzesResponse.of(recentAnalyzes, goodAnalyzes, badAnalyzes, improvementAnalyzes);
 	}
-
 }
