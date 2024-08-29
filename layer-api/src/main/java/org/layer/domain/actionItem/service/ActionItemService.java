@@ -40,9 +40,6 @@ public class ActionItemService {
 
     @Transactional
     public ActionItemCreateResponse createActionItem(Long memberId, Long retrospectId, String content) {
-        log.info("?");
-        log.info("?");
-
         // 만드는 사람이 스페이스 리더인지 확인
         Retrospect retrospect = retrospectRepository.findByIdOrThrow(retrospectId);
         Space space = spaceRepository.findByIdOrThrow(retrospect.getSpaceId());

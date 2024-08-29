@@ -1,8 +1,10 @@
 package org.layer.domain.analyze.entity;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
+import org.layer.domain.analyze.enums.AnalyzeDetailType;
 import org.layer.domain.analyze.enums.AnalyzeType;
 
 import jakarta.persistence.CascadeType;
@@ -69,5 +71,15 @@ public class Analyze {
 		this.goalCompletionRate = goalCompletionRate;
 		this.analyzeType = analyzeType;
 		this.analyzeDetails = analyzeDetails;
+	}
+	public AnalyzeDetail getTopCountAnalyzeDetailBy(AnalyzeDetailType analyzeDetailType){
+		return analyzeDetails.stream()
+			.filter(analyzeDetail -> analyzeDetail.getAnalyzeDetailType().equals(analyzeDetailType))
+			.max(Comparator.comparing(AnalyzeDetail::getCount))
+			.orElse(getEmptyAnalyzeDetail());
+	}
+
+	private AnalyzeDetail getEmptyAnalyzeDetail(){
+		return AnalyzeDetail.builder().build();
 	}
 }

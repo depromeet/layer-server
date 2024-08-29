@@ -1,6 +1,7 @@
 package org.layer.domain.retrospect.repository;
 
 import org.layer.domain.actionItem.dto.MemberActionItemResponse;
+import org.layer.domain.retrospect.dto.SpaceRetrospectDto;
 import org.layer.domain.retrospect.entity.Retrospect;
 import org.layer.domain.retrospect.entity.RetrospectStatus;
 import org.layer.domain.retrospect.exception.RetrospectException;
@@ -12,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static org.layer.common.exception.RetrospectExceptionType.NOT_FOUND_RETROSPECT;
 
@@ -19,7 +21,6 @@ public interface RetrospectRepository extends JpaRepository<Retrospect, Long>, R
     List<Retrospect> findAllBySpaceId(Long spaceId);
 
     List<Retrospect> findAllByDeadlineAfterAndRetrospectStatus(LocalDateTime now, RetrospectStatus retrospectStatus);
-
 
     default Retrospect findByIdOrThrow(Long retrospectId) {
         return findById(retrospectId)
@@ -38,5 +39,16 @@ public interface RetrospectRepository extends JpaRepository<Retrospect, Long>, R
             "WHERE ms.memberId = :memberId AND r.retrospectStatus = 'DONE' " +
             "ORDER BY r.deadline DESC")
     List<MemberActionItemResponse> findAllMemberActionItemResponsesByMemberId(@Param("memberId") Long memberId);
+
+	@Query("SELECT new org.layer.domain.retrospect.dto.SpaceRetrospectDto(s, r) " +
+		"FROM Retrospect r " +
+		"JOIN Space s ON r.spaceId = s.id " +
+		"WHERE r.spaceId = :spaceId " +
+		"AND r.retrospectStatus = :retrospectStatus " +
+		"AND r.deadline > :twoMonthsAgo " +
+		"ORDER BY r.deadline ASC " +
+		"LIMIT 1")
+	Optional<SpaceRetrospectDto> findFirstBySpaceIdAndRetrospectStatusAndDeadlineAfterOrderByDeadline(Long spaceId,
+		RetrospectStatus retrospectStatus, LocalDateTime twoMonthsAgo);
 
 }

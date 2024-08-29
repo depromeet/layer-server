@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.layer.common.annotation.MemberId;
 import org.layer.domain.member.controller.dto.CreateFeedbackRequest;
+import org.layer.domain.member.controller.dto.GetMemberAnalyzesResponse;
 import org.layer.domain.member.controller.dto.UpdateMemberInfoRequest;
 import org.layer.domain.member.controller.dto.UpdateMemberInfoResponse;
 import org.layer.domain.member.service.MemberService;
@@ -30,5 +31,11 @@ public class MemberController implements MemberApi {
     public ResponseEntity<Void> createFeedback(@MemberId Long memberId, @Valid @RequestBody CreateFeedbackRequest createFeedbackRequest) {
         memberService.createFeedback(memberId, createFeedbackRequest);
         return null;
+    }
+    @Override
+    @GetMapping("/analyze")
+    public ResponseEntity<GetMemberAnalyzesResponse> getMyAnalyzes(@MemberId Long memberId) {
+
+        return ResponseEntity.ok(memberService.getMyAnalyzes(memberId));
     }
 }

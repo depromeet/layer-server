@@ -42,7 +42,6 @@ public class SpaceRepositoryImpl implements SpaceCustomRepository {
         return getSpaceWithMemberCountQuery()
                 .where(predicate)
                 .groupBy(space.id)
-                .orderBy(space.createdAt.desc())
                 .limit(pageSize + 1)
                 .fetch();
     }
@@ -129,6 +128,7 @@ public class SpaceRepositoryImpl implements SpaceCustomRepository {
                 .leftJoin(memberCountRelationTable).on(space.id.eq(memberCountRelationTable.space.id))
                 .leftJoin(member).on(space.leaderId.eq(member.id))
                 .leftJoin(form).on(space.formId.eq(form.id))
+                .orderBy(space.createdAt.desc())
                 .orderBy(form.id.desc())
                 .limit(1);
 
@@ -158,6 +158,7 @@ public class SpaceRepositoryImpl implements SpaceCustomRepository {
                 .leftJoin(memberCountRelationTable).on(space.id.eq(memberCountRelationTable.space.id))
                 .leftJoin(member).on(space.leaderId.eq(member.id))
                 .leftJoin(form).on(space.formId.eq(form.id))
+                .orderBy(space.createdAt.desc())
                 .orderBy(form.id.desc())
                 .limit(1);
     }

@@ -19,6 +19,7 @@ import org.layer.domain.template.repository.TemplatePurposeRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.layer.domain.form.entity.FormType.TEMPLATE;
 
@@ -42,18 +43,18 @@ public class TemplateService {
     //== 상세 정보 단건 조회 ==//
     public TemplateDetailInfoResponse getTemplateDetailInfo(Long formId) {
         Form form = formRepository.findByIdOrThrow(formId);
-        TemplateMetadata template = templateMetadataRepository.findByFormIdOrThrow(formId);
+        Optional<TemplateMetadata> template = templateMetadataRepository.findByFormId(formId);
         List<Question> questionList = questionRepository.findAllByFormId(formId);
 
         List<TemplatePurpose> templatePurposeList = templatePurposeRepository.findAllByFormId(formId);
 
         List<TemplatePurposeResponse> templatePurposeResponses = templatePurposeList.stream().map(TemplatePurposeResponse::toResponse).toList();
         List<TemplateDetailQuestionResponse> questionDesList = questionList.stream().map(q -> {
-            QuestionDescription description = questionDescriptionRepository.findByQuestionIdOrThrow(q.getId());
+            Optional<QuestionDescription> description = questionDescriptionRepository.findByQuestionId(q.getId());
             return TemplateDetailQuestionResponse.builder()
                     .questionId(q.getId())
                     .question(q.getContent())
-                    .description(description.getDescription()).build();
+                    .description(description.map(QuestionDescription::getDescription).orElse(null)).build();
         }).toList();
 
         return TemplateDetailInfoResponse.toResponse(form, template, questionDesList, templatePurposeResponses);
