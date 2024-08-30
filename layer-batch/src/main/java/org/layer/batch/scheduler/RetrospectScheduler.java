@@ -34,7 +34,6 @@ public class RetrospectScheduler {
      */
     @Scheduled(cron = "0 0 * * * *")
     public void updateRetrospectStatusToDone() {
-        log.info("");
         LocalDateTime now = time.now();
         retrospectRepository.updateRetrospectStatus(now);
 

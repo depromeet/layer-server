@@ -104,6 +104,7 @@ jobs:
         run: |
           for MODULE in $(echo $CHANGED_MODULES | tr "," "\n"); do
             echo "${APPLICATION_SECRET_PROPERTIES}" > ./$MODULE/src/main/resources/application-secret.properties
+            cp ./layer-api/src/main/resources ./$MODULE/src/main/resources
           done
 
       - name: Build Changed Modules
