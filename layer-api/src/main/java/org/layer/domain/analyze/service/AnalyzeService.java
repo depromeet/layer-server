@@ -38,6 +38,8 @@ public class AnalyzeService {
     @Async
     public void createAnalyzeTemp(Long spaceId, Long retrospectId, List<Long> memberIds) {
         aiAnalyzeService.createAnalyze(spaceId, retrospectId, memberIds);
+
+
     }
 
     public AnalyzesGetResponse getAnalyze(Long spaceId, Long retrospectId, Long memberId) {

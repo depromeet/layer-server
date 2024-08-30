@@ -34,6 +34,8 @@ public class RetrospectScheduler {
      */
     @Scheduled(cron = "0 0 * * * *")
     public void updateRetrospectStatusToDone() {
+        log.info("Batch Start : updateRetrospectStatusToDone");
+
         LocalDateTime now = time.now();
         retrospectRepository.updateRetrospectStatus(now);
 
@@ -58,6 +60,6 @@ public class RetrospectScheduler {
             aiAnalyzeService.createAnalyze(retrospect.getSpaceId(), retrospectId, answers.getWriteMemberIds());
         });
 
-        log.info("Batch : updateRetrospectStatusToDone");
+        log.info("Batch End : updateRetrospectStatusToDone");
     }
 }
