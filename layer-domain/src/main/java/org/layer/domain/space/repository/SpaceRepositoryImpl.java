@@ -101,7 +101,7 @@ public class SpaceRepositoryImpl implements SpaceCustomRepository {
                 .on(memberSpaceRelation.memberId.eq(member.id))
                 .leftJoin(space)
                 .on(memberSpaceRelation.space.id.eq(space.id))
-                .where(memberSpaceRelation.space.id.eq(spaceId))
+                .where(memberSpaceRelation.space.id.eq(spaceId).and(member.id.isNotNull()))
                 .orderBy(memberSpaceRelation.createdAt.asc())
                 .fetch();
     }
@@ -135,7 +135,6 @@ public class SpaceRepositoryImpl implements SpaceCustomRepository {
     }
 
     private JPAQuery<SpaceWithMemberCount> getSpaceWithMemberCountQuery(Long memberId) {
-        log.info("CALL");
         QMemberSpaceRelation memberCountRelationTable = new QMemberSpaceRelation("msr");
         return queryFactory.select(
                         new QSpaceWithMemberCount(
