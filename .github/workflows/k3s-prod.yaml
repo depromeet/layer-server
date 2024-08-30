@@ -214,7 +214,9 @@ jobs:
                       path: /${{ env.DEPLOY_TARGET }}/log/$MODULE
                       type: DirectoryOrCreate
                   - name: tokens-volume
-                    emptyDir: {}
+                    hostPath:
+                      path: /home/tokens
+                      type: Directory
           ---
           apiVersion: v1
           kind: Service
