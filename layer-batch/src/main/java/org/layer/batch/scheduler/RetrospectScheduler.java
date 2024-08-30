@@ -39,6 +39,10 @@ public class RetrospectScheduler {
         log.info("");
 
         log.info("");
+        log.info("");
+        log.info("");
+        log.info("");
+
 
         List<Retrospect> retrospects = retrospectRepository.findAllByDeadlineAfterAndRetrospectStatus(
                 now, RetrospectStatus.PROCEEDING);
