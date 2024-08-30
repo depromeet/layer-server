@@ -50,7 +50,7 @@ public class SpaceService {
 
 
         var spaceList = spacePages.stream().map(SpaceResponse.SpaceWithMemberCountInfo::toResponse).collect(Collectors.toList());
-
+        log.info("?");
         var meta = Meta.builder().cursor(newCursor).hasNextPage(hasNextPage).build();
         return SpaceResponse.SpacePage.toResponse(spaceList, meta);
     }
