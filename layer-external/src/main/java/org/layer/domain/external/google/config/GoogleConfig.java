@@ -39,6 +39,9 @@ public class GoogleConfig {
     @Value("${google.sheet.token_path}")
     private String tokenPath;
 
+    @Value("${google.sheet.credential_path}")
+    private String credentialPath;
+
     @Bean
     public Sheets getGoogleSheetService() throws GeneralSecurityException, IOException {
         final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
@@ -97,7 +100,7 @@ public class GoogleConfig {
         log.info("{} tokensDirectory", tokensDirectory);
         File storedCredentialFile = new File(tokensDirectory, "StoredCredential");
         if (!storedCredentialFile.exists()) {
-            Resource storedCredentialResource = new ClassPathResource("tokens/StoredCredential");
+            Resource storedCredentialResource = new ClassPathResource(credentialPath);
             try (InputStream is = storedCredentialResource.getInputStream();
                  OutputStream os = new FileOutputStream(storedCredentialFile)) {
                 byte[] buffer = new byte[1024];
