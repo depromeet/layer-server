@@ -53,7 +53,7 @@ public class GoogleConfig {
     private Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT) throws IOException {
         GoogleClientSecrets clientSecrets = createGoogleClientSecrets();
 
-
+        log.info("{}<<tokenPath", tokenPath);
         File tokensDirectory = new File(tokenPath);
         if (!tokensDirectory.exists()) {
             tokensDirectory.mkdirs();
@@ -94,6 +94,7 @@ public class GoogleConfig {
 
 
     private void copyStoredCredentialFile(File tokensDirectory) throws IOException {
+        log.info("{} tokensDirectory", tokensDirectory);
         File storedCredentialFile = new File(tokensDirectory, "StoredCredential");
         if (!storedCredentialFile.exists()) {
             Resource storedCredentialResource = new ClassPathResource("tokens/StoredCredential");
