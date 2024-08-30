@@ -36,9 +36,6 @@ public class RetrospectScheduler {
     public void updateRetrospectStatusToDone() {
         LocalDateTime now = time.now();
         retrospectRepository.updateRetrospectStatus(now);
-        log.info("");
-
-        log.info("");
 
         List<Retrospect> retrospects = retrospectRepository.findAllByDeadlineAfterAndRetrospectStatus(
                 now, RetrospectStatus.PROCEEDING);
