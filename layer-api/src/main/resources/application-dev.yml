@@ -49,6 +49,7 @@ google:
   sheet:
     id: ${GOOGLE_SHEET_ID}
     token_path: ${DEV_GOOGLE_TOKEN_PATH}
+    credential_path: ${PROD_GOOGLE_CREDENTIAL_PATH}
 
 apple:
   login:
