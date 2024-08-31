@@ -33,14 +33,13 @@ public class GoogleConfig {
     private final GoogleCredentials googleCredentials;
 
     private final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
-
     private final List<String> SCOPES = Collections.singletonList(SheetsScopes.SPREADSHEETS);
-
     @Value("${google.sheet.token_path}")
     private String tokenPath;
 
     @Value("${google.sheet.credential_path}")
     private String credentialPath;
+
 
     @Bean
     public Sheets getGoogleSheetService() throws GeneralSecurityException, IOException {
