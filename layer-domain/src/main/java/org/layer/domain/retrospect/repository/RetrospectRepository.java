@@ -20,7 +20,7 @@ import static org.layer.common.exception.RetrospectExceptionType.NOT_FOUND_RETRO
 public interface RetrospectRepository extends JpaRepository<Retrospect, Long>, RetrospectCustomRepository {
     List<Retrospect> findAllBySpaceId(Long spaceId);
 
-    List<Retrospect> findAllByDeadlineAfterAndRetrospectStatus(LocalDateTime now, RetrospectStatus retrospectStatus);
+    List<Retrospect> findAllByDeadlineBeforeAndRetrospectStatus(LocalDateTime now, RetrospectStatus retrospectStatus);
 
     default Retrospect findByIdOrThrow(Long retrospectId) {
         return findById(retrospectId)

@@ -38,7 +38,7 @@ public class RetrospectScheduler {
 
         LocalDateTime now = time.now();
 
-        List<Retrospect> retrospects = retrospectRepository.findAllByDeadlineAfterAndRetrospectStatus(
+        List<Retrospect> retrospects = retrospectRepository.findAllByDeadlineBeforeAndRetrospectStatus(
                 now, RetrospectStatus.PROCEEDING);
         Map<Long, Retrospect> retrospectMap = retrospects.stream()
                 .collect(Collectors.toMap(Retrospect::getId, retrospect -> retrospect));
