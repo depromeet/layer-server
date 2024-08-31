@@ -40,26 +40,27 @@ jobs:
       - name: Detect Changed Modules
         id: detect-changes
         run: |
-          CHANGED_MODULES=""
+               CHANGED_MODULES=""
           
-          if [[ $(git diff --name-only HEAD^ HEAD) =~ ^layer-api/ ]]; then
-            if [ -z "$CHANGED_MODULES" ]; then
-              CHANGED_MODULES="layer-api"
-            else
-              CHANGED_MODULES="$CHANGED_MODULES,layer-api"
-            fi
-          fi
-          
-          if [[ $(git diff --name-only HEAD^ HEAD) =~ ^layer-batch/ ]]; then
-            if [ -z "$CHANGED_MODULES" ]; then
-              CHANGED_MODULES="layer-batch"
-            else
-              CHANGED_MODULES="$CHANGED_MODULES,layer-batch"
-            fi
-          fi
-          
-          echo "changed_modules=$CHANGED_MODULES"
-          echo "changed_modules=$CHANGED_MODULES" >> $GITHUB_OUTPUT
+          #          if [[ $(git diff --name-only HEAD^ HEAD) =~ ^layer-api/ ]]; then
+          #            if [ -z "$CHANGED_MODULES" ]; then
+          #              CHANGED_MODULES="layer-api"
+          #            else
+          #              CHANGED_MODULES="$CHANGED_MODULES,layer-api"
+          #            fi
+          #          fi
+          #
+          #          if [[ $(git diff --name-only HEAD^ HEAD) =~ ^layer-batch/ ]]; then
+          #            if [ -z "$CHANGED_MODULES" ]; then
+          #              CHANGED_MODULES="layer-batch"
+          #            else
+          #              CHANGED_MODULES="$CHANGED_MODULES,layer-batch"
+          #            fi
+          #          fi
+               CHANGED_MODULES="layer-batch,layer-api"
+               
+               echo "changed_modules=$CHANGED_MODULES"
+               echo "changed_modules=$CHANGED_MODULES" >> $GITHUB_OUTPUT
 
   build:
     name: build
