@@ -91,10 +91,10 @@ jobs:
         run: |
           for MODULE in $(echo $CHANGED_MODULES | tr "," "\n"); do
             echo "${APPLICATION_SECRET_PROPERTIES}" > ./$MODULE/src/main/resources/application-secret.properties
-            if [[ "${$MODULE}" != "layer-api" ]]; then
+            if [[ "${MODULE}" != "layer-api" ]]; then
               cp -R ./layer-api/src/main/resources/tokens ./$MODULE/src/main/resources/tokens
+            fi
           done
-
       - name: Build Changed Modules
         run: |
           for MODULE in $(echo $CHANGED_MODULES | tr "," "\n"); do
