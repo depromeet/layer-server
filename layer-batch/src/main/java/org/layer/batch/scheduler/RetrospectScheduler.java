@@ -37,24 +37,23 @@ public class RetrospectScheduler {
         log.info("Batch Start : updateRetrospectStatusToDone");
 
         LocalDateTime now = time.now();
-        retrospectRepository.updateRetrospectStatus(now);
 
         List<Retrospect> retrospects = retrospectRepository.findAllByDeadlineAfterAndRetrospectStatus(
                 now, RetrospectStatus.PROCEEDING);
         Map<Long, Retrospect> retrospectMap = retrospects.stream()
                 .collect(Collectors.toMap(Retrospect::getId, retrospect -> retrospect));
 
-        retrospects.stream().forEach(retrospect -> retrospect.updateRetrospectStatus(RetrospectStatus.DONE));
+        retrospects.forEach(retrospect -> retrospect.updateRetrospectStatus(RetrospectStatus.DONE));
         retrospectRepository.saveAllAndFlush(retrospects);
 
-        List<Long> retropsectIds = retrospects.stream().map(Retrospect::getId).toList();
-        Answers totalAnswers = new Answers(answerRepository.findAllByRetrospectIdIn(retropsectIds));
+        List<Long> retrospectIds = retrospects.stream().map(Retrospect::getId).toList();
+        Answers totalAnswers = new Answers(answerRepository.findAllByRetrospectIdIn(retrospectIds));
 
         Map<Long, List<Answer>> answerMap = totalAnswers.getAnswers().stream()
                 .collect(Collectors.groupingBy(Answer::getRetrospectId));
 
         // for 문 돌기
-        answerMap.keySet().stream().forEach(retrospectId -> {
+        answerMap.keySet().forEach(retrospectId -> {
             Retrospect retrospect = retrospectMap.get(retrospectId);
             Answers answers = new Answers(answerMap.get(retrospectId));
             aiAnalyzeService.createAnalyze(retrospect.getSpaceId(), retrospectId, answers.getWriteMemberIds());
