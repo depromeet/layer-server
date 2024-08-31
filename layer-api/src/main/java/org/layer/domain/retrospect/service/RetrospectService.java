@@ -57,6 +57,8 @@ public class RetrospectService {
 		Team team = new Team(memberSpaceRelationRepository.findAllBySpaceId(spaceId));
 		team.validateTeamMembership(memberId);
 
+
+
 		Retrospect retrospect = getRetrospect(request, spaceId);
 		Retrospect savedRetrospect = retrospectRepository.save(retrospect);
 
