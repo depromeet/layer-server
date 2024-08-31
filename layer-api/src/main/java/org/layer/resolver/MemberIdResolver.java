@@ -39,6 +39,7 @@ public class MemberIdResolver implements HandlerMethodArgumentResolver {
 
             return Long.parseLong(memberId);
         } catch (Exception e) {
+
             throw new BaseCustomException(UNAUTHORIZED_USER);
         }
     }

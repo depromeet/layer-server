@@ -26,6 +26,7 @@ public class FormController implements FormApi {
 	@Override
 	@GetMapping("/{formId}")
 	public ResponseEntity<FormGetResponse> getForm(@PathVariable Long formId, @MemberId Long memberId) {
+
 		FormGetResponse dto = formService.getForm(formId, memberId);
 
 		return ResponseEntity.ok().body(dto);
