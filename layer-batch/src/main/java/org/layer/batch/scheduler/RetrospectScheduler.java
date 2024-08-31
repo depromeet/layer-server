@@ -35,6 +35,11 @@ public class RetrospectScheduler {
     @Scheduled(cron = "0 0 * * * *")
     public void updateRetrospectStatusToDone() {
         log.info("Batch Start : updateRetrospectStatusToDone");
+        log.info("Batch Start : updateRetrospectStatusToDone");
+        log.info("Batch Start : updateRetrospectStatusToDone");
+        log.info("Batch Start : updateRetrospectStatusToDone");
+        log.info("Batch Start : updateRetrospectStatusToDone");
+
 
         LocalDateTime now = time.now();
 
