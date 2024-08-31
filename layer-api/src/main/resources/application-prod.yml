@@ -41,14 +41,12 @@ kakao:
 google:
   login:
     client_id: ${DEV_GOOGLE_CLIENT_ID}
-    code_uri: ${DEV_GOOGLE_CODE_URI}
-    token_uri: ${DEV_GOOGLE_TOKEN_URI}
     client_secret: ${DEV_GOOGLE_CLIENT_SECRET}
     redirect_uri: ${DEV_GOOGLE_REDIRECT_URI}
-    code_redirect_uri: http://localhost:8080/api/auth/oauth2/google/code
   sheet:
     id: ${GOOGLE_SHEET_ID}
     token_path: ${PROD_GOOGLE_TOKEN_PATH}
+    credential_path: ${PROD_GOOGLE_CREDENTIAL_PATH}
 
 apple:
   login:

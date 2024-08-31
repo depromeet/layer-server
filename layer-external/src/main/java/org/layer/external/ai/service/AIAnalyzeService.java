@@ -95,10 +95,10 @@ public class AIAnalyzeService {
 		OpenAIResponse.Content content, Long memberId, AnalyzeType analyzeType) {
 		List<AnalyzeDetail> analyzeDetails = createAnalyzeDetails(content);
 
-		return createAnalyzeEntity(retrospectId, memberId, answers.getScoreCount(rangeQuestionId, SCORE_ONE, memberId),
-			answers.getScoreCount(rangeQuestionId, SCORE_TWO, memberId), answers.getScoreCount(rangeQuestionId, SCORE_THREE, memberId),
-			answers.getScoreCount(rangeQuestionId, SCORE_FOUR, memberId), answers.getScoreCount(rangeQuestionId, SCORE_FIVE, memberId),
-			answers.getGoalCompletionRate(numberQuestionId), analyzeType, analyzeDetails);
+		return createAnalyzeEntity(retrospectId, memberId, answers.getScoreCount(numberQuestionId, SCORE_ONE, memberId),
+			answers.getScoreCount(numberQuestionId, SCORE_TWO, memberId), answers.getScoreCount(numberQuestionId, SCORE_THREE, memberId),
+			answers.getScoreCount(numberQuestionId, SCORE_FOUR, memberId), answers.getScoreCount(numberQuestionId, SCORE_FIVE, memberId),
+			answers.getGoalCompletionRate(rangeQuestionId), analyzeType, analyzeDetails);
 	}
 
 	private List<AnalyzeDetail> createAnalyzeDetails(OpenAIResponse.Content content) {

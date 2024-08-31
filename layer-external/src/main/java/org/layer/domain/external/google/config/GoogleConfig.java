@@ -33,11 +33,13 @@ public class GoogleConfig {
     private final GoogleCredentials googleCredentials;
 
     private final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
-
     private final List<String> SCOPES = Collections.singletonList(SheetsScopes.SPREADSHEETS);
-
     @Value("${google.sheet.token_path}")
     private String tokenPath;
+
+    @Value("${google.sheet.credential_path}")
+    private String credentialPath;
+
 
     @Bean
     public Sheets getGoogleSheetService() throws GeneralSecurityException, IOException {
@@ -53,7 +55,7 @@ public class GoogleConfig {
     private Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT) throws IOException {
         GoogleClientSecrets clientSecrets = createGoogleClientSecrets();
 
-
+        log.info("{}<<tokenPath", tokenPath);
         File tokensDirectory = new File(tokenPath);
         if (!tokensDirectory.exists()) {
             tokensDirectory.mkdirs();
@@ -94,9 +96,10 @@ public class GoogleConfig {
 
 
     private void copyStoredCredentialFile(File tokensDirectory) throws IOException {
+        log.info("{} tokensDirectory", tokensDirectory);
         File storedCredentialFile = new File(tokensDirectory, "StoredCredential");
         if (!storedCredentialFile.exists()) {
-            Resource storedCredentialResource = new ClassPathResource("tokens/StoredCredential");
+            Resource storedCredentialResource = new ClassPathResource(credentialPath);
             try (InputStream is = storedCredentialResource.getInputStream();
                  OutputStream os = new FileOutputStream(storedCredentialFile)) {
                 byte[] buffer = new byte[1024];

@@ -192,7 +192,7 @@ public class SpaceService {
         if (isExist.isEmpty()) {
             throw new SpaceException(NOT_FOUND_SPACE);
         }
-
+        log.info("?");
         var SpaceMembers = spaceRepository.findAllSpaceMemberBySpaceIdWithIsLeader(spaceId);
         return SpaceMembers.stream()
                 .map(SpaceResponse.SpaceMemberResponse::toResponse)

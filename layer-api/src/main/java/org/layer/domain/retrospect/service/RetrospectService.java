@@ -57,6 +57,8 @@ public class RetrospectService {
 		Team team = new Team(memberSpaceRelationRepository.findAllBySpaceId(spaceId));
 		team.validateTeamMembership(memberId);
 
+
+
 		Retrospect retrospect = getRetrospect(request, spaceId);
 		Retrospect savedRetrospect = retrospectRepository.save(retrospect);
 
@@ -66,7 +68,7 @@ public class RetrospectService {
 		Space space = spaceRepository.findByIdOrThrow(spaceId);
 
 		// 새로운 폼 생성(수정)인지 확인
-		if (!request.isNewForm()) {
+		if (Boolean.FALSE.equals(request.isNewForm())) {
 			space.updateRecentFormId(request.curFormId(), memberId);
 			return savedRetrospect.getId();
 		}

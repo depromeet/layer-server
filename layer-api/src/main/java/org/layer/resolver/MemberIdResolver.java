@@ -36,8 +36,10 @@ public class MemberIdResolver implements HandlerMethodArgumentResolver {
         try {
             var securityContext = SecurityContextHolder.getContext();
             var memberId = Optional.ofNullable(securityContext).map(it -> it.getAuthentication().getName()).orElseThrow(() -> new BaseCustomException(UNAUTHORIZED_USER));
+
             return Long.parseLong(memberId);
         } catch (Exception e) {
+
             throw new BaseCustomException(UNAUTHORIZED_USER);
         }
     }

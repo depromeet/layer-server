@@ -19,13 +19,14 @@ import static org.layer.common.exception.AnswerExceptionType.*;
 @Getter
 public class Answers {
 	private static final int ZERO = 0;
-	public static final int SCORE_ONE = 1;
-	public static final int SCORE_TWO = 2;
-	public static final int SCORE_THREE = 3;
-	public static final int SCORE_FOUR = 4;
-	public static final int SCORE_FIVE = 5;
+	public static final int SCORE_ONE = 0;
+	public static final int SCORE_TWO = 1;
+	public static final int SCORE_THREE = 2;
+	public static final int SCORE_FOUR = 3;
+	public static final int SCORE_FIVE = 4;
 
 	private final List<Answer> answers;
+
 
 	public String getAnswerToQuestion(Long questionId, Long memberId) {
 		return answers.stream()
