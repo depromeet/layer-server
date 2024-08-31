@@ -41,7 +41,6 @@ public class SpaceController implements SpaceApi {
     @PutMapping("")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public ResponseEntity<Void> updateSpace(@MemberId Long memberId, @RequestBody @Validated SpaceRequest.UpdateSpaceRequest updateSpaceRequest) {
-        log.info("<<<<<<<");
         spaceService.updateSpace(memberId, updateSpaceRequest);
         return ResponseEntity.ok().build();
     }
