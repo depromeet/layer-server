@@ -73,6 +73,7 @@ public class FormController implements FormApi {
 	public ResponseEntity<CustomTemplateListResponse> getCustomTemplateList(
 		@PageableDefault(size = 10) Pageable pageable, @PathVariable(name = "spaceId") Long spaceId,
 		@MemberId Long memberId) {
+
 		CustomTemplateListResponse response = formService.getCustomTemplateList(pageable, spaceId, memberId);
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}

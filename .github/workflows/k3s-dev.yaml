@@ -104,7 +104,9 @@ jobs:
         run: |
           for MODULE in $(echo $CHANGED_MODULES | tr "," "\n"); do
             echo "${APPLICATION_SECRET_PROPERTIES}" > ./$MODULE/src/main/resources/application-secret.properties
-            cp -R ./layer-api/src/main/resources/tokens ./$MODULE/src/main/resources/tokens
+            if [ "$MODULE" = "layer-batch" ]; then
+              cp -R ./layer-api/src/main/resources/tokens ./$MODULE/src/main/resources/tokens
+            fi
           done
 
       - name: Build Changed Modules
