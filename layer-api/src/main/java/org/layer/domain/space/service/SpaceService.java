@@ -76,7 +76,6 @@ public class SpaceService {
 
     public SpaceResponse.SpaceWithMemberCountInfo getSpaceById(Long memberId, Long spaceId) {
         var foundSpace = spaceRepository.findByIdAndJoinedMemberId(spaceId, memberId).orElseThrow(() -> new SpaceException(NOT_FOUND_SPACE));
-        log.info("BUILD DIFF LOG");
         return SpaceResponse.SpaceWithMemberCountInfo.toResponse(foundSpace);
     }
 
