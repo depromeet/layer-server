@@ -1,7 +1,6 @@
 package org.layer.external.ai.service;
 
-import java.util.List;
-
+import lombok.RequiredArgsConstructor;
 import org.layer.external.ai.constant.OpenAIFactory;
 import org.layer.external.ai.constant.OpenAIProperties;
 import org.layer.external.ai.dto.request.MessageRequest;
@@ -11,25 +10,26 @@ import org.layer.external.ai.dto.response.OpenAIResponse;
 import org.layer.external.ai.infra.OpenAIClient;
 import org.springframework.stereotype.Service;
 
-import lombok.RequiredArgsConstructor;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class OpenAIService {
 
-	private final OpenAIClient openAIClient;
-	private final OpenAIProperties openAIProperties;
+    private final OpenAIClient openAIClient;
+    private final OpenAIProperties openAIProperties;
 
-	public OpenAIResponse createAnalyze(String answerContent) {
-		MessageRequest systemMessage = new MessageRequest("system", openAIProperties.getSystemContent());
-		MessageRequest userMessage = new MessageRequest("user", answerContent);
-		List<MessageRequest> messages = List.of(systemMessage, userMessage);
+    public OpenAIResponse createAnalyze(String answerContent) {
+        MessageRequest systemMessage = new MessageRequest("system", openAIProperties.getSystemContent());
+        MessageRequest systemLangMessage = new MessageRequest("system", "Use Korean Language Only");
+        MessageRequest userMessage = new MessageRequest("user", answerContent);
+        List<MessageRequest> messages = List.of(systemMessage, systemLangMessage, userMessage);
 
-		ResponseFormat responseFormat = OpenAIFactory.createJsonSchema();
+        ResponseFormat responseFormat = OpenAIFactory.createJsonSchema();
 
-		return openAIClient.createAnalyze(
-			openAIProperties.getApiKey(),
-			new OpenAIRequest(openAIProperties.getModel(), messages, openAIProperties.getMaxTokens(), responseFormat)
-		);
-	}
+        return openAIClient.createAnalyze(
+                openAIProperties.getApiKey(),
+                new OpenAIRequest(openAIProperties.getModel(), messages, openAIProperties.getMaxTokens(), responseFormat)
+        );
+    }
 }
