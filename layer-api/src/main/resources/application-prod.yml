@@ -75,3 +75,6 @@ openai:
   apiKey: ${OPENAI_API_KEY}
   model: ${OPENAI_MODEL}
   maxTokens: ${OPENAI_MAX_TOKENS}
+
+admin:
+  password: ${ADMIN_PASSWORD}
