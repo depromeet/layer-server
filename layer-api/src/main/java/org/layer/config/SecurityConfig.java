@@ -58,6 +58,7 @@ public class SecurityConfig {
                                 .requestMatchers(new AntPathRequestMatcher("/external/image/presigned")).permitAll()
                                 .requestMatchers(new AntPathRequestMatcher("/api/auth/oauth2/apple")).permitAll()
                                 .requestMatchers(new AntPathRequestMatcher("/api/auth/create-token")).permitAll()
+                                .requestMatchers(new AntPathRequestMatcher("/admin/**")).permitAll()
                                 .anyRequest().authenticated()
                 )
                 .headers(headers -> headers
