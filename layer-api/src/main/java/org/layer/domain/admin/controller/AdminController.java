@@ -38,7 +38,6 @@ public class AdminController implements AdminApi {
 		@RequestParam("endDate") LocalDateTime endDate,
 		@RequestParam("password") String password) {
 
-
 		return ResponseEntity.ok(adminService.getRetrospectData(startDate, endDate, password));
 	}
 }
