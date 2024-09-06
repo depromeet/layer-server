@@ -7,4 +7,4 @@ COPY ${JAR_FILE} layer-server.jar
 
 ENV SPRING_PROFILE=${SPRING_PROFILE}
 
-ENTRYPOINT ["java", "-Duser.timezone=Asia/Seoul","-Dspring.profiles.active=prod" ,"-jar" ,"layer-server.jar"]
+ENTRYPOINT ["java", "-Duser.timezone=Asia/Seoul","-Dspring.profiles.active=${SPRING_PROFILE}" ,"-jar" ,"layer-server.jar"]

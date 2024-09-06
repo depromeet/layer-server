@@ -138,7 +138,7 @@ jobs:
         run: |
           for MODULE in $(echo $CHANGED_MODULES | tr "," "\n"); do
             IMAGE_TAG="${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}/$MODULE:${{ env.SHA_SHORT }}"
-            docker build ./$MODULE -t $IMAGE_TAG
+            docker build --build-arg SPRING_PROFILE=dev ./$MODULE -t $IMAGE_TAG
             docker push $IMAGE_TAG
           done
 
