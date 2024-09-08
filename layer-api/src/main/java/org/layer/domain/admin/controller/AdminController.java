@@ -6,10 +6,12 @@ import org.layer.domain.admin.controller.dto.AdminRetrospectsGetResponse;
 import org.layer.domain.admin.controller.dto.AdminSpaceCountGetResponse;
 import org.layer.domain.admin.controller.dto.AdminSpacesGetResponse;
 import org.layer.domain.admin.service.AdminService;
+import org.layer.domain.retrospect.dto.AdminRetrospectCountGroupBySpaceGetResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -65,5 +67,10 @@ public class AdminController implements AdminApi {
 		return ResponseEntity.ok(adminService.getRetrospectCountInSpace(startDate, endDate, spaceId, password));
 	}
 
+	@Override
+	@GetMapping("/retrospect/count/group-by-space")
+	public ResponseEntity<List<AdminRetrospectCountGroupBySpaceGetResponse>> getRetrospectCountGroupBySpace(LocalDateTime startDate, LocalDateTime endDate, String password) {
+		return ResponseEntity.ok(adminService.getRetrospectCountGroupSpace(startDate, endDate, password));
+	}
 
 }

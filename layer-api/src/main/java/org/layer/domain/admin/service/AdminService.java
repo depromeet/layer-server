@@ -5,6 +5,7 @@ import org.layer.domain.admin.controller.dto.AdminRetrospectCountGetResponse;
 import org.layer.domain.admin.controller.dto.AdminRetrospectsGetResponse;
 import org.layer.domain.admin.controller.dto.AdminSpaceCountGetResponse;
 import org.layer.domain.admin.controller.dto.AdminSpacesGetResponse;
+import org.layer.domain.retrospect.dto.AdminRetrospectCountGroupBySpaceGetResponse;
 import org.layer.domain.retrospect.dto.AdminRetrospectGetResponse;
 import org.layer.domain.retrospect.repository.RetrospectAdminRepository;
 import org.layer.domain.space.dto.AdminSpaceGetResponse;
@@ -63,7 +64,7 @@ public class AdminService {
 			throw new IllegalArgumentException("비밀번호가 틀렸습니다.");
 		}
 
-		Long count = spaceAdminRepository.countRetrospectsExceptForAdminSpace(startDate, endDate);
+		Long count = retrospectAdminRepository.countRetrospectsExceptForAdminSpace(startDate, endDate);
 		return new AdminRetrospectCountGetResponse(count);
 	}
 
@@ -72,8 +73,15 @@ public class AdminService {
 			throw new IllegalArgumentException("비밀번호가 틀렸습니다.");
 		}
 
-		Long count = spaceAdminRepository.countRetrospectsBySpaceId(spaceId, startDate, endDate);
+		Long count = retrospectAdminRepository.countRetrospectsBySpaceId(spaceId, startDate, endDate);
 		return new AdminRetrospectCountGetResponse(count);
+	}
 
+	public List<AdminRetrospectCountGroupBySpaceGetResponse> getRetrospectCountGroupSpace(LocalDateTime startDate, LocalDateTime endDate, String requestPassword) {
+		if(!requestPassword.equals(password)) {
+			throw new IllegalArgumentException("비밀번호가 틀렸습니다.");
+		}
+
+		return retrospectAdminRepository.countRetrospectsGroupBySpace(startDate, endDate);
 	}
 }

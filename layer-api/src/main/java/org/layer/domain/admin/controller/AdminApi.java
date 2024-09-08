@@ -9,10 +9,12 @@ import org.layer.domain.admin.controller.dto.AdminRetrospectCountGetResponse;
 import org.layer.domain.admin.controller.dto.AdminRetrospectsGetResponse;
 import org.layer.domain.admin.controller.dto.AdminSpaceCountGetResponse;
 import org.layer.domain.admin.controller.dto.AdminSpacesGetResponse;
+import org.layer.domain.retrospect.dto.AdminRetrospectCountGroupBySpaceGetResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Tag(name = "어드민", description = "어드민 관련 API")
 public interface AdminApi {
@@ -59,4 +61,14 @@ public interface AdminApi {
 																			  @RequestParam("endDate") LocalDateTime endDate,
 																			  @RequestParam("spaceId") Long spaceId,
 																			  @RequestParam("password") String password);
+
+
+	@Operation(summary = "특정 기간 내 회고 개수 스페이스 별로 보기", description = "특정 기간내에 시작된 회고 개수를 스페이스 별로 조회합니다. (우리 팀원이 만든 스페이스는 제외)")
+	@Parameters({
+			@Parameter(name = "startDate", description = "검색 시작 시간", example = "2024-09-05T15:30:45", required = true, schema = @Schema(type = "string")),
+			@Parameter(name = "endDate", description = "검색 종료 시간", example = "2024-09-13T15:30:45", required = true, schema = @Schema(type = "string")),
+			@Parameter(name = "password", description = "비밀번호 [카톡방으로 공유]", example = "[카톡방으로 공유]", required = true, schema = @Schema(type = "string", format = "string"))})
+	ResponseEntity<List<AdminRetrospectCountGroupBySpaceGetResponse>> getRetrospectCountGroupBySpace (@RequestParam("startDate") LocalDateTime startDate,
+																									  @RequestParam("endDate") LocalDateTime endDate,
+																									  @RequestParam("password") String password);
 }
