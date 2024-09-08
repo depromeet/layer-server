@@ -1,6 +1,7 @@
 package org.layer.domain.admin.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.layer.domain.admin.controller.dto.AdminRetrospectCountGetResponse;
 import org.layer.domain.admin.controller.dto.AdminRetrospectsGetResponse;
 import org.layer.domain.admin.controller.dto.AdminSpaceCountGetResponse;
 import org.layer.domain.admin.controller.dto.AdminSpacesGetResponse;
@@ -46,6 +47,17 @@ public class AdminController implements AdminApi {
 			@RequestParam("endDate") LocalDateTime endDate,
 			@RequestParam("password") String password) {
 		return ResponseEntity.ok(adminService.getSpaceCount(startDate, endDate, password));
+	}
+
+	@Override
+	@GetMapping("/retrospect/count/user-only")
+	public ResponseEntity<AdminRetrospectCountGetResponse> getRetrospectCount(
+			@RequestParam("startDate") LocalDateTime startDate,
+			@RequestParam("endDate") LocalDateTime endDate,
+			@RequestParam("password") String password) {
+
+		return ResponseEntity.ok(adminService.getRetrospectCount(startDate, endDate, password));
+
 	}
 
 

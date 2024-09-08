@@ -1,6 +1,7 @@
 package org.layer.domain.admin.service;
 
 import lombok.RequiredArgsConstructor;
+import org.layer.domain.admin.controller.dto.AdminRetrospectCountGetResponse;
 import org.layer.domain.admin.controller.dto.AdminRetrospectsGetResponse;
 import org.layer.domain.admin.controller.dto.AdminSpaceCountGetResponse;
 import org.layer.domain.admin.controller.dto.AdminSpacesGetResponse;
@@ -55,5 +56,14 @@ public class AdminService {
 
 		Long count = spaceAdminRepository.countSpacesExceptForAdminSpace(startDate, endDate);
 		return new AdminSpaceCountGetResponse(count);
+	}
+
+	public AdminRetrospectCountGetResponse getRetrospectCount(LocalDateTime startDate, LocalDateTime endDate, String requestPassword) {
+		if(!requestPassword.equals(password)) {
+			throw new IllegalArgumentException("비밀번호가 틀렸습니다.");
+		}
+
+		Long count = spaceAdminRepository.countRetrospectsExceptForAdminSpace(startDate, endDate);
+		return new AdminRetrospectCountGetResponse(count);
 	}
 }
