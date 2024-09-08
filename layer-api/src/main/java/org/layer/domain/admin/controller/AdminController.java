@@ -1,19 +1,17 @@
 package org.layer.domain.admin.controller;
 
-import java.time.LocalDateTime;
-
-import org.layer.common.annotation.MemberId;
+import lombok.RequiredArgsConstructor;
 import org.layer.domain.admin.controller.dto.AdminRetrospectsGetResponse;
+import org.layer.domain.admin.controller.dto.AdminSpaceCountGetResponse;
 import org.layer.domain.admin.controller.dto.AdminSpacesGetResponse;
 import org.layer.domain.admin.service.AdminService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import lombok.RequiredArgsConstructor;
+import java.time.LocalDateTime;
 
 @RestController
 @RequiredArgsConstructor
@@ -40,4 +38,15 @@ public class AdminController implements AdminApi {
 
 		return ResponseEntity.ok(adminService.getRetrospectData(startDate, endDate, password));
 	}
+
+	@Override
+	@GetMapping("/space/count/user-only")
+	public ResponseEntity<AdminSpaceCountGetResponse> getSpaceCount(
+			@RequestParam("startDate") LocalDateTime startDate,
+			@RequestParam("endDate") LocalDateTime endDate,
+			@RequestParam("password") String password) {
+		return ResponseEntity.ok(adminService.getSpaceCount(startDate, endDate, password));
+	}
+
+
 }
