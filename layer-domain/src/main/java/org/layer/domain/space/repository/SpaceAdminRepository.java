@@ -46,5 +46,19 @@ public interface SpaceAdminRepository extends JpaRepository<Space, Long> {
 			+ "AND r.createdAt <= :endDate "
 			+ "AND m.memberRole = 'USER'"
 	)
-	Long countRetrospectsExceptForAdminSpace(LocalDateTime startDate, LocalDateTime endDate);
+	Long countRetrospectsExceptForAdminSpace(@Param("startDate") LocalDateTime startDate,
+											 @Param("endDate") LocalDateTime endDate);
+
+
+	@Query("SELECT count(*)"
+			+ "FROM Retrospect r "
+			+ "JOIN Space s ON r.spaceId = s.id "
+			+ "JOIN Member m ON s.leaderId = m.id "
+			+ "WHERE r.spaceId = :spaceId "
+			+ "AND r.createdAt >= :startDate "
+			+ "AND r.createdAt <= :endDate"
+	)
+	Long countRetrospectsBySpaceId(@Param("spaceId") Long spaceId,
+								   @Param("startDate") LocalDateTime startDate,
+								   @Param("endDate") LocalDateTime endDate);
 }
