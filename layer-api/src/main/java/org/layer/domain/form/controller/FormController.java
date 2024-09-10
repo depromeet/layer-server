@@ -38,7 +38,7 @@ public class FormController implements FormApi {
 		@Valid @ModelAttribute RecommendFormQueryDto queryDto,
 		@MemberId Long memberId) {
 
-		RecommendFormResponseDto response = formService.getRecommendTemplate(queryDto, memberId);
+		RecommendFormResponseDto response = formService.getRecommendTemplate(queryDto);
 		return ResponseEntity.ok().body(response);
 	}
 
