@@ -41,7 +41,6 @@ public class Retrospect extends BaseTimeEntity {
 	@Enumerated(EnumType.STRING)
 	private RetrospectStatus retrospectStatus;
 
-	@NotNull
 	private LocalDateTime deadline;
 
 	@Builder
@@ -61,7 +60,7 @@ public class Retrospect extends BaseTimeEntity {
 	}
 
 	public void validateDeadline(LocalDateTime currentTime) {
-		if (currentTime.isAfter(this.deadline)) {
+		if (this.deadline != null && currentTime.isAfter(this.deadline)) {
 			throw new RetrospectException(DEADLINE_PASSED);
 		}
 	}
