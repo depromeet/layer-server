@@ -5,7 +5,6 @@ import java.util.List;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 
 public record RetrospectCreateRequest(
 	@Schema(description = "회고 제목", example = "중간 발표 이후 회고")
@@ -17,7 +16,6 @@ public record RetrospectCreateRequest(
 	@NotNull
 	List<QuestionCreateRequest> questions,
 	@Schema(description = "회고 마감 일자", example = "")
-	@NotNull
 	LocalDateTime deadline,
 	@Schema(description = "질문을 수정한 경우 true", example = "true")
 	Boolean isNewForm,
