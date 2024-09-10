@@ -1,9 +1,12 @@
 package org.layer.domain.form.enums;
 
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import org.layer.domain.common.random.CustomRandom;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +24,7 @@ public enum FormTag {
 
 	private final String tag;
 
-	public static FormTag getRecommandFormTag(List<RetrospectPurpose> retrospectPurposes) {
+	public static FormTag getRecommandFormTag(List<RetrospectPurpose> retrospectPurposes, CustomRandom customRandom) {
 		Map<FormTag, Integer> formTagIntegerMap = EnumSet.allOf(FormTag.class).stream()
 			.collect(Collectors.toMap(tag -> tag, tag -> 0));
 
@@ -33,10 +36,14 @@ public enum FormTag {
 			formTagIntegerMap.put(PMI, formTagIntegerMap.get(PMI) +purpose.getPmiPont());
 		});
 
-		return formTagIntegerMap.entrySet()
-			.stream()
-			.max(Map.Entry.comparingByValue())
+		int maxValue = Collections.max(formTagIntegerMap.values());
+
+		List<FormTag> maxTags = formTagIntegerMap.entrySet().stream()
+			.filter(entry -> entry.getValue() == maxValue)
 			.map(Map.Entry::getKey)
-			.orElse(FormTag.UNTITLED);
+			.toList();
+
+		// 최댓값을 가진 것 중 랜덤으로 하나 선택
+		return maxTags.get(customRandom.nextInt(maxTags.size()));
 	}
 }

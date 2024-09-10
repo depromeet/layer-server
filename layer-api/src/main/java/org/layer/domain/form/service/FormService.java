@@ -1,6 +1,8 @@
 package org.layer.domain.form.service;
 
 import lombok.RequiredArgsConstructor;
+
+import org.layer.domain.common.random.CustomRandom;
 import org.layer.domain.form.controller.dto.request.FormNameUpdateRequest;
 import org.layer.domain.form.controller.dto.request.RecommendFormQueryDto;
 import org.layer.domain.form.controller.dto.request.RecommendFormSetRequest;
@@ -46,6 +48,8 @@ public class FormService {
 	private final SpaceRepository spaceRepository;
 	private final TemplateMetadataRepository metadataRepository;
 
+	private final CustomRandom customRandom;
+
 	/**
 	 * 회고 폼 질문을 조회한다.
 	 *
@@ -72,7 +76,7 @@ public class FormService {
 	}
 
 	public RecommendFormResponseDto getRecommendTemplate(RecommendFormQueryDto queryDto) {
-		FormTag recommandFormTag = FormTag.getRecommandFormTag(queryDto.purpose());
+		FormTag recommandFormTag = FormTag.getRecommandFormTag(queryDto.purpose(), customRandom);
 
 		Form form = formRepository.findByFormTagAndFormTypeOrThrow(recommandFormTag, FormType.TEMPLATE);
 		TemplateMetadata metadata = metadataRepository.findByFormIdOrThrow(form.getId());
