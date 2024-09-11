@@ -16,6 +16,7 @@ import org.layer.domain.answer.repository.AnswerRepository;
 import org.layer.domain.question.entity.Questions;
 import org.layer.domain.question.enums.QuestionType;
 import org.layer.domain.question.repository.QuestionRepository;
+import org.layer.domain.retrospect.entity.AnalysisStatus;
 import org.layer.domain.retrospect.entity.Retrospect;
 import org.layer.domain.retrospect.repository.RetrospectRepository;
 import org.layer.domain.space.entity.Team;
@@ -89,6 +90,8 @@ public class AIAnalyzeService {
 		long endTime = System.currentTimeMillis(); // 종료 시간 기록
 		long duration = endTime - startTime; // 경과 시간 계산
 		log.info("createAnalyze completed in {} ms", duration);
+
+		retrospect.updateAnalysisStatus(AnalysisStatus.DONE);
 	}
 
 	private Analyze getAnalyzeEntity(Long retrospectId, Answers answers, Long rangeQuestionId, Long numberQuestionId,
