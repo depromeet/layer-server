@@ -36,7 +36,6 @@ public class RetrospectScheduler {
     public void updateRetrospectStatusToDone() {
         log.info("Batch Start : updateRetrospectStatusToDone");
 
-
         LocalDateTime now = time.now();
 
         List<Retrospect> retrospects = retrospectRepository.findAllByDeadlineBeforeAndRetrospectStatus(
@@ -44,7 +43,7 @@ public class RetrospectScheduler {
         Map<Long, Retrospect> retrospectMap = retrospects.stream()
                 .collect(Collectors.toMap(Retrospect::getId, retrospect -> retrospect));
 
-        retrospects.forEach(retrospect -> retrospect.updateRetrospectStatus(RetrospectStatus.DONE));
+        retrospects.forEach(retrospect -> retrospect.updateRetrospectStatus(RetrospectStatus.DONE, now));
         retrospectRepository.saveAllAndFlush(retrospects);
 
         List<Long> retrospectIds = retrospects.stream().map(Retrospect::getId).toList();
