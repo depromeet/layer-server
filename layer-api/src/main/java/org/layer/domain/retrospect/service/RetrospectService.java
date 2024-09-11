@@ -19,11 +19,12 @@ import org.layer.domain.question.repository.QuestionRepository;
 import org.layer.domain.retrospect.controller.dto.request.QuestionCreateRequest;
 import org.layer.domain.retrospect.controller.dto.request.RetrospectCreateRequest;
 import org.layer.domain.retrospect.controller.dto.request.RetrospectUpdateRequest;
+import org.layer.domain.retrospect.controller.dto.response.RetrospectGetResponse;
+import org.layer.domain.retrospect.controller.dto.response.RetrospectListGetResponse;
+import org.layer.domain.retrospect.entity.AnalysisStatus;
 import org.layer.domain.retrospect.entity.Retrospect;
 import org.layer.domain.retrospect.entity.RetrospectStatus;
 import org.layer.domain.retrospect.repository.RetrospectRepository;
-import org.layer.domain.retrospect.service.dto.response.RetrospectGetServiceResponse;
-import org.layer.domain.retrospect.service.dto.response.RetrospectListGetServiceResponse;
 import org.layer.domain.space.entity.Space;
 import org.layer.domain.space.entity.Team;
 import org.layer.domain.space.repository.MemberSpaceRelationRepository;
@@ -100,7 +101,7 @@ public class RetrospectService {
 			.build();
 	}
 
-	public RetrospectListGetServiceResponse getRetrospects(Long spaceId, Long memberId) {
+	public RetrospectListGetResponse getRetrospects(Long spaceId, Long memberId) {
 		// 해당 스페이스 팀원인지 검증
 		Team team = new Team(memberSpaceRelationRepository.findAllBySpaceId(spaceId));
 		team.validateTeamMembership(memberId);
@@ -109,13 +110,20 @@ public class RetrospectService {
 		List<Long> retrospectIds = retrospects.stream().map(Retrospect::getId).toList();
 		Answers answers = new Answers(answerRepository.findAllByRetrospectIdIn(retrospectIds));
 
-		List<RetrospectGetServiceResponse> retrospectDtos = retrospects.stream()
-			.map(r -> RetrospectGetServiceResponse.of(r.getId(), r.getTitle(), r.getIntroduction(),
-				answers.hasRetrospectAnswer(memberId, r.getId()), r.getRetrospectStatus(),
-				answers.getWriteCount(), team.getTeamMemberCount(), r.getCreatedAt(), r.getDeadline()))
+		List<RetrospectGetResponse> retrospectDtos = retrospects.stream()
+			.map(r -> {
+				long writeCount = team.getTeamMemberCount();
+				if (r.getRetrospectStatus().equals(RetrospectStatus.DONE)) {
+					writeCount = answers.getWriteCount(r.getId());
+				}
+
+				return RetrospectGetResponse.of(r.getId(), r.getTitle(), r.getIntroduction(),
+					answers.getWriteStatus(memberId, r.getId()), r.getRetrospectStatus(), r.getAnalysisStatus(),
+					answers.getWriteCount(r.getId()), writeCount, r.getCreatedAt(), r.getDeadline());
+			})
 			.toList();
 
-		return RetrospectListGetServiceResponse.of(retrospects.size(), retrospectDtos);
+		return RetrospectListGetResponse.of(retrospects.size(), retrospectDtos);
 	}
 
 	private List<Question> getQuestions(List<QuestionCreateRequest> questions, Long savedRetrospectId, Long formId) {
@@ -168,12 +176,12 @@ public class RetrospectService {
 		space.isLeaderSpace(memberId);
 
 		Retrospect retrospect = retrospectRepository.findByIdOrThrow(retrospectId);
-		retrospect.validateDeadline(time.now());
+
+		retrospect.updateRetrospectStatus(RetrospectStatus.DONE, time.now());
+		retrospect.updateAnalysisStatus(AnalysisStatus.PROCEEDING);
+		retrospectRepository.saveAndFlush(retrospect);
 
 		Answers answers = new Answers(answerRepository.findAllByRetrospectId(retrospectId));
-
-		retrospect.updateRetrospectStatus(RetrospectStatus.DONE);
-		retrospectRepository.saveAndFlush(retrospect);
 
 		// 회고 ai 분석 시작
 		aiAnalyzeService.createAnalyze(spaceId, retrospectId, answers.getWriteMemberIds());
