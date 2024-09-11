@@ -70,6 +70,10 @@ public class Answers {
 
 		Set<Long> answerMembers = new HashSet<>();
 
+		if(!answersByRetrospectId.containsKey(retrospectId)){
+			return 0L;
+		}
+
 		answersByRetrospectId.get(retrospectId).stream()
 			.filter(answer -> answer.getAnswerStatus().equals(AnswerStatus.DONE))
 			.forEach(answer -> answerMembers.add(answer.getMemberId()));
