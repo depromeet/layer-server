@@ -49,7 +49,7 @@ public class Retrospect extends BaseTimeEntity {
 
 	@Builder
 	public Retrospect(Long spaceId, String title, String introduction, RetrospectStatus retrospectStatus,
-		AnalysisStatus analysisStatus, LocalDateTime deadline, int capacity) {
+		AnalysisStatus analysisStatus, LocalDateTime deadline) {
 		this.spaceId = spaceId;
 		this.title = title;
 		this.introduction = introduction;
