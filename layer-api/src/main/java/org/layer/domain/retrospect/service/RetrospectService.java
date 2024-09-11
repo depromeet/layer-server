@@ -97,6 +97,7 @@ public class RetrospectService {
 			.title(request.title())
 			.introduction(request.introduction())
 			.retrospectStatus(RetrospectStatus.PROCEEDING)
+			.analysisStatus(AnalysisStatus.NOT_STARTED)
 			.deadline(request.deadline())
 			.build();
 	}
