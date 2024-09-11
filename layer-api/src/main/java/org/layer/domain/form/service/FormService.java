@@ -1,6 +1,8 @@
 package org.layer.domain.form.service;
 
 import lombok.RequiredArgsConstructor;
+
+import org.layer.domain.common.random.CustomRandom;
 import org.layer.domain.form.controller.dto.request.FormNameUpdateRequest;
 import org.layer.domain.form.controller.dto.request.RecommendFormQueryDto;
 import org.layer.domain.form.controller.dto.request.RecommendFormSetRequest;
@@ -10,6 +12,8 @@ import org.layer.domain.form.controller.dto.response.FormGetResponse;
 import org.layer.domain.form.controller.dto.response.QuestionGetResponse;
 import org.layer.domain.form.controller.dto.response.RecommendFormResponseDto;
 import org.layer.domain.form.entity.Form;
+import org.layer.domain.form.entity.FormType;
+import org.layer.domain.form.enums.FormTag;
 import org.layer.domain.form.exception.FormException;
 import org.layer.domain.form.repository.FormRepository;
 import org.layer.domain.question.entity.Question;
@@ -44,8 +48,7 @@ public class FormService {
 	private final SpaceRepository spaceRepository;
 	private final TemplateMetadataRepository metadataRepository;
 
-	private static final int MIN = 10000;
-	private static final int MAX = 10005;
+	private final CustomRandom customRandom;
 
 	/**
 	 * 회고 폼 질문을 조회한다.
@@ -72,13 +75,11 @@ public class FormService {
 		return FormGetResponse.of(form.getTitle(), form.getFormTag().getTag(), questionResponses);
 	}
 
-	public RecommendFormResponseDto getRecommendTemplate(RecommendFormQueryDto queryDto, Long memberId) {
-		Random random = new Random();
-		Long formId = random.nextLong(MAX - MIN + 1) + MIN;
+	public RecommendFormResponseDto getRecommendTemplate(RecommendFormQueryDto queryDto) {
+		FormTag recommandFormTag = FormTag.getRecommandFormTag(queryDto.purpose(), customRandom);
 
-		Form form = formRepository.findByIdOrThrow(formId);
-		TemplateMetadata metadata = metadataRepository.findByFormIdOrThrow(formId);
-		// TODO: 템플릿 이미지 필요
+		Form form = formRepository.findByFormTagAndFormTypeOrThrow(recommandFormTag, FormType.TEMPLATE);
+		TemplateMetadata metadata = metadataRepository.findByFormIdOrThrow(form.getId());
 
 		return RecommendFormResponseDto.of(form, metadata.getTemplateImageUrl());
 	}

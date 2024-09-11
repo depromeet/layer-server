@@ -38,7 +38,7 @@ public interface RetrospectApi {
 	ResponseEntity<RetrospectListGetResponse> deleteRetrospect(@PathVariable("spaceId") Long spaceId,
 		@PathVariable("retrospectId") Long retrospectId, @MemberId Long memberId);
 
-	@Operation(summary = "회고 마감", description = "특정 팀 스페이스에서 작성했던 회고를 마감하는 기능입니다. </br> Note: 스페이스 내 모든 인원이 작성해야 가능합니다.")
+	@Operation(summary = "회고 수동 마감", description = "특정 팀 스페이스에서 작성했던 회고를 마감하는 기능입니다. </br> Note: 스페이스 내 모든 인원이 작성해야 가능합니다.")
 	@ApiResponses({
 		@ApiResponse(responseCode = "200", description = "회고 마감 성공",
 			content = @Content(mediaType = "application/json")),

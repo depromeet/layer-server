@@ -42,15 +42,19 @@ public class Retrospect extends BaseTimeEntity {
 	private RetrospectStatus retrospectStatus;
 
 	@NotNull
+	@Enumerated(EnumType.STRING)
+	private AnalysisStatus analysisStatus;
+
 	private LocalDateTime deadline;
 
 	@Builder
 	public Retrospect(Long spaceId, String title, String introduction, RetrospectStatus retrospectStatus,
-		LocalDateTime deadline) {
+		AnalysisStatus analysisStatus, LocalDateTime deadline) {
 		this.spaceId = spaceId;
 		this.title = title;
 		this.introduction = introduction;
 		this.retrospectStatus = retrospectStatus;
+		this.analysisStatus = analysisStatus;
 		this.deadline = deadline;
 	}
 
@@ -61,20 +65,20 @@ public class Retrospect extends BaseTimeEntity {
 	}
 
 	public void validateDeadline(LocalDateTime currentTime) {
-		if (currentTime.isAfter(this.deadline)) {
+		if (this.deadline != null && currentTime.isAfter(this.deadline)) {
 			throw new RetrospectException(DEADLINE_PASSED);
 		}
 	}
 
 	public void validateRetrospectStatusDone() {
-		if(!this.retrospectStatus.equals(RetrospectStatus.DONE)){
+		if (!this.retrospectStatus.equals(RetrospectStatus.DONE)) {
 			throw new RetrospectException(DEADLINE_NOT_PASSED);
 		}
 	}
 
-	public void updateRetrospect(String title, String introduction, LocalDateTime deadline, Time time){
+	public void updateRetrospect(String title, String introduction, LocalDateTime deadline, Time time) {
 
-		if(deadline.isBefore(time.now())){
+		if (deadline.isBefore(time.now())) {
 			throw new RetrospectException(INVALID_DEADLINE);
 		}
 
@@ -83,9 +87,20 @@ public class Retrospect extends BaseTimeEntity {
 		this.deadline = deadline;
 	}
 
-	public void updateRetrospectStatus(RetrospectStatus retrospectStatus){
+	public void updateRetrospectStatus(RetrospectStatus retrospectStatus, LocalDateTime now) {
 		isProceedingRetrospect();
 
+		if(this.deadline != null && now.isBefore(this.deadline)){
+			return;
+		}
+
 		this.retrospectStatus = retrospectStatus;
+	}
+
+	public void updateAnalysisStatus(AnalysisStatus analysisStatus) {
+		if (this.analysisStatus.equals(AnalysisStatus.NOT_STARTED)) {
+			this.analysisStatus = analysisStatus;
+		}
+
 	}
 }

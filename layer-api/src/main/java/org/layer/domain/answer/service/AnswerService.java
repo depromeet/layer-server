@@ -22,12 +22,15 @@ import org.layer.domain.question.entity.Question;
 import org.layer.domain.question.entity.Questions;
 import org.layer.domain.question.enums.QuestionType;
 import org.layer.domain.question.repository.QuestionRepository;
+import org.layer.domain.retrospect.entity.AnalysisStatus;
 import org.layer.domain.retrospect.entity.Retrospect;
+import org.layer.domain.retrospect.entity.RetrospectStatus;
 import org.layer.domain.retrospect.repository.RetrospectRepository;
 import org.layer.domain.space.entity.MemberSpaceRelation;
 import org.layer.domain.space.entity.Team;
 import org.layer.domain.space.exception.MemberSpaceRelationException;
 import org.layer.domain.space.repository.MemberSpaceRelationRepository;
+import org.layer.external.ai.service.AIAnalyzeService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,6 +50,8 @@ public class AnswerService {
     private final QuestionRepository questionRepository;
     private final MemberRepository memberRepository;
     private final AnalyzeRepository analyzeRepository;
+
+	private final AIAnalyzeService aiAnalyzeService;
 
     private final Time time;
 
@@ -90,6 +95,16 @@ public class AnswerService {
 
             Answer answer = new Answer(retrospectId, r.questionId(), memberId, r.answerContent(), answerStatus);
             answerRepository.save(answer);
+        }
+
+        Answers answers = new Answers(answerRepository.findAllByRetrospectId(retrospectId));
+
+        // 마지막 답변일 경우 -> ai 분석 실행
+        if (answers.getWriteCount(retrospectId) == team.getTeamMemberCount()){
+			retrospect.updateRetrospectStatus(RetrospectStatus.DONE, time.now());
+			retrospect.updateAnalysisStatus(AnalysisStatus.PROCEEDING);
+
+			aiAnalyzeService.createAnalyze(spaceId, retrospectId, answers.getWriteMemberIds());
         }
     }
 
