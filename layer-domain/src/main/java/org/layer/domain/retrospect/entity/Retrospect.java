@@ -49,7 +49,7 @@ public class Retrospect extends BaseTimeEntity {
 
 	@Builder
 	public Retrospect(Long spaceId, String title, String introduction, RetrospectStatus retrospectStatus,
-		AnalysisStatus analysisStatus, LocalDateTime deadline) {
+		AnalysisStatus analysisStatus, LocalDateTime deadline, int capacity) {
 		this.spaceId = spaceId;
 		this.title = title;
 		this.introduction = introduction;
@@ -90,9 +90,11 @@ public class Retrospect extends BaseTimeEntity {
 	public void updateRetrospectStatus(RetrospectStatus retrospectStatus, LocalDateTime now) {
 		isProceedingRetrospect();
 
-		if(this.deadline != null && now.isAfter(this.deadline)){
-			this.retrospectStatus = retrospectStatus;
+		if(this.deadline != null && now.isBefore(this.deadline)){
+			return;
 		}
+
+		this.retrospectStatus = retrospectStatus;
 	}
 
 	public void updateAnalysisStatus(AnalysisStatus analysisStatus) {
