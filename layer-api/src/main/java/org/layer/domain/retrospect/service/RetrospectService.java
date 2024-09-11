@@ -21,6 +21,7 @@ import org.layer.domain.retrospect.controller.dto.request.RetrospectCreateReques
 import org.layer.domain.retrospect.controller.dto.request.RetrospectUpdateRequest;
 import org.layer.domain.retrospect.controller.dto.response.RetrospectGetResponse;
 import org.layer.domain.retrospect.controller.dto.response.RetrospectListGetResponse;
+import org.layer.domain.retrospect.entity.AnalysisStatus;
 import org.layer.domain.retrospect.entity.Retrospect;
 import org.layer.domain.retrospect.entity.RetrospectStatus;
 import org.layer.domain.retrospect.repository.RetrospectRepository;
@@ -112,7 +113,7 @@ public class RetrospectService {
 		List<RetrospectGetResponse> retrospectDtos = retrospects.stream()
 			.map(r -> {
 				long writeCount = team.getTeamMemberCount();
-				if (r.getRetrospectStatus().equals(RetrospectStatus.DONE)){
+				if (r.getRetrospectStatus().equals(RetrospectStatus.DONE)) {
 					writeCount = answers.getWriteCount(r.getId());
 				}
 
@@ -175,12 +176,12 @@ public class RetrospectService {
 		space.isLeaderSpace(memberId);
 
 		Retrospect retrospect = retrospectRepository.findByIdOrThrow(retrospectId);
-		retrospect.validateDeadline(time.now());
+
+		retrospect.updateRetrospectStatus(RetrospectStatus.DONE, time.now());
+		retrospect.updateAnalysisStatus(AnalysisStatus.PROCEEDING);
+		retrospectRepository.saveAndFlush(retrospect);
 
 		Answers answers = new Answers(answerRepository.findAllByRetrospectId(retrospectId));
-
-		retrospect.updateRetrospectStatus(RetrospectStatus.DONE);
-		retrospectRepository.saveAndFlush(retrospect);
 
 		// 회고 ai 분석 시작
 		aiAnalyzeService.createAnalyze(spaceId, retrospectId, answers.getWriteMemberIds());
