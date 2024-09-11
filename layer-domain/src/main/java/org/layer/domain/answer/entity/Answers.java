@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 import org.layer.domain.answer.enums.AnswerStatus;
 import org.layer.domain.answer.exception.AnswerException;
+import org.layer.domain.retrospect.entity.WriteStatus;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -42,17 +43,38 @@ public class Answers {
 			.anyMatch(answer -> answer.getMemberId().equals(memberId));
 	}
 
-	public long getWriteCount() {
-		Set<Long> set = new HashSet<>();
+	public WriteStatus getWriteStatus(Long memberId, Long retrospectId) {
+		boolean isDoneWrite = answers.stream()
+			.filter(answer -> answer.getRetrospectId().equals(retrospectId))
+			.filter(answer -> answer.getMemberId().equals(memberId))
+			.anyMatch(answer -> answer.getAnswerStatus().equals(AnswerStatus.DONE));
+		if(isDoneWrite){
+			return WriteStatus.DONE;
+		}
 
-		answers.forEach(answer -> {
-			// 임시저장된 회고일 경우 제외
-			if (answer.getAnswerStatus() != AnswerStatus.TEMPORARY) {
-				set.add(answer.getMemberId());
-			}
-		});
+		boolean isTemporaryWrite = answers.stream()
+			.filter(answer -> answer.getRetrospectId().equals(retrospectId))
+			.filter(answer -> answer.getMemberId().equals(memberId))
+			.anyMatch(answer -> answer.getAnswerStatus().equals(AnswerStatus.TEMPORARY));
+		if(isTemporaryWrite){
+			return WriteStatus.PROCEEDING;
+		}
 
-		return set.size();
+		return WriteStatus.NOT_STARTED;
+	}
+
+	public long getWriteCount(Long retrospectId) {
+
+		Map<Long, List<Answer>> answersByRetrospectId = answers.stream()
+			.collect(Collectors.groupingBy(Answer::getRetrospectId));
+
+		Set<Long> answerMembers = new HashSet<>();
+
+		answersByRetrospectId.get(retrospectId).stream()
+			.filter(answer -> answer.getAnswerStatus().equals(AnswerStatus.DONE))
+			.forEach(answer -> answerMembers.add(answer.getMemberId()));
+
+		return answerMembers.size();
 	}
 
 	public List<Long> getWriteMemberIds() {
