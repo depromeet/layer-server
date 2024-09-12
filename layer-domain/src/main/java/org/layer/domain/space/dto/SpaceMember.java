@@ -3,6 +3,8 @@ package org.layer.domain.space.dto;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
+
 @Getter
 public class SpaceMember {
 
@@ -12,14 +14,14 @@ public class SpaceMember {
     private final String name;
 
     private final Boolean isLeader;
-    private final String delYn;
+    private final LocalDateTime deletedAt;
 
     @QueryProjection
-    public SpaceMember(Long id, String avatar, String name, Boolean isLeader, String delYn) {
+    public SpaceMember(Long id, String avatar, String name, Boolean isLeader, LocalDateTime deletedAt) {
         this.id = id;
         this.avatar = avatar;
         this.name = name;
         this.isLeader = isLeader;
-        this.delYn = delYn;
+        this.deletedAt = deletedAt;
     }
 }

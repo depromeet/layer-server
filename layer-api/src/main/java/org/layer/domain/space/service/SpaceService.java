@@ -194,7 +194,7 @@ public class SpaceService {
         log.info("?");
         var SpaceMembers = spaceRepository.findAllSpaceMemberBySpaceIdWithIsLeader(spaceId);
         return SpaceMembers.stream()
-                .filter(a -> a.getDelYn().equals("N"))
+                .filter(a -> a.getDeletedAt() == null)
                 .map(SpaceResponse.SpaceMemberResponse::toResponse)
                 .sorted(
                         Comparator.comparing(SpaceResponse.SpaceMemberResponse::isLeader).reversed())

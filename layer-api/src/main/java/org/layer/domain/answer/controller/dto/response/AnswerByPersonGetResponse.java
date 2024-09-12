@@ -8,8 +8,8 @@ import java.util.List;
 public record AnswerByPersonGetResponse(
 	@Schema(description = "답변자", example = "홍길동")
 	String name,
-	@Schema(description = "탈퇴 여부(Y/N 값이며, Y일때 탈퇴한 회원)", example = "N")
-	String delYn,
+	@Schema(description = "탈퇴 여부. 탈퇴시 true", example = "false")
+	Boolean deleted,
 	@Schema(description = "질문-답변 객체", example = "")
 	List<QuestionAndAnswerGetResponse> answers
 ) {

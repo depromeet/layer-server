@@ -6,8 +6,9 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.ColumnDefault;
 import org.layer.domain.common.BaseTimeEntity;
+
+import java.time.LocalDateTime;
 
 @Getter
 @Entity
@@ -36,8 +37,8 @@ public class Member extends BaseTimeEntity {
 
     private String profileImageUrl;
 
-    @ColumnDefault("'N'")
-    private String delYn;
+
+    private LocalDateTime deletedAt;
 
 
     @Builder(access = AccessLevel.PUBLIC)
@@ -58,7 +59,7 @@ public class Member extends BaseTimeEntity {
         this.profileImageUrl = profileImageUrl;
     }
 
-    public void updateDelYn(String yn) {
-        this.delYn = yn;
+    public void deleteMember() {
+        this.deletedAt = LocalDateTime.now();
     }
 }

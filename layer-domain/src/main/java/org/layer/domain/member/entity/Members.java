@@ -18,10 +18,10 @@ public class Members {
 			.orElse(null);
 	}
 
-	public String getDelYn(Long memberId) {
+	public Boolean getDeleted(Long memberId) {
 		return members.stream()
 				.filter(member -> member.getId().equals(memberId))
-				.map(Member::getDelYn)
+				.map(m -> m.getDeletedAt() == null) // 지워졌으면 true, 아니면 false
 				.findAny()
 				.orElse(null);
 	}

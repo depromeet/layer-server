@@ -94,7 +94,7 @@ public class SpaceRepositoryImpl implements SpaceCustomRepository {
                                 member.profileImageUrl,
                                 member.name,
                                 space.leaderId.eq(member.id),
-                                member.delYn
+                                member.deletedAt
                         )
                 )
                 .from(memberSpaceRelation)

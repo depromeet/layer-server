@@ -248,7 +248,7 @@ public class AnswerService {
                                     question.getId(), member.getId())))
                             .toList();
 
-                    return new AnswerByPersonGetResponse(member.getName(), member.getDelYn(), questionAndAnswer);
+                    return new AnswerByPersonGetResponse(member.getName(), member.getDeletedAt() == null, questionAndAnswer);
                 })
                 .toList();
     }
@@ -260,7 +260,7 @@ public class AnswerService {
                 .map(question -> {
                     List<PersonAndAnswerGetResponse> personAndAnswer = answers.getAnswers().stream()
                             .filter(answer -> answer.getQuestionId().equals(question.getId()))
-                            .map(answer -> new PersonAndAnswerGetResponse(members.getName(answer.getMemberId()), members.getDelYn(answer.getMemberId()), answer.getContent()))
+                            .map(answer -> new PersonAndAnswerGetResponse(members.getName(answer.getMemberId()), members.getDeleted(answer.getMemberId()), answer.getContent()))
                             .toList();
 
                     return new AnswerByQuestionGetResponse(question.getContent(), question.getQuestionType().getStyle(),

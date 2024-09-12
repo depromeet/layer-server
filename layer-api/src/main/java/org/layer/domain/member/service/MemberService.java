@@ -113,7 +113,7 @@ public class MemberService {
 	@Transactional
 	public void withdrawMember(Long memberId) {
 		Member currentMember = getCurrentMember();
-		currentMember.updateDelYn("Y");
+		currentMember.deleteMember();
 	}
 
 	@Transactional
