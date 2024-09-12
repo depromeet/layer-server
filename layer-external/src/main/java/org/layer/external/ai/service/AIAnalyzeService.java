@@ -67,31 +67,37 @@ public class AIAnalyzeService {
 		String totalAnswer = answers.getTotalAnswer(rangeQuestionId, numberQuestionId);
 
 		// 분석 요청
-		List<Analyze> analyzes = new ArrayList<>();
+		try{
+			List<Analyze> analyzes = new ArrayList<>();
 
-		OpenAIResponse aiResponse = openAIService.createAnalyze(totalAnswer);
-		OpenAIResponse.Content content = aiResponse.parseContent();
-		Analyze teamAnalyze = getAnalyzeEntity(retrospectId, answers, rangeQuestionId, numberQuestionId, content,
-			null, AnalyzeType.TEAM);
-		analyzes.add(teamAnalyze);
+			OpenAIResponse aiResponse = openAIService.createAnalyze(totalAnswer);
+			OpenAIResponse.Content content = aiResponse.parseContent();
 
-		List<Analyze> individualAnalyzes = memberIds.stream()
-			.map(memberId -> {
-				String individualAnswer = answers.getIndividualAnswer(rangeQuestionId, numberQuestionId, memberId);
-				OpenAIResponse aiIndividualResponse = openAIService.createAnalyze(individualAnswer);
-				OpenAIResponse.Content individualcontent = aiIndividualResponse.parseContent();
-				return getAnalyzeEntity(retrospectId, answers, rangeQuestionId, numberQuestionId, individualcontent,
-					memberId, AnalyzeType.INDIVIDUAL);
-			}).toList();
-		analyzes.addAll(individualAnalyzes);
+			Analyze teamAnalyze = getAnalyzeEntity(retrospectId, answers, rangeQuestionId, numberQuestionId, content,
+				null, AnalyzeType.TEAM);
+			analyzes.add(teamAnalyze);
 
-		analyzeRepository.saveAll(analyzes);
+			List<Analyze> individualAnalyzes = memberIds.stream()
+				.map(memberId -> {
+					String individualAnswer = answers.getIndividualAnswer(rangeQuestionId, numberQuestionId, memberId);
+					OpenAIResponse aiIndividualResponse = openAIService.createAnalyze(individualAnswer);
+					OpenAIResponse.Content individualcontent = aiIndividualResponse.parseContent();
+					return getAnalyzeEntity(retrospectId, answers, rangeQuestionId, numberQuestionId, individualcontent,
+						memberId, AnalyzeType.INDIVIDUAL);
+				}).toList();
+			analyzes.addAll(individualAnalyzes);
+
+			analyzeRepository.saveAll(analyzes);
+		}catch (Exception e){
+			log.info("Not enough Answers");
+		}
 
 		long endTime = System.currentTimeMillis(); // 종료 시간 기록
 		long duration = endTime - startTime; // 경과 시간 계산
 		log.info("createAnalyze completed in {} ms", duration);
 
 		retrospect.updateAnalysisStatus(AnalysisStatus.DONE);
+		retrospectRepository.save(retrospect);  // TODO: 왜 더티체킹이 안될까??
 	}
 
 	private Analyze getAnalyzeEntity(Long retrospectId, Answers answers, Long rangeQuestionId, Long numberQuestionId,
