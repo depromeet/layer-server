@@ -103,6 +103,7 @@ public class AnswerService {
         if (answers.getWriteCount(retrospectId) == team.getTeamMemberCount()){
 			retrospect.updateRetrospectStatus(RetrospectStatus.DONE, time.now());
 			retrospect.updateAnalysisStatus(AnalysisStatus.PROCEEDING);
+            retrospectRepository.saveAndFlush(retrospect);
 
 			aiAnalyzeService.createAnalyze(spaceId, retrospectId, answers.getWriteMemberIds());
         }
