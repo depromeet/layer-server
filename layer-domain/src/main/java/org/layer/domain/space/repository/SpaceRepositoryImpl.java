@@ -51,6 +51,7 @@ public class SpaceRepositoryImpl implements SpaceCustomRepository {
 
         var foundSpace = getSpaceWithMemberCountQuery(memberId)
                 .where(space.id.eq(spaceId))
+                .where(member.deletedAt.isNull()) // 삭제되지 않은 회원만
                 .fetchOne();
 
         if (foundSpace == null || isSpaceWithMemberCountEmpty(foundSpace)) {
@@ -63,7 +64,10 @@ public class SpaceRepositoryImpl implements SpaceCustomRepository {
     @Override
     public Optional<SpaceWithMemberCount> findByIdAndJoinedMemberId(Long spaceId) {
 
-        var foundSpace = getSpaceWithMemberCountQuery().where(space.id.eq(spaceId)).fetchOne();
+        var foundSpace = getSpaceWithMemberCountQuery()
+                .where(space.id.eq(spaceId))
+                .where(member.deletedAt.isNull()) // 삭제되지 않은 회원만
+                .fetchOne();
 
         if (foundSpace == null || isSpaceWithMemberCountEmpty(foundSpace)) {
             return Optional.empty();
@@ -103,6 +107,7 @@ public class SpaceRepositoryImpl implements SpaceCustomRepository {
                 .leftJoin(space)
                 .on(memberSpaceRelation.space.id.eq(space.id))
                 .where(memberSpaceRelation.space.id.eq(spaceId).and(member.id.isNotNull()))
+                .where(member.deletedAt.isNull()) // 삭제되지 않은 회원만
                 .orderBy(memberSpaceRelation.createdAt.asc())
                 .fetch();
     }
@@ -129,6 +134,8 @@ public class SpaceRepositoryImpl implements SpaceCustomRepository {
                 .leftJoin(memberCountRelationTable).on(space.id.eq(memberCountRelationTable.space.id))
                 .leftJoin(member).on(space.leaderId.eq(member.id))
                 .leftJoin(form).on(space.formId.eq(form.id))
+                .leftJoin(member).on(memberSpaceRelation.memberId.eq(member.id)) // memberId와 member의 id 조인
+                .where(member.deletedAt.isNull()) // 삭제되지 않은 회원만
                 .orderBy(space.createdAt.desc())
                 .orderBy(form.id.desc())
                 .limit(1);
@@ -158,6 +165,8 @@ public class SpaceRepositoryImpl implements SpaceCustomRepository {
                 .leftJoin(memberCountRelationTable).on(space.id.eq(memberCountRelationTable.space.id))
                 .leftJoin(member).on(space.leaderId.eq(member.id))
                 .leftJoin(form).on(space.formId.eq(form.id))
+                .leftJoin(member).on(memberSpaceRelation.memberId.eq(member.id)) // memberId와 member의 id 조인
+                .where(member.deletedAt.isNull()) // 삭제되지 않은 회원만
                 .orderBy(space.createdAt.desc())
                 .orderBy(form.id.desc())
                 .limit(1);
