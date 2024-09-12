@@ -171,7 +171,8 @@ public class ActionItemService {
         // 종료된 것 중 가장 최근에 만들어진 회고 찾기
         Optional<Retrospect> recentOpt = retrospectList.stream()
                 .filter(r -> r.getRetrospectStatus().equals(DONE)) // 끝난 회고 찾기
-                .sorted((a, b) -> b.getDeadline().compareTo(a.getDeadline())) // deadline 내림차순으로 정렬
+                .sorted(Comparator.comparing(Retrospect::getDeadline,
+                        Comparator.nullsLast(Comparator.naturalOrder())).reversed()) // deadline 내림차순, null은 아래로 정렬
                 .findFirst();
 
         if (recentOpt.isPresent()) {
