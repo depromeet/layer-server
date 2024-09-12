@@ -98,9 +98,6 @@ public class Retrospect extends BaseTimeEntity {
 	}
 
 	public void updateAnalysisStatus(AnalysisStatus analysisStatus) {
-		if (this.analysisStatus.equals(AnalysisStatus.NOT_STARTED)) {
-			this.analysisStatus = analysisStatus;
-		}
-
+		this.analysisStatus = analysisStatus;
 	}
 }
