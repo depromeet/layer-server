@@ -21,7 +21,7 @@ public class Members {
 	public Boolean getDeleted(Long memberId) {
 		return members.stream()
 				.filter(member -> member.getId().equals(memberId))
-				.map(m -> m.getDeletedAt() == null) // 지워졌으면 true, 아니면 false
+				.map(m -> m.getDeletedAt() != null) // 지워졌으면 true, 아니면 false
 				.findAny()
 				.orElse(null);
 	}

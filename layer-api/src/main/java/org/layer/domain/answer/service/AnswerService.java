@@ -248,7 +248,7 @@ public class AnswerService {
                                     question.getId(), member.getId())))
                             .toList();
 
-                    return new AnswerByPersonGetResponse(member.getName(), member.getDeletedAt() == null, questionAndAnswer);
+                    return new AnswerByPersonGetResponse(member.getName(), member.getDeletedAt() != null, questionAndAnswer);
                 })
                 .toList();
     }
