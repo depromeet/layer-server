@@ -181,11 +181,10 @@ public class AnswerService {
         Team team = new Team(memberSpaceRelationRepository.findAllBySpaceId(spaceId));
         team.validateTeamMembership(memberId);
 
-        Retrospect retrospect = retrospectRepository.findByIdOrThrow(retrospectId);
-        retrospect.validateRetrospectStatusDone();
-
         // answer 뽑기
         Answers answers = new Answers(answerRepository.findAllByRetrospectId(retrospectId));
+        answers.validateIsWriteDone(memberId, retrospectId);
+
         List<Long> questionIds = answers.getAnswers().stream().map(Answer::getQuestionId).toList();
         List<Long> memberIds = answers.getAnswers().stream().map(Answer::getMemberId).toList();
 
