@@ -87,12 +87,8 @@ public class Retrospect extends BaseTimeEntity {
 		this.deadline = deadline;
 	}
 
-	public void updateRetrospectStatus(RetrospectStatus retrospectStatus, LocalDateTime now) {
+	public void updateRetrospectStatus(RetrospectStatus retrospectStatus) {
 		isProceedingRetrospect();
-
-		if (this.deadline != null && now.isBefore(this.deadline)) {
-			return;
-		}
 
 		this.retrospectStatus = retrospectStatus;
 	}

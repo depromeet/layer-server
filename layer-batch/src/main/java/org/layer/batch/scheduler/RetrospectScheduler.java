@@ -43,7 +43,7 @@ public class RetrospectScheduler {
         Map<Long, Retrospect> retrospectMap = retrospects.stream()
                 .collect(Collectors.toMap(Retrospect::getId, retrospect -> retrospect));
 
-        retrospects.forEach(retrospect -> retrospect.updateRetrospectStatus(RetrospectStatus.DONE, now));
+        retrospects.forEach(retrospect -> retrospect.updateRetrospectStatus(RetrospectStatus.DONE));
         retrospectRepository.saveAllAndFlush(retrospects);
 
         List<Long> retrospectIds = retrospects.stream().map(Retrospect::getId).toList();

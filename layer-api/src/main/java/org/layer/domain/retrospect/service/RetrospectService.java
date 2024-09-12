@@ -178,7 +178,7 @@ public class RetrospectService {
 
 		Retrospect retrospect = retrospectRepository.findByIdOrThrow(retrospectId);
 
-		retrospect.updateRetrospectStatus(RetrospectStatus.DONE, time.now());
+		retrospect.updateRetrospectStatus(RetrospectStatus.DONE);
 		retrospect.updateAnalysisStatus(AnalysisStatus.PROCEEDING);
 		retrospectRepository.saveAndFlush(retrospect);
 

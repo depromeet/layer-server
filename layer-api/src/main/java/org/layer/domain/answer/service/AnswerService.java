@@ -100,11 +100,14 @@ public class AnswerService {
 
         Answers answers = new Answers(answerRepository.findAllByRetrospectId(retrospectId));
 
-        // 마지막 답변이고, 마감일이 지정되지 않은 경우 -> ai 분석 실행
-        if (answers.getWriteCount(retrospectId) == team.getTeamMemberCount() && !retrospect.hasDeadLine()){
-			retrospect.updateRetrospectStatus(RetrospectStatus.DONE, time.now());
+        // 마지막 답변인 경우 -> ai 분석 실행
+        if (answers.getWriteCount(retrospectId) == team.getTeamMemberCount()){
 			retrospect.updateAnalysisStatus(AnalysisStatus.PROCEEDING);
-            retrospectRepository.saveAndFlush(retrospect);
+
+            if(!retrospect.hasDeadLine()){
+                retrospect.updateRetrospectStatus(RetrospectStatus.DONE);
+            }
+			retrospectRepository.saveAndFlush(retrospect);
 
 			aiAnalyzeService.createAnalyze(spaceId, retrospectId, answers.getWriteMemberIds());
         }
