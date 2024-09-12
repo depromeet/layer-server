@@ -93,7 +93,7 @@ public class AuthService {
         }
 
 
-        // hard delete
+        // soft delete
         memberService.withdrawMember(memberId);
     }
 
