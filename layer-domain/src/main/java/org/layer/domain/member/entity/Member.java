@@ -6,6 +6,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 import org.layer.domain.common.BaseTimeEntity;
 
 @Getter
@@ -35,6 +36,9 @@ public class Member extends BaseTimeEntity {
 
     private String profileImageUrl;
 
+    @ColumnDefault("'N'")
+    private String delYn;
+
 
     @Builder(access = AccessLevel.PUBLIC)
     private Member(String name, String email, MemberRole memberRole,
@@ -52,5 +56,9 @@ public class Member extends BaseTimeEntity {
 
     public void updateProfileImageUrl(String profileImageUrl) {
         this.profileImageUrl = profileImageUrl;
+    }
+
+    public void updateDelYn(String yn) {
+        this.delYn = yn;
     }
 }

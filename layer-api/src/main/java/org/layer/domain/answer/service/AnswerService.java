@@ -1,7 +1,7 @@
 package org.layer.domain.answer.service;
 
 import lombok.RequiredArgsConstructor;
-
+import lombok.extern.slf4j.Slf4j;
 import org.layer.domain.analyze.entity.Analyze;
 import org.layer.domain.analyze.enums.AnalyzeType;
 import org.layer.domain.analyze.repository.AnalyzeRepository;
@@ -40,6 +40,7 @@ import java.util.Optional;
 import static org.layer.common.exception.AnswerExceptionType.NOT_ANSWERED;
 import static org.layer.common.exception.MemberSpaceRelationExceptionType.NOT_FOUND_MEMBER_SPACE_RELATION;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -247,19 +248,19 @@ public class AnswerService {
                                     question.getId(), member.getId())))
                             .toList();
 
-                    return new AnswerByPersonGetResponse(member.getName(), questionAndAnswer);
+                    return new AnswerByPersonGetResponse(member.getName(), member.getDelYn(), questionAndAnswer);
                 })
                 .toList();
     }
 
     private List<AnswerByQuestionGetResponse> getAnswerByQuestionGetResponses(Answers answers, Members members,
                                                                               List<Question> questions) {
+
         return questions.stream()
                 .map(question -> {
                     List<PersonAndAnswerGetResponse> personAndAnswer = answers.getAnswers().stream()
                             .filter(answer -> answer.getQuestionId().equals(question.getId()))
-                            .map(answer -> new PersonAndAnswerGetResponse(members.getName(answer.getMemberId()),
-                                    answer.getContent()))
+                            .map(answer -> new PersonAndAnswerGetResponse(members.getName(answer.getMemberId()), members.getDelYn(answer.getMemberId()), answer.getContent()))
                             .toList();
 
                     return new AnswerByQuestionGetResponse(question.getContent(), question.getQuestionType().getStyle(),
