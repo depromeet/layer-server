@@ -3,8 +3,8 @@ spring:
     import: optional:file:/config/application-secret.properties
   datasource:
     url: ${PROD_DB_URL}
-    username: ${DEV_DB_NAME}
-    password: ${DEV_DB_PASSWORD}
+    username: ${PROD_DB_NAME}
+    password: ${PROD_DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
