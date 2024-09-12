@@ -186,5 +186,6 @@ public class RetrospectService {
 
 		// 회고 ai 분석 시작
 		aiAnalyzeService.createAnalyze(spaceId, retrospectId, answers.getWriteMemberIds());
+
 	}
 }
