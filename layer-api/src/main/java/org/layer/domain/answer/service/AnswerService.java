@@ -2,6 +2,7 @@ package org.layer.domain.answer.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.layer.domain.analyze.entity.Analyze;
 import org.layer.domain.analyze.enums.AnalyzeType;
 import org.layer.domain.analyze.repository.AnalyzeRepository;
@@ -45,230 +46,236 @@ import static org.layer.common.exception.MemberSpaceRelationExceptionType.NOT_FO
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class AnswerService {
-    private final AnswerRepository answerRepository;
-    private final MemberSpaceRelationRepository memberSpaceRelationRepository;
-    private final RetrospectRepository retrospectRepository;
-    private final QuestionRepository questionRepository;
-    private final MemberRepository memberRepository;
-    private final AnalyzeRepository analyzeRepository;
+	private final AnswerRepository answerRepository;
+	private final MemberSpaceRelationRepository memberSpaceRelationRepository;
+	private final RetrospectRepository retrospectRepository;
+	private final QuestionRepository questionRepository;
+	private final MemberRepository memberRepository;
+	private final AnalyzeRepository analyzeRepository;
 
 	private final AIAnalyzeService aiAnalyzeService;
 
-    private final Time time;
+	private final Time time;
 
-    @Transactional
-    public void create(AnswerListCreateRequest request, Long spaceId, Long retrospectId, Long memberId) {
-        // 해당 스페이스 팀원인지 검증
-        Team team = new Team(memberSpaceRelationRepository.findAllBySpaceId(spaceId));
-        team.validateTeamMembership(memberId);
+	@Transactional
+	public void create(AnswerListCreateRequest request, Long spaceId, Long retrospectId, Long memberId) {
+		// 해당 스페이스 팀원인지 검증
+		Team team = new Team(memberSpaceRelationRepository.findAllBySpaceId(spaceId));
+		team.validateTeamMembership(memberId);
 
-        // 회고 존재 검증
-        Retrospect retrospect = retrospectRepository.findByIdOrThrow(retrospectId);
-        retrospect.validateDeadline(time.now());
+		// 회고 존재 검증
+		Retrospect retrospect = retrospectRepository.findByIdOrThrow(retrospectId);
+		retrospect.validateDeadline(time.now());
 
-        // 회고 질문 유효성 검사 - 해당 회고에 속해있는 질문인지
-        List<Long> questionIds = request.requests().stream()
-                .map(AnswerCreateRequest::questionId)
-                .toList();
-        Questions questions = new Questions(questionRepository.findAllByRetrospectIdOrderByQuestionOrder(retrospectId));
-        questions.validateQuestionSize(questionIds.size());
+		// 회고 질문 유효성 검사 - 해당 회고에 속해있는 질문인지
+		List<Long> questionIds = request.requests().stream()
+			.map(AnswerCreateRequest::questionId)
+			.toList();
+		Questions questions = new Questions(questionRepository.findAllByRetrospectIdOrderByQuestionOrder(retrospectId));
+		questions.validateQuestionSize(questionIds.size());
 
-        // 회고 질문 유효성 검사 - 이미 응답을 하지 않았는지
+		// 회고 질문 유효성 검사 - 이미 응답을 하지 않았는지
 		if (!request.isTemporarySave()) {
-            Answers answers = new Answers(
-                answerRepository.findByRetrospectIdAndMemberIdAndAnswerStatusAndQuestionIdIn(retrospectId, memberId,
-                    AnswerStatus.DONE, questionIds));
-            answers.validateNoAnswer();
-        }
+			Answers answers = new Answers(
+				answerRepository.findByRetrospectIdAndMemberIdAndAnswerStatusAndQuestionIdIn(retrospectId, memberId,
+					AnswerStatus.DONE, questionIds));
+			answers.validateNoAnswer();
+		}
 
-        // 기존 임시답변 제거
-        answerRepository.deleteAllByRetrospectIdAndMemberIdAndAnswerStatus(retrospectId, memberId,
-                AnswerStatus.TEMPORARY);
+		// 기존 임시답변 제거
+		answerRepository.deleteAllByRetrospectIdAndMemberIdAndAnswerStatus(retrospectId, memberId,
+			AnswerStatus.TEMPORARY);
 
-        AnswerStatus answerStatus = AnswerStatus.DONE;
-        if (request.isTemporarySave()) {
-            answerStatus = AnswerStatus.TEMPORARY;
-        }
+		AnswerStatus answerStatus = AnswerStatus.DONE;
+		if (request.isTemporarySave()) {
+			answerStatus = AnswerStatus.TEMPORARY;
+		}
 
-        for (AnswerCreateRequest r : request.requests()) {
-            // 회고 질문 유효성 검사 - 각각의 질문들이 유효한지
-            questions.validateIdAndQuestionType(r.questionId(), QuestionType.stringToEnum(r.questionType()));
+		for (AnswerCreateRequest r : request.requests()) {
+			// 회고 질문 유효성 검사 - 각각의 질문들이 유효한지
+			questions.validateIdAndQuestionType(r.questionId(), QuestionType.stringToEnum(r.questionType()));
 
-            Answer answer = new Answer(retrospectId, r.questionId(), memberId, r.answerContent(), answerStatus);
-            answerRepository.save(answer);
-        }
+			Answer answer = new Answer(retrospectId, r.questionId(), memberId, r.answerContent(), answerStatus);
+			answerRepository.save(answer);
+		}
 
-        Answers answers = new Answers(answerRepository.findAllByRetrospectId(retrospectId));
+		Answers answers = new Answers(answerRepository.findAllByRetrospectId(retrospectId));
 
-        // 마지막 답변인 경우 -> ai 분석 실행
-        if (answers.getWriteCount(retrospectId) == team.getTeamMemberCount()){
+		// 마지막 답변인 경우 -> ai 분석 실행
+		if (answers.getWriteCount(retrospectId) == team.getTeamMemberCount()) {
 			retrospect.updateAnalysisStatus(AnalysisStatus.PROCEEDING);
 
-            if(!retrospect.hasDeadLine()){
-                retrospect.updateRetrospectStatus(RetrospectStatus.DONE);
-            }
+			if (!retrospect.hasDeadLine()) {
+				retrospect.updateRetrospectStatus(RetrospectStatus.DONE);
+			}
 			retrospectRepository.saveAndFlush(retrospect);
 
 			aiAnalyzeService.createAnalyze(spaceId, retrospectId, answers.getWriteMemberIds());
-        }
-    }
+		}
+	}
 
-    @Transactional
-    public void update(AnswerListUpdateRequest request, Long spaceId, Long retrospectId, Long memberId) {
-        // 스페이스 팀원인지 검증
-        Optional<MemberSpaceRelation> team = memberSpaceRelationRepository.findBySpaceIdAndMemberId(
-                spaceId, memberId);
-        if (team.isEmpty()) {
-            throw new MemberSpaceRelationException(NOT_FOUND_MEMBER_SPACE_RELATION);
-        }
+	@Transactional
+	public void update(AnswerListUpdateRequest request, Long spaceId, Long retrospectId, Long memberId) {
+		// 스페이스 팀원인지 검증
+		Optional<MemberSpaceRelation> team = memberSpaceRelationRepository.findBySpaceIdAndMemberId(
+			spaceId, memberId);
+		if (team.isEmpty()) {
+			throw new MemberSpaceRelationException(NOT_FOUND_MEMBER_SPACE_RELATION);
+		}
 
-        // 회고 존재 검증
-        Retrospect retrospect = retrospectRepository.findByIdOrThrow(retrospectId);
-        retrospect.validateDeadline(time.now());
+		// 회고 존재 검증
+		Retrospect retrospect = retrospectRepository.findByIdOrThrow(retrospectId);
+		retrospect.validateDeadline(time.now());
 
+		// 회고 질문 유효성 검사 - 해당 회고에 속해있는 질문인지
+		List<Long> questionIds = request.requests().stream()
+			.map(AnswerUpdateRequest::questionId)
+			.toList();
+		Questions questions = new Questions(questionRepository.findAllByIdIn(questionIds));
+		questions.validateQuestionSize(questionIds.size());
 
-        // 회고 질문 유효성 검사 - 해당 회고에 속해있는 질문인지
-        List<Long> questionIds = request.requests().stream()
-                .map(AnswerUpdateRequest::questionId)
-                .toList();
-        Questions questions = new Questions(questionRepository.findAllByIdIn(questionIds));
-        questions.validateQuestionSize(questionIds.size());
+		// 회고 질문 유효성 검사 - 모두 완료된 응답인지 확인
+		Answers answers = new Answers(
+			answerRepository.findByRetrospectIdAndMemberIdAndAnswerStatusAndQuestionIdIn(retrospectId, memberId,
+				AnswerStatus.DONE, questionIds));
+		answers.validateContainAnswers();
 
-        // 회고 질문 유효성 검사 - 모두 완료된 응답인지 확인
-        Answers answers = new Answers(
-                answerRepository.findByRetrospectIdAndMemberIdAndAnswerStatusAndQuestionIdIn(retrospectId, memberId,
-                        AnswerStatus.DONE, questionIds));
-        answers.validateContainAnswers();
+		// 기존 임시답변 제거
+		answerRepository.deleteAllByRetrospectIdAndMemberIdAndAnswerStatus(retrospectId, memberId,
+			AnswerStatus.TEMPORARY);
 
-        // 기존 임시답변 제거
-        answerRepository.deleteAllByRetrospectIdAndMemberIdAndAnswerStatus(retrospectId, memberId,
-            AnswerStatus.TEMPORARY);
+		for (Answer a : answers.getAnswers()) {
+			// 답변에 해당하는 질문이 존재하지 않을 경우 throw
+			var foundAnswerRequest = request.requests()
+				.stream()
+				.filter(it -> it.questionId().equals(a.getQuestionId()))
+				.findFirst()
+				.orElseThrow(() -> new AnswerException(NOT_ANSWERED));
 
-        for (Answer a : answers.getAnswers()) {
-            // 답변에 해당하는 질문이 존재하지 않을 경우 throw
-            var foundAnswerRequest = request.requests().stream().filter(it -> it.questionId().equals(a.getQuestionId())).findFirst().orElseThrow(() -> new AnswerException(NOT_ANSWERED));
+			a.updateContent(foundAnswerRequest.answerContent());
+			answerRepository.save(a);
+		}
+	}
 
-            a.updateContent(foundAnswerRequest.answerContent());
-            answerRepository.save(a);
-        }
-    }
+	public TemporaryAnswerListResponse getTemporaryAnswer(Long spaceId, Long retrospectId, Long memberId) {
+		// 해당 스페이스 팀원인지 검증
+		Team team = new Team(memberSpaceRelationRepository.findAllBySpaceId(spaceId));
+		team.validateTeamMembership(memberId);
 
-    public TemporaryAnswerListResponse getTemporaryAnswer(Long spaceId, Long retrospectId, Long memberId) {
-        // 해당 스페이스 팀원인지 검증
-        Team team = new Team(memberSpaceRelationRepository.findAllBySpaceId(spaceId));
-        team.validateTeamMembership(memberId);
+		Retrospect retrospect = retrospectRepository.findByIdOrThrow(retrospectId);
+		retrospect.isProceedingRetrospect();
 
-        Retrospect retrospect = retrospectRepository.findByIdOrThrow(retrospectId);
-        retrospect.isProceedingRetrospect();
+		// 임시 답변을 했는지 검증
+		Answers answers = new Answers(
+			answerRepository.findAllByRetrospectIdAndMemberIdAndAnswerStatus(retrospectId, memberId,
+				AnswerStatus.TEMPORARY));
+		answers.validateAlreadyAnswer(memberId, retrospectId);
 
-        // 임시 답변을 했는지 검증
-        Answers answers = new Answers(
-                answerRepository.findAllByRetrospectIdAndMemberIdAndAnswerStatus(retrospectId, memberId,
-                        AnswerStatus.TEMPORARY));
-        answers.validateAlreadyAnswer(memberId, retrospectId);
+		// 해당 회고의 모든 질문 조회, 모든 임시답변 조회 -> 질문-임시답변과 매핑
+		List<Question> questions = questionRepository.findAllByRetrospectIdOrderByQuestionOrder(retrospectId);
 
-        // 해당 회고의 모든 질문 조회, 모든 임시답변 조회 -> 질문-임시답변과 매핑
-        List<Question> questions = questionRepository.findAllByRetrospectIdOrderByQuestionOrder(retrospectId);
+		List<TemporaryAnswerGetResponse> temporaryAnswers = questions.stream()
+			.map(question -> TemporaryAnswerGetResponse.of(question.getId(), question.getQuestionType().getStyle(),
+				answers.getAnswerToQuestion(
+					question.getId(), memberId)))
+			.toList();
 
-        List<TemporaryAnswerGetResponse> temporaryAnswers = questions.stream()
-                .map(question -> TemporaryAnswerGetResponse.of(question.getId(), question.getQuestionType().getStyle(),
-                        answers.getAnswerToQuestion(
-                                question.getId(), memberId)))
-                .toList();
+		return TemporaryAnswerListResponse.of(temporaryAnswers);
+	}
 
-        return TemporaryAnswerListResponse.of(temporaryAnswers);
-    }
+	public AnswerListGetResponse getAnalyzeAnswer(Long spaceId, Long retrospectId, Long memberId) {
+		// 해당 스페이스 팀원인지 검증
+		Team team = new Team(memberSpaceRelationRepository.findAllBySpaceId(spaceId));
+		team.validateTeamMembership(memberId);
 
-    public AnswerListGetResponse getAnalyzeAnswer(Long spaceId, Long retrospectId, Long memberId) {
-        // 해당 스페이스 팀원인지 검증
-        Team team = new Team(memberSpaceRelationRepository.findAllBySpaceId(spaceId));
-        team.validateTeamMembership(memberId);
+		// 완료된 answer 뽑기
+		Answers answers = new Answers(
+			answerRepository.findAllByRetrospectIdAndAnswerStatus(retrospectId, AnswerStatus.DONE));
+		answers.validateIsWriteDone(memberId, retrospectId);
 
-        // answer 뽑기
-        Answers answers = new Answers(answerRepository.findAllByRetrospectId(retrospectId));
-        answers.validateIsWriteDone(memberId, retrospectId);
+		List<Long> questionIds = answers.getAnswers().stream().map(Answer::getQuestionId).toList();
+		List<Long> memberIds = answers.getAnswers().stream().map(Answer::getMemberId).toList();
 
-        List<Long> questionIds = answers.getAnswers().stream().map(Answer::getQuestionId).toList();
-        List<Long> memberIds = answers.getAnswers().stream().map(Answer::getMemberId).toList();
+		// 이름 뽑기
+		Members members = new Members(memberRepository.findAllById(memberIds));
 
-        // 이름 뽑기
-        Members members = new Members(memberRepository.findAllById(memberIds));
+		// Question 뽑기
+		List<Question> questions = questionRepository.findAllByIdIn(questionIds);
 
-        // Question 뽑기
-        List<Question> questions = questionRepository.findAllByIdIn(questionIds);
+		// 질문 기준으로 정렬
+		List<AnswerByQuestionGetResponse> answerByQuestions = getAnswerByQuestionGetResponses(
+			answers, members, questions);
 
-        // 질문 기준으로 정렬
-        List<AnswerByQuestionGetResponse> answerByQuestions = getAnswerByQuestionGetResponses(
-                answers, members, questions);
+		// 이름 기준으로 정렬
+		List<AnswerByPersonGetResponse> answerByPerson = getAnswerByPersonGetResponses(
+			answers, members, questions);
 
-        // 이름 기준으로 정렬
-        List<AnswerByPersonGetResponse> answerByPerson = getAnswerByPersonGetResponses(
-                answers, members, questions);
+		// AI 기반 분석 여부 확인
+		Optional<Analyze> analyze = analyzeRepository.findByRetrospectIdAndAnalyzeType(retrospectId, AnalyzeType.TEAM);
 
-        // AI 기반 분석 여부 확인
-        Optional<Analyze> analyze = analyzeRepository.findByRetrospectIdAndAnalyzeType(retrospectId, AnalyzeType.TEAM);
+		return new AnswerListGetResponse(answerByQuestions, answerByPerson, analyze.isPresent());
+	}
 
-        return new AnswerListGetResponse(answerByQuestions, answerByPerson, analyze.isPresent());
-    }
+	public List<WrittenAnswerGetResponse> getWrittenAnswer(Long spaceId, Long retrospectId, Long memberId) {
+		// 해당 스페이스 팀원인지 검증
+		Team team = new Team(memberSpaceRelationRepository.findAllBySpaceId(spaceId));
+		team.validateTeamMembership(memberId);
 
-    public List<WrittenAnswerGetResponse> getWrittenAnswer(Long spaceId, Long retrospectId, Long memberId) {
-        // 해당 스페이스 팀원인지 검증
-        Team team = new Team(memberSpaceRelationRepository.findAllBySpaceId(spaceId));
-        team.validateTeamMembership(memberId);
+		Retrospect retrospect = retrospectRepository.findByIdOrThrow(retrospectId);
+		retrospect.isProceedingRetrospect();
 
-        Retrospect retrospect = retrospectRepository.findByIdOrThrow(retrospectId);
-        retrospect.isProceedingRetrospect();
+		// 완료된 답변 검증
+		Answers answers = new Answers(
+			answerRepository.findAllByRetrospectIdAndMemberIdAndAnswerStatus(retrospectId, memberId,
+				AnswerStatus.DONE));
+		answers.validateAlreadyAnswer(memberId, retrospectId);
 
-        // 완료된 답변 검증
-        Answers answers = new Answers(
-                answerRepository.findAllByRetrospectIdAndMemberIdAndAnswerStatus(retrospectId, memberId,
-                        AnswerStatus.DONE));
-        answers.validateAlreadyAnswer(memberId, retrospectId);
+		List<Question> questions = questionRepository.findAllByRetrospectIdOrderByQuestionOrder(
+			retrospectId);
 
-        List<Question> questions = questionRepository.findAllByRetrospectIdOrderByQuestionOrder(
-                retrospectId);
+		return questions.stream()
+			.map(question -> WrittenAnswerGetResponse
+				.of(
+					question.getId(),
+					question.getQuestionType().getStyle(),
+					question.getContent(),
+					answers.getAnswerToQuestion(
+						question.getId(), memberId)
+				)
+			)
+			.toList();
+	}
 
-        return questions.stream()
-                .map(question -> WrittenAnswerGetResponse
-                        .of(
-                                question.getId(),
-                                question.getQuestionType().getStyle(),
-                                question.getContent(),
-                                answers.getAnswerToQuestion(
-                                        question.getId(), memberId)
-                        )
-                )
-                .toList();
-    }
+	private List<AnswerByPersonGetResponse> getAnswerByPersonGetResponses(Answers answers, Members members,
+		List<Question> questions) {
+		return members.getMembers().stream()
+			.map(member -> {
+				List<QuestionAndAnswerGetResponse> questionAndAnswer = questions.stream()
+					.map(question -> new QuestionAndAnswerGetResponse(question.getContent(),
+						question.getQuestionType().getStyle(), answers.getAnswerToQuestion(
+						question.getId(), member.getId())))
+					.toList();
 
-    private List<AnswerByPersonGetResponse> getAnswerByPersonGetResponses(Answers answers, Members members,
-                                                                          List<Question> questions) {
-        return members.getMembers().stream()
-                .map(member -> {
-                    List<QuestionAndAnswerGetResponse> questionAndAnswer = questions.stream()
-                            .map(question -> new QuestionAndAnswerGetResponse(question.getContent(),
-                                    question.getQuestionType().getStyle(), answers.getAnswerToQuestion(
-                                    question.getId(), member.getId())))
-                            .toList();
+				return new AnswerByPersonGetResponse(member.getName(), member.getDeletedAt() != null,
+					questionAndAnswer);
+			})
+			.toList();
+	}
 
-                    return new AnswerByPersonGetResponse(member.getName(), member.getDeletedAt() != null, questionAndAnswer);
-                })
-                .toList();
-    }
+	private List<AnswerByQuestionGetResponse> getAnswerByQuestionGetResponses(Answers answers, Members members,
+		List<Question> questions) {
 
-    private List<AnswerByQuestionGetResponse> getAnswerByQuestionGetResponses(Answers answers, Members members,
-                                                                              List<Question> questions) {
+		return questions.stream()
+			.map(question -> {
+				List<PersonAndAnswerGetResponse> personAndAnswer = answers.getAnswers().stream()
+					.filter(answer -> answer.getQuestionId().equals(question.getId()))
+					.map(answer -> new PersonAndAnswerGetResponse(members.getName(answer.getMemberId()),
+						members.getDeleted(answer.getMemberId()), answer.getContent()))
+					.toList();
 
-        return questions.stream()
-                .map(question -> {
-                    List<PersonAndAnswerGetResponse> personAndAnswer = answers.getAnswers().stream()
-                            .filter(answer -> answer.getQuestionId().equals(question.getId()))
-                            .map(answer -> new PersonAndAnswerGetResponse(members.getName(answer.getMemberId()), members.getDeleted(answer.getMemberId()), answer.getContent()))
-                            .toList();
-
-                    return new AnswerByQuestionGetResponse(question.getContent(), question.getQuestionType().getStyle(),
-                            personAndAnswer);
-                })
-                .toList();
-    }
+				return new AnswerByQuestionGetResponse(question.getContent(), question.getQuestionType().getStyle(),
+					personAndAnswer);
+			})
+			.toList();
+	}
 }
