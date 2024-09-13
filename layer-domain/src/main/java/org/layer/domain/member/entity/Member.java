@@ -8,6 +8,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.layer.domain.common.BaseTimeEntity;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -36,6 +38,9 @@ public class Member extends BaseTimeEntity {
     private String profileImageUrl;
 
 
+    private LocalDateTime deletedAt;
+
+
     @Builder(access = AccessLevel.PUBLIC)
     private Member(String name, String email, MemberRole memberRole,
                    SocialType socialType, String socialId) {
@@ -52,5 +57,9 @@ public class Member extends BaseTimeEntity {
 
     public void updateProfileImageUrl(String profileImageUrl) {
         this.profileImageUrl = profileImageUrl;
+    }
+
+    public void deleteMember() {
+        this.deletedAt = LocalDateTime.now();
     }
 }

@@ -12,14 +12,7 @@ import org.layer.domain.common.time.Time;
 import org.layer.domain.external.google.enums.SheetType;
 import org.layer.domain.external.google.service.GoogleApiService;
 import org.layer.domain.jwt.SecurityUtil;
-import org.layer.domain.member.controller.dto.CreateFeedbackRequest;
-import org.layer.domain.member.controller.dto.GetMemberAnalyzesResponse;
-import org.layer.domain.member.controller.dto.GetMemberRecentAnalyzeResponse;
-import org.layer.domain.member.controller.dto.GetMemberRecentBadAnalyzeResponse;
-import org.layer.domain.member.controller.dto.GetMemberRecentGoodAnalyzeResponse;
-import org.layer.domain.member.controller.dto.GetMemberRecentImprovementAnalyzeResponse;
-import org.layer.domain.member.controller.dto.UpdateMemberInfoRequest;
-import org.layer.domain.member.controller.dto.UpdateMemberInfoResponse;
+import org.layer.domain.member.controller.dto.*;
 import org.layer.domain.member.entity.Member;
 import org.layer.domain.member.entity.MemberFeedback;
 import org.layer.domain.member.entity.SocialType;
@@ -28,14 +21,12 @@ import org.layer.domain.retrospect.dto.SpaceRetrospectDto;
 import org.layer.domain.retrospect.entity.RetrospectStatus;
 import org.layer.domain.retrospect.repository.RetrospectRepository;
 import org.layer.domain.space.entity.MemberSpaceRelation;
-import org.layer.domain.space.entity.Space;
 import org.layer.domain.space.repository.MemberSpaceRelationRepository;
 import org.layer.oauth.dto.service.MemberInfoServiceResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -48,7 +39,7 @@ import static org.layer.domain.member.entity.MemberRole.USER;
 @RequiredArgsConstructor
 @Service
 public class MemberService {
-private static final int TWO_MONTHS = 2;
+	private static final int TWO_MONTHS = 2;
 
 	private final MemberRepository memberRepository;
 	private final MemberSpaceRelationRepository memberSpaceRelationRepository;
@@ -122,7 +113,7 @@ private static final int TWO_MONTHS = 2;
 	@Transactional
 	public void withdrawMember(Long memberId) {
 		Member currentMember = getCurrentMember();
-		memberRepository.delete(currentMember);
+		currentMember.deleteMember();
 	}
 
 	@Transactional

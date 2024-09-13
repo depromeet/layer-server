@@ -28,7 +28,6 @@ public class Answers {
 
 	private final List<Answer> answers;
 
-
 	public String getAnswerToQuestion(Long questionId, Long memberId) {
 		return answers.stream()
 			.filter(answer -> answer.getQuestionId().equals(questionId) && answer.getMemberId().equals(memberId))
@@ -43,12 +42,20 @@ public class Answers {
 			.anyMatch(answer -> answer.getMemberId().equals(memberId));
 	}
 
+	public void validateIsWriteDone(Long memberId, Long retrospectId) {
+		WriteStatus writeStatus = getWriteStatus(memberId, retrospectId);
+
+		if (!writeStatus.equals(WriteStatus.DONE)) {
+			throw new AnswerException(NOT_ANSWERED);
+		}
+	}
+
 	public WriteStatus getWriteStatus(Long memberId, Long retrospectId) {
 		boolean isDoneWrite = answers.stream()
 			.filter(answer -> answer.getRetrospectId().equals(retrospectId))
 			.filter(answer -> answer.getMemberId().equals(memberId))
 			.anyMatch(answer -> answer.getAnswerStatus().equals(AnswerStatus.DONE));
-		if(isDoneWrite){
+		if (isDoneWrite) {
 			return WriteStatus.DONE;
 		}
 
@@ -56,7 +63,7 @@ public class Answers {
 			.filter(answer -> answer.getRetrospectId().equals(retrospectId))
 			.filter(answer -> answer.getMemberId().equals(memberId))
 			.anyMatch(answer -> answer.getAnswerStatus().equals(AnswerStatus.TEMPORARY));
-		if(isTemporaryWrite){
+		if (isTemporaryWrite) {
 			return WriteStatus.PROCEEDING;
 		}
 
@@ -70,7 +77,7 @@ public class Answers {
 
 		Set<Long> answerMembers = new HashSet<>();
 
-		if(!answersByRetrospectId.containsKey(retrospectId)){
+		if (!answersByRetrospectId.containsKey(retrospectId)) {
 			return 0L;
 		}
 
@@ -111,9 +118,10 @@ public class Answers {
 		}
 	}
 
-	public String getTotalAnswer(Long rangeQuestionId, Long numberQuestionId){
+	public String getTotalAnswer(Long rangeQuestionId, Long numberQuestionId) {
 		Map<Long, String> answerConcatMap = answers.stream()
-			.filter(answer -> !answer.getQuestionId().equals(rangeQuestionId) && !answer.getQuestionId().equals(numberQuestionId))
+			.filter(answer -> !answer.getQuestionId().equals(rangeQuestionId) && !answer.getQuestionId()
+				.equals(numberQuestionId))
 			.collect(Collectors.groupingBy(
 				Answer::getMemberId, Collectors.mapping(Answer::getContent, Collectors.joining(" "))));
 
@@ -125,10 +133,11 @@ public class Answers {
 		return String.join("\n&&\n", answerMap.values());
 	}
 
-	public String getIndividualAnswer(Long rangeQuestionId, Long numberQuestionId, Long memberId){
+	public String getIndividualAnswer(Long rangeQuestionId, Long numberQuestionId, Long memberId) {
 		Map<Long, String> answerConcatMap = answers.stream()
 			.filter(answer -> answer.getMemberId().equals(memberId))
-			.filter(answer -> !answer.getQuestionId().equals(rangeQuestionId) && !answer.getQuestionId().equals(numberQuestionId))
+			.filter(answer -> !answer.getQuestionId().equals(rangeQuestionId) && !answer.getQuestionId()
+				.equals(numberQuestionId))
 			.collect(Collectors.groupingBy(
 				Answer::getMemberId, Collectors.mapping(Answer::getContent, Collectors.joining(" "))));
 
@@ -139,7 +148,6 @@ public class Answers {
 
 		return String.join("\n&&\n", answerMap.values());
 	}
-
 
 	public int getGoalCompletionRate(Long questionId) {
 
@@ -152,7 +160,7 @@ public class Answers {
 			}
 		}
 
-		if(count == ZERO){
+		if (count == ZERO) {
 			throw new AnswerException(NOT_CONTAIN_ANSWERS);
 		}
 

@@ -178,7 +178,11 @@ public class RetrospectService {
 
 		Retrospect retrospect = retrospectRepository.findByIdOrThrow(retrospectId);
 
-		retrospect.updateRetrospectStatus(RetrospectStatus.DONE, time.now());
+		retrospect.updateRetrospectStatus(RetrospectStatus.DONE);
+		if (retrospect.getAnalysisStatus().equals(AnalysisStatus.DONE)) {  // 이미 분석은 완료했지만, 마감되지 않은 경우
+			return;
+		}
+
 		retrospect.updateAnalysisStatus(AnalysisStatus.PROCEEDING);
 		retrospectRepository.saveAndFlush(retrospect);
 
@@ -186,5 +190,6 @@ public class RetrospectService {
 
 		// 회고 ai 분석 시작
 		aiAnalyzeService.createAnalyze(spaceId, retrospectId, answers.getWriteMemberIds());
+
 	}
 }

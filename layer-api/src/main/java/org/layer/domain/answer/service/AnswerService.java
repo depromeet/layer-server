@@ -1,7 +1,7 @@
 package org.layer.domain.answer.service;
 
 import lombok.RequiredArgsConstructor;
-
+import lombok.extern.slf4j.Slf4j;
 import org.layer.domain.analyze.entity.Analyze;
 import org.layer.domain.analyze.enums.AnalyzeType;
 import org.layer.domain.analyze.repository.AnalyzeRepository;
@@ -40,6 +40,7 @@ import java.util.Optional;
 import static org.layer.common.exception.AnswerExceptionType.NOT_ANSWERED;
 import static org.layer.common.exception.MemberSpaceRelationExceptionType.NOT_FOUND_MEMBER_SPACE_RELATION;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -99,11 +100,14 @@ public class AnswerService {
 
         Answers answers = new Answers(answerRepository.findAllByRetrospectId(retrospectId));
 
-        // 마지막 답변일 경우 -> ai 분석 실행
+        // 마지막 답변인 경우 -> ai 분석 실행
         if (answers.getWriteCount(retrospectId) == team.getTeamMemberCount()){
-			retrospect.updateRetrospectStatus(RetrospectStatus.DONE, time.now());
 			retrospect.updateAnalysisStatus(AnalysisStatus.PROCEEDING);
-            retrospectRepository.saveAndFlush(retrospect);
+
+            if(!retrospect.hasDeadLine()){
+                retrospect.updateRetrospectStatus(RetrospectStatus.DONE);
+            }
+			retrospectRepository.saveAndFlush(retrospect);
 
 			aiAnalyzeService.createAnalyze(spaceId, retrospectId, answers.getWriteMemberIds());
         }
@@ -180,11 +184,10 @@ public class AnswerService {
         Team team = new Team(memberSpaceRelationRepository.findAllBySpaceId(spaceId));
         team.validateTeamMembership(memberId);
 
-        Retrospect retrospect = retrospectRepository.findByIdOrThrow(retrospectId);
-        retrospect.validateRetrospectStatusDone();
-
         // answer 뽑기
         Answers answers = new Answers(answerRepository.findAllByRetrospectId(retrospectId));
+        answers.validateIsWriteDone(memberId, retrospectId);
+
         List<Long> questionIds = answers.getAnswers().stream().map(Answer::getQuestionId).toList();
         List<Long> memberIds = answers.getAnswers().stream().map(Answer::getMemberId).toList();
 
@@ -248,19 +251,19 @@ public class AnswerService {
                                     question.getId(), member.getId())))
                             .toList();
 
-                    return new AnswerByPersonGetResponse(member.getName(), questionAndAnswer);
+                    return new AnswerByPersonGetResponse(member.getName(), member.getDeletedAt() != null, questionAndAnswer);
                 })
                 .toList();
     }
 
     private List<AnswerByQuestionGetResponse> getAnswerByQuestionGetResponses(Answers answers, Members members,
                                                                               List<Question> questions) {
+
         return questions.stream()
                 .map(question -> {
                     List<PersonAndAnswerGetResponse> personAndAnswer = answers.getAnswers().stream()
                             .filter(answer -> answer.getQuestionId().equals(question.getId()))
-                            .map(answer -> new PersonAndAnswerGetResponse(members.getName(answer.getMemberId()),
-                                    answer.getContent()))
+                            .map(answer -> new PersonAndAnswerGetResponse(members.getName(answer.getMemberId()), members.getDeleted(answer.getMemberId()), answer.getContent()))
                             .toList();
 
                     return new AnswerByQuestionGetResponse(question.getContent(), question.getQuestionType().getStyle(),
