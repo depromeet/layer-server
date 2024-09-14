@@ -107,6 +107,7 @@ public class AnswerService {
 
 			if (!retrospect.hasDeadLine()) {
 				retrospect.updateRetrospectStatus(RetrospectStatus.DONE);
+                retrospect.updateDeadLine(time.now());
 			}
 			retrospectRepository.saveAndFlush(retrospect);
 

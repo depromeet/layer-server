@@ -104,4 +104,8 @@ public class Retrospect extends BaseTimeEntity {
 
 		return true;
 	}
+
+	public void updateDeadLine(LocalDateTime deadline){
+		this.deadline = deadline;
+	}
 }
