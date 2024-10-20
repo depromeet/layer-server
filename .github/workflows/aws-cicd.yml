@@ -1,0 +1,40 @@
+name: deploy to ec2 with docker
+on:
+  push:
+    branches:
+      - chore/250
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout-branch
+        uses: actions/checkout@v2
+
+      - name: build image
+        working-directory: .
+        run: docker build -t clean01/layer-server:latest .
+
+      - name: docker hub login
+        uses: docker/login-action@v1
+        with:
+          username: ${{secrets.DOCKER_EMAIL}}
+          password: ${{secrets.DOCKER_PASSWORD}}
+
+      - name: push to dockerhub
+        run: docker push clean01/layer-server:latest
+
+      - name: ec2 ssh login and docker compose update
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{secrets.EC2_ENDPOINT}}
+          username: ubuntu
+          key: ${{secrets.EC2_PEMKEY}}
+          script: |
+            if ! type docker > /dev/null ; then
+              sudo snap install docker || echo "docker install failed!"
+            fi
+            sudo docker login --username ${{secrets.DOCKER_EMAIL}} --password ${{secrets.DOCKER_PASSWORD}}
+            sudo docker-compose pull && sudo docker-compose up -d
+            
+            # Remove old and unused Docker images
+            sudo docker image prune -f
