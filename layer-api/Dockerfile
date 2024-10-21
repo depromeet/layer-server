@@ -1,10 +1,16 @@
+FROM openjdk:17 as stage1
+WORKDIR /app
+COPY gradlew .
+COPY gradle gradle
+COPY src src
+COPY build.gradle .
+COPY settings.gradle .
+
+RUN chmod 777 ./gradlew
+RUN ./gradlew bootJar
+
+
 FROM openjdk:17
-
-ARG JAR_FILE=./build/libs/*.jar
-ARG SPRING_PROFILE
-
-COPY ${JAR_FILE} layer-server.jar
-
-ENV SPRING_PROFILE=${SPRING_PROFILE}
-
-ENTRYPOINT ["java", "-Duser.timezone=Asia/Seoul","-Dspring.profiles.active=${SPRING_PROFILE}" ,"-jar" ,"layer-server.jar"]
+WORKDIR /app
+COPY --from=stage1 /app/build/libs/*.jar app.jar
+ENTRYPOINT ["java", "-jar", "layer.jar"]
