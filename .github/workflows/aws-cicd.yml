@@ -27,7 +27,7 @@ jobs:
           if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
             echo "DEPLOY_TARGET=production" >> $GITHUB_OUTPUT
           else
-            echo "DEPLOY_TARGET=development" >> $GITHUB_OUTPUT
+            echo "DEPLOY_TARGET=aws" >> $GITHUB_OUTPUT
           fi
 
   build:
