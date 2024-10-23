@@ -1,6 +1,6 @@
 services:
   java-app:
-    image: docker.io/clean01/layer-server/layer-api:latest
+    image: docker.io/clean01/layer-server:latest
     container_name: layer-api
     ports:
       - "8080:8080"
