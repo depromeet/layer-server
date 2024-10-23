@@ -41,7 +41,7 @@ jobs:
     env:
       DEPLOY_TARGET: ${{ needs.setup.outputs.deploy_target }}
       REGISTRY: "docker.io"
-      NAMESPACE: "depromeet"
+      NAMESPACE: "clean01"
       IMAGE_NAME: "layer-server"
       # TODO:  멀티모듈 적용시 동적 할당 필요
       MODULE: "layer-api"
