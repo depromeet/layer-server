@@ -1,40 +1,127 @@
-name: deploy to ec2 with docker-compose
+name: deploy action
+
 on:
   push:
     branches:
       - chore/250
+
+env:
+  REGISTRY: "docker.io"
+  NAMESPACE: "clean01"
+  IMAGE_NAME: "layer-server"
+  # TODO:  멀티모듈 적용시 동적 할당 필요
+  MODULE: "layer-api"
+
 jobs:
-  build-and-deploy:
+  setup:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      deploy_target: ${{ steps.set-env.outputs.DEPLOY_TARGET }}
     steps:
-      - name: checkout-branch
-        uses: actions/checkout@v2
+      - name: Setup Env
+        id: set-env
+        run: |
+          if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
+            echo "DEPLOY_TARGET=production" >> $GITHUB_OUTPUT
+          else
+            echo "DEPLOY_TARGET=aws" >> $GITHUB_OUTPUT
 
-      - name: build image
-        working-directory: ./layer-api
-        run: docker build -t clean01/layer-server:latest .
+  build:
+    name: build
+    needs: [ setup ]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
 
-      - name: docker hub login
+    env:
+      DEPLOY_TARGET: ${{ needs.setup.outputs.deploy_target }}
+      REGISTRY: "docker.io"
+      NAMESPACE: "depromeet"
+      IMAGE_NAME: "layer-server"
+      # TODO:  멀티모듈 적용시 동적 할당 필요
+      MODULE: "layer-api"
+      APPLICATION_SECRET_PROPERTIES: ${{ secrets.APPLICATION_SECRET_PROPERTIES }}
+      GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+
+    steps:
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'corretto'
+
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@bd5760595778326ba7f1441bcf7e88b49de61a25 # v2.6.0
+
+      - name: Create application-secret.properties
+        run: |
+          echo "${APPLICATION_SECRET_PROPERTIES}" > ./${{ env.MODULE }}/src/main/resources/application-secret.properties
+
+      - name: Build ${{ env.MODULE }} module
+        run: ./gradlew :${{ env.MODULE }}:build
+
+      - name: Run tests:${{ env.MODULE }}
+        run: ./gradlew :${{ env.MODULE }}:test
+
+      - name: Docker Hub Login
         uses: docker/login-action@v1
         with:
-          username: ${{secrets.DOCKER_EMAIL}}
-          password: ${{secrets.DOCKER_PASSWORD}}
+          username: ${{ secrets.DOCKER_EMAIL }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: push to dockerhub
-        run: docker push clean01/layer-server:latest
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}/${{ env.MODULE }}
 
-      - name: ec2 ssh login and docker compose update
+      - name: push
+        uses: docker/build-push-action@v4
+        with:
+          context: ./${{ env.MODULE }}
+          platforms: linux/amd64
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}/${{ env.MODULE }}:latest
+  #            ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}/${{ env.MODULE }}:${{ github.run_id }}
+
+
+  deploy:
+    name: Deploy
+    needs: [ build, setup ]
+    runs-on: ubuntu-latest
+    env:
+      DEPLOY_TARGET: ${{ needs.setup.outputs.deploy_target }}
+      # TODO: 멀티모듈 적용시 동적 할당 필요
+      MODULE: "layer-api"
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - name: Create application-secret.properties file
+        run: |
+          echo "${{ secrets.APPLICATION_SECRET_PROPERTIES }}" > ./${{ env.MODULE }}/infra/${{ env.DEPLOY_TARGET }}/application-secret.properties
+
+      - name: Send Docker Compose
         uses: appleboy/ssh-action@master
         with:
-          host: ${{secrets.EC2_ENDPOINT}}
+          host: ${{secrets.AWS_INSTANCE_HOST}}
           username: ubuntu
-          key: ${{secrets.EC2_PEMKEY}}
+          key: ${{secrets.AWS_INSTANCE_PEM}}
+          port: 22
+          source: ./${{ env.MODULE }}/infra/${{ env.DEPLOY_TARGET }}/*
+          target: "/home"
           script: |
-            if ! type docker > /dev/null ; then
-              sudo snap install docker || echo "docker install failed!"
-            fi
-            sudo docker login --username ${{secrets.DOCKER_EMAIL}} --password ${{secrets.DOCKER_PASSWORD}}
-            sudo docker-compose pull && sudo docker-compose up -d
-            
-            # Remove old and unused Docker images
-            sudo docker image prune -f
+            cd /home/${{ env.MODULE }}/infra/${{ env.DEPLOY_TARGET }}
+            echo "${{ secrets.AWS_APPLICATION_SECRET_PROPERTIES }}" > application-secret.properties
+            docker compose pull
+            docker compose up -d
+            docker image prune -a -f
