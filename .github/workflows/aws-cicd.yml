@@ -124,7 +124,7 @@ jobs:
           target: "/home/ubuntu"
 
       - name: Deploy with Docker Compose
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.AWS_INSTANCE_HOST }}
           username: ubuntu
@@ -136,4 +136,4 @@ jobs:
             cd /home/ubuntu/${{ env.MODULE }}/infra/${{ env.DEPLOY_TARGET }}
             echo "${{ secrets.APPLICATION_SECRET_PROPERTIES }}" > application-secret.properties
             sudo docker-compose pull && sudo docker-compose up -d
-            docker image prune -a -f
+            sudo docker image prune -a -f
