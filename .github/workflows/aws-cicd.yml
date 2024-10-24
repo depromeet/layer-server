@@ -112,16 +112,6 @@ jobs:
         run: |
           echo "${{ secrets.APPLICATION_SECRET_PROPERTIES }}" > ./${{ env.MODULE }}/infra/${{ env.DEPLOY_TARGET }}/application-secret.properties
 
-      - name: Create target directory on server
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.AWS_INSTANCE_HOST }}
-          username: ubuntu
-          key: ${{secrets.AWS_INSTANCE_PEM}}
-          port: 22
-          script: |
-            sudo mkdir -p /home/${{ env.MODULE }}/infra/aws
-            sudo chown -R ubuntu:ubuntu /home/${{ env.MODULE }}
 
       - name: Send Docker Compose
         uses: appleboy/scp-action@master
@@ -141,7 +131,7 @@ jobs:
           key: ${{secrets.AWS_INSTANCE_PEM}}
           port: 22
           script: |
-            sudo apt install docker
+            sudo apt install docker-ce
             sudo docker login --username ${{secrets.DOCKER_EMAIL}} --password ${{secrets.DOCKER_PASSWORD}}
             cd /home/${{ env.MODULE }}/infra/${{ env.DEPLOY_TARGET }}
             echo "${{ secrets.APPLICATION_SECRET_PROPERTIES }}" > application-secret.properties
