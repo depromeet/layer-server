@@ -125,9 +125,9 @@ jobs:
       - name: Deploy with Docker Compose
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.INSTANCE_HOST }}
-          username: ${{ secrets.INSTANCE_USERNAME }}
-          password: ${{ secrets.INSTANCE_PASSWORD }}
+          host: ${{ secrets.AWS_INSTANCE_HOST }}
+          username: ${{ secrets.AWS_INSTANCE_USERNAME }}
+          password: ${{ secrets.AWS_INSTANCE_PASSWORD }}
           port: 22
           script: |
             cd /home/${{ env.MODULE }}/infra/${{ env.DEPLOY_TARGET }}
