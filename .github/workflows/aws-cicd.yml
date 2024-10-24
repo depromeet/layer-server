@@ -119,8 +119,9 @@ jobs:
           username: ubuntu
           key: ${{secrets.AWS_INSTANCE_PEM}}
           port: 22
-          source: ./${{ env.MODULE }}/infra/${{ env.DEPLOY_TARGET }}/*
+          source: ./${{ env.MODULE }}/infra/aws/*
           target: "/home"
+        run: "ls"
 
       - name: Deploy with Docker Compose
         uses: appleboy/ssh-action@v1.0.3
