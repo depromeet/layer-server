@@ -121,7 +121,7 @@ jobs:
           key: ${{secrets.AWS_INSTANCE_PEM}}
           port: 22
           source: ./${{ env.MODULE }}/infra/aws/*
-          target: "/home/ubuntu/${{ env.MODULE }}/infra/aws"
+          target: "/home/ubuntu
 
       - name: Deploy with Docker Compose
         uses: appleboy/ssh-action@v1.0.3
@@ -133,7 +133,7 @@ jobs:
           script: |
             sudo apt install docker-ce
             sudo docker login --username ${{secrets.DOCKER_EMAIL}} --password ${{secrets.DOCKER_PASSWORD}}
-            cd /home/${{ env.MODULE }}/infra/${{ env.DEPLOY_TARGET }}
+            cd /home/ubuntu/${{ env.MODULE }}/infra/${{ env.DEPLOY_TARGET }}
             echo "${{ secrets.APPLICATION_SECRET_PROPERTIES }}" > application-secret.properties
             sudo docker-compose pull && sudo docker-compose up -d
             docker image prune -a -f
