@@ -126,8 +126,8 @@ jobs:
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.AWS_INSTANCE_HOST }}
-          username: ${{ secrets.AWS_INSTANCE_USERNAME }}
-          password: ${{ secrets.AWS_INSTANCE_PASSWORD }}
+          username: ubuntu
+          key: ${{secrets.AWS_INSTANCE_PEM}}
           port: 22
           script: |
             cd /home/${{ env.MODULE }}/infra/${{ env.DEPLOY_TARGET }}
