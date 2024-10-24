@@ -81,7 +81,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
         with:
-          images: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}/${{ env.MODULE }}
+          images: ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}_${{ env.MODULE }}
 
       - name: push
         uses: docker/build-push-action@v4
@@ -90,7 +90,7 @@ jobs:
           platforms: linux/amd64
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}/${{ env.MODULE }}:latest
+            ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}_${{ env.MODULE }}:latest
 #            ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}/${{ env.MODULE }}:latest
   #            ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}/${{ env.MODULE }}:${{ github.run_id }}
 
@@ -124,6 +124,19 @@ jobs:
           script: |
             cd /home/${{ env.MODULE }}/infra/${{ env.DEPLOY_TARGET }}
             echo "${{ secrets.AWS_APPLICATION_SECRET_PROPERTIES }}" > application-secret.properties
+            docker compose pull
+            docker compose up -d
+            docker image prune -a -f
+      - name: Deploy with Docker Compose
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.AWS_INSTANCE_HOST }}
+          username: ${{ secrets.AWS_INSTANCE_USERNAME }}
+          password: ${{ secrets.AWS_INSTANCE_PASSWORD }}
+          port: 22
+          script: |
+            cd /home/${{ env.MODULE }}/infra/${{ env.DEPLOY_TARGET }}
+            echo "${{ secrets.APPLICATION_SECRET_PROPERTIES }}" > application-secret.properties
             docker compose pull
             docker compose up -d
             docker image prune -a -f
