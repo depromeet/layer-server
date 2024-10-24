@@ -113,7 +113,7 @@ jobs:
           echo "${{ secrets.APPLICATION_SECRET_PROPERTIES }}" > ./${{ env.MODULE }}/infra/${{ env.DEPLOY_TARGET }}/application-secret.properties
 
       - name: Send Docker Compose
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{secrets.AWS_INSTANCE_HOST}}
           username: ubuntu
