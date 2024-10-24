@@ -111,6 +111,7 @@ jobs:
       - name: Create application-secret.properties file
         run: |
           echo "${{ secrets.APPLICATION_SECRET_PROPERTIES }}" > ./${{ env.MODULE }}/infra/${{ env.DEPLOY_TARGET }}/application-secret.properties
+          ls
 
       - name: Send Docker Compose
         uses: appleboy/scp-action@master
@@ -121,7 +122,6 @@ jobs:
           port: 22
           source: ./${{ env.MODULE }}/infra/aws/*
           target: "/home"
-        run: "ls"
 
       - name: Deploy with Docker Compose
         uses: appleboy/ssh-action@v1.0.3
