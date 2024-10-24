@@ -121,12 +121,7 @@ jobs:
           port: 22
           source: ./${{ env.MODULE }}/infra/${{ env.DEPLOY_TARGET }}/*
           target: "/home"
-          script: |
-            cd /home/${{ env.MODULE }}/infra/${{ env.DEPLOY_TARGET }}
-            echo "${{ secrets.AWS_APPLICATION_SECRET_PROPERTIES }}" > application-secret.properties
-            docker compose pull
-            docker compose up -d
-            docker image prune -a -f
+
       - name: Deploy with Docker Compose
         uses: appleboy/ssh-action@v1.0.3
         with:
