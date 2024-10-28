@@ -129,9 +129,9 @@ jobs:
       - name: Send Docker Compose
         uses: appleboy/scp-action@master
         with:
-          host: ${{ secrets.AWS_INSTANCE_HOST }}
+          host: ${{ secrets.AWS_PROD_INSTANCE_HOST }}
           username: ubuntu
-          key: ${{ secrets.AWS_INSTANCE_PEM }}
+          key: ${{ secrets.AWS_PROD_INSTANCE_PEM }}
           port: 22
           source: "layer-api.tar.gz"
           target: "/home/ubuntu"
@@ -139,9 +139,9 @@ jobs:
       - name: Extract Files on Server and Set Permissions
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.AWS_INSTANCE_HOST }}
+          host: ${{ secrets.AWS_PROD_INSTANCE_HOST }}
           username: ubuntu
-          key: ${{ secrets.AWS_INSTANCE_PEM }}
+          key: ${{ secrets.AWS_PROD_INSTANCE_PEM }}
           port: 22
           script: |
             cd /home/ubuntu
@@ -153,9 +153,9 @@ jobs:
       - name: Set Permissions on Transferred Files
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.AWS_INSTANCE_HOST }}
+          host: ${{ secrets.AWS_PROD_INSTANCE_HOST }}
           username: ubuntu
-          key: ${{ secrets.AWS_INSTANCE_PEM }}
+          key: ${{ secrets.AWS_PROD_INSTANCE_PEM }}
           port: 22
           script: |
             sudo chmod -R 755 /home/ubuntu/layer-api/infra/${{ env.DEPLOY_TARGET }}
@@ -164,9 +164,9 @@ jobs:
       - name: Deploy with Docker Compose
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.AWS_INSTANCE_HOST }}
+          host: ${{ secrets.AWS_PROD_INSTANCE_HOST }}
           username: ubuntu
-          key: ${{ secrets.AWS_INSTANCE_PEM }}
+          key: ${{ secrets.AWS_PROD_INSTANCE_PEM }}
           port: 22
           script: |
             sudo apt update
