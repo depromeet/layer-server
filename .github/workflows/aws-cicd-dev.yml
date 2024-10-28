@@ -117,9 +117,6 @@ jobs:
         run: |
           echo "${{ secrets.APPLICATION_SECRET_PROPERTIES }}" > ./layer-api/infra/${{ env.DEPLOY_TARGET }}/application-secret.properties
           echo "${{ secrets.APPLICATION_SECRET_PROPERTIES }}" > ./layer-batch/src/main/resources/application-secret.properties
-          sudo chmod 777 ./layer-api/infra/${{ env.DEPLOY_TARGET }}/tokens/StoredCredential
-#          echo "${GOOGLE_CREDENTIALS}" > ./layer-api/src/main/resources/tokens/StoredCredential
-#          echo "${GOOGLE_CREDENTIALS}" > ./layer-api/infra/aws/StoredCredential
 
       - name: Archive Files
         run: |
