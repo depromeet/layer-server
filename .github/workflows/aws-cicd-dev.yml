@@ -57,7 +57,6 @@ jobs:
         run: |
           echo "${APPLICATION_SECRET_PROPERTIES}" > ./layer-api/src/main/resources/application-secret.properties
           echo "${APPLICATION_SECRET_PROPERTIES}" > ./layer-batch/src/main/resources/application-secret.properties
-          echo "${GOOGLE_CREDENTIALS}" > ./layer-api/src/main/resources/tokens/StoredCredential
 
       - name: Build layer-api module
         run: ./gradlew :layer-api:build
