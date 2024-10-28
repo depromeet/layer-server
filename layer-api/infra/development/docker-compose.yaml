@@ -1,6 +1,6 @@
 services:
   java-app:
-    image: ghcr.io/depromeet/kasukabe-server/layer-api:latest
+    image: docker.io/clean01/layer-server_layer-api:latest
     container_name: layer-api
     ports:
       - "8080:8080"
@@ -13,6 +13,21 @@ services:
       - ./tokens:/config/tokens
     networks:
       - app-network
+
+  batch-job:
+    image: docker.io/clean01/layer-server_layer-batch:latest
+    container_name: layer-batch
+    environment:
+      - TZ=Asia/Seoul
+    volumes:
+      - ./application-secret.properties:/config/application-secret.properties
+      - ./log:/log
+      - ./tokens:/config/tokens
+    networks:
+      - app-network
+    depends_on:
+      - java-app
+    restart: always
 
   nginx:
     image: nginx:latest
@@ -28,4 +43,3 @@ services:
 
 networks:
   app-network:
-    driver: bridge

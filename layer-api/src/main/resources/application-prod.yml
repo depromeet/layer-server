@@ -1,10 +1,10 @@
 spring:
   config:
-    import: optional:file:/config/application-secret.properties
+    import: application-secret.properties
   datasource:
-    url: ${PROD_DB_URL}
-    username: ${PROD_DB_NAME}
-    password: ${PROD_DB_PASSWORD}
+    url: ${AWS_PROD_DB_URL}
+    username: ${AWS_PROD_DB_NAME}
+    password: ${AWS_PROD_DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
@@ -18,12 +18,12 @@ spring:
 
   data:
     redis:
-      host: ${PROD_REDIS_HOST}
-      port: ${PROD_REDIS_PORT}
-      password: ${PROD_REDIS_PASSWORD}
+      host: ${DEV_REDIS_HOST}
+      port: ${DEV_REDIS_PORT}
+      password: ${DEV_REDIS_PASSWORD}
 
 jwt:
-  secret: ${PROD_JWT_SECRET}
+  secret: ${DEV_JWT_SECRET}
 
 kakao:
   login:
@@ -41,8 +41,11 @@ kakao:
 google:
   login:
     client_id: ${DEV_GOOGLE_CLIENT_ID}
+    code_uri: ${DEV_GOOGLE_CODE_URI}
+    token_uri: ${DEV_GOOGLE_TOKEN_URI}
     client_secret: ${DEV_GOOGLE_CLIENT_SECRET}
     redirect_uri: ${DEV_GOOGLE_REDIRECT_URI}
+    code_redirect_uri: http://localhost:8080/api/auth/oauth2/google/code
   sheet:
     id: ${GOOGLE_SHEET_ID}
     token_path: ${PROD_GOOGLE_TOKEN_PATH}
