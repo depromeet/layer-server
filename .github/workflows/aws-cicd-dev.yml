@@ -88,7 +88,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: ./layer-api
-          dockerfile: ./layer-api/Dockerfile-dev # Dockerfile 이름 지정
+          dockerfile: Dockerfile-dev # Dockerfile 이름 지정
           platforms: linux/amd64
           push: true
           tags: |
