@@ -171,5 +171,6 @@ jobs:
             sudo apt install docker-compose
             sudo docker login --username ${{ secrets.DOCKER_EMAIL }} --password ${{ secrets.DOCKER_PASSWORD }}
             cd /home/ubuntu/layer-api/infra/${{ env.DEPLOY_TARGET }}
-            sudo docker-compose pull && sudo docker-compose up -d
+            chmod 777 ./deploy.sh
+            ./deploy.sh
             sudo docker image prune -a -f
