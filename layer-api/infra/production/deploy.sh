@@ -7,12 +7,15 @@ if [ -z $IS_GREEN  ];then # blue라면
 
   echo "### BLUE => GREEN ###"
 
+  echo "1. get green image"
+  cd ./layer-api/infra/production
+  docker-compose pull clean01/layer-server_layer-api:latest # green으로 이미지를 내려받습니다.
 
-  echo "1. green container up"
-  docker-compose run --name green --detach clean01/layer-server_layer-api:latest
+  echo "2. green container up"
+  docker-compose up -d green # green 컨테이너 실행
 
   while [ 1 = 1 ]; do
-  echo "2. green health check..."
+  echo "3. green health check..."
   sleep 3
 
   REQUEST=$(curl http://127.0.0.1:8080) # green으로 request
@@ -22,20 +25,23 @@ if [ -z $IS_GREEN  ];then # blue라면
             fi
   done;
 
-  echo "3. reload nginx"
+  echo "4. reload nginx"
   sudo cp ./nginx.green.conf ./nginx.conf
   sudo nginx -s rel
 
-  echo "4. blue container down"
+  echo "5. blue container down"
   docker-compose stop blue
 else
-  echo "### GREEN => BLUE ###"
-  echo "1. blue container up"
-  docker-compose run --name blue --detach clean01/layer-server_layer-api:latest
+  echo "1. get green image"
+  cd ./layer-api/infra/production
+  docker-compose pull clean01/layer-server_layer-api:latest # green으로 이미지를 내려받습니다.
+
+  echo "2. blue container up"
+  docker-compose up -d blue # green 컨테이너 실행
 
 
   while [ 1 = 1 ]; do
-    echo "2. blue health check..."
+    echo "3. blue health check..."
     sleep 3
     REQUEST=$(curl http://127.0.0.1:8081) # blue로 request
 
@@ -45,10 +51,10 @@ else
     fi
   done;
 
-  echo "3. reload nginx"
-  sudo cp ./nginx.blue.conf ./nginx.conf
+  echo "4. reload nginx"
+  sudo cp /etc/nginx/nginx.blue.conf /etc/nginx/nginx.conf
   sudo nginx -s reload
 
-  echo "4. green container down"
+  echo "5. green container down"
   docker-compose stop green
 fi
