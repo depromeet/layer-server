@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-#      - chore/migration
+      - chore/migration
 
 env:
   REGISTRY: "docker.io"
@@ -88,7 +88,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: ./layer-api
-          dockerfile: Dockerfile-prod # Dockerfile 이름 지정
+          file: ./layer-api/Dockerfile-prod # Dockerfile 이름 지정
           platforms: linux/amd64
           push: true
           tags: |
