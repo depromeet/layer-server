@@ -85,10 +85,15 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}_layer-batch
 
       - name: Push layer-api Docker Image
-        run: |
-          docker login -u ${{ secrets.DOCKER_EAMIL }} -p ${{ secrets.DOCKER_PASSWORD }}
-          docker build -f ./layer-api/Dockerfile-dev -t ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}_layer-api:latest .
-          docker push ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}_layer-api
+        uses: docker/build-push-action@v4
+        with:
+          context: ./layer-api
+          dockerfile: ./layer-api/Dockerfile-dev # Dockerfile 이름 지정
+          platforms: linux/amd64
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}_layer-api:latest
+
 
       - name: Push layer-batch Docker Image
         uses: docker/build-push-action@v4
