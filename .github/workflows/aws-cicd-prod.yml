@@ -57,7 +57,6 @@ jobs:
         run: |
           echo "${APPLICATION_SECRET_PROPERTIES}" > ./layer-api/src/main/resources/application-secret.properties
           echo "${APPLICATION_SECRET_PROPERTIES}" > ./layer-batch/src/main/resources/application-secret.properties
-          echo "${GOOGLE_CREDENTIALS}" > ./layer-api/src/main/resources/tokens/StoredCredential
 
       - name: Build layer-api module
         run: ./gradlew :layer-api:build
@@ -86,13 +85,10 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}_layer-batch
 
       - name: Push layer-api Docker Image
-        uses: docker/build-push-action@v4
-        with:
-          context: ./layer-api
-          platforms: linux/amd64
-          push: true
-          tags: |
-            ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}_layer-api:latest
+        run: |
+          docker login -u ${{ secrets.DOCKER_EAMIL }} -p ${{ secrets.DOCKER_PASSWORD }}
+          docker build -f ./layer-api/Dockerfile-dev -t ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}_layer-api:latest .
+          docker push ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}_layer-api
 
       - name: Push layer-batch Docker Image
         uses: docker/build-push-action@v4
@@ -118,9 +114,6 @@ jobs:
         run: |
           echo "${{ secrets.APPLICATION_SECRET_PROPERTIES }}" > ./layer-api/infra/${{ env.DEPLOY_TARGET }}/application-secret.properties
           echo "${{ secrets.APPLICATION_SECRET_PROPERTIES }}" > ./layer-batch/src/main/resources/application-secret.properties
-          sudo chmod 777 ./layer-api/infra/${{ env.DEPLOY_TARGET }}/tokens/StoredCredential
-#          echo "${GOOGLE_CREDENTIALS}" > ./layer-api/src/main/resources/tokens/StoredCredential
-#          echo "${GOOGLE_CREDENTIALS}" > ./layer-api/infra/aws/StoredCredential
 
       - name: Archive Files
         run: |
@@ -131,7 +124,7 @@ jobs:
         with:
           host: ${{ secrets.AWS_PROD_INSTANCE_HOST }}
           username: ubuntu
-          key: ${{ secrets.AWS_PROD_INSTANCE_PEM }}
+          key: ${{ secrets.AWS_INSTANCE_PEM }}
           port: 22
           source: "layer-api.tar.gz"
           target: "/home/ubuntu"
@@ -141,7 +134,7 @@ jobs:
         with:
           host: ${{ secrets.AWS_PROD_INSTANCE_HOST }}
           username: ubuntu
-          key: ${{ secrets.AWS_PROD_INSTANCE_PEM }}
+          key: ${{ secrets.AWS_INSTANCE_PEM }}
           port: 22
           script: |
             cd /home/ubuntu
@@ -155,7 +148,7 @@ jobs:
         with:
           host: ${{ secrets.AWS_PROD_INSTANCE_HOST }}
           username: ubuntu
-          key: ${{ secrets.AWS_PROD_INSTANCE_PEM }}
+          key: ${{ secrets.AWS_INSTANCE_PEM }}
           port: 22
           script: |
             sudo chmod -R 755 /home/ubuntu/layer-api/infra/${{ env.DEPLOY_TARGET }}
@@ -166,7 +159,7 @@ jobs:
         with:
           host: ${{ secrets.AWS_PROD_INSTANCE_HOST }}
           username: ubuntu
-          key: ${{ secrets.AWS_PROD_INSTANCE_PEM }}
+          key: ${{ secrets.AWS_INSTANCE_PEM }}
           port: 22
           script: |
             sudo apt update

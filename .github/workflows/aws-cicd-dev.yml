@@ -146,17 +146,6 @@ jobs:
             sudo chown -R ubuntu:ubuntu /home/ubuntu/layer-api/infra/${{ env.DEPLOY_TARGET }}
 
 
-      - name: Set Permissions on Transferred Files
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.AWS_DEV_INSTANCE_HOST }}
-          username: ubuntu
-          key: ${{ secrets.AWS_INSTANCE_PEM }}
-          port: 22
-          script: |
-            sudo chmod -R 755 /home/ubuntu/layer-api/infra/${{ env.DEPLOY_TARGET }}
-            sudo chown -R ubuntu:ubuntu /home/ubuntu/layer-api/infra/${{ env.DEPLOY_TARGET }}
-
       - name: Deploy with Docker Compose
         uses: appleboy/ssh-action@master
         with:

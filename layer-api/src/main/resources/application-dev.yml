@@ -81,3 +81,6 @@ openai:
 
 admin:
   password: ${ADMIN_PASSWORD}
+
+greeting:
+  message: this is dev
