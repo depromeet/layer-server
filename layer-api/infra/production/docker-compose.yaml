@@ -41,7 +41,8 @@ services:
     networks:
       - app-network
     depends_on:
-      - java-app
+      - blue
+      - green
     restart: always
 
   nginx:
