@@ -48,7 +48,7 @@ jobs:
           distribution: 'corretto'
 
       - name: Checkout sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4ㄹ
 
       - name: Setup Gradle
         uses: gradle/gradle-build-action@bd5760595778326ba7f1441bcf7e88b49de61a25 # v2.6.0
@@ -87,8 +87,7 @@ jobs:
       - name: Push layer-api Docker Image
         run: |
           docker login -u ${{ secrets.DOCKER_EAMIL }} -p ${{ secrets.DOCKER_PASSWORD }}
-          ls ./layer-api
-          docker build -f ./layer-api/Dockerfile-dev -t ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}_layer-api:latest .
+          docker build -f ./layer-api/Dockerfile-prod -t ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}_layer-api:latest .
           docker push ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}_layer-api
 
       - name: Push layer-batch Docker Image
