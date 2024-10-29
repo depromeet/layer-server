@@ -8,7 +8,6 @@ if [ -z $IS_GREEN  ];then # blue라면
   echo "### BLUE => GREEN ###"
 
   echo "1. get green image"
-  sudo docker-compose pull clean01/layer-server_layer-api:latest # green으로 이미지를 내려받습니다.
 
   echo "2. green container up"
   sudo docker-compose up -d green # green 컨테이너 실행
@@ -33,7 +32,7 @@ if [ -z $IS_GREEN  ];then # blue라면
 else
   echo "1. get green image"
   cd ./layer-api/infra/production
-  sudo docker-compose pull clean01/layer-server_layer-api:latest # green으로 이미지를 내려받습니다.
+
 
   echo "2. blue container up"
   sudo sdocker-compose up -d blue # green 컨테이너 실행
