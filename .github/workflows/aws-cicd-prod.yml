@@ -48,7 +48,7 @@ jobs:
           distribution: 'corretto'
 
       - name: Checkout sources
-        uses: actions/checkout@v4ㄹ
+        uses: actions/checkout@v4
 
       - name: Setup Gradle
         uses: gradle/gradle-build-action@bd5760595778326ba7f1441bcf7e88b49de61a25 # v2.6.0
