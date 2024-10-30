@@ -3,6 +3,9 @@
 IS_GREEN=$(sudo docker ps | grep layer-api-blue) # 현재 실행중인 App이 blue인지 확인합니다.
 DEFAULT_CONF=" /etc/nginx/nginx.conf"
 
+echo IS_GREEN
+echo $IS_GREEN
+
 if [ -z $IS_GREEN  ];then # blue라면
 
   echo "### BLUE => GREEN ###"
