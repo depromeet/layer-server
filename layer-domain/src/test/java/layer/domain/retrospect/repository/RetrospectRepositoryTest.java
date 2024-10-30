@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.layer.domain.retrospect.entity.AnalysisStatus;
 import org.layer.domain.retrospect.entity.Retrospect;
 import org.layer.domain.retrospect.entity.RetrospectStatus;
 import org.layer.domain.retrospect.repository.RetrospectRepository;
@@ -21,7 +22,7 @@ public class RetrospectRepositoryTest {
 	@Test
 	void 멀티모듈_레포지토리_테스트() {
 		// given
-		Retrospect retrospect = new Retrospect(1L, "회고제목입니다", "회고소개입니다", RetrospectStatus.PROCEEDING,
+		Retrospect retrospect = new Retrospect(1L, "회고제목입니다", "회고소개입니다", RetrospectStatus.PROCEEDING, AnalysisStatus.PROCEEDING,
 			LocalDateTime.of(2024, 8, 4, 3, 5));
 
 		// when

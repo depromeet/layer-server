@@ -6,9 +6,7 @@ import org.layer.common.annotation.DisableSwaggerSecurity;
 import org.layer.common.annotation.MemberId;
 import org.layer.domain.auth.controller.dto.*;
 import org.layer.domain.auth.service.AuthService;
-import org.layer.domain.jwt.JwtToken;
 import org.layer.domain.jwt.service.JwtService;
-import org.layer.domain.member.entity.MemberRole;
 import org.layer.domain.member.entity.SocialType;
 import org.layer.oauth.service.GoogleService;
 import org.layer.oauth.service.KakaoService;
@@ -95,12 +93,5 @@ public class AuthController implements AuthApi {
     @GetMapping("/oauth2/kakao")
     public Object kakaoLogin(@RequestParam(value = "code", required = false) String code) {
         return kakaoService.getToken(code);
-    }
-
-    // 테스트용 임시 컨트롤러입니다. (토큰 없이 접속 가능)
-    // "/create-token?id=멤버아이디" uri로 get 요청을 보내면 토큰이 발급됩니다.
-    @GetMapping("/create-token")
-    public JwtToken authTest(@RequestParam("id") Long memberId) {
-        return jwtService.issueToken(memberId, MemberRole.USER);
     }
 }

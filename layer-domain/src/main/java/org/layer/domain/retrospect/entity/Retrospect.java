@@ -78,7 +78,7 @@ public class Retrospect extends BaseTimeEntity {
 
 	public void updateRetrospect(String title, String introduction, LocalDateTime deadline, Time time) {
 
-		if (deadline.isBefore(time.now())) {
+		if (deadline != null && deadline.isBefore(time.now())) {
 			throw new RetrospectException(INVALID_DEADLINE);
 		}
 
@@ -103,5 +103,9 @@ public class Retrospect extends BaseTimeEntity {
 		}
 
 		return true;
+	}
+
+	public void updateDeadLine(LocalDateTime deadline){
+		this.deadline = deadline;
 	}
 }
