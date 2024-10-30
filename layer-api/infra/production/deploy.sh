@@ -10,7 +10,7 @@ if [ -z $IS_GREEN  ];then # blue라면
   echo "1. get green image"
 
   echo "2. green container up"
-  sudo docker-compose up -d green # green 컨테이너 실행
+  sudo docker-compose -f docker-compose-green.yaml up -d
 
   while [ 1 = 1 ]; do
   echo "3. green health check..."
@@ -28,14 +28,14 @@ if [ -z $IS_GREEN  ];then # blue라면
   sudo nginx -s rel
 
   echo "5. blue container down"
-  sudo docker-compose stop blue
+  sudo docker-compose down blue
 else
   echo "1. get green image"
   cd ./layer-api/infra/production
 
 
   echo "2. blue container up"
-  sudo sdocker-compose up -d blue # green 컨테이너 실행
+  sudo docker-compose -f docker-compose-blue.yaml up -d
 
 
   while [ 1 = 1 ]; do
