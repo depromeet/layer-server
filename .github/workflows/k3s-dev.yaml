@@ -42,7 +42,7 @@ jobs:
         run: |
           CHANGED_MODULES=""
           
-          if [[ $(git diff --name-only HEAD^ HEAD) =~ ^layer-api/ ]]; then
+          if git diff --name-only HEAD^ HEAD | grep -q '^layer-api/'; then
             if [ -z "$CHANGED_MODULES" ]; then
               CHANGED_MODULES="layer-api"
             else
@@ -50,7 +50,7 @@ jobs:
             fi
           fi
           
-          if [[ $(git diff --name-only HEAD^ HEAD) =~ ^layer-batch/ ]]; then
+          if git diff --name-only HEAD^ HEAD | grep -q '^layer-batch/'; then
             if [ -z "$CHANGED_MODULES" ]; then
               CHANGED_MODULES="layer-batch"
             else
