@@ -30,7 +30,8 @@ if [ -z $IS_GREEN  ];then # blue라면
   echo "5. blue container down"
   sudo sudo docker-compose -f docker-compose-blue.yaml down
 else
-  echo "1. get green image"
+  echo "### BLUE => GREEN ###"
+  echo "1. get blue image"
   cd ./layer-api/infra/production
 
 
