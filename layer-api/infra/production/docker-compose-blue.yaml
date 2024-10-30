@@ -1,7 +1,7 @@
 services:
-  blue:
+  layer-api-blue:
     image: docker.io/clean01/layer-server_layer-api:latest
-    container_name: blue
+    container_name: layer-api-blue
     ports:
       - "8080:8080"
     environment:
@@ -14,9 +14,9 @@ services:
     networks:
       - app-network
 
-  batch-job:
+  batch-job-blue:
     image: docker.io/clean01/layer-server_layer-batch:latest
-    container_name: layer-batch_blue
+    container_name: layer-batch-blue
     environment:
       - TZ=Asia/Seoul
     volumes:
@@ -26,16 +26,14 @@ services:
     networks:
       - app-network
     depends_on:
-      - blue
-      - green
+      - layer-api-blue
     restart: always
 
-  nginx:
+  nginx-blue:
     image: nginx:latest
-    container_name: nginx
+    container_name: nginx-blue
     depends_on:
-      - blue
-      - green
+      - layer-api-blue
     ports:
       - "80:80"
     volumes:
