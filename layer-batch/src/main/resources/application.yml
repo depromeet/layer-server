@@ -5,13 +5,13 @@ spring:
   config:
     import: application-secret.properties
   datasource:
-    url: ${DEV_DB_URL}
-    username: ${DEV_DB_NAME}
-    password: ${DEV_DB_PASSWORD}
+    url: ${PROD_DB_URL}
+    username: ${PROD_DB_NAME}
+    password: ${PROD_DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     properties:
       hibernate:
         format_sql: true
