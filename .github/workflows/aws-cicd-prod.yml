@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - chore/migration
 
 env:
   REGISTRY: "docker.io"
