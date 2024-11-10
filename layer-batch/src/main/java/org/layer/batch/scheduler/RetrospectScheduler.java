@@ -42,6 +42,7 @@ public class RetrospectScheduler {
                 now, RetrospectStatus.PROCEEDING);
 
         log.info("batch: size of retrospects: {}", retrospects.size());
+        log.info("now: {}", now);
 
         Map<Long, Retrospect> retrospectMap = retrospects.stream()
                 .collect(Collectors.toMap(Retrospect::getId, retrospect -> retrospect));
