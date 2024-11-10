@@ -39,7 +39,7 @@ else
   echo "1. get blue image"
   cd ./layer-api/infra/production
 
-  echo "1.1. pull latest green image"
+  echo "1.1. pull latest blue image"
   sudo docker-compose -f docker-compose-blue.yaml pull
 
   echo "2. blue container up"
