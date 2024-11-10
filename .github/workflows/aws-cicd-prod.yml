@@ -99,7 +99,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: ./layer-batch
-          file: ./layer-batch/Dockerfile # Dockerfile 이름 지정
+          file: ./layer-batch/Dockerfile-batch # Dockerfile 이름 지정
           platforms: linux/amd64
           push: true
           tags: |
