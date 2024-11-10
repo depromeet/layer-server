@@ -11,6 +11,9 @@ if [ -z $IS_GREEN  ];then # blue라면
   echo "1. get green image"
   cd ./layer-api/infra/production
 
+  echo "1.1. pull latest green image"
+  sudo docker-compose -f docker-compose-green.yaml pull
+
   echo "2. green container up"
   sudo docker-compose -f docker-compose-green.yaml up -d
 
@@ -36,6 +39,8 @@ else
   echo "1. get blue image"
   cd ./layer-api/infra/production
 
+  echo "1.1. pull latest green image"
+  sudo docker-compose -f docker-compose-blue.yaml pull
 
   echo "2. blue container up"
   sudo docker-compose -f docker-compose-blue.yaml up -d
