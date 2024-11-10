@@ -34,7 +34,6 @@ services:
     container_name: nginx-green
     depends_on:
       - layer-api-green
-      - batch-job-green
     ports:
       - "80:80"
     volumes:

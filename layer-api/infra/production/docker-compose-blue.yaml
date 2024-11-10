@@ -34,7 +34,6 @@ services:
     container_name: nginx-blue
     depends_on:
       - layer-api-blue
-      - batch-job-blue
     ports:
       - "80:80"
     volumes:
