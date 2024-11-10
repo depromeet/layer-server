@@ -32,7 +32,7 @@ public class RetrospectScheduler {
     /**
      * @note: 1시간마다 실행된다.
      */
-    @Scheduled(cron = "0 0/2 * * * *")
+    @Scheduled(cron = "0 0 * * * *")
     public void updateRetrospectStatusToDone() {
         log.info("Batch Start : updateRetrospectStatusToDone");
 
@@ -41,8 +41,6 @@ public class RetrospectScheduler {
         List<Retrospect> retrospects = retrospectRepository.findAllByDeadlineBeforeAndRetrospectStatus(
                 now, RetrospectStatus.PROCEEDING);
 
-        log.info("batch: size of retrospects: {}", retrospects.size());
-        log.info("now: {}", now);
 
         Map<Long, Retrospect> retrospectMap = retrospects.stream()
                 .collect(Collectors.toMap(Retrospect::getId, retrospect -> retrospect));
