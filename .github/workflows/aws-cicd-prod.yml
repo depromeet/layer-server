@@ -93,6 +93,7 @@ jobs:
           push: true
           tags: |
             ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}_layer-api:latest
+          no-cache: true
 
       - name: Push layer-batch Docker Image
         uses: docker/build-push-action@v4
@@ -103,6 +104,7 @@ jobs:
           push: true
           tags: |
             ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}_layer-batch:latest
+          no-cache: true
 
   deploy:
     name: Deploy
