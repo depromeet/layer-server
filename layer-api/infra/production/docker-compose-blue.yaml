@@ -37,7 +37,7 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx.blue.conf:/etc/nginx/nginx.conf
     networks:
       - app-network
 
