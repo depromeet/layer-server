@@ -40,6 +40,9 @@ public class RetrospectScheduler {
 
         List<Retrospect> retrospects = retrospectRepository.findAllByDeadlineBeforeAndRetrospectStatus(
                 now, RetrospectStatus.PROCEEDING);
+
+        log.info("batch: size of retrospects: {}", retrospects.size());
+
         Map<Long, Retrospect> retrospectMap = retrospects.stream()
                 .collect(Collectors.toMap(Retrospect::getId, retrospect -> retrospect));
 
