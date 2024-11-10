@@ -29,17 +29,5 @@ services:
       - layer-api-green
     restart: always
 
-  nginx-green:
-    image: nginx:latest
-    container_name: nginx-green
-    depends_on:
-      - layer-api-green
-    ports:
-      - "80:80"
-    volumes:
-      - ./nginx.green.conf:/etc/nginx/nginx.conf
-    networks:
-      - app-network
-
 networks:
   app-network:

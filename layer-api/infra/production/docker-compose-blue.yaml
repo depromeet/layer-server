@@ -29,17 +29,5 @@ services:
       - layer-api-blue
     restart: always
 
-  nginx-blue:
-    image: nginx:latest
-    container_name: nginx-blue
-    depends_on:
-      - layer-api-blue
-    ports:
-      - "80:80"
-    volumes:
-      - ./nginx.blue.conf:/etc/nginx/nginx.conf
-    networks:
-      - app-network
-
 networks:
   app-network:
