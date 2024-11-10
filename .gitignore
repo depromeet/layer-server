@@ -57,3 +57,4 @@ credentials.json
 
 
 layer-api/src/main/resources/tokens/StoredCredential
+layer-batch/src/main/resources/application-secret.properties
