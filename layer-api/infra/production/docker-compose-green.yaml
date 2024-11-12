@@ -1,12 +1,12 @@
 services:
-  java-app:
+  layer-api-green:
     image: docker.io/clean01/layer-server_layer-api:latest
-    container_name: layer-api
+    container_name: layer-api-green
     ports:
       - "8080:8080"
     environment:
       - TZ=Asia/Seoul
-      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_PROFILES_ACTIVE=prod
     volumes:
       - ./application-secret.properties:/config/application-secret.properties
       - ./log:/log
@@ -14,9 +14,9 @@ services:
     networks:
       - app-network
 
-  batch-job:
-    image: docker.io/clean01/layer-server_layer-batch:latest #
-    container_name: layer-batch
+  batch-job-green:
+    image: docker.io/clean01/layer-server_layer-batch:latest
+    container_name: layer-batch-green
     environment:
       - TZ=Asia/Seoul
     volumes:
@@ -26,20 +26,8 @@ services:
     networks:
       - app-network
     depends_on:
-      - java-app
+      - layer-api-green
     restart: always
-
-  nginx:
-    image: nginx:latest
-    container_name: nginx
-    depends_on:
-      - java-app
-    ports:
-      - "80:80"
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
-    networks:
-      - app-network
 
 networks:
   app-network:

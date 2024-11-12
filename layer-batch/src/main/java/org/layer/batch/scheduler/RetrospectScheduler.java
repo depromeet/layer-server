@@ -40,6 +40,8 @@ public class RetrospectScheduler {
 
         List<Retrospect> retrospects = retrospectRepository.findAllByDeadlineBeforeAndRetrospectStatus(
                 now, RetrospectStatus.PROCEEDING);
+
+
         Map<Long, Retrospect> retrospectMap = retrospects.stream()
                 .collect(Collectors.toMap(Retrospect::getId, retrospect -> retrospect));
 

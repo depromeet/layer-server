@@ -5,9 +5,9 @@ spring:
   config:
     import: application-secret.properties
   datasource:
-    url: ${PROD_DB_URL}
-    username: ${PROD_DB_NAME}
-    password: ${PROD_DB_PASSWORD}
+    url: ${AWS_PROD_DB_URL}
+    username: ${AWS_PROD_DB_NAME}
+    password: ${AWS_PROD_DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
