@@ -25,5 +25,4 @@ public class LayerApplication {
         SpringApplication.run(LayerApplication.class, args);
     }
 
-
 }
