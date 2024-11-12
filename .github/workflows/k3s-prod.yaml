@@ -3,7 +3,7 @@ name: Spring Boot Multi-module K3s Deployment
 on:
   push:
     branches:
-      - main
+      - main-test # 실행되지 않도록 브랜치 명 변경
 
 env:
   REGISTRY: "ghcr.io"
