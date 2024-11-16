@@ -1,10 +1,7 @@
 package org.layer.domain.retrospect.service;
 
-import static org.layer.common.exception.RetrospectExceptionType.*;
-
 import lombok.RequiredArgsConstructor;
 
-import org.layer.domain.analyze.service.AnalyzeService;
 import org.layer.domain.answer.entity.Answers;
 import org.layer.domain.answer.repository.AnswerRepository;
 import org.layer.domain.common.time.Time;
@@ -30,6 +27,8 @@ import org.layer.domain.space.entity.Team;
 import org.layer.domain.space.repository.MemberSpaceRelationRepository;
 import org.layer.domain.space.repository.SpaceRepository;
 import org.layer.external.ai.service.AIAnalyzeService;
+import org.layer.external.discord.event.CreateRetrospectEvent;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,6 +47,8 @@ public class RetrospectService {
 	private final FormRepository formRepository;
 	private final SpaceRepository spaceRepository;
 
+	private final ApplicationEventPublisher eventPublisher;
+
 	private final AIAnalyzeService aiAnalyzeService;
 
 	private final Time time;
@@ -63,6 +64,8 @@ public class RetrospectService {
 
 		List<Question> questions = getQuestions(request.questions(), savedRetrospect.getId(), null);
 		questionRepository.saveAll(questions);
+
+		publishCreateRetrospectEvent(retrospect, memberId);
 
 		Space space = spaceRepository.findByIdOrThrow(spaceId);
 
@@ -87,7 +90,6 @@ public class RetrospectService {
 
 		// 스페이스 최근 폼 수정
 		space.updateRecentFormId(savedForm.getId(), memberId);
-
 		return savedRetrospect.getId();
 	}
 
@@ -100,6 +102,14 @@ public class RetrospectService {
 			.analysisStatus(AnalysisStatus.NOT_STARTED)
 			.deadline(request.deadline())
 			.build();
+	}
+
+	public void publishCreateRetrospectEvent(final Retrospect retrospect, final Long memberId) {
+		eventPublisher.publishEvent(CreateRetrospectEvent.of(
+			retrospect.getTitle(),
+			memberId,
+			time.now()
+		));
 	}
 
 	public RetrospectListGetResponse getRetrospects(Long spaceId, Long memberId) {
