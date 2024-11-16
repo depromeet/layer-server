@@ -9,8 +9,6 @@ import org.layer.domain.analyze.enums.AnalyzeDetailType;
 import org.layer.domain.analyze.repository.AnalyzeRepository;
 import org.layer.domain.auth.controller.dto.SignUpRequest;
 import org.layer.domain.common.time.Time;
-import org.layer.external.google.enums.SheetType;
-import org.layer.external.google.service.GoogleApiService;
 import org.layer.domain.jwt.SecurityUtil;
 import org.layer.domain.member.controller.dto.*;
 import org.layer.domain.member.entity.Member;
@@ -46,8 +44,6 @@ public class MemberService {
 	private final RetrospectRepository retrospectRepository;
 	private final AnalyzeRepository analyzeRepository;
 
-	private final GoogleApiService googleApiService;
-
 	private final SecurityUtil securityUtil;
 
 	private final Time time;
@@ -72,15 +68,6 @@ public class MemberService {
 		if (memberOpt.isPresent()) {
 			throw new BaseCustomException(NOT_A_NEW_MEMBER);
 		}
-	}
-
-	public void createFeedback(Long memberId, CreateFeedbackRequest createFeedbackRequest) {
-		var foundMemberFeedback = findFeedback(memberId);
-		if (foundMemberFeedback.isEmpty()) {
-			return;
-		}
-		googleApiService.writeFeedback(SheetType.FEEDBACK, foundMemberFeedback.get(),
-			createFeedbackRequest.satisfaction(), createFeedbackRequest.description());
 	}
 
 	@Transactional
