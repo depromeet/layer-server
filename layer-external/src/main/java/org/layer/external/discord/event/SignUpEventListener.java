@@ -15,7 +15,7 @@ public class SignUpEventListener {
 
 	@EventListener
 	public void handleSignUpEvent(SignUpEvent event) {
-		discordAppender.createSpaceAppend(
+		discordAppender.createMember(
 			event.name(),
 			event.memberId(),
 			event.createdDate());
