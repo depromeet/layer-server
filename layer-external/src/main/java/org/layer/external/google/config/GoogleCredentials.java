@@ -1,4 +1,4 @@
-package org.layer.domain.external.google.config;
+package org.layer.external.google.config;
 
 
 import lombok.Data;

@@ -1,4 +1,4 @@
-package org.layer.domain.external.google.config;
+package org.layer.external.google.config;
 
 
 import com.google.api.client.auth.oauth2.Credential;

@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.layer.common.dto.Meta;
 import org.layer.domain.actionItem.repository.ActionItemRepository;
-import org.layer.domain.external.ncp.service.NcpService;
+import org.layer.external.ncp.service.NcpService;
 import org.layer.domain.retrospect.repository.RetrospectRepository;
 import org.layer.domain.space.controller.dto.SpaceRequest;
 import org.layer.domain.space.controller.dto.SpaceResponse;
