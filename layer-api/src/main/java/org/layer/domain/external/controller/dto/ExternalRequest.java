@@ -1,7 +1,7 @@
 package org.layer.domain.external.controller.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import org.layer.domain.external.ncp.enums.ImageDomain;
+import org.layer.external.ncp.enums.ImageDomain;
 
 public class ExternalRequest {
 

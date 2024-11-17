@@ -84,3 +84,9 @@ admin:
 
 greeting:
   message: this is dev
+
+discord:
+  webhook:
+    retrospect-url: ${DISCORD_RETROSPECT_URL}
+    space-url: ${DISCORD_SPACE_URL}
+    member-url: ${DISCORD_MEMBER_URL}

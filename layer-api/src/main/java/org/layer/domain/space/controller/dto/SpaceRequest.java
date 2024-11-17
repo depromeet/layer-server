@@ -24,7 +24,6 @@ public class SpaceRequest {
             @NotNull
             SpaceCategory category,
             @Schema(description = "진행중인 프로젝트 유형")
-
             @NotNull
             List<SpaceField> fieldList,
 

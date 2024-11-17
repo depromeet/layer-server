@@ -5,7 +5,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.layer.common.dto.Meta;
 import org.layer.domain.actionItem.repository.ActionItemRepository;
-import org.layer.domain.external.ncp.service.NcpService;
+import org.layer.domain.common.time.Time;
+import org.layer.external.discord.event.CreateSpaceEvent;
+import org.layer.external.ncp.service.NcpService;
 import org.layer.domain.retrospect.repository.RetrospectRepository;
 import org.layer.domain.space.controller.dto.SpaceRequest;
 import org.layer.domain.space.controller.dto.SpaceResponse;
@@ -16,6 +18,7 @@ import org.layer.domain.space.exception.MemberSpaceRelationException;
 import org.layer.domain.space.exception.SpaceException;
 import org.layer.domain.space.repository.MemberSpaceRelationRepository;
 import org.layer.domain.space.repository.SpaceRepository;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +40,10 @@ public class SpaceService {
     private final MemberSpaceRelationRepository memberSpaceRelationRepository;
     private final ActionItemRepository actionItemRepository;
     private final RetrospectRepository retrospectRepository;
+
+    private final ApplicationEventPublisher eventPublisher;
+
+    private final Time time;
 
     public SpaceResponse.SpacePage getSpaceListFromMemberId(Long memberId, SpaceRequest.GetSpaceRequest getSpaceRequest) {
 
@@ -65,7 +72,16 @@ public class SpaceService {
 
         memberSpaceRelationRepository.save(memberSpaceRelation);
 
+        publishCreateSpaceEvent(newSpace, memberId);
         return newSpace.getId();
+    }
+
+    public void publishCreateSpaceEvent(final Space space, final Long memberId) {
+        eventPublisher.publishEvent(CreateSpaceEvent.of(
+            space.getName(),
+            memberId,
+            time.now()
+        ));
     }
 
     @Transactional

@@ -1,4 +1,4 @@
-package org.layer.domain.external.ncp.dto;
+package org.layer.external.ncp.dto;
 
 import lombok.Builder;
 
