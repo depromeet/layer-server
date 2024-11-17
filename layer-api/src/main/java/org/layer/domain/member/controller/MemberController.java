@@ -25,13 +25,6 @@ public class MemberController implements MemberApi {
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-
-    @Override
-    @PostMapping("/feedback")
-    public ResponseEntity<Void> createFeedback(@MemberId Long memberId, @Valid @RequestBody CreateFeedbackRequest createFeedbackRequest) {
-        memberService.createFeedback(memberId, createFeedbackRequest);
-        return null;
-    }
     @Override
     @GetMapping("/analyze")
     public ResponseEntity<GetMemberAnalyzesResponse> getMyAnalyzes(@MemberId Long memberId) {

@@ -6,7 +6,6 @@ import org.layer.common.annotation.DisableSwaggerSecurity;
 import org.layer.common.annotation.MemberId;
 import org.layer.domain.auth.controller.dto.*;
 import org.layer.domain.auth.service.AuthService;
-import org.layer.domain.jwt.service.JwtService;
 import org.layer.domain.member.entity.SocialType;
 import org.layer.oauth.service.GoogleService;
 import org.layer.oauth.service.KakaoService;
@@ -24,7 +23,6 @@ public class AuthController implements AuthApi {
     private final AuthService authService;
     private final GoogleService googleService;
     private final KakaoService kakaoService;
-    private final JwtService jwtService;
 
     private static final String SOCIAL_TOKEN_NAME = "X-AUTH-TOKEN";
 
