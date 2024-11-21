@@ -64,3 +64,9 @@ openai:
   apiKey: ${OPENAI_API_KEY}
   model: ${OPENAI_MODEL}
   maxTokens: ${OPENAI_MAX_TOKENS}
+
+discord:
+  webhook:
+    retrospect-url: ${DISCORD_RETROSPECT_URL}
+    space-url: ${DISCORD_SPACE_URL}
+    member-url: ${DISCORD_MEMBER_URL}
