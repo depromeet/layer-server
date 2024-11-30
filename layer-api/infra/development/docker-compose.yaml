@@ -29,6 +29,24 @@ services:
       - java-app
     restart: always
 
+  admin-app:
+    image: docker.io/clean01/layer-server_layer-admin:latest #
+    container_name: layer-admin
+    ports:
+      - "3000:3000"
+    environment:
+      - TZ=Asia/Seoul
+      - SPRING_PROFILES_ACTIVE=dev
+    volumes:
+      - ./application-secret.properties:/config/application-secret.properties
+      - ./log:/log
+      - ./tokens:/config/tokens
+    networks:
+      - app-network
+    depends_on:
+      - java-app
+    restart: always
+
   nginx:
     image: nginx:latest
     container_name: nginx
