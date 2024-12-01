@@ -27,14 +27,14 @@ public class AdminMemberService {
 	@Value("${admin.password}")
 	private String password;
 
-	public GetMembersActivitiesResponse getMemberActivities(String password, int page, int take){
+	public GetMembersActivitiesResponse getMemberActivities(String password, int page, int take) {
 
 		// TODO: 검증 로직 필터단으로 옮기기
-		if(!password.equals(this.password)){
+		if (!password.equals(this.password)) {
 			throw new IllegalArgumentException("비밀번호가 올바르지 않습니다.");
 		}
 
-		PageRequest pageRequest = PageRequest.of(page, take);
+		PageRequest pageRequest = PageRequest.of(page - 1, take);
 		Page<Member> members = adminMemberRepository.findAll(pageRequest);
 
 		List<GetMemberActivityResponse> responses = members.getContent().stream()
