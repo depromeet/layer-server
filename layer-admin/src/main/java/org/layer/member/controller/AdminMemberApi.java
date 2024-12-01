@@ -16,7 +16,7 @@ public interface AdminMemberApi {
 	@Parameters({
 		@Parameter(name = "password", description = "패스워드", example = "abcdef", required = true),
 		@Parameter(name = "page", description = "페이지 수, 최솟값 1", example = "1", required = true),
-		@Parameter(name = "take", description = "가져올 데이터 수", example = "10", required = true)
+		@Parameter(name = "take", description = "가져올 데이터 수", example = "20", required = true)
 	})
 	ResponseEntity<GetMembersActivitiesResponse> getMemberActivities(
 		@RequestParam String password,

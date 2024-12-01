@@ -20,8 +20,8 @@ public class AdminMemberController implements AdminMemberApi {
 	@GetMapping
 	public ResponseEntity<GetMembersActivitiesResponse> getMemberActivities(
 		@RequestParam String password,
-		@RequestParam int page,
-		@RequestParam int take) {
+		@RequestParam(defaultValue = "1") int page,
+		@RequestParam(defaultValue = "20") int take) {
 
 		return ResponseEntity.ok().body(adminMemberService.getMemberActivities(password, page, take));
 	}
