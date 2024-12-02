@@ -12,7 +12,7 @@ public record GetMemberActivityResponse(
 	String name,
 	@NotNull
 	@Schema(description = "최근 활동 날짜, 최근 6개월 동안 접속 없을 시 null", example = "2024-11-30T16:21:47.031Z")
-	LocalDateTime recentActivityDatetime,
+	LocalDateTime recentActivityDate,
 	@NotNull
 	@Schema(description = "소속된 스페이스 수", example = "7")
 	long spaceCount,
