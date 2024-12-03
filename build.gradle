@@ -66,7 +66,6 @@ project(":layer-api") {
         implementation project(path: ':layer-domain')
         implementation project(path: ':layer-external')
 
-
         implementation 'org.springframework.boot:spring-boot-starter-actuator'
         implementation 'org.springframework.boot:spring-boot-starter-validation'
 
@@ -81,7 +80,6 @@ project(":layer-api") {
         // redis
         implementation 'org.springframework.boot:spring-boot-starter-data-redis'
         testImplementation 'org.springframework.boot:spring-boot-starter-test'
-
 
         // openfeign
         implementation("org.springframework.cloud:spring-cloud-starter-openfeign:4.1.2")
@@ -193,6 +191,26 @@ project(":layer-batch") {
         implementation("org.springframework.cloud:spring-cloud-starter-openfeign:4.1.2")
 
         runtimeOnly 'com.mysql:mysql-connector-j'
+    }
+
+}
+
+project(":layer-admin") {
+    jar.enabled = false
+    bootJar.enabled = true
+
+    dependencies {
+        implementation project(path: ':layer-domain')
+
+        implementation 'org.springframework.boot:spring-boot-starter-web'
+        implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+        runtimeOnly 'com.mysql:mysql-connector-j'
+
+        // swagger
+        implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0")
+
+        // Security
+        implementation 'org.springframework.boot:spring-boot-starter-security'
     }
 
 }
