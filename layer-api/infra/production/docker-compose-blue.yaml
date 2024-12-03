@@ -33,7 +33,7 @@ services:
     image: docker.io/clean01/layer-server_layer-admin:latest #
     container_name: layer-admin-blue
     ports:
-      - "3000:3000"
+      - "3001:3000"
     environment:
       - TZ=Asia/Seoul
       - SPRING_PROFILES_ACTIVE=prod
