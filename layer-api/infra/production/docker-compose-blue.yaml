@@ -29,5 +29,23 @@ services:
       - layer-api-blue
     restart: always
 
+  admin-app-blue:
+    image: docker.io/clean01/layer-server_layer-admin:latest #
+    container_name: layer-admin-blue
+    ports:
+      - "3001:3000"
+    environment:
+      - TZ=Asia/Seoul
+      - SPRING_PROFILES_ACTIVE=prod
+    volumes:
+      - ./application-secret.properties:/config/application-secret.properties
+      - ./log:/log
+      - ./tokens:/config/tokens
+    networks:
+      - app-network
+    depends_on:
+      - layer-api-blue
+    restart: always
+
 networks:
   app-network:
