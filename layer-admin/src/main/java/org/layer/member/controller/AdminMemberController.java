@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 
-@RequestMapping("/admin/members")
+@RequestMapping("/members")
 @RequiredArgsConstructor
 @RestController
 public class AdminMemberController implements AdminMemberApi {
