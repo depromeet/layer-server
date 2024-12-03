@@ -201,6 +201,7 @@ project(":layer-admin") {
 
     dependencies {
         implementation project(path: ':layer-domain')
+        implementation project(path: ':layer-common')
 
         implementation 'org.springframework.boot:spring-boot-starter-web'
         implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
@@ -211,6 +212,9 @@ project(":layer-admin") {
 
         // Security
         implementation 'org.springframework.boot:spring-boot-starter-security'
+
+        // redis
+        implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     }
 
 }
