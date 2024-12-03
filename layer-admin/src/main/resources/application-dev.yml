@@ -9,6 +9,9 @@ spring:
     username: ${AWS_PROD_DB_NAME}
     password: ${AWS_PROD_DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 5 #최대 pool 크기
+      minimum-idle: 5 #최소 pool 크기
   jpa:
     hibernate:
       ddl-auto: validate
