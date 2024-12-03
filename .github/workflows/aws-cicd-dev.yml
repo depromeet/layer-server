@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - develop
+      - feat/LA-20_3
 
 env:
   REGISTRY: "docker.io"
