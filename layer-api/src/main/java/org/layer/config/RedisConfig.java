@@ -1,21 +1,26 @@
 package org.layer.config;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
+import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
-@Profile("prod")
 @Configuration
 @EnableRedisRepositories
-public class RedisConfigProd {
+public class RedisConfig {
     @Value("${spring.data.redis.host}")
     private String host;
 
@@ -35,8 +40,8 @@ public class RedisConfigProd {
     }
 
     @Bean
-    RedisTemplate<String, Object> redisTemplate() {
-        RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
+    RedisTemplate<String, String> redisTemplate() {
+        RedisTemplate<String, String> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory());
         redisTemplate.setKeySerializer(new StringRedisSerializer());
         redisTemplate.setValueSerializer(new StringRedisSerializer());
@@ -47,28 +52,38 @@ public class RedisConfigProd {
 
     // 최근 서비스 이용 시점 기록 - 1번 데이터베이스
     @Bean
-    public RedisConnectionFactory viewsRedisConnectionFactory() {
+    @Qualifier("recentActivityDateConnectionFactory")
+    public RedisConnectionFactory recentActivityDateRedisConnectionFactory() {
         RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration();
         redisStandaloneConfiguration.setHostName(host);
         redisStandaloneConfiguration.setPort(port);
         redisStandaloneConfiguration.setDatabase(1); // 1번 데이터베이스
 
         return new LettuceConnectionFactory(redisStandaloneConfiguration);
-
     }
 
     @Bean
-    @Qualifier("recentAccessHistory")
-    RedisTemplate<String, String> viewsRedisTemplate() {
-        RedisTemplate<String, String> redisTemplate = new RedisTemplate<>();
-        redisTemplate.setConnectionFactory(redisConnectionFactory());
+    @Qualifier("recentActivityDate")
+    public RedisTemplate<String, Object> recentActivityDateRedisTemplate(@Qualifier("recentActivityDateConnectionFactory") RedisConnectionFactory redisConnectionFactory) {
+        RedisTemplate<String, Object> template = new RedisTemplate<>();
+        template.setConnectionFactory(redisConnectionFactory);
 
-        // String - String
-        redisTemplate.setKeySerializer(new StringRedisSerializer());
-        redisTemplate.setValueSerializer(new StringRedisSerializer());
-        redisTemplate.setConnectionFactory(viewsRedisConnectionFactory());
+        PolymorphicTypeValidator typeValidator = BasicPolymorphicTypeValidator
+                .builder()
+                .allowIfSubType(Object.class)
+                .build();
 
-        return redisTemplate;
+        ObjectMapper objectMapper = new ObjectMapper()
+                .findAndRegisterModules()
+                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, false)
+                .activateDefaultTyping(typeValidator, ObjectMapper.DefaultTyping.NON_FINAL)
+                .registerModule(new JavaTimeModule());
+
+        template.setKeySerializer(new StringRedisSerializer());
+        template.setValueSerializer(new GenericJackson2JsonRedisSerializer(objectMapper));
+
+        return template;
     }
 
 }

@@ -1,10 +1,6 @@
 package org.layer.member.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.RequiredArgsConstructor;
-import org.layer.common.exception.AdminException;
 import org.layer.domain.answer.repository.AdminAnswerRepository;
 import org.layer.domain.member.entity.Member;
 import org.layer.domain.member.repository.AdminMemberRepository;
@@ -21,8 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.layer.common.exception.AdminExceptionType.IllegalDateTime;
-
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -30,12 +24,13 @@ public class AdminMemberService {
 	private final AdminMemberRepository adminMemberRepository;
 	private final AdminMemberSpaceRelationRepository adminMemberSpaceRelationRepository;
 	private final AdminAnswerRepository adminAnswerRepository;
-	private final RedisTemplate<String, String> redisTemplate;
+	private final RedisTemplate<String, Object> redisTemplate;
 
 	@Value("${admin.password}")
 	private String password;
 
 	public GetMembersActivitiesResponse getMemberActivities(String password, int page, int take) {
+
 
 		// TODO: 검증 로직 필터단으로 옮기기
 		if (!password.equals(this.password)) {
@@ -52,21 +47,10 @@ public class AdminMemberService {
 				Long spaceCount = adminMemberSpaceRelationRepository.countAllByMemberId(member.getId());
 				Long retrospectAnswerCount = adminAnswerRepository.countAllByMemberId(member.getId());
 
-				String recentActivityDateString = redisTemplate.opsForValue().get(Long.toString(member.getId()));
-				LocalDateTime recentActivityDate = null;
 
-				ObjectMapper objectMapper = new ObjectMapper();
-				objectMapper.registerModule(new JavaTimeModule());
-				objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+				String s = (String) redisTemplate.opsForValue().get(Long.toString(member.getId()));
+				LocalDateTime recentActivityDate = s == null ? null : LocalDateTime.parse(s);
 
-				// 문자열을 LocalDateTime으로 변환
-				if(recentActivityDateString != null) {
-					try {
-						recentActivityDate = objectMapper.readValue("\"" + recentActivityDateString + "\"", LocalDateTime.class);
-					} catch (Exception e) {
-						throw new AdminException(IllegalDateTime);
-					}
-				}
 
 				return new GetMemberActivityResponse(member.getName(), recentActivityDate, spaceCount, retrospectAnswerCount,
 					member.getCreatedAt(), member.getSocialType().name());
