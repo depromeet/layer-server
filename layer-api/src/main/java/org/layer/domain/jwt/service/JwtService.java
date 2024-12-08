@@ -27,7 +27,7 @@ import static org.layer.config.AuthValueConfig.REFRESH_TOKEN_EXPIRATION_TIME;
 public class JwtService {
     private final JwtProvider jwtProvider;
     private final JwtValidator jwtValidator;
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final RedisTemplate<String, String> redisTemplate;
 
     public JwtToken issueToken(Long memberId, MemberRole memberRole) {
         String accessToken = jwtProvider.createToken(MemberAuthentication.create(memberId, memberRole), ACCESS_TOKEN_EXPIRATION_TIME);
