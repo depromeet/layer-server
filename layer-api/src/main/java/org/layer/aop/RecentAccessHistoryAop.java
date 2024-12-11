@@ -6,6 +6,7 @@ import lombok.extern.log4j.Log4j2;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.layer.common.dto.RecentActivityDto;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.Authentication;
@@ -48,6 +49,6 @@ public class RecentAccessHistoryAop {
 
     private void setRecentTime(String memberId, LocalDateTime recentTime) {
         Duration ttl = Duration.ofDays(30 * 6); // 6개월
-        redisTemplate.opsForValue().set(memberId, recentTime, ttl);
+        redisTemplate.opsForValue().set(memberId, new RecentActivityDto(recentTime), ttl);
     }
 }
