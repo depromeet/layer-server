@@ -9,7 +9,7 @@ services:
       - redis-data:/data # Persistent data storage
     restart: always
     networks:
-      - app-network
+      - app-networkㅎ
 
   layer-api-green:
     image: docker.io/clean01/layer-server_layer-api:latest
@@ -29,7 +29,7 @@ services:
       driver: "json-file"
       options:
         max-size: "10m"
-        max-file: "5"
+        max-file: "3"
 
   batch-job-green:
     image: docker.io/clean01/layer-server_layer-batch:latest
@@ -49,7 +49,7 @@ services:
       driver: "json-file"
       options:
         max-size: "10m"
-        max-file: "5"
+        max-file: "3"
 
   admin-app-green:
     image: docker.io/clean01/layer-server_layer-admin:latest #
@@ -72,7 +72,7 @@ services:
       driver: "json-file"
       options:
         max-size: "10m"
-        max-file: "5"
+        max-file: "3"
 
 networks:
   app-network:
