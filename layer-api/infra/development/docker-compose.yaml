@@ -71,3 +71,6 @@ services:
 
 networks:
   app-network:
+
+volumes:
+  redis-data:
