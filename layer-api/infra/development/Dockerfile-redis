@@ -1,0 +1,8 @@
+# Base image
+FROM redis:latest
+
+# Copy custom Redis configuration
+COPY redis.conf /usr/local/etc/redis/redis.conf
+
+# Command to run Redis with the custom configuration
+CMD ["redis-server", "/usr/local/etc/redis/redis.conf"]

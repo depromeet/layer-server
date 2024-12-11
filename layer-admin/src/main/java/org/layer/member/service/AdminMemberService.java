@@ -1,7 +1,8 @@
 package org.layer.member.service;
 
-import java.util.List;
+import lombok.RequiredArgsConstructor;
 
+import org.layer.common.dto.RecentActivityDto;
 import org.layer.domain.answer.repository.AdminAnswerRepository;
 import org.layer.domain.member.entity.Member;
 import org.layer.domain.member.repository.AdminMemberRepository;
@@ -11,10 +12,11 @@ import org.layer.member.controller.dto.GetMembersActivitiesResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import lombok.RequiredArgsConstructor;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +25,7 @@ public class AdminMemberService {
 	private final AdminMemberRepository adminMemberRepository;
 	private final AdminMemberSpaceRelationRepository adminMemberSpaceRelationRepository;
 	private final AdminAnswerRepository adminAnswerRepository;
+	private final RedisTemplate<String, Object> redisTemplate;
 
 	@Value("${admin.password}")
 	private String password;
@@ -43,8 +46,12 @@ public class AdminMemberService {
 				Long spaceCount = adminMemberSpaceRelationRepository.countAllByMemberId(member.getId());
 				Long retrospectAnswerCount = adminAnswerRepository.countAllByMemberId(member.getId());
 
-				return new GetMemberActivityResponse(member.getName(), null, spaceCount, retrospectAnswerCount,
-					member.getCreatedAt(), member.getSocialType().name());
+				RecentActivityDto recentActivityDto = (RecentActivityDto)redisTemplate.opsForValue()
+					.get(Long.toString(member.getId()));
+
+				return new GetMemberActivityResponse(member.getName(),
+					recentActivityDto == null ? null : recentActivityDto.getRecentActivityDate(),
+					spaceCount, retrospectAnswerCount, member.getCreatedAt(), member.getSocialType().name());
 			}).toList();
 
 		return new GetMembersActivitiesResponse(responses);
