@@ -25,6 +25,11 @@ services:
       - ./tokens:/config/tokens
     networks:
       - app-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
 
   batch-job-green:
     image: docker.io/clean01/layer-server_layer-batch:latest
@@ -40,6 +45,11 @@ services:
     depends_on:
       - layer-api-green
     restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
 
   admin-app-green:
     image: docker.io/clean01/layer-server_layer-admin:latest #
@@ -58,6 +68,11 @@ services:
     depends_on:
       - layer-api-green
     restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
 
 networks:
   app-network:
