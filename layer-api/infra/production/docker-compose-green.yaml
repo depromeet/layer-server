@@ -21,7 +21,6 @@ services:
       - SPRING_PROFILES_ACTIVE=prod
     volumes:
       - ./application-secret.properties:/config/application-secret.properties
-      - ./log:/log
       - ./tokens:/config/tokens
     networks:
       - app-network
@@ -38,7 +37,6 @@ services:
       - TZ=Asia/Seoul
     volumes:
       - ./application-secret.properties:/config/application-secret.properties
-      - ./log:/log
       - ./tokens:/config/tokens
     networks:
       - app-network
@@ -61,7 +59,6 @@ services:
       - SPRING_PROFILES_ACTIVE=prod
     volumes:
       - ./application-secret.properties:/config/application-secret.properties
-      - ./log:/log
       - ./tokens:/config/tokens
     networks:
       - app-network
