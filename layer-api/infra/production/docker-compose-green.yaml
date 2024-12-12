@@ -21,10 +21,14 @@ services:
       - SPRING_PROFILES_ACTIVE=prod
     volumes:
       - ./application-secret.properties:/config/application-secret.properties
-      - ./log:/log
       - ./tokens:/config/tokens
     networks:
       - app-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   batch-job-green:
     image: docker.io/clean01/layer-server_layer-batch:latest
@@ -33,13 +37,17 @@ services:
       - TZ=Asia/Seoul
     volumes:
       - ./application-secret.properties:/config/application-secret.properties
-      - ./log:/log
       - ./tokens:/config/tokens
     networks:
       - app-network
     depends_on:
       - layer-api-green
     restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   admin-app-green:
     image: docker.io/clean01/layer-server_layer-admin:latest #
@@ -51,13 +59,17 @@ services:
       - SPRING_PROFILES_ACTIVE=prod
     volumes:
       - ./application-secret.properties:/config/application-secret.properties
-      - ./log:/log
       - ./tokens:/config/tokens
     networks:
       - app-network
     depends_on:
       - layer-api-green
     restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 networks:
   app-network:
