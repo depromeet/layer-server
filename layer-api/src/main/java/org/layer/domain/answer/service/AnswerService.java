@@ -192,7 +192,6 @@ public class AnswerService {
 		// 완료된 answer 뽑기
 		Answers answers = new Answers(
 			answerRepository.findAllByRetrospectIdAndAnswerStatus(retrospectId, AnswerStatus.DONE));
-		answers.validateIsWriteDone(memberId, retrospectId);
 
 		List<Long> questionIds = answers.getAnswers().stream().map(Answer::getQuestionId).toList();
 		List<Long> memberIds = answers.getAnswers().stream().map(Answer::getMemberId).toList();
