@@ -47,8 +47,7 @@ out/
 #*.properties
 
 
-*.sql
-
+layer-api/src/main/resources/data.sql
 layer-domain/src/main/generated
 
 
