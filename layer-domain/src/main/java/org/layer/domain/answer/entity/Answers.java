@@ -42,14 +42,6 @@ public class Answers {
 			.anyMatch(answer -> answer.getMemberId().equals(memberId));
 	}
 
-	public void validateIsWriteDone(Long memberId, Long retrospectId) {
-		WriteStatus writeStatus = getWriteStatus(memberId, retrospectId);
-
-		if (!writeStatus.equals(WriteStatus.DONE)) {
-			throw new AnswerException(NOT_ANSWERED);
-		}
-	}
-
 	public WriteStatus getWriteStatus(Long memberId, Long retrospectId) {
 		boolean isDoneWrite = answers.stream()
 			.filter(answer -> answer.getRetrospectId().equals(retrospectId))
