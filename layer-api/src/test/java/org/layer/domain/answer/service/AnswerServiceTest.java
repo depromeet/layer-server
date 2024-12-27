@@ -32,7 +32,7 @@ class AnswerServiceTest {
 
 		@Test
 		@DisplayName("특정 회고에 답변하지 않은 유저도 완료된 해당 회고를 조회할 수 있다.")
-		void test1() {
+		void getAnalyzeAnswersTest_1() {
 			// given
 			Long spaceId = 1L;
 			Long retrospectId = 1L;
