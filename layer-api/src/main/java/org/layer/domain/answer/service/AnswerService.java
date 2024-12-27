@@ -184,7 +184,7 @@ public class AnswerService {
 		return TemporaryAnswerListResponse.of(temporaryAnswers);
 	}
 
-	public AnswerListGetResponse getAnalyzeAnswer(Long spaceId, Long retrospectId, Long memberId) {
+	public AnswerListGetResponse getAnalyzeAnswers(Long spaceId, Long retrospectId, Long memberId) {
 		// 해당 스페이스 팀원인지 검증
 		Team team = new Team(memberSpaceRelationRepository.findAllBySpaceId(spaceId));
 		team.validateTeamMembership(memberId);
