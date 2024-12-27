@@ -6,9 +6,9 @@ import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
 @ActiveProfiles("test")
-public class LayerApplicationTests {
-    // @Test
-    // void init() {
-    //
-    // }
+class LayerApplicationTests {
+    @Test
+    void init() {
+
+    }
 }
