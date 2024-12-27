@@ -8,7 +8,7 @@ import org.layer.domain.retrospect.entity.AnalysisStatus;
 import org.layer.domain.retrospect.entity.Retrospect;
 import org.layer.domain.retrospect.entity.RetrospectStatus;
 
-public class RetrospectTest {
+class RetrospectTest {
 
 	@Test
 	void 진행중인_회고는_진행여부로직에서_예외를_발생시키지_않는다() {
