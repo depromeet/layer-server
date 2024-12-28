@@ -1,4 +1,4 @@
-package org.layer.domain.admin.controller.dto;
+package org.layer.space.controller.dto;
 
 import java.util.List;
 

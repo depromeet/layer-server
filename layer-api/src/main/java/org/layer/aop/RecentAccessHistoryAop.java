@@ -2,7 +2,6 @@ package org.layer.aop;
 
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -19,7 +18,6 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 @Aspect
 @Component
-@Log4j2
 public class RecentAccessHistoryAop {
     @Qualifier("recentActivityDate")
     private final RedisTemplate<String, Object> redisTemplate;
