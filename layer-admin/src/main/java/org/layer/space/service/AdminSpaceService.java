@@ -1,8 +1,10 @@
 package org.layer.space.service;
 
 import lombok.RequiredArgsConstructor;
+import org.layer.domain.retrospect.repository.RetrospectAdminRepository;
 import org.layer.domain.space.dto.AdminSpaceGetResponse;
 import org.layer.domain.space.repository.SpaceAdminRepository;
+import org.layer.retrospect.controller.dto.AdminRetrospectCountGetResponse;
 import org.layer.space.controller.dto.AdminSpaceCountGetResponse;
 import org.layer.space.controller.dto.AdminSpacesGetResponse;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,6 +20,7 @@ import java.util.List;
 public class AdminSpaceService {
 
     private final SpaceAdminRepository spaceAdminRepository;
+    private final RetrospectAdminRepository retrospectAdminRepository;
 
     @Value("${admin.password}")
     private String password;
@@ -41,5 +44,14 @@ public class AdminSpaceService {
 
         Long count = spaceAdminRepository.countSpacesExceptForAdminSpace(startDate, endDate);
         return new AdminSpaceCountGetResponse(count);
+    }
+
+    public AdminRetrospectCountGetResponse getRetrospectCountInSpace(LocalDateTime startDate, LocalDateTime endDate, Long spaceId, String requestPassword) {
+        if(!requestPassword.equals(password)) {
+            throw new IllegalArgumentException("비밀번호가 틀렸습니다.");
+        }
+
+        Long count = retrospectAdminRepository.countRetrospectsBySpaceId(spaceId, startDate, endDate);
+        return new AdminRetrospectCountGetResponse(count);
     }
 }
