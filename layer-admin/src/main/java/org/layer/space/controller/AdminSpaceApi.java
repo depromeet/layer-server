@@ -9,6 +9,7 @@ import org.layer.retrospect.controller.dto.AdminRetrospectCountGetResponse;
 import org.layer.space.controller.dto.AdminSpaceCountGetResponse;
 import org.layer.space.controller.dto.AdminSpacesGetResponse;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDateTime;
@@ -40,7 +41,7 @@ public interface AdminSpaceApi {
             @Parameter(name = "password", description = "비밀번호 [카톡방으로 공유]", example = "[카톡방으로 공유]", required = true, schema = @Schema(type = "string", format = "string"))})
     ResponseEntity<AdminRetrospectCountGetResponse> getRetrospectCountInSpace(@RequestParam("startDate") LocalDateTime startDate,
                                                                               @RequestParam("endDate") LocalDateTime endDate,
-                                                                              @RequestParam("spaceId") Long spaceId,
+                                                                              @PathVariable("spaceId") Long spaceId,
                                                                               @RequestParam("password") String password);
 
 }

@@ -17,7 +17,7 @@ public class AdminSpaceController implements AdminSpaceApi {
 
     private final AdminSpaceService adminSpaceService;
     @Override
-    @GetMapping("/")
+    @GetMapping
     public ResponseEntity<AdminSpacesGetResponse> getSpaceData(
             @RequestParam("startDate") LocalDateTime startDate,
             @RequestParam("endDate") LocalDateTime endDate,

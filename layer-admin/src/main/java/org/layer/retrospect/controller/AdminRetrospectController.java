@@ -18,7 +18,7 @@ public class AdminRetrospectController implements AdminRetrospectApi {
     private final AdminRetrospectService adminRetrospectService;
 
     @Override
-    @GetMapping("/")
+    @GetMapping
     public ResponseEntity<AdminRetrospectsGetResponse> getRetrospectData(
             @RequestParam("startDate") LocalDateTime startDate,
             @RequestParam("endDate") LocalDateTime endDate,
