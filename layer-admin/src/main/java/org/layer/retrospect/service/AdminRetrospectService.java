@@ -22,8 +22,6 @@ public class AdminRetrospectService {
     @Value("${admin.password}")
     private String password;
 
-
-
     public AdminRetrospectsGetResponse getRetrospectData(LocalDateTime startDate, LocalDateTime endDate, String requestPassword){
 
         if(!requestPassword.equals(password)){
@@ -34,8 +32,6 @@ public class AdminRetrospectService {
 
         return new AdminRetrospectsGetResponse(retrospects, retrospects.size());
     }
-
-
 
     public AdminRetrospectCountGetResponse getRetrospectCount(LocalDateTime startDate, LocalDateTime endDate, String requestPassword) {
         if(!requestPassword.equals(password)) {

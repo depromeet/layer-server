@@ -36,7 +36,6 @@ public class AdminSpaceService {
         return new AdminSpacesGetResponse(spaces, spaces.size());
     }
 
-
     public AdminSpaceCountGetResponse getSpaceCount(LocalDateTime startDate, LocalDateTime endDate, String requestPassword) {
         if(!requestPassword.equals(password)) {
             throw new IllegalArgumentException("비밀번호가 틀렸습니다.");

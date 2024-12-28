@@ -17,7 +17,6 @@ import java.util.List;
 public class AdminRetrospectController implements AdminRetrospectApi {
     private final AdminRetrospectService adminRetrospectService;
 
-
     @Override
     @GetMapping("/")
     public ResponseEntity<AdminRetrospectsGetResponse> getRetrospectData(
@@ -27,8 +26,6 @@ public class AdminRetrospectController implements AdminRetrospectApi {
 
         return ResponseEntity.ok(adminRetrospectService.getRetrospectData(startDate, endDate, password));
     }
-
-
 
     @Override
     @GetMapping("/count/user-only")
@@ -45,7 +42,5 @@ public class AdminRetrospectController implements AdminRetrospectApi {
     public ResponseEntity<List<AdminRetrospectCountGroupBySpaceGetResponse>> getRetrospectCountGroupBySpace(LocalDateTime startDate, LocalDateTime endDate, String password) {
         return ResponseEntity.ok(adminRetrospectService.getRetrospectCountGroupSpace(startDate, endDate, password));
     }
-
-
 
 }
