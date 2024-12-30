@@ -47,8 +47,7 @@ out/
 #*.properties
 
 
-*.sql
-
+layer-api/src/main/resources/data.sql
 layer-domain/src/main/generated
 
 
@@ -59,3 +58,7 @@ credentials.json
 layer-api/src/main/resources/tokens/StoredCredential
 layer-batch/src/main/resources/application-secret.properties
 layer-admin/src/main/resources/application-secret.properties
+layer-admin/src/main/resources/application.yml
+layer-admin/src/main/resources/data.sql
+
+

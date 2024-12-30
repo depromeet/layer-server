@@ -14,9 +14,7 @@ import org.layer.domain.member.entity.SocialType;
 import org.layer.domain.member.service.MemberService;
 import org.layer.external.discord.event.SignUpEvent;
 import org.layer.oauth.dto.service.MemberInfoServiceResponse;
-import org.layer.oauth.service.GoogleService;
-import org.layer.oauth.service.KakaoService;
-import org.layer.oauth.service.apple.AppleService;
+import org.layer.oauth.service.OAuthService;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,9 +24,9 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Service
 public class AuthService {
-    private final KakaoService kakaoService;
-    private final GoogleService googleService;
-    private final AppleService appleService;
+    private final OAuthService kakaoService;
+    private final OAuthService googleService;
+    private final OAuthService appleService;
     private final JwtService jwtService;
     private final MemberService memberService;
 

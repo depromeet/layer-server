@@ -4,7 +4,9 @@ on:
   push:
     branches:
       - develop
-      - feat/LA-20_3
+  pull_request:
+    branches:
+      - develop
 
 env:
   REGISTRY: "docker.io"
@@ -127,6 +129,7 @@ jobs:
     name: Deploy
     needs: [ build, setup ]
     runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
     env:
       DEPLOY_TARGET: ${{ needs.setup.outputs.deploy_target }}
 

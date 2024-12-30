@@ -48,7 +48,7 @@ public class AnswerController implements AnswerApi {
     @GetMapping("/analyze")
     public ResponseEntity<AnswerListGetResponse> getAnalyzeAnswer(@PathVariable("spaceId") Long spaceId,
                                                                   @PathVariable("retrospectId") Long retrospectId, @MemberId Long memberId) {
-        AnswerListGetResponse response = answerService.getAnalyzeAnswer(spaceId, retrospectId, memberId);
+        AnswerListGetResponse response = answerService.getAnalyzeAnswers(spaceId, retrospectId, memberId);
 
         return ResponseEntity.ok().body(response);
     }
