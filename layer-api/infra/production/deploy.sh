@@ -21,7 +21,7 @@ if [ -z $IS_GREEN  ];then # blue라면
   echo "3. green health check..."
   sudo sleep 3
 
-  REQUEST=$(sudo curl http://127.0.0.1:8080/greeting) # green으로 request
+  REQUEST=$(sudo curl http://127.0.0.1:8080/actuator/health) # green으로 request
     if [ -n "$REQUEST" ]; then # 서비스 가능하면 health check 중지
             echo "health check success"
             break ;
@@ -49,7 +49,7 @@ else
   while [ 1 = 1 ]; do
     echo "3. blue health check..."
     sleep 3
-    REQUEST=$(curl http://127.0.0.1:8081/greeting) # blue로 request
+    REQUEST=$(curl http://127.0.0.1:8081/actuator/health) # blue로 request
 
     if [ -n "$REQUEST" ]; then # 서비스 가능하면 health check 중지
       echo "health check success"

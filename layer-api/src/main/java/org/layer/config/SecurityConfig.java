@@ -59,7 +59,7 @@ public class SecurityConfig {
                                 .requestMatchers(new AntPathRequestMatcher("/api/auth/oauth2/apple")).permitAll()
                                 .requestMatchers(new AntPathRequestMatcher("/api/auth/create-token")).permitAll()
                                 .requestMatchers(new AntPathRequestMatcher("/admin/**")).permitAll()
-                                .requestMatchers(new AntPathRequestMatcher("/greeting")).permitAll()
+                                .requestMatchers(new AntPathRequestMatcher("/actuator/health")).permitAll()
                                 .anyRequest().authenticated()
                 )
                 .headers(headers -> headers
