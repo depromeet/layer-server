@@ -16,8 +16,6 @@ env:
   REGISTRY: "docker.io"
   NAMESPACE: "clean01"
   IMAGE_NAME: "layer-server"
-  PROD_INSTANCE_HOST: ${{ secrets.AWS_PROD_INSTANCE_HOST }}
-  DEV_INSTANCE_HOST: ${{ secrets.AWS_DEV_INSTANCE_HOST }}
 
 jobs:
   setup:
@@ -30,6 +28,14 @@ jobs:
       host_ip: ${{ steps.set-env.outputs.HOST_IP }} # 이부분
 
     steps:
+
+
+      # 추가한 부분
+      - name: Set Environment Variables
+        run: |
+            echo "PROD_INSTANCE_HOST=${{ secrets.AWS_PROD_INSTANCE_HOST }}" >> $GITHUB_ENV
+            echo "DEV_INSTANCE_HOST=${{ secrets.AWS_DEV_INSTANCE_HOST }}" >> $GITHUB_ENV
+
       - name: Debug Environment Variables
         run: |
           echo "HOST_IP: ${{ env.DEV_INSTANCE_HOST }}"
