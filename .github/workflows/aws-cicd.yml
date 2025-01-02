@@ -29,7 +29,11 @@ jobs:
       - name: Setup Env
         id: set-env
         run: |
-          echo "DEPLOY_TARGET=production" >> $GITHUB_OUTPUT
+          if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
+            echo "DEPLOY_TARGET=production" >> $GITHUB_OUTPUT
+          else
+            echo "DEPLOY_TARGET=development" >> $GITHUB_OUTPUT
+          fi
 
   build:
     name: build
