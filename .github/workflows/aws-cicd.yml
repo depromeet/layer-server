@@ -16,6 +16,8 @@ env:
   REGISTRY: "docker.io"
   NAMESPACE: "clean01"
   IMAGE_NAME: "layer-server"
+  AWS_PROD_INSTANCE_HOST: ${{ secrets.AWS_PROD_INSTANCE_HOST }}
+  AWS_DEV_INSTANCE_HOST: ${{ secrets.AWS_DEV_INSTANCE_HOST }}
 
 jobs:
   setup:
@@ -32,10 +34,10 @@ jobs:
         run: |
           if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
             echo "DEPLOY_TARGET=production" >> $GITHUB_OUTPUT
-            echo "INSTANCE=${{ secrets.AWS_PROD_INSTANCE_HOST }}" >> $GITHUB_OUTPUT
+            echo "INSTANCE=${{ env.AWS_PROD_INSTANCE_HOST }}" >> $GITHUB_OUTPUT
           else
             echo "DEPLOY_TARGET=development" >> $GITHUB_OUTPUT
-            echo "INSTANCE=${{ secrets.AWS_DEV_INSTANCE_HOST }}" >> $GITHUB_OUTPUT
+            echo "INSTANCE=${{ env.AWS_DEV_INSTANCE_HOST }}" >> $GITHUB_OUTPUT
           fi
 
   build:
