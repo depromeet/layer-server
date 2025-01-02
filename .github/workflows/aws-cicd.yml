@@ -36,8 +36,7 @@ jobs:
           else
             echo "DEPLOY_TARGET=development" >> $GITHUB_OUTPUT
             echo "INSTANCE=${{ secrets.AWS_DEV_INSTANCE_HOST }}" >> $GITHUB_OUTPUT
-          
-          cat $GITHUB_OUTPUT
+            cat $GITHUB_OUTPUT
           fi
 
   build:
