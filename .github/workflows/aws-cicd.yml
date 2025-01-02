@@ -36,7 +36,6 @@ jobs:
           else
             echo "DEPLOY_TARGET=development" >> $GITHUB_OUTPUT
             echo "INSTANCE=${{ secrets.AWS_DEV_INSTANCE_HOST }}" >> $GITHUB_OUTPUT
-            cat $GITHUB_OUTPUT
           fi
 
   build:
@@ -161,6 +160,10 @@ jobs:
       - name: Archive Files
         run: |
           tar -cvzf layer-api.tar.gz ./layer-api/infra/${{ env.DEPLOY_TARGET }}/
+
+      - name: Debug Environment Variables
+        run: | 
+          echo "INSTANCE: ${{ env.INSTANCE }}"
 
       - name: Send Docker Compose
         uses: appleboy/scp-action@master
