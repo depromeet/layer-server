@@ -112,6 +112,8 @@ jobs:
           push: true
           tags: |
             ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}_layer-api:latest
+          build-args: |
+            SPRING_PROFILE=development
           no-cache: true
 
       - name: Push layer-batch Docker Image
@@ -123,6 +125,8 @@ jobs:
           push: true
           tags: |
             ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}_layer-batch:latest
+          build-args: |
+            SPRING_PROFILE=development
           no-cache: true
 
       - name: Push layer-admin Docker Image
@@ -134,6 +138,8 @@ jobs:
           push: true
           tags: |
             ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}_layer-admin:latest
+          build-args: |
+            SPRING_PROFILE=development
 
   deploy:
     name: Deploy
