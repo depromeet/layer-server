@@ -9,7 +9,6 @@ on:
     branches:
       - develop
       - chore/LA-33
-
 env:
   REGISTRY: "docker.io"
   NAMESPACE: "clean01"
@@ -163,11 +162,6 @@ jobs:
       - name: Archive Files
         run: |
           tar -cvzf layer-api.tar.gz ./layer-api/infra/${{ env.DEPLOY_TARGET }}/
-
-      - name: Debug Environment Variables
-        run: |
-          echo "HOST_IP: ${{ env.HOST_IP }}"
-          echo "DEPLOY_TARGET: ${{ env.DEPLOY_TARGET }}"
 
       - name: Send Docker Compose
         uses: appleboy/scp-action@master
