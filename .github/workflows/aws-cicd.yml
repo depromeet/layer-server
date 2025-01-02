@@ -25,14 +25,9 @@ jobs:
     permissions:
       contents: read
       packages: write
-
-    env:
-      AWS_PROD_INSTANCE_HOST: ${{ secrets.AWS_PROD_INSTANCE_HOST }}
-      AWS_DEV_INSTANCE_HOST: ${{ secrets.AWS_DEV_INSTANCE_HOST }}
-
     outputs:
       deploy_target: ${{ steps.set-env.outputs.DEPLOY_TARGET }}
-      host_ip: ${{ steps.set-env.outputs.INSTANCE }} # 이부분
+      host_ip: ${{ steps.set-env.outputs.HOST_IP }} # 이부분
 
     steps:
       - name: Setup Env
@@ -40,10 +35,10 @@ jobs:
         run: |
           if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
             echo "DEPLOY_TARGET=production" >> $GITHUB_OUTPUT
-            echo "INSTANCE=${{ env.AWS_PROD_INSTANCE_HOST }}" >> $GITHUB_OUTPUT
+            echo "HOST_IP='${{ env.AWS_PROD_INSTANCE_HOST }}'" >> $GITHUB_OUTPUT
           else
             echo "DEPLOY_TARGET=development" >> $GITHUB_OUTPUT
-            echo "INSTANCE=${{ env.AWS_DEV_INSTANCE_HOST }}" >> $GITHUB_OUTPUT
+            echo "HOST_IP='${{ env.AWS_DEV_INSTANCE_HOST }}'" >> $GITHUB_OUTPUT
           fi
 
   build:
