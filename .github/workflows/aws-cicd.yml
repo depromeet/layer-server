@@ -35,10 +35,10 @@ jobs:
         run: |
           if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
             echo "DEPLOY_TARGET=production" >> $GITHUB_OUTPUT
-            echo "HOST_IP='${{ env.AWS_PROD_INSTANCE_HOST }}'" >> $GITHUB_OUTPUT
+            echo "HOST_IP=prod_test" >> $GITHUB_OUTPUT
           else
             echo "DEPLOY_TARGET=development" >> $GITHUB_OUTPUT
-            echo "HOST_IP='${{ env.AWS_DEV_INSTANCE_HOST }}'" >> $GITHUB_OUTPUT
+            echo "HOST_IP=dev_test" >> $GITHUB_OUTPUT
           fi
 
   build:
