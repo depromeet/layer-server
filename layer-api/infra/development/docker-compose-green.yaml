@@ -18,7 +18,7 @@ services:
       - "8080:8080"
     environment:
       - TZ=Asia/Seoul
-      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_PROFILES_ACTIVE=dev
     volumes:
       - ./application-secret.properties:/config/application-secret.properties
       - ./tokens:/config/tokens
@@ -56,7 +56,7 @@ services:
       - "3000:3000"
     environment:
       - TZ=Asia/Seoul
-      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_PROFILES_ACTIVE=dev
     volumes:
       - ./application-secret.properties:/config/application-secret.properties
       - ./tokens:/config/tokens
