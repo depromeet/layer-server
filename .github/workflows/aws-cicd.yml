@@ -25,9 +25,15 @@ jobs:
     permissions:
       contents: read
       packages: write
+
+    env:
+      AWS_PROD_INSTANCE_HOST: ${{ secrets.AWS_PROD_INSTANCE_HOST }}
+      AWS_DEV_INSTANCE_HOST: ${{ secrets.AWS_DEV_INSTANCE_HOST }}
+
     outputs:
       deploy_target: ${{ steps.set-env.outputs.DEPLOY_TARGET }}
       host_ip: ${{ steps.set-env.outputs.INSTANCE }} # 이부분
+
     steps:
       - name: Setup Env
         id: set-env
