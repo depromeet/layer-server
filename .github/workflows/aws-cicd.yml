@@ -164,6 +164,7 @@ jobs:
       - name: Debug Environment Variables
         run: | 
           echo "INSTANCE: ${{ env.INSTANCE }}"
+          echo "DEPLOY_TARGET: ${{ env.DEPLOY_TARGET }}"
 
       - name: Send Docker Compose
         uses: appleboy/scp-action@master
