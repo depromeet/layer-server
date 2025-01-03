@@ -1,0 +1,78 @@
+services:
+  redis:
+    build:
+      context: .
+      dockerfile: Dockerfile-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data # Persistent data storage
+    restart: always
+    networks:
+      - app-network
+
+  layer-api-blue:
+    image: docker.io/clean01/layer-server_layer-api:latest
+    container_name: layer-api-blue
+    ports:
+      - "8081:8080"
+    environment:
+      - TZ=Asia/Seoul
+      - SPRING_PROFILES_ACTIVE=dev
+    volumes:
+      - ./application-secret.properties:/config/application-secret.properties
+      - ./tokens:/config/tokens
+    networks:
+      - app-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  batch-job-blue:
+    image: docker.io/clean01/layer-server_layer-batch:latest
+    container_name: layer-batch-blue
+    environment:
+      - TZ=Asia/Seoul
+    volumes:
+      - ./application-secret.properties:/config/application-secret.properties
+      - ./tokens:/config/tokens
+    networks:
+      - app-network
+    depends_on:
+      - layer-api-blue
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  admin-app-blue:
+    image: docker.io/clean01/layer-server_layer-admin:latest #
+    container_name: layer-admin-blue
+    ports:
+      - "3001:3000"
+    environment:
+      - TZ=Asia/Seoul
+      - SPRING_PROFILES_ACTIVE=dev
+    volumes:
+      - ./application-secret.properties:/config/application-secret.properties
+      - ./tokens:/config/tokens
+    networks:
+      - app-network
+    depends_on:
+      - layer-api-blue
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  app-network:
+
+volumes:
+  redis-data:

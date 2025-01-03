@@ -5,7 +5,7 @@ spring:
   config:
     import: application-secret.properties
   datasource:
-    url: ${AWS_PROD_DB_URL}
+    url: ${AWS_DEV_DB_URL}
     username: ${AWS_PROD_DB_NAME}
     password: ${AWS_PROD_DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -49,10 +49,6 @@ google:
     client_secret: ${DEV_GOOGLE_CLIENT_SECRET}
     redirect_uri: ${DEV_GOOGLE_REDIRECT_URI}
     code_redirect_uri: http://localhost:8080/api/auth/oauth2/google/code
-  sheet:
-    id: ${GOOGLE_SHEET_ID}
-    token_path: ${PROD_GOOGLE_TOKEN_PATH}
-    credential_path: ${PROD_GOOGLE_CREDENTIAL_PATH}
 
 ncp:
   storage:
