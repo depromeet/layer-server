@@ -4,11 +4,11 @@ on:
   push:
     branches:
       - main
-      - chore/LA-33
+#      - chore/LA-33
   pull_request:
     branches:
       - main
-      - chore/LA-33
+#      - chore/LA-33
 
 env:
   REGISTRY: "docker.io"
@@ -25,8 +25,6 @@ jobs:
       deploy_target: ${{ steps.set-env.outputs.DEPLOY_TARGET }}
 
     steps:
-
-
       - name: Setup Env
         id: set-env
         run: |
