@@ -4,11 +4,9 @@ on:
   push:
     branches:
       - main
-      - chore/LA-33
   pull_request:
     branches:
       - main
-      - chore/LA-33
 
 env:
   REGISTRY: "docker.io"
