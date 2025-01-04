@@ -4,9 +4,11 @@ on:
   push:
     branches:
       - develop
+      - chore/LA-33
   pull_request:
     branches:
       - develop
+      - chore/LA-33
 env:
   REGISTRY: "docker.io"
   NAMESPACE: "clean01"
