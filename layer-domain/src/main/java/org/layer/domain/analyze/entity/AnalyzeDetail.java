@@ -2,6 +2,7 @@ package org.layer.domain.analyze.entity;
 
 import org.layer.domain.analyze.enums.AnalyzeDetailType;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -26,6 +27,7 @@ public class AnalyzeDetail {
 
 	private int count;
 
+	@Column(name = "`rank`")
 	private int rank;
 
 	@Enumerated(EnumType.STRING)
