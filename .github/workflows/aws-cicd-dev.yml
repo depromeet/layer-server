@@ -7,7 +7,6 @@ on:
   pull_request:
     branches:
       - develop
-
 env:
   REGISTRY: "docker.io"
   NAMESPACE: "clean01"
@@ -21,11 +20,18 @@ jobs:
       packages: write
     outputs:
       deploy_target: ${{ steps.set-env.outputs.DEPLOY_TARGET }}
+
     steps:
+
+
       - name: Setup Env
         id: set-env
         run: |
-          echo "DEPLOY_TARGET=development" >> $GITHUB_OUTPUT
+          if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
+            echo "DEPLOY_TARGET=production" >> $GITHUB_OUTPUT
+          else
+            echo "DEPLOY_TARGET=development" >> $GITHUB_OUTPUT
+          fi
 
   build:
     name: build
@@ -36,7 +42,7 @@ jobs:
       packages: write
 
     env:
-      DEPLOY_TARGET: ${{ needs.setup.outputs.deploy_target }}
+      DEPLOY_TARGET: ${{ needs.setup.outputs.deploy_target }} # 이부분
       REGISTRY: "docker.io"
       NAMESPACE: "clean01"
       APPLICATION_SECRET_PROPERTIES: ${{ secrets.AWS_APPLICATION_SECRET_PROPERTIES }}
@@ -59,7 +65,7 @@ jobs:
         run: |
           echo "${APPLICATION_SECRET_PROPERTIES}" > ./layer-api/src/main/resources/application-secret.properties
           echo "${APPLICATION_SECRET_PROPERTIES}" > ./layer-batch/src/main/resources/application-secret.properties
-          echo "${APPLICATION_SECRET_PROPERTIES}" > ./layer-admin/src/main/resources/application-secret.properties
+          echo "${APPLICATION_SECRET_PROPERTIES}" > ./layer-admin/src/main/resources/application-secret.properties      
 
       - name: Build layer-api module
         run: ./gradlew :layer-api:build
@@ -92,38 +98,45 @@ jobs:
           images: |
             ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}_layer-api
             ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}_layer-batch
-            ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}_layer-admin
+            ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}_layer-admin      
 
       - name: Push layer-api Docker Image
         uses: docker/build-push-action@v4
         with:
           context: ./layer-api
-          file: ./layer-api/Dockerfile-dev # Dockerfile 이름 지정
+          file: ./layer-api/Dockerfile # Dockerfile 이름 지정
           platforms: linux/amd64
           push: true
           tags: |
             ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}_layer-api:latest
-
+          build-args: |
+            SPRING_PROFILE=dev
+          no-cache: true
 
       - name: Push layer-batch Docker Image
         uses: docker/build-push-action@v4
         with:
           context: ./layer-batch
-          file: ./layer-batch/Dockerfile-batch # Dockerfile 이름 지정
+          file: ./layer-batch/Dockerfile # Dockerfile 이름 지정
           platforms: linux/amd64
           push: true
           tags: |
             ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}_layer-batch:latest
+          build-args: |
+            SPRING_PROFILE=dev
+          no-cache: true
 
       - name: Push layer-admin Docker Image
         uses: docker/build-push-action@v4
         with:
           context: ./layer-admin
-          file: ./layer-admin/Dockerfile-admin # Dockerfile 이름 지정
+          file: ./layer-admin/Dockerfile # Dockerfile 이름 지정
           platforms: linux/amd64
           push: true
           tags: |
             ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}_layer-admin:latest
+          build-args: |
+            SPRING_PROFILE=dev
 
   deploy:
     name: Deploy
@@ -132,6 +145,7 @@ jobs:
     if: github.event_name != 'pull_request'
     env:
       DEPLOY_TARGET: ${{ needs.setup.outputs.deploy_target }}
+      HOST_IP: ${{ needs.setup.outputs.host_ip }}
 
     steps:
       - name: Checkout sources
@@ -171,6 +185,17 @@ jobs:
             sudo chown -R ubuntu:ubuntu /home/ubuntu/layer-api/infra/${{ env.DEPLOY_TARGET }}
 
 
+      - name: Set Permissions on Transferred Files
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.AWS_DEV_INSTANCE_HOST }}
+          username: ubuntu
+          key: ${{ secrets.AWS_INSTANCE_PEM }}
+          port: 22
+          script: |
+            sudo chmod -R 755 /home/ubuntu/layer-api/infra/${{ env.DEPLOY_TARGET }}
+            sudo chown -R ubuntu:ubuntu /home/ubuntu/layer-api/infra/${{ env.DEPLOY_TARGET }}
+
       - name: Deploy with Docker Compose
         uses: appleboy/ssh-action@master
         with:
@@ -184,5 +209,6 @@ jobs:
             sudo apt install docker-compose
             sudo docker login --username ${{ secrets.DOCKER_EMAIL }} --password ${{ secrets.DOCKER_PASSWORD }}
             cd /home/ubuntu/layer-api/infra/${{ env.DEPLOY_TARGET }}
-            sudo docker-compose pull && sudo docker-compose up -d
+            chmod 777 ./deploy.sh
+            ./deploy.sh
             sudo docker image prune -a -f
