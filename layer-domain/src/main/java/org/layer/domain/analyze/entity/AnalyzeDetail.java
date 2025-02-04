@@ -27,7 +27,7 @@ public class AnalyzeDetail {
 
 	private int count;
 
-	@Column(name = "`rank`")
+	@Column(name = "analyze_detail_rank")
 	private int rank;
 
 	@Enumerated(EnumType.STRING)
