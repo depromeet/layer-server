@@ -15,7 +15,7 @@ if [ -z $IS_GREEN  ];then # blue라면
   sudo docker-compose -f docker-compose-green.yaml pull
 
   echo "2. green container up"
-  sudo docker-compose -f docker-compose-green.yaml up -d --remove-orphans
+  sudo docker-compose -f docker-compose-green.yaml up -d
 
   while [ 1 = 1 ]; do
   echo "3. green health check..."
@@ -43,7 +43,7 @@ else
   sudo docker-compose -f docker-compose-blue.yaml pull
 
   echo "2. blue container up"
-  sudo docker-compose -f docker-compose-blue.yaml up -d --remove-orphans
+  sudo docker-compose -f docker-compose-blue.yaml up -d
 
 
   while [ 1 = 1 ]; do
