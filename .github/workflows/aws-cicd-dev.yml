@@ -4,9 +4,11 @@ on:
   push:
     branches:
       - develop
+      - refactor/LA-38
   pull_request:
     branches:
       - develop
+      - refactor/LA-38
 env:
   REGISTRY: "docker.io"
   NAMESPACE: "clean01"
