@@ -4,9 +4,11 @@ on:
   push:
     branches:
       - main
+      - refactor/LA-38
   pull_request:
     branches:
       - main
+      - refactor/LA-38
 
 env:
   REGISTRY: "docker.io"
@@ -58,27 +60,13 @@ jobs:
 
       - name: Create application-secret.properties
         run: |
-          echo "${APPLICATION_SECRET_PROPERTIES}" > ./layer-api/src/main/resources/application-secret.properties
-          echo "${APPLICATION_SECRET_PROPERTIES}" > ./layer-batch/src/main/resources/application-secret.properties
-          echo "${APPLICATION_SECRET_PROPERTIES}" > ./layer-admin/src/main/resources/application-secret.properties      
+          echo "${APPLICATION_SECRET_PROPERTIES}" > ./layer-api/src/main/resources/application-secret.properties    
 
       - name: Build layer-api module
         run: ./gradlew :layer-api:build
 
       - name: Test layer-api module
         run: ./gradlew :layer-api:test
-
-      - name: Build layer-batch module
-        run: ./gradlew :layer-batch:build
-
-      - name: Test layer-batch module
-        run: ./gradlew :layer-batch:test
-
-      - name: Build layer-admin module
-        run: ./gradlew :layer-admin:build
-
-      - name: Test layer-admin module
-        run: ./gradlew :layer-admin:test
 
       - name: Docker Hub Login
         uses: docker/login-action@v1
@@ -91,9 +79,7 @@ jobs:
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
         with:
           images: |
-            ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}_layer-api
-            ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}_layer-batch
-            ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}_layer-admin      
+            ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}_layer-api   
 
       - name: Push layer-api Docker Image
         uses: docker/build-push-action@v4
@@ -107,31 +93,6 @@ jobs:
           build-args: |
             SPRING_PROFILE=prod
           no-cache: true
-
-      - name: Push layer-batch Docker Image
-        uses: docker/build-push-action@v4
-        with:
-          context: ./layer-batch
-          file: ./layer-batch/Dockerfile # Dockerfile 이름 지정
-          platforms: linux/amd64
-          push: true
-          tags: |
-            ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}_layer-batch:latest
-          build-args: |
-            SPRING_PROFILE=prod
-          no-cache: true
-
-      - name: Push layer-admin Docker Image
-        uses: docker/build-push-action@v4
-        with:
-          context: ./layer-admin
-          file: ./layer-admin/Dockerfile # Dockerfile 이름 지정
-          platforms: linux/amd64
-          push: true
-          tags: |
-            ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}_layer-admin:latest
-          build-args: |
-            SPRING_PROFILE=prod
 
   deploy:
     name: Deploy
@@ -149,8 +110,6 @@ jobs:
       - name: Create application-secret.properties file
         run: |
           echo "${{ secrets.APPLICATION_SECRET_PROPERTIES }}" > ./layer-api/infra/${{ env.DEPLOY_TARGET }}/application-secret.properties
-          echo "${{ secrets.APPLICATION_SECRET_PROPERTIES }}" > ./layer-batch/src/main/resources/application-secret.properties
-          echo "${{ secrets.APPLICATION_SECRET_PROPERTIES }}" > ./layer-admin/src/main/resources/application-secret.properties
 
       - name: Archive Files
         run: |
@@ -199,9 +158,6 @@ jobs:
           key: ${{ secrets.AWS_INSTANCE_PEM }}
           port: 22
           script: |
-            sudo apt update
-            sudo apt install docker-ce
-            sudo apt install docker-compose
             sudo docker login --username ${{ secrets.DOCKER_EMAIL }} --password ${{ secrets.DOCKER_PASSWORD }}
             cd /home/ubuntu/layer-api/infra/${{ env.DEPLOY_TARGET }}
             chmod 777 ./deploy.sh
