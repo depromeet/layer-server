@@ -4,11 +4,11 @@ on:
   push:
     branches:
       - develop
-      - hotfix/LA-40
+
   pull_request:
     branches:
       - develop
-      - hotfix/LA-40
+
 env:
   REGISTRY: "docker.io"
   NAMESPACE: "clean01"
