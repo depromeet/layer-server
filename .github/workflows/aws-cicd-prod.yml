@@ -4,11 +4,9 @@ on:
   push:
     branches:
       - main
-      - refactor/LA-38
   pull_request:
     branches:
       - main
-      - refactor/LA-38
 
 env:
   REGISTRY: "docker.io"
