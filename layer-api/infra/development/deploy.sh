@@ -33,7 +33,7 @@ if [ -z $IS_GREEN  ];then # blue라면
   sudo nginx -s reload
 
   echo "5. blue container down"
-  sudo docker-compose -f docker-compose-blue.yaml rm -s -f layer-api-blue batch-job-blue admin-app-blue
+  sudo docker-compose -f docker-compose-blue.yaml rm -s -f layer-api-blue
 else
   echo "### GREEN => BLUE ###"
   echo "1. get blue image"
@@ -62,5 +62,5 @@ else
   sudo nginx -s reload
 
   echo "5. green container down"
-  sudo docker-compose -f docker-compose-green.yaml rm -s -f layer-api-green batch-job-green admin-app-green
+  sudo docker-compose -f docker-compose-green.yaml rm -s -f layer-api-green
 fi
