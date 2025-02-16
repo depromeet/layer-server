@@ -9,6 +9,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @OpenAPIDefinition(servers = {
         @Server(url = "http://localhost:8080", description = "로컬서버"),
@@ -17,6 +18,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 })
 @SpringBootApplication
 @EnableJpaAuditing
+@EnableScheduling
 @EnableAspectJAutoProxy
 @EnableFeignClients
 @EnableAsync
