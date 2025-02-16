@@ -90,3 +90,11 @@ discord:
     retrospect-url: ${DISCORD_RETROSPECT_URL}
     space-url: ${DISCORD_SPACE_URL}
     member-url: ${DISCORD_MEMBER_URL}
+
+# actuator
+management:
+  endpoints:
+    enabled-by-default: false
+  endpoint:
+    health:
+      enabled: true

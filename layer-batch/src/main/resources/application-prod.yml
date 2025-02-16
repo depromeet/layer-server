@@ -1,11 +1,17 @@
+server:
+  port: 8085
+
 spring:
   config:
     import: application-secret.properties
   datasource:
-    url: ${AWS_DEV_DB_URL}
+    url: ${AWS_PROD_DB_URL}
     username: ${AWS_PROD_DB_NAME}
     password: ${AWS_PROD_DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 5  # 최대 pool 크기
+      minimum-idle: 5  # 최소 pool 크기
   jpa:
     hibernate:
       ddl-auto: validate
@@ -16,14 +22,11 @@ spring:
     open-in-view: false
     database: mysql
 
-  data:
-    redis:
-      host: ${DEV_REDIS_HOST}
-      port: ${DEV_REDIS_PORT}
-      password: ${DEV_REDIS_PASSWORD}
-
-jwt:
-  secret: ${DEV_JWT_SECRET}
+apple:
+  login:
+    issuer: ${DEV_APPLE_ISSUER}
+    client_id: ${DEV_APPLE_CLIENT_ID}
+    audience: ${DEV_APPLE_AUD}
 
 kakao:
   login:
@@ -46,24 +49,6 @@ google:
     client_secret: ${DEV_GOOGLE_CLIENT_SECRET}
     redirect_uri: ${DEV_GOOGLE_REDIRECT_URI}
     code_redirect_uri: http://localhost:8080/api/auth/oauth2/google/code
-  sheet:
-    id: ${GOOGLE_SHEET_ID}
-    token_path: ${PROD_GOOGLE_TOKEN_PATH}
-    credential_path: ${PROD_GOOGLE_TOKEN_PATH}
-
-apple:
-  login:
-    issuer: ${DEV_APPLE_ISSUER}
-    client_id: ${DEV_APPLE_CLIENT_ID}
-    audience: ${DEV_APPLE_AUD}
-
-webmvc:
-  cors:
-    allowedOrigins:
-      http://localhost:8080,
-      https://api.layerapp.io,
-      https://layerapp.io,
-      http://localhost:5173
 
 ncp:
   storage:
@@ -79,22 +64,8 @@ openai:
   model: ${OPENAI_MODEL}
   maxTokens: ${OPENAI_MAX_TOKENS}
 
-admin:
-  password: ${ADMIN_PASSWORD}
-
-greeting:
-  message: this is dev
-
 discord:
   webhook:
     retrospect-url: ${DISCORD_RETROSPECT_URL}
     space-url: ${DISCORD_SPACE_URL}
     member-url: ${DISCORD_MEMBER_URL}
-
-# actuator
-management:
-  endpoints:
-    enabled-by-default: false
-  endpoint:
-    health:
-      enabled: true
