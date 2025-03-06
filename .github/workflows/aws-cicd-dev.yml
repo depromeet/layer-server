@@ -4,11 +4,11 @@ on:
   push:
     branches:
       - develop
+      - fix/#293
 
   pull_request:
     branches:
       - develop
-      - fix/#293
 
 env:
   REGISTRY: "docker.io"
