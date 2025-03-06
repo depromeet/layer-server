@@ -2,8 +2,10 @@ package org.layer.external.ai.service;
 
 import static org.layer.domain.answer.entity.Answers.*;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.layer.domain.analyze.entity.Analyze;
 import org.layer.domain.analyze.entity.AnalyzeDetail;
@@ -22,6 +24,7 @@ import org.layer.domain.retrospect.repository.RetrospectRepository;
 import org.layer.domain.space.entity.Team;
 import org.layer.domain.space.repository.MemberSpaceRelationRepository;
 import org.layer.external.ai.dto.response.OpenAIResponse;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +37,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class AIAnalyzeService {
 	private static final int FIRST_RANK = 1;
+	private static final String RETROSPECT_LOCK_KEY = "retrospect:lock:";
 
 	private final RetrospectRepository retrospectRepository;
 	private final AnalyzeRepository analyzeRepository;
@@ -43,60 +47,82 @@ public class AIAnalyzeService {
 
 	private final OpenAIService openAIService;
 
+	private final RedisTemplate<String, Object> redisTemplate;
+
 	@Transactional
 	@Async
 	public void createAnalyze(Long spaceId, Long retrospectId, List<Long> memberIds) {
-		long startTime = System.currentTimeMillis(); // 시작 시간 기록
-		log.info("createAnalyze started");
+		String lockKey = RETROSPECT_LOCK_KEY + retrospectId;
+		String lockValue = UUID.randomUUID().toString();
+		boolean lockAcquired = false;
 
-		// 해당 스페이스 팀원인지 검증
-		Team team = new Team(memberSpaceRelationRepository.findAllBySpaceId(spaceId));
-		memberIds.forEach(team::validateTeamMembership);
+		try {
+			// 1. Redis에 Lock 설정 (SETNX 방식)
+			lockAcquired = Boolean.TRUE.equals(redisTemplate.opsForValue()
+				.setIfAbsent(lockKey, lockValue, Duration.ofSeconds(15))); // 15초 TTL
 
-		// 회고 마감 여부 확인
-		Retrospect retrospect = retrospectRepository.findByIdOrThrow(retrospectId);
+			if (!lockAcquired) {
+				log.info("Another process is already handling retrospectId: {}", retrospectId);
+				return;
+			}
 
-		// 답변 조회
-		Questions questions = new Questions(questionRepository.findAllByRetrospectIdOrderByQuestionOrder(retrospectId));
-		Answers answers = new Answers(
-			answerRepository.findAllByRetrospectIdAndAnswerStatus(retrospectId, AnswerStatus.DONE));
+			long startTime = System.currentTimeMillis();
+			log.info("createAnalyze started for retrospectId: {}", retrospectId);
 
-		Long rangeQuestionId = questions.extractEssentialQuestionIdBy(QuestionType.RANGER);
-		Long numberQuestionId = questions.extractEssentialQuestionIdBy(QuestionType.NUMBER);
-		String totalAnswer = answers.getTotalAnswer(rangeQuestionId, numberQuestionId);
+			// 해당 스페이스 팀원인지 검증
+			Team team = new Team(memberSpaceRelationRepository.findAllBySpaceId(spaceId));
+			memberIds.forEach(team::validateTeamMembership);
 
-		// 분석 요청
-		try{
+			// 회고 마감 여부 확인
+			Retrospect retrospect = retrospectRepository.findByIdOrThrow(retrospectId);
+
+			// 답변 조회
+			Questions questions = new Questions(questionRepository.findAllByRetrospectIdOrderByQuestionOrder(retrospectId));
+			Answers answers = new Answers(answerRepository.findAllByRetrospectIdAndAnswerStatus(retrospectId, AnswerStatus.DONE));
+
+			Long rangeQuestionId = questions.extractEssentialQuestionIdBy(QuestionType.RANGER);
+			Long numberQuestionId = questions.extractEssentialQuestionIdBy(QuestionType.NUMBER);
+			String totalAnswer = answers.getTotalAnswer(rangeQuestionId, numberQuestionId);
+
+			// 분석 요청
 			List<Analyze> analyzes = new ArrayList<>();
 
 			OpenAIResponse aiResponse = openAIService.createAnalyze(totalAnswer);
 			OpenAIResponse.Content content = aiResponse.parseContent();
 
-			Analyze teamAnalyze = getAnalyzeEntity(retrospectId, answers, rangeQuestionId, numberQuestionId, content,
-				null, AnalyzeType.TEAM);
+			Analyze teamAnalyze = getAnalyzeEntity(retrospectId, answers, rangeQuestionId, numberQuestionId, content, null, AnalyzeType.TEAM);
 			analyzes.add(teamAnalyze);
 
 			List<Analyze> individualAnalyzes = memberIds.stream()
 				.map(memberId -> {
 					String individualAnswer = answers.getIndividualAnswer(rangeQuestionId, numberQuestionId, memberId);
 					OpenAIResponse aiIndividualResponse = openAIService.createAnalyze(individualAnswer);
-					OpenAIResponse.Content individualcontent = aiIndividualResponse.parseContent();
-					return getAnalyzeEntity(retrospectId, answers, rangeQuestionId, numberQuestionId, individualcontent,
-						memberId, AnalyzeType.INDIVIDUAL);
-				}).toList();
+					OpenAIResponse.Content individualContent = aiIndividualResponse.parseContent();
+					return getAnalyzeEntity(retrospectId, answers, rangeQuestionId, numberQuestionId, individualContent, memberId, AnalyzeType.INDIVIDUAL);
+				})
+				.toList();
 			analyzes.addAll(individualAnalyzes);
 
 			analyzeRepository.saveAll(analyzes);
-		}catch (Exception e){
-			log.info("Not enough Answers");
+
+			long endTime = System.currentTimeMillis();
+			log.info("createAnalyze completed in {} ms", (endTime - startTime));
+
+			// 회고 분석 상태 업데이트 (Dirty Checking 안 될 경우 save 호출)
+			retrospect.updateAnalysisStatus(AnalysisStatus.DONE);
+			retrospectRepository.save(retrospect);
+
+		} catch (Exception e) {
+			log.error("Error in createAnalyze: {}", e.getMessage(), e);
+		} finally {
+			// 2. Redis Lock 해제 (현재 락을 가진 주체만 삭제)
+			if (lockAcquired) {
+				String currentLockValue = (String)redisTemplate.opsForValue().get(lockKey);
+				if (lockValue.equals(currentLockValue)) {
+					redisTemplate.delete(lockKey);
+				}
+			}
 		}
-
-		long endTime = System.currentTimeMillis(); // 종료 시간 기록
-		long duration = endTime - startTime; // 경과 시간 계산
-		log.info("createAnalyze completed in {} ms", duration);
-
-		retrospect.updateAnalysisStatus(AnalysisStatus.DONE);
-		retrospectRepository.save(retrospect);  // TODO: 왜 더티체킹이 안될까??
 	}
 
 	private Analyze getAnalyzeEntity(Long retrospectId, Answers answers, Long rangeQuestionId, Long numberQuestionId,
