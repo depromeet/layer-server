@@ -75,6 +75,7 @@ public class AIAnalyzeService {
 
 			// 회고 마감 여부 확인
 			Retrospect retrospect = retrospectRepository.findByIdOrThrow(retrospectId);
+			retrospect.validateAnalysisStatusIsNotDone();
 
 			// 답변 조회
 			Questions questions = new Questions(questionRepository.findAllByRetrospectIdOrderByQuestionOrder(retrospectId));
