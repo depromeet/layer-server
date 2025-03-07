@@ -70,9 +70,9 @@ public class Retrospect extends BaseTimeEntity {
 		}
 	}
 
-	public void validateRetrospectStatusDone() {
-		if (!this.retrospectStatus.equals(RetrospectStatus.DONE)) {
-			throw new RetrospectException(DEADLINE_NOT_PASSED);
+	public void validateAnalysisStatusIsNotDone() {
+		if (this.analysisStatus.equals(AnalysisStatus.DONE)) {
+			throw new RetrospectException(ALREADY_ANALYSIS_DONE);
 		}
 	}
 
