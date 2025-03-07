@@ -104,9 +104,9 @@ public class AnswerService {
 		// 마지막 답변인 경우 -> ai 분석 실행
 		if (answers.getWriteCount(retrospectId) == team.getTeamMemberCount()) {
 			retrospect.updateAnalysisStatus(AnalysisStatus.PROCEEDING);
+			retrospect.updateRetrospectStatus(RetrospectStatus.DONE);
 
 			if (!retrospect.hasDeadLine()) {
-				retrospect.updateRetrospectStatus(RetrospectStatus.DONE);
                 retrospect.updateDeadLine(time.now());
 			}
 			retrospectRepository.saveAndFlush(retrospect);
