@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - develop
+      - hotfix/redis-port
 
   pull_request:
     branches:
