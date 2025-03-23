@@ -3,8 +3,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile-redis
-    ports:
-      - "6379:6379"
     volumes:
       - redis-data:/data # Persistent data storage
     restart: always
