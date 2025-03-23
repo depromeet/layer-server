@@ -8,6 +8,7 @@ on:
   pull_request:
     branches:
       - develop
+
 env:
   REGISTRY: "docker.io"
   NAMESPACE: "clean01"
