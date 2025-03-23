@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+      - test/redis-conf
+
 
 env:
   REGISTRY: "docker.io"
