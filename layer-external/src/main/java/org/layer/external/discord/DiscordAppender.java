@@ -1,10 +1,12 @@
 package org.layer.external.discord;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.layer.external.discord.infra.DiscordWebhookErrorClient;
 import org.layer.external.discord.infra.DiscordWebhookMemberClient;
 import org.layer.external.discord.infra.DiscordWebhookRetrospectClient;
 import org.layer.external.discord.infra.DiscordWebhookSpaceClient;
@@ -23,6 +25,7 @@ public class DiscordAppender {
 	private final DiscordWebhookRetrospectClient retrospectClient;
 	private final DiscordWebhookMemberClient memberClient;
 	private final DiscordWebhookSpaceClient spaceClient;
+	private final DiscordWebhookErrorClient errorClient;
 
 	public void createRetrospectAppend(String title, Long memberId, LocalDateTime now) {
 		String content = "회고";
@@ -60,6 +63,31 @@ public class DiscordAppender {
 		body.put("embeds", List.of(embed));
 
 		memberClient.sendNotification(body);
+	}
+
+	public void createErrorAppend(String message, String stackTrace) {
+		Map<String, Object> body = new HashMap<>();
+		body.put("title", "레이어 서버 에러 발생");
+
+		Map<String, String> field1 = new HashMap<>();
+		field1.put("name", "발생시각");
+		field1.put("value", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss")));
+
+		Map<String, String> field2 = new HashMap<>();
+		field2.put("name", "에러 명");
+		field2.put("value", message);
+
+		Map<String, String> field3 = new HashMap<>();
+		field3.put("name", "스택 트레이스");
+		String substring = stackTrace.substring(0, 150);
+		field3.put("value", substring);
+
+		body.put("fields", List.of(field1, field2, field3));
+
+		Map<String, Object> payload = new HashMap<>();
+		payload.put("embeds", new Object[]{body});
+
+		errorClient.sendNotification(payload);
 	}
 
 	private Map<String, Object> getMessage(String title, Long memberId, LocalDateTime now, String content, int color) {
