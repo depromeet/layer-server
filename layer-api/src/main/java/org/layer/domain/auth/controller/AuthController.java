@@ -2,18 +2,13 @@ package org.layer.domain.auth.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.layer.common.annotation.DisableSwaggerSecurity;
-import org.layer.common.annotation.MemberId;
+import org.layer.annotation.DisableSwaggerSecurity;
+import org.layer.annotation.MemberId;
 import org.layer.domain.auth.controller.dto.*;
 import org.layer.domain.auth.service.AuthService;
-import org.layer.domain.member.entity.SocialType;
-import org.layer.oauth.service.GoogleService;
-import org.layer.oauth.service.KakaoService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor

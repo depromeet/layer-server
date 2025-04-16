@@ -2,7 +2,7 @@ package org.layer.domain.answer.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.layer.common.annotation.MemberId;
+import org.layer.annotation.MemberId;
 import org.layer.domain.answer.controller.dto.request.AnswerListCreateRequest;
 import org.layer.domain.answer.controller.dto.request.AnswerListUpdateRequest;
 import org.layer.domain.answer.controller.dto.response.AnswerListGetResponse;

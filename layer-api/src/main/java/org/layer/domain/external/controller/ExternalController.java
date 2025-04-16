@@ -2,7 +2,7 @@ package org.layer.domain.external.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.layer.common.annotation.MemberId;
+import org.layer.annotation.MemberId;
 import org.layer.domain.external.controller.dto.ExternalRequest;
 import org.layer.domain.external.controller.dto.ExternalResponse;
 import org.layer.ncp.dto.NcpResponse;

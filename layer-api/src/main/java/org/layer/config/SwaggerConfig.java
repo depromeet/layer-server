@@ -9,8 +9,8 @@ import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 
-import org.layer.common.annotation.DisableSwaggerSecurity;
-import org.layer.common.annotation.MemberId;
+import org.layer.annotation.DisableSwaggerSecurity;
+import org.layer.annotation.MemberId;
 import org.springdoc.core.customizers.OperationCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

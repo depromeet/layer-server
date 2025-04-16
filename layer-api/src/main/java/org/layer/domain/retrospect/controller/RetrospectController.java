@@ -3,7 +3,7 @@ package org.layer.domain.retrospect.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
-import org.layer.common.annotation.MemberId;
+import org.layer.annotation.MemberId;
 import org.layer.domain.retrospect.controller.dto.request.RetrospectCreateRequest;
 import org.layer.domain.retrospect.controller.dto.request.RetrospectUpdateRequest;
 import org.layer.domain.retrospect.controller.dto.response.RetrospectCreateResponse;

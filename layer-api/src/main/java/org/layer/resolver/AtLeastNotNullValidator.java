@@ -1,12 +1,13 @@
-package org.layer.common.validator;
+package org.layer.resolver;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import lombok.extern.slf4j.Slf4j;
-import org.layer.common.annotation.AtLeastNotNull;
 
 import java.lang.reflect.Field;
 import java.util.Objects;
+
+import org.layer.annotation.AtLeastNotNull;
 
 @Slf4j
 public class AtLeastNotNullValidator implements ConstraintValidator<AtLeastNotNull, Object> {

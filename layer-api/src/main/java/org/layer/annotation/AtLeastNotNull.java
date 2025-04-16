@@ -1,8 +1,8 @@
-package org.layer.common.annotation;
+package org.layer.annotation;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
-import org.layer.common.validator.AtLeastNotNullValidator;
+import org.layer.resolver.AtLeastNotNullValidator;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

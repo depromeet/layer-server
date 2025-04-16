@@ -3,7 +3,7 @@ package org.layer.domain.space.controller.dto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
-import org.layer.common.annotation.AtLeastNotNull;
+import org.layer.annotation.AtLeastNotNull;
 import org.layer.domain.space.entity.Space;
 import org.layer.domain.space.entity.SpaceCategory;
 import org.layer.domain.space.entity.SpaceField;
@@ -108,6 +108,7 @@ public class SpaceRequest {
     @Schema(description = "스페이스 떠나기")
     public record LeaveSpaceRequest(
             @Schema(description = "떠날 스페이스 아이디")
+            @NotNull
             Long spaceId
     ) {
     }
@@ -115,8 +116,10 @@ public class SpaceRequest {
     @Schema(title = "스페이스 대표자 변경하기")
     public record ChangeSpaceLeaderRequest(
             @Schema(description = "변경하고자 하는 스페이스 아이디")
+            @NotNull
             Long spaceId,
             @Schema(description = "변경하고자 하는 스페이스 팀원 아이디")
+            @NotNull
             Long memberId
     ) {
     }
@@ -124,8 +127,10 @@ public class SpaceRequest {
     @Schema(title = "스페이스 추방하기")
     public record KickMemberFromSpaceRequest(
             @Schema(description = "추방하고자 하는 멤버 아이디")
+            @NotNull
             Long memberId,
             @Schema(description = "추방하고자 하는 스페이스 아이디")
+            @NotNull
             Long spaceId
     ) {
     }
