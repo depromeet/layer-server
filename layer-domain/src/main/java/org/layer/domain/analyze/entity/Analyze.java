@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.layer.domain.analyze.enums.AnalyzeDetailType;
 import org.layer.domain.analyze.enums.AnalyzeType;
+import org.layer.domain.common.BaseTimeEntity;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -27,7 +28,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "`analyze`")
-public class Analyze {
+public class Analyze extends BaseTimeEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

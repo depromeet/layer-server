@@ -4,10 +4,12 @@ import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
-import org.layer.domain.BaseEntity;
+import org.layer.domain.common.BaseTimeEntity;
 import org.layer.domain.space.converter.SpaceFieldConverter;
 import org.layer.domain.space.exception.SpaceException;
 
@@ -20,10 +22,13 @@ import static org.layer.common.exception.SpaceExceptionType.SPACE_LEADER_NOT_ALL
 @Getter
 @Entity
 @AllArgsConstructor
-@SuperBuilder
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Space extends BaseEntity {
+public class Space extends BaseTimeEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     private String bannerUrl;
 
@@ -64,6 +69,18 @@ public class Space extends BaseEntity {
 
     public void updateRecentFormId(Long formId, Long memberId){
         isLeaderSpace(memberId);
+        this.formId = formId;
+    }
+
+    @Builder
+    public Space(String bannerUrl, SpaceCategory category, List<SpaceField> fieldList, String name, String introduction,
+        Long leaderId, Long formId) {
+        this.bannerUrl = bannerUrl;
+        this.category = category;
+        this.fieldList = fieldList;
+        this.name = name;
+        this.introduction = introduction;
+        this.leaderId = leaderId;
         this.formId = formId;
     }
 }

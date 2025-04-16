@@ -68,18 +68,6 @@ public class SpaceRequest {
             @Schema(description = "공간 설명", nullable = true)
             String introduction
     ) {
-
-        public Space toEntity(Long memberId) {
-            return Space.builder()
-                    .id(id)
-                    .category(category)
-                    .fieldList(fieldList)
-                    .name(name)
-                    .introduction(introduction)
-                    .leaderId(memberId)
-                    .bannerUrl(bannerUrl)
-                    .build();
-        }
     }
 
     @Schema(description = "내가 속한 스페이스 조회")
