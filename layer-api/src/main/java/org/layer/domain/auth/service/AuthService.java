@@ -2,11 +2,11 @@ package org.layer.domain.auth.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.layer.common.exception.BaseCustomException;
 import org.layer.domain.auth.controller.dto.*;
 import org.layer.domain.auth.service.dto.ReissueTokenServiceResponse;
 import org.layer.domain.common.time.Time;
 import org.layer.domain.jwt.JwtToken;
+import org.layer.domain.jwt.exception.AuthException;
 import org.layer.domain.jwt.exception.AuthExceptionType;
 import org.layer.domain.jwt.service.JwtService;
 import org.layer.domain.member.entity.Member;
@@ -107,7 +107,7 @@ public class AuthService {
             case KAKAO -> kakaoService.getMemberInfo(socialAccessToken);
             case GOOGLE -> googleService.getMemberInfo(socialAccessToken);
             case APPLE -> appleService.getMemberInfo(socialAccessToken);
-            default -> throw new BaseCustomException(AuthExceptionType.INVALID_SOCIAL_TYPE);
+            default -> throw new AuthException(AuthExceptionType.INVALID_SOCIAL_TYPE);
         };
     }
 
