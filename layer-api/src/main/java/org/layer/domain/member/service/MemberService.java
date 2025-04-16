@@ -44,16 +44,7 @@ public class MemberService {
 	private final RetrospectRepository retrospectRepository;
 	private final AnalyzeRepository analyzeRepository;
 
-	private final SecurityUtil securityUtil;
-
 	private final Time time;
-
-	// 소셜 아이디와 소셜 타입으로 멤버 찾기. 멤버가 없으면 Exception
-	// 현재는 사용하지 않음
-	public Member getMemberBySocialIdAndSocialType(String socialId, SocialType socialType) {
-		return memberRepository.findBySocialIdAndSocialType(socialId, socialType)
-			.orElseThrow(() -> new BaseCustomException(MemberExceptionType.NOT_FOUND_USER));
-	}
 
 	// sign-in만을 위한 메서드. 멤버가 없을시 회원가입이 필요함을 알려준다.
 	// 회원이 진짜로 없는 error의 경우와 회원 가입이 필요하다는 응답을 구분하기 위함
@@ -85,12 +76,6 @@ public class MemberService {
 		return member;
 	}
 
-	public Member getCurrentMember() {
-		return memberRepository
-			.findById(securityUtil.getCurrentMemberId())
-			.orElseThrow(() -> new BaseCustomException(NOT_FOUND_USER));
-	}
-
 	public Member getMemberByMemberId(Long memberId) {
 		return memberRepository.
 			findById(memberId)
@@ -99,7 +84,8 @@ public class MemberService {
 
 	@Transactional
 	public void withdrawMember(Long memberId) {
-		Member currentMember = getCurrentMember();
+		Member currentMember = memberRepository.findById(memberId)
+			.orElseThrow(() -> new BaseCustomException(NOT_FOUND_USER));
 		currentMember.deleteMember();
 	}
 
