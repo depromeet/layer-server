@@ -10,7 +10,6 @@ import org.layer.domain.retrospect.controller.dto.response.RetrospectCreateRespo
 import org.layer.domain.retrospect.controller.dto.response.RetrospectListGetResponse;
 import org.layer.domain.retrospect.service.RetrospectService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -22,7 +21,6 @@ public class RetrospectController implements RetrospectApi {
 
 	@Override
 	@PostMapping
-	@PreAuthorize("isAuthenticated()")
 	public ResponseEntity<RetrospectCreateResponse> createRetrospect(
 		@PathVariable("spaceId") Long spaceId,
 		@RequestBody @Valid RetrospectCreateRequest request,
@@ -35,7 +33,6 @@ public class RetrospectController implements RetrospectApi {
 
 	@Override
 	@GetMapping
-	@PreAuthorize("isAuthenticated()")
 	public ResponseEntity<RetrospectListGetResponse> getRetrospects(@PathVariable("spaceId") Long spaceId,
 		@MemberId Long memberId) {
 
