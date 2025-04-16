@@ -48,15 +48,15 @@ public record TemplateDetailInfoResponse(
         LocalDateTime createdAt
 
 ) {
-    public static TemplateDetailInfoResponse toResponse(Form form, Optional<TemplateMetadata> templateMetadata, List<TemplateDetailQuestionResponse> templateQuestionList, List<TemplatePurposeResponse> templatePurposeResponseList) {
+    public static TemplateDetailInfoResponse toResponse(Form form, TemplateMetadata templateMetadata, List<TemplateDetailQuestionResponse> templateQuestionList, List<TemplatePurposeResponse> templatePurposeResponseList) {
         return TemplateDetailInfoResponse.builder()
                 .id(form.getId())
                 .title(form.getTitle())
                 .templateName(form.getFormTag().getTag())
-                .templateImageUrl(templateMetadata.map(TemplateMetadata::getTemplateImageUrl).orElse(null))
+                .templateImageUrl(templateMetadata.getTemplateImageUrl())
                 .introduction(form.getIntroduction())
-                .tipTitle(templateMetadata.map(TemplateMetadata::getTipTitle).orElse(null))
-                .tipDescription(templateMetadata.map(TemplateMetadata::getTipDescription).orElse(null))
+                .tipTitle(templateMetadata.getTipTitle())
+                .tipDescription(templateMetadata.getTipDescription())
                 .templateDetailQuestionList(templateQuestionList)
                 .templatePurposeResponseList(templatePurposeResponseList)
                 .createdAt(form.getCreatedAt())
