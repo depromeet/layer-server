@@ -21,8 +21,6 @@ import java.util.Map;
 @RestController
 public class AuthController implements AuthApi {
     private final AuthService authService;
-    private final GoogleService googleService;
-    private final KakaoService kakaoService;
 
     private static final String SOCIAL_TOKEN_NAME = "X-AUTH-TOKEN";
 
@@ -70,26 +68,5 @@ public class AuthController implements AuthApi {
     @GetMapping("/member-info")
     public MemberInfoResponse getMemberInfo(@MemberId Long memberId) {
         return authService.getMemberInfo(memberId);
-    }
-
-    @DisableSwaggerSecurity
-    @PostMapping("/oauth2/apple")
-    public ResponseEntity<SignInResponse> appleLogin(@RequestParam Map<String, String> body) {
-        SignInResponse signInResponse = authService.signIn(body.get("id_token"), SocialType.APPLE);
-        return new ResponseEntity<>(signInResponse, HttpStatus.OK);
-    }
-
-    @DisableSwaggerSecurity
-    //== google OAuth2 test용 API 액세스 토큰 발급 ==//
-    @GetMapping("/oauth2/google")
-    public String googleTest(@RequestParam("code") String code) {
-        return googleService.getToken(code);
-    }
-
-    @DisableSwaggerSecurity
-    //== kakao OAuth2 test용 API 액세스 토큰 발급 ==//
-    @GetMapping("/oauth2/kakao")
-    public Object kakaoLogin(@RequestParam(value = "code", required = false) String code) {
-        return kakaoService.getToken(code);
     }
 }
