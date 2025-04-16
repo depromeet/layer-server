@@ -1,5 +1,6 @@
 package org.layer.domain.auth.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.layer.annotation.DisableSwaggerSecurity;
@@ -45,7 +46,7 @@ public class AuthController implements AuthApi {
 
     // 회원 탈퇴
     @PostMapping("/withdraw")
-    public ResponseEntity<?> withdraw(@MemberId Long memberId, WithdrawMemberRequest withdrawMemberRequest) {
+    public ResponseEntity<?> withdraw(@MemberId Long memberId, @Valid @RequestBody WithdrawMemberRequest withdrawMemberRequest) {
         authService.withdraw(memberId, withdrawMemberRequest);
         return new ResponseEntity<>(HttpStatus.OK);
     }
