@@ -2,11 +2,14 @@ package org.layer.config;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+
+import org.layer.common.annotation.DisableSwaggerSecurity;
 import org.layer.common.annotation.MemberId;
 import org.springdoc.core.customizers.OperationCustomizer;
 import org.springframework.context.annotation.Bean;
@@ -14,6 +17,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.HandlerMethod;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 @Configuration
 public class SwaggerConfig {
@@ -56,6 +60,17 @@ public class SwaggerConfig {
             method.getMethodParameters();
             if (Arrays.stream(method.getMethodParameters()).anyMatch(param -> param.hasParameterAnnotation(MemberId.class))) {
                 operation.getParameters().removeIf(param -> "memberId".equals(param.getName()));
+            }
+            return operation;
+        };
+    }
+
+    @Bean
+    public OperationCustomizer customize() {
+        return (Operation operation, HandlerMethod handlerMethod) -> {
+            DisableSwaggerSecurity methodAnnotation = handlerMethod.getMethodAnnotation(DisableSwaggerSecurity.class);
+            if (methodAnnotation != null) {
+                operation.setSecurity(Collections.emptyList());
             }
             return operation;
         };
