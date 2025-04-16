@@ -9,10 +9,8 @@ import org.layer.domain.analyze.enums.AnalyzeDetailType;
 import org.layer.domain.analyze.repository.AnalyzeRepository;
 import org.layer.domain.auth.controller.dto.SignUpRequest;
 import org.layer.domain.common.time.Time;
-import org.layer.domain.jwt.SecurityUtil;
 import org.layer.domain.member.controller.dto.*;
 import org.layer.domain.member.entity.Member;
-import org.layer.domain.member.entity.MemberFeedback;
 import org.layer.domain.member.entity.SocialType;
 import org.layer.domain.member.repository.MemberRepository;
 import org.layer.domain.retrospect.dto.SpaceRetrospectDto;
@@ -100,10 +98,6 @@ public class MemberService {
 			.name(member.getName())
 			.profileImageUrl(member.getProfileImageUrl())
 			.build();
-	}
-
-	public Optional<MemberFeedback> findFeedback(Long memberId) {
-		return memberRepository.findAllMemberFeedback(memberId);
 	}
 
 	@Transactional(readOnly = true)
