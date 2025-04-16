@@ -1,4 +1,4 @@
-package org.layer.oauth.service.apple;
+package org.layer.oauth.service;
 
 
 import io.jsonwebtoken.Claims;
@@ -10,7 +10,6 @@ import org.layer.oauth.dto.service.apple.ApplePublicKeyGenerator;
 import org.layer.oauth.dto.service.apple.ApplePublicKeys;
 import org.layer.oauth.dto.service.apple.AppleTokenParser;
 import org.layer.oauth.exception.OAuthException;
-import org.layer.oauth.service.OAuthService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -29,9 +28,6 @@ public class AppleService implements OAuthService {
     private final AppleTokenParser appleTokenParser;
     private final AppleAuthClient appleClient;
     private final ApplePublicKeyGenerator applePublicKeyGenerator;
-
-
-    private final String DEFAULT_NAME = "apple";
     private final String CLAIM_EMAIL = "email";
     private final String CLAIM_ISSUER = "iss";
     private final String CLAIM_AUDIENCE = "aud";
@@ -42,9 +38,6 @@ public class AppleService implements OAuthService {
 
     @Value("${apple.login.audience}")
     private String APPLE_AUDIENCE;
-
-    @Value("${apple.login.client_id}")
-    private String APPLE_CLIENT_ID;
 
     public MemberInfoServiceResponse getMemberInfo(final String appleToken) {
         final Map<String, String> appleTokenHeader = appleTokenParser.parseHeader(appleToken);
