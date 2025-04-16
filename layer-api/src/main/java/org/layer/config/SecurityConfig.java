@@ -1,11 +1,9 @@
 package org.layer.config;
 
 
-import io.swagger.v3.oas.models.Operation;
 import lombok.RequiredArgsConstructor;
-import org.layer.common.annotation.DisableSwaggerSecurity;
 import org.layer.domain.jwt.JwtAuthenticationFilter;
-import org.springdoc.core.customizers.OperationCustomizer;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.security.ConditionalOnDefaultWebSecurity;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,8 +17,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.Arrays;
 import java.util.Collections;
 
 @RequiredArgsConstructor
@@ -29,6 +28,9 @@ import java.util.Collections;
 @ConditionalOnDefaultWebSecurity
 public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    @Value("${webmvc.cors.allowedOrigins}")
+    private String allowedOrigins;
 
     @Bean
     public SecurityFilterChain filterChainDev(HttpSecurity http) throws Exception {
@@ -76,25 +78,22 @@ public class SecurityConfig {
     }
 
     // cors
-    CorsConfigurationSource corsConfigurationSource() {
-        return request -> {
-            CorsConfiguration config = new CorsConfiguration();
-            config.setAllowedHeaders(Collections.singletonList("*"));
-            config.setAllowedMethods(Collections.singletonList("*"));
-            config.setAllowedOriginPatterns(Collections.singletonList("*")); // 허용할 origin
-            config.setAllowCredentials(true);
-            return config;
-        };
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = buildCorsConfig(); // 외부에서 주입된 allowedOrigins 사용
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config); // 모든 경로에 적용
+        return source;
     }
 
-    @Bean
-    public OperationCustomizer customize() {
-        return (Operation operation, HandlerMethod handlerMethod) -> {
-            DisableSwaggerSecurity methodAnnotation = handlerMethod.getMethodAnnotation(DisableSwaggerSecurity.class);
-            if (methodAnnotation != null) {
-                operation.setSecurity(Collections.emptyList());
-            }
-            return operation;
-        };
+    private CorsConfiguration buildCorsConfig() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOriginPatterns(Arrays.asList(allowedOrigins.split(",")));
+        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(Collections.singletonList("*"));
+        config.setAllowCredentials(true);
+        return config;
     }
+
 }
