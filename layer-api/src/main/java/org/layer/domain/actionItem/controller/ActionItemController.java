@@ -13,7 +13,6 @@ import org.layer.domain.actionItem.controller.dto.response.SpaceRetrospectAction
 import org.layer.domain.actionItem.service.ActionItemService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,7 +24,6 @@ public class ActionItemController implements ActionItemApi {
     private final ActionItemService actionItemService;
     @Override
     @PostMapping("/create")
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ActionItemCreateResponse> createActionItem(@MemberId Long memberId,
                                                                      @Validated @RequestBody ActionItemCreateRequest actionItemCreateRequest) {
         ActionItemCreateResponse response = actionItemService.createActionItem(memberId,
@@ -37,7 +35,6 @@ public class ActionItemController implements ActionItemApi {
 
     @Override
     @GetMapping("/member")
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<MemberActionItemGetResponse> memberActionItem(@MemberId Long currentMemberId) {
         MemberActionItemGetResponse memberActionItems = actionItemService.getMemberActionItemList(currentMemberId);
         return new ResponseEntity<>(memberActionItems, HttpStatus.OK);
@@ -45,7 +42,6 @@ public class ActionItemController implements ActionItemApi {
 
     @Override
     @GetMapping("/space/{spaceId}")
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<SpaceRetrospectActionItemGetResponse> teamActionItem(@MemberId Long memberId, @PathVariable(name = "spaceId") Long spaceId) {
         SpaceRetrospectActionItemGetResponse teamActionItem = actionItemService.getSpaceActionItemList(memberId, spaceId);
 
@@ -62,10 +58,9 @@ public class ActionItemController implements ActionItemApi {
 
     @Override
     @DeleteMapping("/{actionItemId}")
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Void> deleteActionItem(@MemberId Long memberId, @PathVariable("actionItemId") Long actionItemId) {
         actionItemService.deleteActionItem(memberId, actionItemId);
-        return new ResponseEntity<>(null, HttpStatus.OK);
+        return ResponseEntity.ok().build();
     }
 
     @Override
@@ -74,12 +69,11 @@ public class ActionItemController implements ActionItemApi {
                                           @PathVariable("retrospectId") Long retrospectId,
                                           @RequestBody ActionItemUpdateRequest actionItemUpdateRequest) {
         actionItemService.updateActionItems(memberId, retrospectId, actionItemUpdateRequest);
-        return new ResponseEntity<>(null, HttpStatus.OK);
+        return ResponseEntity.ok().build();
     }
 
     @Override
     @PostMapping("/create/space/{spaceId}")
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ActionItemCreateResponse> createActionItemBySpaceId(@MemberId Long memberId,
                                                  @Validated @RequestBody ActionItemCreateBySpaceIdRequest actionItemCreateRequest) {
         ActionItemCreateResponse response = actionItemService.createActionItemBySpaceId(memberId,

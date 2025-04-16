@@ -12,7 +12,6 @@ import org.layer.domain.answer.controller.dto.response.WrittenAnswerListResponse
 import org.layer.domain.answer.service.AnswerService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,7 +24,6 @@ public class AnswerController implements AnswerApi {
 
     @Override
     @PostMapping
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Void> createAnswer(@PathVariable("spaceId") Long spaceId,
                                              @PathVariable("retrospectId") Long retrospectId,
                                              @RequestBody @Valid AnswerListCreateRequest request, @MemberId Long memberId) {
@@ -66,7 +64,6 @@ public class AnswerController implements AnswerApi {
 
     @Override
     @PutMapping
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Void> updateWrittenAnswers(Long spaceId, Long retrospectId, Long memberId, AnswerListUpdateRequest answerListUpdateRequest) {
         answerService.update(answerListUpdateRequest, spaceId, retrospectId, memberId);
         return ResponseEntity.status(HttpStatus.CREATED).build();

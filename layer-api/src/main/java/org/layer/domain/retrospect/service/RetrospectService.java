@@ -104,7 +104,7 @@ public class RetrospectService {
 			.build();
 	}
 
-	public void publishCreateRetrospectEvent(final Retrospect retrospect, final Long memberId) {
+	private void publishCreateRetrospectEvent(final Retrospect retrospect, final Long memberId) {
 		eventPublisher.publishEvent(CreateRetrospectEvent.of(
 			retrospect.getTitle(),
 			memberId,
