@@ -14,6 +14,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,7 +44,7 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	public ResponseEntity<ExceptionResponse> handleValidationException(MethodArgumentNotValidException e) {
-		log.error(String.format(LOG_FORMAT, e.getMessage()), e);
+		log.warn(String.format(LOG_FORMAT, e.getMessage()), e);
 
 		// TODO: ValidException 타입 정의 후 교체
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -53,7 +54,14 @@ public class GlobalExceptionHandler {
 	//TODO: JSON deserialize 에러 시 해당 에러 반환 -> enum 배열 받는 방법이 있다면 적용 후 제거
 	@ExceptionHandler(HttpMessageNotReadableException.class)
 	public ResponseEntity<ExceptionResponse> handleHttpMessageNotReadableException(Exception e) {
-		log.error(String.format(LOG_FORMAT, e.getMessage()), e);
+		log.warn(String.format(LOG_FORMAT, e.getMessage()), e);
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+			.body(ExceptionResponse.of(HttpStatus.BAD_REQUEST.name(), "유효하지 않은 값."));
+	}
+
+	@ExceptionHandler(NoResourceFoundException.class)
+	public ResponseEntity<ExceptionResponse> handleNoResourceFoundException(Exception e) {
+		log.warn(String.format(LOG_FORMAT, e.getMessage()), e);
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST)
 			.body(ExceptionResponse.of(HttpStatus.BAD_REQUEST.name(), "유효하지 않은 값."));
 	}
