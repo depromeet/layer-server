@@ -12,7 +12,7 @@ import org.layer.domain.jwt.service.JwtService;
 import org.layer.domain.member.entity.Member;
 import org.layer.domain.member.entity.SocialType;
 import org.layer.domain.member.service.MemberService;
-import org.layer.external.discord.event.SignUpEvent;
+import org.layer.discord.event.SignUpEvent;
 import org.layer.oauth.dto.service.MemberInfoServiceResponse;
 import org.layer.oauth.service.OAuthService;
 import org.springframework.context.ApplicationEventPublisher;

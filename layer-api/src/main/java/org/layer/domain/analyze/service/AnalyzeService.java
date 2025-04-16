@@ -14,7 +14,7 @@ import org.layer.domain.space.entity.SpaceCategory;
 import org.layer.domain.space.entity.Team;
 import org.layer.domain.space.repository.MemberSpaceRelationRepository;
 import org.layer.domain.space.repository.SpaceRepository;
-import org.layer.external.ai.service.AIAnalyzeService;
+import org.layer.ai.service.AIAnalyzeService;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
