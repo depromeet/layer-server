@@ -1,5 +1,6 @@
-package org.layer.common.exception;
+package org.layer.global.exception;
 
+import org.layer.common.exception.ExceptionType;
 import org.springframework.http.HttpStatus;
 
 import lombok.RequiredArgsConstructor;
@@ -11,7 +12,6 @@ public enum TokenExceptionType implements ExceptionType {
 	 */
 	INVALID_TOKEN(HttpStatus.BAD_REQUEST, "token이 유효하지 않습니다."),
 	INVALID_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "refresh token이 유효하지 않습니다."),
-	INVALID_ACCESS_TOKEN(HttpStatus.BAD_REQUEST, "access token이 유효하지 않습니다."),
 	NO_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "refresh token이 존재하지 않습니다."),
 	INVALID_APPLE_ID_TOKEN(HttpStatus.BAD_REQUEST, "유효하지 않은 apple token입니다.");
 

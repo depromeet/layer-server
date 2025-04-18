@@ -1,12 +1,16 @@
 package org.layer.domain.space.service;
 
 
+import static org.layer.global.exception.MemberSpaceRelationExceptionType.*;
+import static org.layer.global.exception.SpaceExceptionType.*;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.layer.common.dto.Meta;
 import org.layer.domain.actionItem.repository.ActionItemRepository;
 import org.layer.domain.common.time.Time;
 import org.layer.discord.event.CreateSpaceEvent;
+import org.layer.domain.space.dto.SpaceMember;
 import org.layer.ncp.service.NcpService;
 import org.layer.domain.retrospect.repository.RetrospectRepository;
 import org.layer.domain.space.controller.dto.SpaceRequest;
@@ -27,8 +31,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.layer.common.exception.MemberSpaceRelationExceptionType.NOT_FOUND_MEMBER_SPACE_RELATION;
-import static org.layer.common.exception.SpaceExceptionType.*;
 
 @Service
 @RequiredArgsConstructor
@@ -55,9 +57,7 @@ public class SpaceService {
         }
         Long newCursor = !hasNextPage ? null : spacePages.isEmpty() ? null : spacePages.get(spacePages.size() - 1).getId();
 
-
         var spaceList = spacePages.stream().map(SpaceResponse.SpaceWithMemberCountInfo::toResponse).collect(Collectors.toList());
-        log.info("?");
         var meta = Meta.builder().cursor(newCursor).hasNextPage(hasNextPage).build();
         return SpaceResponse.SpacePage.toResponse(spaceList, meta);
     }
@@ -207,8 +207,8 @@ public class SpaceService {
         if (isExist.isEmpty()) {
             throw new SpaceException(NOT_FOUND_SPACE);
         }
-        log.info("?");
-        var SpaceMembers = spaceRepository.findAllSpaceMemberBySpaceIdWithIsLeader(spaceId);
+
+        List<SpaceMember> SpaceMembers = spaceRepository.findAllSpaceMemberBySpaceIdWithIsLeader(spaceId);
         return SpaceMembers.stream()
                 .filter(a -> a.getDeletedAt() == null)
                 .map(SpaceResponse.SpaceMemberResponse::toResponse)

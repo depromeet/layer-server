@@ -1,5 +1,7 @@
 package org.layer.domain.retrospect.repository;
 
+import static org.layer.global.exception.RetrospectExceptionType.*;
+
 import org.layer.domain.actionItem.dto.MemberActionItemResponse;
 import org.layer.domain.retrospect.dto.SpaceRetrospectDto;
 import org.layer.domain.retrospect.entity.Retrospect;
@@ -14,8 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-
-import static org.layer.common.exception.RetrospectExceptionType.NOT_FOUND_RETROSPECT;
 
 public interface RetrospectRepository extends JpaRepository<Retrospect, Long>, RetrospectCustomRepository {
     List<Retrospect> findAllBySpaceId(Long spaceId);

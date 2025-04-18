@@ -1,7 +1,7 @@
 package org.layer.domain.analyze.repository;
 
-import static org.layer.common.exception.AnalyzeExcepitonType.*;
 
+import static org.layer.global.exception.AnalyzeExcepitonType.*;
 
 import java.util.List;
 import java.util.Optional;

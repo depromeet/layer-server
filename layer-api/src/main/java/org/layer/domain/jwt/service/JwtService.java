@@ -13,13 +13,10 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.util.List;
-import java.util.Objects;
 
-import static org.layer.common.exception.TokenExceptionType.*;
-import static org.layer.common.exception.TokenExceptionType.INVALID_REFRESH_TOKEN;
-import static org.layer.common.exception.TokenExceptionType.NO_REFRESH_TOKEN;
 import static org.layer.config.AuthValueConfig.ACCESS_TOKEN_EXPIRATION_TIME;
 import static org.layer.config.AuthValueConfig.REFRESH_TOKEN_EXPIRATION_TIME;
+import static org.layer.global.exception.TokenExceptionType.*;
 
 @Slf4j
 @RequiredArgsConstructor

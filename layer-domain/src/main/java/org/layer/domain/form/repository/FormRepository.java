@@ -1,5 +1,7 @@
 package org.layer.domain.form.repository;
 
+import static org.layer.global.exception.FormExceptionType.*;
+
 import org.layer.domain.form.entity.Form;
 import org.layer.domain.form.entity.FormType;
 import org.layer.domain.form.enums.FormTag;
@@ -10,8 +12,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 import java.util.Optional;
-
-import static org.layer.common.exception.FormExceptionType.NOT_FOUND_FORM;
 
 public interface FormRepository extends JpaRepository<Form, Long> {
 	default Form findByIdOrThrow(Long formId) {

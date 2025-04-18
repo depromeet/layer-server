@@ -33,10 +33,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 
-import static org.layer.common.exception.FormExceptionType.UNAUTHORIZED_GET_FORM;
 import static org.layer.domain.form.entity.FormType.CUSTOM;
+import static org.layer.global.exception.FormExceptionType.*;
 
 @Service
 @RequiredArgsConstructor

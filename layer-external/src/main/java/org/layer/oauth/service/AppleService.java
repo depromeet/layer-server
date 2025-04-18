@@ -4,6 +4,8 @@ package org.layer.oauth.service;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.layer.global.exception.TokenExceptionType;
 import org.layer.oauth.config.AppleAuthClient;
 import org.layer.oauth.dto.service.MemberInfoServiceResponse;
 import org.layer.oauth.dto.service.apple.ApplePublicKeyGenerator;
@@ -17,8 +19,8 @@ import java.security.PublicKey;
 import java.util.LinkedHashSet;
 import java.util.Map;
 
-import static org.layer.common.exception.TokenExceptionType.INVALID_APPLE_ID_TOKEN;
 import static org.layer.domain.member.entity.SocialType.APPLE;
+import static org.layer.global.exception.TokenExceptionType.*;
 
 @RequiredArgsConstructor
 @Component
