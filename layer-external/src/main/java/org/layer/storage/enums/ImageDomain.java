@@ -1,4 +1,4 @@
-package org.layer.ncp.enums;
+package org.layer.storage.enums;
 
 public enum ImageDomain {
     SPACE,
