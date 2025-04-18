@@ -9,7 +9,7 @@ import java.util.Optional;
 
 import static org.layer.common.exception.MemberExceptionType.NOT_FOUND_USER;
 
-public interface MemberRepository extends JpaRepository<Member, Long>, MemberCustomRepository {
+public interface MemberRepository extends JpaRepository<Member, Long> {
     Optional<Member> findBySocialIdAndSocialType(String socialId, SocialType socialType);
 
     default Member findByIdOrThrow(Long memberId) {

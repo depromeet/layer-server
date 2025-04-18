@@ -2,17 +2,17 @@ package org.layer.domain.auth.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.layer.common.exception.BaseCustomException;
 import org.layer.domain.auth.controller.dto.*;
 import org.layer.domain.auth.service.dto.ReissueTokenServiceResponse;
 import org.layer.domain.common.time.Time;
 import org.layer.domain.jwt.JwtToken;
+import org.layer.domain.jwt.exception.AuthException;
 import org.layer.domain.jwt.exception.AuthExceptionType;
 import org.layer.domain.jwt.service.JwtService;
 import org.layer.domain.member.entity.Member;
 import org.layer.domain.member.entity.SocialType;
 import org.layer.domain.member.service.MemberService;
-import org.layer.external.discord.event.SignUpEvent;
+import org.layer.discord.event.SignUpEvent;
 import org.layer.oauth.dto.service.MemberInfoServiceResponse;
 import org.layer.oauth.service.OAuthService;
 import org.springframework.context.ApplicationEventPublisher;
@@ -61,7 +61,7 @@ public class AuthService {
         return SignUpResponse.of(member, jwtToken);
     }
 
-    public void publishCreateRetrospectEvent(final Member member) {
+    private void publishCreateRetrospectEvent(final Member member) {
         eventPublisher.publishEvent(SignUpEvent.of(
             member.getName(),
             member.getId(),
@@ -72,16 +72,12 @@ public class AuthService {
     //== 로그아웃 ==//
     @Transactional
     public void signOut(final Long memberId) {
-        // 현재 로그인된 사용자와 memberId가 일치하는지 확인 => 일치하지 않으면 Exception
-        isValidMember(memberId);
         jwtService.deleteRefreshToken(memberId);
     }
 
-
     //== 회원 탈퇴 ==//
     @Transactional
-    public void withdraw(final Long memberId, WithdrawMemberRequest withdrawMemberRequest) {
-
+    public void withdraw(final Long memberId, final WithdrawMemberRequest withdrawMemberRequest) {
         // soft delete
         memberService.withdrawMember(memberId);
     }
@@ -111,17 +107,8 @@ public class AuthService {
             case KAKAO -> kakaoService.getMemberInfo(socialAccessToken);
             case GOOGLE -> googleService.getMemberInfo(socialAccessToken);
             case APPLE -> appleService.getMemberInfo(socialAccessToken);
-            default -> throw new BaseCustomException(AuthExceptionType.INVALID_SOCIAL_TYPE);
+            default -> throw new AuthException(AuthExceptionType.INVALID_SOCIAL_TYPE);
         };
-    }
-
-
-    // 현재 로그인 된 사용자와 해당 멤버 아이디가 일치하는지 확인
-    private void isValidMember(Long memberId) {
-        Member currentMember = memberService.getCurrentMember();
-        if (!currentMember.getId().equals(memberId)) {
-            throw new BaseCustomException(AuthExceptionType.FORBIDDEN);
-        }
     }
 
     // 이미 있는 회원인지 확인하기

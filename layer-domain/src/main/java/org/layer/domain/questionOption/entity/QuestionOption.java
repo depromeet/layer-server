@@ -3,10 +3,9 @@ package org.layer.domain.questionOption.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.layer.domain.BaseEntity;
+import org.layer.domain.common.BaseTimeEntity;
 import org.layer.domain.question.entity.Question;
 
 @Entity
@@ -14,9 +13,12 @@ import org.layer.domain.question.entity.Question;
         @UniqueConstraint(columnNames = {"question_id", "option_value"})
 })
 @EqualsAndHashCode(callSuper = true)
-@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class QuestionOption extends BaseEntity {
+public class QuestionOption extends BaseTimeEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     private String optionLabel;
 

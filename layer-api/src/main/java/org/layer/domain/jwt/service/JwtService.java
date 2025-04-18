@@ -70,33 +70,19 @@ public class JwtService {
     }
 
     private String getRefreshTokenFromRedis(Long memberId) {
-        return (String) redisTemplate.opsForValue().get(memberId.toString());
-    }
-
-    private Long getMemberIdFromRefreshToken(String refreshToken) {
-        Long memberId = null;
-        try {
-            memberId = Long.parseLong((String) Objects.requireNonNull(redisTemplate.opsForValue().get(refreshToken)));
-        } catch(Exception e) {
-            throw new TokenException(INVALID_REFRESH_TOKEN);
-        }
-        return memberId;
+        return redisTemplate.opsForValue().get(memberId.toString());
     }
 
     private MemberRole getMemberRoleFromRefreshToken(String refreshToken) {
-        MemberRole memberRole = null;
         try {
             List<String> role = jwtValidator.getRoleFromToken(refreshToken);
-            memberRole = MemberRole.valueOf(role.get(0));
+            MemberRole memberRole = MemberRole.valueOf(role.get(0));
+            return memberRole;
         } catch(Exception e) {
             throw new TokenException(INVALID_REFRESH_TOKEN);
         }
-
-        return memberRole;
     }
     public void deleteRefreshToken(Long memberId) {
         redisTemplate.delete(memberId.toString());
     }
-
-
 }

@@ -1,10 +1,7 @@
-name: deploy action
+name: prod deploy action
 
 on:
   push:
-    branches:
-      - main
-  pull_request:
     branches:
       - main
 

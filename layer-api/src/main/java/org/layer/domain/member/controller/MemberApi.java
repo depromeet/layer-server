@@ -3,7 +3,7 @@ package org.layer.domain.member.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.layer.common.annotation.MemberId;
+import org.layer.annotation.MemberId;
 import org.layer.domain.member.controller.dto.GetMemberAnalyzesResponse;
 
 import org.layer.domain.member.controller.dto.UpdateMemberInfoRequest;

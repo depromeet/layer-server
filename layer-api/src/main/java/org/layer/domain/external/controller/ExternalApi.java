@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.layer.common.annotation.MemberId;
+import org.layer.annotation.MemberId;
 import org.layer.domain.external.controller.dto.ExternalRequest;
 import org.layer.domain.external.controller.dto.ExternalResponse;
 import org.springframework.http.ResponseEntity;

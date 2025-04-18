@@ -9,12 +9,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.layer.common.annotation.MemberId;
+import org.layer.annotation.MemberId;
 import org.layer.domain.auth.controller.dto.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestParam;
 
 @Tag(name = "인증", description = "인증 관련 API")
 public interface AuthApi {
@@ -179,14 +178,5 @@ public interface AuthApi {
                             }
                             """)}))
     public MemberInfoResponse getMemberInfo(@MemberId Long memberId);
-
-    // TODO: 토큰 확인용 임시 API 추후 삭제
-    @Operation(summary = "[실제 사용 X] 구글 액세스 토큰 받기", description = "서버 쪽에서 토큰을 확인하기 위한 API입니다! (실제 사용 X, 추후 삭제 예정)")
-    public String googleTest(@RequestParam("code") String code);
-
-    // TODO: 토큰 확인용 임시 API 추후 삭제
-    @Operation(summary = "[실제 사용 X] 카카오 액세스 토큰 받기", description = "서버 쪽에서 토큰을 확인하기 위한 API입니다! (실제 사용 X, 추후 삭제 예정)")
-    public Object kakaoLogin(@RequestParam(value = "code", required = false) String code);
-
 
 }
