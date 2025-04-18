@@ -1,16 +1,17 @@
 package org.layer.domain.space.service;
 
-
 import static org.layer.global.exception.MemberSpaceRelationExceptionType.*;
 import static org.layer.global.exception.SpaceExceptionType.*;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.layer.common.dto.Meta;
 import org.layer.domain.actionItem.repository.ActionItemRepository;
 import org.layer.domain.common.time.Time;
 import org.layer.discord.event.CreateSpaceEvent;
 import org.layer.domain.space.dto.SpaceMember;
+import org.layer.domain.space.dto.SpaceWithMemberCount;
 import org.layer.storage.service.StorageService;
 import org.layer.domain.retrospect.repository.RetrospectRepository;
 import org.layer.domain.space.controller.dto.SpaceRequest;
@@ -31,123 +32,138 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
 @Transactional(readOnly = true)
 public class SpaceService {
-    private final StorageService storageService;
-    private final SpaceRepository spaceRepository;
-    private final MemberSpaceRelationRepository memberSpaceRelationRepository;
-    private final ActionItemRepository actionItemRepository;
-    private final RetrospectRepository retrospectRepository;
+	private final StorageService storageService;
+	private final SpaceRepository spaceRepository;
+	private final MemberSpaceRelationRepository memberSpaceRelationRepository;
+	private final ActionItemRepository actionItemRepository;
+	private final RetrospectRepository retrospectRepository;
 
-    private final ApplicationEventPublisher eventPublisher;
+	private final ApplicationEventPublisher eventPublisher;
 
-    private final Time time;
+	private final Time time;
 
-    public SpaceResponse.SpacePage getSpaceListFromMemberId(Long memberId, SpaceRequest.GetSpaceRequest getSpaceRequest) {
+	public SpaceResponse.SpacePage getSpaceListFromMemberId(Long memberId, SpaceRequest.GetSpaceRequest request) {
 
-        var spacePages = spaceRepository.findAllSpacesByMemberIdAndCategoryAndCursor(memberId, getSpaceRequest.cursorId(), getSpaceRequest.category(), getSpaceRequest.pageSize());
+		int pageSize = request.pageSize();
+		List<SpaceWithMemberCount> spaces = spaceRepository.findAllSpacesByMemberIdAndCategoryAndCursor(
+			memberId, request.cursorId(), request.category(), pageSize + 1 // hasNext 판단을 위해 +1
+		);
 
-        boolean hasNextPage = spacePages.size() > getSpaceRequest.pageSize();
-        if (hasNextPage) {
-            spacePages.remove(spacePages.size() - 1);
-        }
-        Long newCursor = !hasNextPage ? null : spacePages.isEmpty() ? null : spacePages.get(spacePages.size() - 1).getId();
+		boolean hasNext = spaces.size() > pageSize;
+		if (hasNext) {
+			spaces.remove(spaces.size() - 1); // 다음 페이지 존재 시 마지막 요소 제거
+		}
 
-        var spaceList = spacePages.stream().map(SpaceResponse.SpaceWithMemberCountInfo::toResponse).collect(Collectors.toList());
-        var meta = Meta.builder().cursor(newCursor).hasNextPage(hasNextPage).build();
-        return SpaceResponse.SpacePage.toResponse(spaceList, meta);
-    }
+		Long nextCursor = spaces.isEmpty() ? null : spaces.get(spaces.size() - 1).getId();
 
-    @Transactional
-    public Long createSpace(Long memberId, SpaceRequest.CreateSpaceRequest createSpaceRequest) {
-        if (createSpaceRequest.bannerUrl() != null) {
-            storageService.checkObjectExistOrThrow(createSpaceRequest.bannerUrl());
-        }
-        var newSpace = spaceRepository.save(createSpaceRequest.toEntity(memberId));
-        var memberSpaceRelation = MemberSpaceRelation.builder().memberId(memberId).space(newSpace).build();
+		List<SpaceResponse.SpaceWithMemberCountInfo> responseList = spaces.stream()
+			.map(SpaceResponse.SpaceWithMemberCountInfo::toResponse)
+			.collect(Collectors.toList());
 
-        memberSpaceRelationRepository.save(memberSpaceRelation);
+		Meta meta = Meta.builder()
+			.cursor(hasNext ? nextCursor : null)
+			.hasNextPage(hasNext)
+			.build();
 
-        publishCreateSpaceEvent(newSpace, memberId);
-        return newSpace.getId();
-    }
+		return SpaceResponse.SpacePage.toResponse(responseList, meta);
+	}
 
-    public void publishCreateSpaceEvent(final Space space, final Long memberId) {
-        eventPublisher.publishEvent(CreateSpaceEvent.of(
-            space.getName(),
-            memberId,
-            time.now()
-        ));
-    }
+	@Transactional
+	public Long createSpace(Long memberId, SpaceRequest.CreateSpaceRequest createSpaceRequest) {
+		if (createSpaceRequest.bannerUrl() != null) {
+			storageService.checkObjectExistOrThrow(createSpaceRequest.bannerUrl());
+		}
+		var newSpace = spaceRepository.save(createSpaceRequest.toEntity(memberId));
+		var memberSpaceRelation = MemberSpaceRelation.builder().memberId(memberId).space(newSpace).build();
 
-    @Transactional
-    public void updateSpace(Long memberId, SpaceRequest.UpdateSpaceRequest updateSpaceRequest) {
-        spaceRepository.findByIdAndJoinedMemberId(updateSpaceRequest.id(), memberId).orElseThrow(() -> new SpaceException(NOT_FOUND_SPACE));
-        spaceRepository.updateSpace(updateSpaceRequest.id(), updateSpaceRequest.category(), updateSpaceRequest.fieldList(), updateSpaceRequest.name(), updateSpaceRequest.introduction(), updateSpaceRequest.bannerUrl());
-    }
+		memberSpaceRelationRepository.save(memberSpaceRelation);
 
-    public SpaceResponse.SpaceWithMemberCountInfo getSpaceById(Long memberId, Long spaceId) {
-        var foundSpace = spaceRepository.findByIdAndJoinedMemberId(spaceId, memberId).orElseThrow(() -> new SpaceException(NOT_FOUND_SPACE));
-        return SpaceResponse.SpaceWithMemberCountInfo.toResponse(foundSpace);
-    }
+		publishCreateSpaceEvent(newSpace, memberId);
+		return newSpace.getId();
+	}
 
-    public SpaceResponse.SpaceWithMemberCountInfo getPublicSpaceById(Long spaceId) {
-        var foundSpace = spaceRepository.findByIdAndJoinedMemberId(spaceId).orElseThrow(() -> new SpaceException(NOT_FOUND_SPACE));
+	public void publishCreateSpaceEvent(final Space space, final Long memberId) {
+		eventPublisher.publishEvent(CreateSpaceEvent.of(
+			space.getName(),
+			memberId,
+			time.now()
+		));
+	}
 
-        return SpaceResponse.SpaceWithMemberCountInfo.toResponse(foundSpace);
-    }
+	@Transactional
+	public void updateSpace(Long memberId, SpaceRequest.UpdateSpaceRequest updateSpaceRequest) {
+		spaceRepository.findByIdAndJoinedMemberId(updateSpaceRequest.id(), memberId)
+			.orElseThrow(() -> new SpaceException(NOT_FOUND_SPACE));
+		spaceRepository.updateSpace(updateSpaceRequest.id(), updateSpaceRequest.category(),
+			updateSpaceRequest.fieldList(), updateSpaceRequest.name(), updateSpaceRequest.introduction(),
+			updateSpaceRequest.bannerUrl());
+	}
 
-    @Transactional
-    public void createMemberSpace(Long memberId, Long spaceId) {
+	public SpaceResponse.SpaceWithMemberCountInfo getSpaceById(Long memberId, Long spaceId) {
+		var foundSpace = spaceRepository.findByIdAndJoinedMemberId(spaceId, memberId)
+			.orElseThrow(() -> new SpaceException(NOT_FOUND_SPACE));
+		return SpaceResponse.SpaceWithMemberCountInfo.toResponse(foundSpace);
+	}
+
+	public SpaceResponse.SpaceWithMemberCountInfo getPublicSpaceById(Long spaceId) {
+		var foundSpace = spaceRepository.findByIdAndJoinedMemberId(spaceId)
+			.orElseThrow(() -> new SpaceException(NOT_FOUND_SPACE));
+
+		return SpaceResponse.SpaceWithMemberCountInfo.toResponse(foundSpace);
+	}
+
+	@Transactional
+	public void createMemberSpace(Long memberId, Long spaceId) {
 
         /*
           존재하는 스페이스 여부 확인
          */
-        var foundSpace = spaceRepository.findById(spaceId)
-                .orElseThrow(() -> new SpaceException(NOT_FOUND_SPACE)
-                );
+		var foundSpace = spaceRepository.findById(spaceId)
+			.orElseThrow(() -> new SpaceException(NOT_FOUND_SPACE)
+			);
 
-        if (foundSpace.getCategory() == SpaceCategory.INDIVIDUAL) {
-            throw new SpaceException(NOT_FOUND_SPACE);
-        }
+		if (foundSpace.getCategory() == SpaceCategory.INDIVIDUAL) {
+			throw new SpaceException(NOT_FOUND_SPACE);
+		}
 
 
         /*
           이미 참여중인 스페이스 여부 확인
          */
-        memberSpaceRelationRepository.findBySpaceIdAndMemberId(spaceId, memberId).ifPresent(it -> {
-            throw new SpaceException(SPACE_ALREADY_JOINED);
-        });
+		memberSpaceRelationRepository.findBySpaceIdAndMemberId(spaceId, memberId).ifPresent(it -> {
+			throw new SpaceException(SPACE_ALREADY_JOINED);
+		});
 
         /*
           스페이스 참여여부 저장
          */
-        var joinedSpace = MemberSpaceRelation.builder()
-                .space(foundSpace)
-                .memberId(memberId)
-                .build();
-        memberSpaceRelationRepository.save(joinedSpace);
-    }
+		var joinedSpace = MemberSpaceRelation.builder()
+			.space(foundSpace)
+			.memberId(memberId)
+			.build();
+		memberSpaceRelationRepository.save(joinedSpace);
+	}
 
-    @Transactional
-    public void removeMemberSpace(Long memberId, Long spaceId) {
+	@Transactional
+	public void removeMemberSpace(Long memberId, Long spaceId) {
         /*
           존재하는 스페이스 여부 확인
          */
-        var foundSpace = spaceRepository.findById(spaceId)
-                .orElseThrow(() -> new SpaceException(NOT_FOUND_SPACE)
-                );
+		var foundSpace = spaceRepository.findById(spaceId)
+			.orElseThrow(() -> new SpaceException(NOT_FOUND_SPACE)
+			);
 
         /*
           스페이스 팀장 여부 확인
          */
-        if (foundSpace.getLeaderId().equals(memberId)) {
-            throw new SpaceException(SPACE_LEADER_CANNOT_LEAVE);
-        }
+		if (foundSpace.getLeaderId().equals(memberId)) {
+			throw new SpaceException(SPACE_LEADER_CANNOT_LEAVE);
+		}
 
 
         /*
@@ -157,101 +173,101 @@ public class SpaceService {
           2. 속한 스페이스 떠나기, 스페이스 삭제하기 분리
           현재는 2번 케이스를 기준으로 구현되어 있음
          */
-        if (foundSpace.getCategory() == SpaceCategory.INDIVIDUAL) {
-            throw new SpaceException(NOT_FOUND_SPACE);
-        }
+		if (foundSpace.getCategory() == SpaceCategory.INDIVIDUAL) {
+			throw new SpaceException(NOT_FOUND_SPACE);
+		}
 
         /*
           이미 참여중인 스페이스 여부 확인
          */
-        var foundMemberSpaceRelation = memberSpaceRelationRepository.findBySpaceIdAndMemberId(spaceId, memberId)
-                .orElseThrow(
-                        () -> new SpaceException(SPACE_ALREADY_JOINED)
-                );
+		var foundMemberSpaceRelation = memberSpaceRelationRepository.findBySpaceIdAndMemberId(spaceId, memberId)
+			.orElseThrow(
+				() -> new SpaceException(SPACE_ALREADY_JOINED)
+			);
 
         /*
           스페이스 참여여부 삭제 ( 스페이스 떠나기 )
          */
-        memberSpaceRelationRepository.deleteById(foundMemberSpaceRelation.getId());
-    }
+		memberSpaceRelationRepository.deleteById(foundMemberSpaceRelation.getId());
+	}
 
-    @Transactional
-    public void changeSpaceLeader(Long leaderId, Long spaceId, Long memberId) {
-        // 스페이스 리더 여부 확인
-        var foundSpace = checkLeaderFromSpace(spaceId, leaderId);
+	@Transactional
+	public void changeSpaceLeader(Long leaderId, Long spaceId, Long memberId) {
+		// 스페이스 리더 여부 확인
+		var foundSpace = checkLeaderFromSpace(spaceId, leaderId);
 
-        // 스페이스 존재하는 멤버 확인
-        memberSpaceRelationRepository.findBySpaceIdAndMemberId(spaceId, memberId).orElseThrow(() -> new MemberSpaceRelationException(NOT_FOUND_MEMBER_SPACE_RELATION));
+		// 스페이스 존재하는 멤버 확인
+		memberSpaceRelationRepository.findBySpaceIdAndMemberId(spaceId, memberId)
+			.orElseThrow(() -> new MemberSpaceRelationException(NOT_FOUND_MEMBER_SPACE_RELATION));
 
-        foundSpace.changeLeader(memberId);
-    }
+		foundSpace.changeLeader(memberId);
+	}
 
-    @Transactional
-    public void kickMemberFromSpace(Long leaderId, Long spaceId, Long memberId) {
-        // 스페이스 리더 여부 확인
-        checkLeaderFromSpace(spaceId, leaderId);
+	@Transactional
+	public void kickMemberFromSpace(Long leaderId, Long spaceId, Long memberId) {
+		// 스페이스 리더 여부 확인
+		checkLeaderFromSpace(spaceId, leaderId);
 
-        // 스페이스 존재하는 멤버 확인
-        var foundTeamByMemberId = memberSpaceRelationRepository.findBySpaceIdAndMemberId(spaceId, memberId).orElseThrow(() -> new MemberSpaceRelationException(NOT_FOUND_MEMBER_SPACE_RELATION));
+		// 스페이스 존재하는 멤버 확인
+		var foundTeamByMemberId = memberSpaceRelationRepository.findBySpaceIdAndMemberId(spaceId, memberId)
+			.orElseThrow(() -> new MemberSpaceRelationException(NOT_FOUND_MEMBER_SPACE_RELATION));
 
-        // 팀에서 삭제하기
-        memberSpaceRelationRepository.delete(foundTeamByMemberId);
-    }
+		// 팀에서 삭제하기
+		memberSpaceRelationRepository.delete(foundTeamByMemberId);
+	}
 
-
-    public List<SpaceResponse.SpaceMemberResponse> getSpaceMembers(Long memberId, Long spaceId) {
+	public List<SpaceResponse.SpaceMemberResponse> getSpaceMembers(Long memberId, Long spaceId) {
         /*
             스페이스 소속 여부 조회
          */
-        var isExist = findSpaceByIdAndJoinedMemberId(spaceId, memberId);
-        if (isExist.isEmpty()) {
-            throw new SpaceException(NOT_FOUND_SPACE);
-        }
+		var isExist = findSpaceByIdAndJoinedMemberId(spaceId, memberId);
+		if (isExist.isEmpty()) {
+			throw new SpaceException(NOT_FOUND_SPACE);
+		}
 
-        List<SpaceMember> SpaceMembers = spaceRepository.findAllSpaceMemberBySpaceIdWithIsLeader(spaceId);
-        return SpaceMembers.stream()
-                .filter(a -> a.getDeletedAt() == null)
-                .map(SpaceResponse.SpaceMemberResponse::toResponse)
-                .sorted(
-                        Comparator.comparing(SpaceResponse.SpaceMemberResponse::isLeader).reversed())
-                .toList();
-    }
+		List<SpaceMember> SpaceMembers = spaceRepository.findAllSpaceMemberBySpaceIdWithIsLeader(spaceId);
+		return SpaceMembers.stream()
+			.filter(a -> a.getDeletedAt() == null)
+			.map(SpaceResponse.SpaceMemberResponse::toResponse)
+			.sorted(
+				Comparator.comparing(SpaceResponse.SpaceMemberResponse::isLeader).reversed())
+			.toList();
+	}
 
-    private Optional<MemberSpaceRelation> findSpaceByIdAndJoinedMemberId(Long spaceId, Long memberId) {
+	private Optional<MemberSpaceRelation> findSpaceByIdAndJoinedMemberId(Long spaceId, Long memberId) {
         /*
           이미 참여중인 스페이스 여부 확인
          */
-        return memberSpaceRelationRepository.findBySpaceIdAndMemberId(spaceId, memberId);
-    }
+		return memberSpaceRelationRepository.findBySpaceIdAndMemberId(spaceId, memberId);
+	}
 
-    @Transactional
-    public void removeSpace(Long spaceId, Long leaderId) {
-        // 스페이스 리더 여부 확인
-        var foundSpace = checkLeaderFromSpace(spaceId, leaderId);
+	@Transactional
+	public void removeSpace(Long spaceId, Long leaderId) {
+		// 스페이스 리더 여부 확인
+		var foundSpace = checkLeaderFromSpace(spaceId, leaderId);
 
-        // 액션 아이템 삭제
-        actionItemRepository.deleteAllBySpaceId(spaceId);
+		// 액션 아이템 삭제
+		actionItemRepository.deleteAllBySpaceId(spaceId);
 
-        // 진행중인 회고 삭제
-        retrospectRepository.deleteAllBySpaceId(spaceId);
+		// 진행중인 회고 삭제
+		retrospectRepository.deleteAllBySpaceId(spaceId);
 
-        memberSpaceRelationRepository.deleteAllBySpaceIdInBatch(foundSpace.getId());
-        spaceRepository.delete(foundSpace);
-    }
+		memberSpaceRelationRepository.deleteAllBySpaceIdInBatch(foundSpace.getId());
+		spaceRepository.delete(foundSpace);
+	}
 
+	/**
+	 * 스페이스 리더 여부 확인
+	 *
+	 * @param spaceId  스페이스 아이디
+	 * @param leaderId 확인하고자 하는 리더 아이디
+	 */
+	private Space checkLeaderFromSpace(Long spaceId, Long leaderId) {
+		var foundSpace = spaceRepository.findById(spaceId).orElseThrow(() -> new SpaceException(NOT_FOUND_SPACE));
+		foundSpace.isLeaderSpace(leaderId);
 
-    /**
-     * 스페이스 리더 여부 확인
-     *
-     * @param spaceId  스페이스 아이디
-     * @param leaderId 확인하고자 하는 리더 아이디
-     */
-    private Space checkLeaderFromSpace(Long spaceId, Long leaderId) {
-        var foundSpace = spaceRepository.findById(spaceId).orElseThrow(() -> new SpaceException(NOT_FOUND_SPACE));
-        foundSpace.isLeaderSpace(leaderId);
+		return foundSpace;
 
-        return foundSpace;
-
-    }
+	}
 
 }
