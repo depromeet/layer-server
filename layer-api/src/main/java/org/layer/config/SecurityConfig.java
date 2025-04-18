@@ -92,6 +92,7 @@ public class SecurityConfig {
 			"http://localhost:8080",
 			"https://api.layerapp.io",
 			"https://layerapp.io",
+			"https://www.layerapp.io",
 			"http://localhost:5173",
 			"https://stg.layerapp.io",
 			"https://stgapi.layerapp.io"));
