@@ -31,7 +31,7 @@ import org.layer.domain.space.entity.MemberSpaceRelation;
 import org.layer.domain.space.entity.Team;
 import org.layer.domain.space.exception.MemberSpaceRelationException;
 import org.layer.domain.space.repository.MemberSpaceRelationRepository;
-import org.layer.external.ai.service.AIAnalyzeService;
+import org.layer.ai.service.AIAnalyzeService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

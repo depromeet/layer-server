@@ -3,14 +3,13 @@ package org.layer.domain.retrospect.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
-import org.layer.common.annotation.MemberId;
+import org.layer.annotation.MemberId;
 import org.layer.domain.retrospect.controller.dto.request.RetrospectCreateRequest;
 import org.layer.domain.retrospect.controller.dto.request.RetrospectUpdateRequest;
 import org.layer.domain.retrospect.controller.dto.response.RetrospectCreateResponse;
 import org.layer.domain.retrospect.controller.dto.response.RetrospectListGetResponse;
 import org.layer.domain.retrospect.service.RetrospectService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -22,7 +21,6 @@ public class RetrospectController implements RetrospectApi {
 
 	@Override
 	@PostMapping
-	@PreAuthorize("isAuthenticated()")
 	public ResponseEntity<RetrospectCreateResponse> createRetrospect(
 		@PathVariable("spaceId") Long spaceId,
 		@RequestBody @Valid RetrospectCreateRequest request,
@@ -35,7 +33,6 @@ public class RetrospectController implements RetrospectApi {
 
 	@Override
 	@GetMapping
-	@PreAuthorize("isAuthenticated()")
 	public ResponseEntity<RetrospectListGetResponse> getRetrospects(@PathVariable("spaceId") Long spaceId,
 		@MemberId Long memberId) {
 

@@ -23,7 +23,6 @@ public class TemplateController implements TemplateApi {
     //== 간단 정보 단건 조회 ==//
     @Override
     @GetMapping("/{templateId}/simple-info")
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<TemplateSimpleInfoResponse> getTemplateSimpleInfo(@PathVariable("templateId") Long templateId) {
         TemplateSimpleInfoResponse templateSimpleInfo = templateService.getTemplateSimpleInfo(templateId);
         return new ResponseEntity<>(templateSimpleInfo, HttpStatus.OK);
@@ -32,7 +31,6 @@ public class TemplateController implements TemplateApi {
     //== 상세 정보 단건 조회 ==//
     @Override
     @GetMapping("/{templateId}/detail-info")
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<TemplateDetailInfoResponse> getTemplateDetailInfo(@PathVariable("templateId") Long templateId) {
         TemplateDetailInfoResponse templateDetailInfo = templateService.getTemplateDetailInfo(templateId);
         return new ResponseEntity<>(templateDetailInfo, HttpStatus.OK);
@@ -42,7 +40,6 @@ public class TemplateController implements TemplateApi {
     //== 모든 템플릿 간단 정보 조회 ==//
     @Override
     @GetMapping("/all")
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<TemplateSimpleInfoResponse>> getAllTemplates() {
         return new ResponseEntity<>(templateService.getAllTemplates(), HttpStatus.OK);
     }

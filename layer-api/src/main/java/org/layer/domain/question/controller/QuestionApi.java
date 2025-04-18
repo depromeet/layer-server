@@ -1,6 +1,6 @@
 package org.layer.domain.question.controller;
 
-import org.layer.common.annotation.MemberId;
+import org.layer.annotation.MemberId;
 import org.layer.domain.question.controller.dto.response.QuestionListGetResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;

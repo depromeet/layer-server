@@ -9,7 +9,7 @@ import org.layer.domain.common.time.Time;
 import org.layer.domain.retrospect.entity.Retrospect;
 import org.layer.domain.retrospect.entity.RetrospectStatus;
 import org.layer.domain.retrospect.repository.RetrospectRepository;
-import org.layer.external.ai.service.AIAnalyzeService;
+import org.layer.ai.service.AIAnalyzeService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 

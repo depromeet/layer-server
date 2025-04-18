@@ -26,8 +26,8 @@ import org.layer.domain.space.entity.Space;
 import org.layer.domain.space.entity.Team;
 import org.layer.domain.space.repository.MemberSpaceRelationRepository;
 import org.layer.domain.space.repository.SpaceRepository;
-import org.layer.external.ai.service.AIAnalyzeService;
-import org.layer.external.discord.event.CreateRetrospectEvent;
+import org.layer.ai.service.AIAnalyzeService;
+import org.layer.discord.event.CreateRetrospectEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -104,7 +104,7 @@ public class RetrospectService {
 			.build();
 	}
 
-	public void publishCreateRetrospectEvent(final Retrospect retrospect, final Long memberId) {
+	private void publishCreateRetrospectEvent(final Retrospect retrospect, final Long memberId) {
 		eventPublisher.publishEvent(CreateRetrospectEvent.of(
 			retrospect.getTitle(),
 			memberId,

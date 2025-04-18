@@ -7,7 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.layer.common.annotation.MemberId;
+import org.layer.annotation.MemberId;
 import org.layer.domain.answer.controller.dto.request.AnswerListCreateRequest;
 import org.layer.domain.answer.controller.dto.request.AnswerListUpdateRequest;
 import org.layer.domain.answer.controller.dto.response.AnswerListGetResponse;

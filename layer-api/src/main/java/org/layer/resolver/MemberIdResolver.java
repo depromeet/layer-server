@@ -2,7 +2,7 @@ package org.layer.resolver;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.layer.common.annotation.MemberId;
+import org.layer.annotation.MemberId;
 import org.layer.common.exception.BaseCustomException;
 import org.springframework.core.MethodParameter;
 import org.springframework.security.core.context.SecurityContextHolder;

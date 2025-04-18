@@ -1,9 +1,6 @@
 package org.layer.domain.question.controller;
 
-import java.util.List;
-
-import org.layer.common.annotation.MemberId;
-import org.layer.domain.question.controller.dto.response.QuestionGetResponse;
+import org.layer.annotation.MemberId;
 import org.layer.domain.question.controller.dto.response.QuestionListGetResponse;
 import org.layer.domain.question.service.QuestionService;
 import org.springframework.http.ResponseEntity;

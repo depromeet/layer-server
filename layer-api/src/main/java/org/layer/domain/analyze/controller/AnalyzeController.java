@@ -2,7 +2,7 @@ package org.layer.domain.analyze.controller;
 
 import java.util.List;
 
-import org.layer.common.annotation.MemberId;
+import org.layer.annotation.MemberId;
 import org.layer.domain.analyze.controller.dto.response.AnalyzesGetResponse;
 import org.layer.domain.analyze.service.AnalyzeService;
 import org.springframework.http.HttpStatus;

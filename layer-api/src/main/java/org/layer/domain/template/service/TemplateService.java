@@ -13,6 +13,7 @@ import org.layer.domain.template.controller.dto.TemplateSimpleInfoResponse;
 import org.layer.domain.template.entity.QuestionDescription;
 import org.layer.domain.template.entity.TemplateMetadata;
 import org.layer.domain.template.entity.TemplatePurpose;
+import org.layer.domain.template.exception.TemplateException;
 import org.layer.domain.template.repository.QuestionDescriptionRepository;
 import org.layer.domain.template.repository.TemplateMetadataRepository;
 import org.layer.domain.template.repository.TemplatePurposeRepository;
@@ -22,6 +23,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.layer.domain.form.entity.FormType.TEMPLATE;
+import static org.layer.domain.template.exception.TemplateExceptionType.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -43,7 +45,8 @@ public class TemplateService {
     //== 상세 정보 단건 조회 ==//
     public TemplateDetailInfoResponse getTemplateDetailInfo(Long formId) {
         Form form = formRepository.findByIdOrThrow(formId);
-        Optional<TemplateMetadata> template = templateMetadataRepository.findByFormId(formId);
+		TemplateMetadata templateMetadata = templateMetadataRepository.findByFormId(formId)
+			.orElseThrow(() -> new TemplateException(TEMPLATE_NOT_FOUND));
         List<Question> questionList = questionRepository.findAllByFormId(formId);
 
         List<TemplatePurpose> templatePurposeList = templatePurposeRepository.findAllByFormId(formId);
@@ -57,11 +60,12 @@ public class TemplateService {
                     .description(description.map(QuestionDescription::getDescription).orElse(null)).build();
         }).toList();
 
-        return TemplateDetailInfoResponse.toResponse(form, template, questionDesList, templatePurposeResponses);
+        return TemplateDetailInfoResponse.toResponse(form, templateMetadata, questionDesList, templatePurposeResponses);
     }
 
 
     //== 모든 템플릿 리스트 간단 정보 조회 ==//
+    // TODO: N+1 문제 해결 필요
     public List<TemplateSimpleInfoResponse> getAllTemplates() {
         List<Form> forms = formRepository.findByFormTypeOrderById(TEMPLATE);
 
