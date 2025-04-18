@@ -2,8 +2,7 @@ package org.layer.domain.member.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.layer.common.annotation.MemberId;
-import org.layer.domain.member.controller.dto.CreateFeedbackRequest;
+import org.layer.annotation.MemberId;
 import org.layer.domain.member.controller.dto.GetMemberAnalyzesResponse;
 import org.layer.domain.member.controller.dto.UpdateMemberInfoRequest;
 import org.layer.domain.member.controller.dto.UpdateMemberInfoResponse;

@@ -1,6 +1,7 @@
 package org.layer.domain.analyze.entity;
 
 import org.layer.domain.analyze.enums.AnalyzeDetailType;
+import org.layer.domain.common.BaseTimeEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -17,7 +18,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class AnalyzeDetail {
+public class AnalyzeDetail extends BaseTimeEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
