@@ -1,16 +1,13 @@
-package org.layer.common.exception;
+package org.layer.global.exception;
 
+import org.layer.common.exception.ExceptionType;
 import org.springframework.http.HttpStatus;
 
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public enum MemberSpaceRelationExceptionType implements ExceptionType {
-	/**
-	 * 400
-	 */
-
-	NOT_FOUND_MEMBER_SPACE_RELATION(HttpStatus.NOT_FOUND, "해당 스페이스에 소속되지 않은 멤버입니다.");
+public enum OpenAIExceptionType implements ExceptionType {
+	INVALID_PARSE(HttpStatus.INTERNAL_SERVER_ERROR, "openAI 서버 오류입니다.");
 
 	private final HttpStatus status;
 	private final String message;
@@ -24,5 +21,4 @@ public enum MemberSpaceRelationExceptionType implements ExceptionType {
 	public String message() {
 		return message;
 	}
-
 }

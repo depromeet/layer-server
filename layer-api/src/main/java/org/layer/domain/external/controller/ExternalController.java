@@ -27,7 +27,6 @@ public class ExternalController implements ExternalApi {
     public ResponseEntity<ExternalResponse.GetPreSignedURLResponse> getPresignedURL(@MemberId Long memberId, ExternalRequest.GetPreSignedURLRequest getPreSignedURLRequest) {
         NcpResponse.PresignedResult presignedResult = ncpService.getPreSignedUrl(memberId, getPreSignedURLRequest.domain());
 
-
         return ResponseEntity.ok(ExternalResponse.GetPreSignedURLResponse.toResponse(presignedResult.presignedUrl(), presignedResult.imageUrl()));
     }
 }

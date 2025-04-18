@@ -1,6 +1,6 @@
 package org.layer.ai.dto.response;
 
-import static org.layer.common.exception.OpenAIExceptionType.*;
+import static org.layer.global.exception.OpenAIExceptionType.*;
 
 import java.io.IOException;
 import java.util.List;

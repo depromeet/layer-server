@@ -9,8 +9,9 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
-import static org.layer.common.exception.MemberExceptionType.FAIL_TO_AUTH;
 import static org.layer.domain.member.entity.SocialType.KAKAO;
+import static org.layer.global.exception.AuthExceptionType.*;
+import static org.layer.global.exception.MemberExceptionType.*;
 import static org.layer.oauth.config.KakaoOAuthConfig.*;
 
 

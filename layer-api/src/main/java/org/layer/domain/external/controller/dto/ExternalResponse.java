@@ -1,13 +1,9 @@
 package org.layer.domain.external.controller.dto;
 
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
-import org.layer.ncp.exception.ExternalException;
-
-import java.util.Optional;
-
-import static org.layer.common.exception.ExternalExceptionType.INTERNAL_SERVER_ERROR;
 
 public class ExternalResponse {
 
@@ -28,12 +24,10 @@ public class ExternalResponse {
             String imageUrl
     ) {
         public static GetPreSignedURLResponse toResponse(String presignedUrl, String imageUrl) {
-            return Optional.ofNullable(presignedUrl)
-                    .map(it -> GetPreSignedURLResponse.builder()
-                            .presignedUrl(presignedUrl)
-                            .imageUrl(imageUrl)
-                            .build()
-                    ).orElseThrow(() -> new ExternalException(INTERNAL_SERVER_ERROR));
+            return GetPreSignedURLResponse.builder()
+                .presignedUrl(presignedUrl)
+                .imageUrl(imageUrl)
+                .build();
         }
     }
 }

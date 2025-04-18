@@ -2,7 +2,6 @@ package org.layer.domain.member.service;
 
 import lombok.RequiredArgsConstructor;
 import org.layer.common.exception.BaseCustomException;
-import org.layer.common.exception.MemberExceptionType;
 import org.layer.domain.analyze.entity.Analyze;
 import org.layer.domain.analyze.entity.AnalyzeDetail;
 import org.layer.domain.analyze.enums.AnalyzeDetailType;
@@ -18,6 +17,7 @@ import org.layer.domain.retrospect.entity.RetrospectStatus;
 import org.layer.domain.retrospect.repository.RetrospectRepository;
 import org.layer.domain.space.entity.MemberSpaceRelation;
 import org.layer.domain.space.repository.MemberSpaceRelationRepository;
+import org.layer.global.exception.MemberExceptionType;
 import org.layer.oauth.dto.service.MemberInfoServiceResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,9 +28,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.layer.common.exception.MemberExceptionType.NOT_A_NEW_MEMBER;
-import static org.layer.common.exception.MemberExceptionType.NOT_FOUND_USER;
 import static org.layer.domain.member.entity.MemberRole.USER;
+import static org.layer.global.exception.MemberExceptionType.*;
 
 @RequiredArgsConstructor
 @Service

@@ -1,10 +1,10 @@
 package org.layer.domain.space.repository;
 
+import static org.layer.global.exception.SpaceExceptionType.*;
+
 import org.layer.domain.space.entity.Space;
 import org.layer.domain.space.exception.SpaceException;
 import org.springframework.data.jpa.repository.JpaRepository;
-
-import static org.layer.common.exception.SpaceExceptionType.NOT_FOUND_SPACE;
 
 
 public interface SpaceRepository extends JpaRepository<Space, Long>, SpaceCustomRepository {

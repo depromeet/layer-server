@@ -1,9 +1,6 @@
 package org.layer.domain.question.service;
 
-import static org.layer.common.exception.MemberSpaceRelationExceptionType.*;
-
 import java.util.List;
-import java.util.Optional;
 
 import org.layer.domain.answer.entity.Answers;
 import org.layer.domain.answer.enums.AnswerStatus;
@@ -13,13 +10,9 @@ import org.layer.domain.question.controller.dto.response.QuestionListGetResponse
 import org.layer.domain.question.entity.Question;
 import org.layer.domain.question.enums.QuestionOwner;
 import org.layer.domain.question.repository.QuestionRepository;
-import org.layer.domain.question.service.dto.response.QuestionGetServiceResponse;
-import org.layer.domain.question.service.dto.response.QuestionListGetServiceResponse;
 import org.layer.domain.retrospect.entity.Retrospect;
 import org.layer.domain.retrospect.repository.RetrospectRepository;
-import org.layer.domain.space.entity.MemberSpaceRelation;
 import org.layer.domain.space.entity.Team;
-import org.layer.domain.space.exception.MemberSpaceRelationException;
 import org.layer.domain.space.repository.MemberSpaceRelationRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

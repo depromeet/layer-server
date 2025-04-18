@@ -1,6 +1,6 @@
 package org.layer.domain.retrospect.entity;
 
-import static org.layer.common.exception.RetrospectExceptionType.*;
+import static org.layer.global.exception.RetrospectExceptionType.*;
 
 import java.time.LocalDateTime;
 
