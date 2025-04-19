@@ -2,6 +2,7 @@ package org.layer.domain.space;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.layer.global.exception.ApiSpaceExceptionType.*;
+import static org.layer.global.exception.MemberSpaceRelationExceptionType.*;
 import static org.layer.global.exception.SpaceExceptionType.*;
 
 import java.util.List;
@@ -25,6 +26,7 @@ import org.layer.domain.space.entity.MemberSpaceRelation;
 import org.layer.domain.space.entity.Space;
 import org.layer.domain.space.entity.SpaceCategory;
 import org.layer.domain.space.entity.SpaceField;
+import org.layer.domain.space.exception.MemberSpaceRelationException;
 import org.layer.domain.space.exception.SpaceException;
 import org.layer.domain.space.repository.MemberSpaceRelationRepository;
 import org.layer.domain.space.repository.SpaceRepository;
@@ -189,6 +191,71 @@ public class SpaceServiceTest {
 			// when, then
 			assertThatThrownBy(() -> spaceService.createSpace(memberId, req));
 
+		}
+	}
+
+	@Nested
+	class 스페이스_팀원_목록_조회{
+		@Test
+		@DisplayName("스페이스 팀원 목록을 조회할 수 있다.")
+		void getSpaceMembersTest1(){
+			// given
+			Form form = FormFixture.createFixture(null, null);
+			Form savedForm = formRepository.save(form);
+
+			Member leader = MemberFixture.createFixture("id1");
+			Member member1 = MemberFixture.createFixture("id2");
+			Member member2 = MemberFixture.createFixture("id3");
+
+			List<Member> members = memberRepository.saveAll(List.of(leader, member1, member2));
+			Long leaderId = members.get(0).getId();
+
+			Space space = SpaceFixture.createFixture(leaderId, savedForm.getId());
+			Space savedSpace = spaceRepository.save(space);
+
+			MemberSpaceRelation team1 = MemberSpaceRelationFixture.createFixture(savedSpace, members.get(0).getId());
+			MemberSpaceRelation team2 = MemberSpaceRelationFixture.createFixture(savedSpace, members.get(1).getId());
+			MemberSpaceRelation team3 = MemberSpaceRelationFixture.createFixture(savedSpace, members.get(2).getId());
+			memberSpaceRelationRepository.saveAll(List.of(team1, team2, team3));
+
+			// when
+			List<SpaceResponse.SpaceMemberResponse> res = spaceService.getSpaceMembers(members.get(1).getId(),
+				savedSpace.getId());
+
+			// then
+			assertThat(res).hasSize(3);
+			assertThat(res.get(0).isLeader()).isTrue();
+			assertThat(res.get(1).isLeader()).isFalse();
+			assertThat(res.get(2).isLeader()).isFalse();
+		}
+
+		@Test
+		@DisplayName("속하지 않은 스페이스의 팀원 목록은 조회할 수 없다.")
+		void getSpaceMembersTest2(){
+			// given
+			Form form = FormFixture.createFixture(null, null);
+			Form savedForm = formRepository.save(form);
+
+			Member leader = MemberFixture.createFixture("id1");
+			Member member1 = MemberFixture.createFixture("id2");
+			Member member2 = MemberFixture.createFixture("id3");
+
+			List<Member> members = memberRepository.saveAll(List.of(leader, member1, member2));
+			Long leaderId = members.get(0).getId();
+
+			Space space = SpaceFixture.createFixture(leaderId, savedForm.getId());
+			Space savedSpace = spaceRepository.save(space);
+
+			MemberSpaceRelation team1 = MemberSpaceRelationFixture.createFixture(savedSpace, members.get(0).getId());
+			MemberSpaceRelation team2 = MemberSpaceRelationFixture.createFixture(savedSpace, members.get(1).getId());
+			MemberSpaceRelation team3 = MemberSpaceRelationFixture.createFixture(savedSpace, members.get(2).getId());
+			memberSpaceRelationRepository.saveAll(List.of(team1, team2, team3));
+
+			// when, then
+			Long invalidId = 0L;
+			assertThatThrownBy(() -> spaceService.getSpaceMembers(invalidId, savedSpace.getId()))
+				.isInstanceOf(MemberSpaceRelationException.class)
+				.hasMessageContaining(NOT_FOUND_MEMBER_SPACE_RELATION.message());
 		}
 	}
 }
