@@ -1,5 +1,7 @@
 package org.layer.domain.space.entity;
 
+import static org.layer.global.exception.SpaceExceptionType.*;
+
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -16,8 +18,6 @@ import org.layer.domain.space.exception.SpaceException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.layer.common.exception.SpaceExceptionType.CAN_ONLY_SPACE_LEADER;
-import static org.layer.common.exception.SpaceExceptionType.SPACE_LEADER_NOT_ALLOW;
 
 @Getter
 @Entity
@@ -70,6 +70,17 @@ public class Space extends BaseTimeEntity {
     public void updateRecentFormId(Long formId, Long memberId){
         isLeaderSpace(memberId);
         this.formId = formId;
+    }
+
+    public void updateSpace(Long memberId, String bannerUrl, String name, String introduction){
+        isLeaderSpace(memberId);
+        this.bannerUrl = bannerUrl;
+        this.name = name;
+        this.introduction = introduction;
+    }
+
+    public void updateBannerUrl(String bannerUrl){
+        this.bannerUrl = bannerUrl;
     }
 
     @Builder

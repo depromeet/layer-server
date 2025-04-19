@@ -1,6 +1,6 @@
 package org.layer.domain.question.entity;
 
-import static org.layer.common.exception.QuestionExceptionType.*;
+import static org.layer.global.exception.QuestionExceptionType.*;
 
 import java.util.List;
 

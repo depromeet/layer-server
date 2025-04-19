@@ -1,5 +1,8 @@
 package org.layer.domain.answer.service;
 
+import static org.layer.global.exception.ApiAnswerExceptionType.*;
+import static org.layer.global.exception.ApiMemberSpaceRelationExceptionType.*;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -38,8 +41,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
-import static org.layer.common.exception.AnswerExceptionType.NOT_ANSWERED;
-import static org.layer.common.exception.MemberSpaceRelationExceptionType.NOT_FOUND_MEMBER_SPACE_RELATION;
 
 @Slf4j
 @Service

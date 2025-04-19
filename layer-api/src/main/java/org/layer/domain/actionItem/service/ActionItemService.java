@@ -24,9 +24,9 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import static org.layer.common.exception.ActionItemExceptionType.*;
-import static org.layer.common.exception.MemberSpaceRelationExceptionType.NOT_FOUND_MEMBER_SPACE_RELATION;
 import static org.layer.domain.retrospect.entity.RetrospectStatus.DONE;
+import static org.layer.global.exception.ApiActionItemExceptionType.*;
+import static org.layer.global.exception.ApiMemberSpaceRelationExceptionType.*;
 
 @Slf4j
 @RequiredArgsConstructor

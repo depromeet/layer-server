@@ -1,7 +1,10 @@
 package org.layer.resolver;
 
+import static org.layer.global.exception.ApiMemberExceptionType.*;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.layer.annotation.MemberId;
 import org.layer.common.exception.BaseCustomException;
 import org.springframework.core.MethodParameter;
@@ -14,33 +17,35 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 
 import java.util.Optional;
 
-import static org.layer.common.exception.MemberExceptionType.UNAUTHORIZED_USER;
-
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class MemberIdResolver implements HandlerMethodArgumentResolver {
-    @Override
-    public boolean supportsParameter(MethodParameter parameter) {
-        // 1. 어노테이션 체크
-        var annotation = parameter.hasParameterAnnotation(MemberId.class);
+	@Override
+	public boolean supportsParameter(MethodParameter parameter) {
+		// 1. 어노테이션 체크
+		var annotation = parameter.hasParameterAnnotation(MemberId.class);
 
-        // 2. 파라미터의 타입체크
-        var parameterType = parameter.getParameterType().equals(Long.class);
+		// 2. 파라미터의 타입체크
+		var parameterType = parameter.getParameterType().equals(Long.class);
 
-        return (annotation && parameterType);
-    }
+		return (annotation && parameterType);
+	}
 
-    @Override
-    public Long resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
-        try {
-            var securityContext = SecurityContextHolder.getContext();
-            var memberId = Optional.ofNullable(securityContext).map(it -> it.getAuthentication().getName()).orElseThrow(() -> new BaseCustomException(UNAUTHORIZED_USER));
+	@Override
+	public Long resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
+		NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
 
-            return Long.parseLong(memberId);
-        } catch (Exception e) {
+		try {
+			var securityContext = SecurityContextHolder.getContext();
+			var memberId = Optional.ofNullable(securityContext)
+				.map(it -> it.getAuthentication().getName())
+				.orElseThrow(() -> new BaseCustomException(UNAUTHORIZED_USER));
 
-            throw new BaseCustomException(UNAUTHORIZED_USER);
-        }
-    }
+			return Long.parseLong(memberId);
+		} catch (Exception e) {
+
+			throw new BaseCustomException(UNAUTHORIZED_USER);
+		}
+	}
 }

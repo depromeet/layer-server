@@ -1,6 +1,6 @@
 package org.layer.domain.space.entity;
 
-import static org.layer.common.exception.MemberSpaceRelationExceptionType.*;
+import static org.layer.global.exception.MemberSpaceRelationExceptionType.*;
 
 import java.util.List;
 

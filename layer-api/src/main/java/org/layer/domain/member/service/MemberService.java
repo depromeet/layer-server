@@ -2,7 +2,6 @@ package org.layer.domain.member.service;
 
 import lombok.RequiredArgsConstructor;
 import org.layer.common.exception.BaseCustomException;
-import org.layer.common.exception.MemberExceptionType;
 import org.layer.domain.analyze.entity.Analyze;
 import org.layer.domain.analyze.entity.AnalyzeDetail;
 import org.layer.domain.analyze.enums.AnalyzeDetailType;
@@ -18,6 +17,7 @@ import org.layer.domain.retrospect.entity.RetrospectStatus;
 import org.layer.domain.retrospect.repository.RetrospectRepository;
 import org.layer.domain.space.entity.MemberSpaceRelation;
 import org.layer.domain.space.repository.MemberSpaceRelationRepository;
+import org.layer.global.exception.ApiMemberExceptionType;
 import org.layer.oauth.dto.service.MemberInfoServiceResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,9 +28,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.layer.common.exception.MemberExceptionType.NOT_A_NEW_MEMBER;
-import static org.layer.common.exception.MemberExceptionType.NOT_FOUND_USER;
 import static org.layer.domain.member.entity.MemberRole.USER;
+import static org.layer.global.exception.ApiMemberExceptionType.*;
 
 @RequiredArgsConstructor
 @Service
@@ -48,7 +47,7 @@ public class MemberService {
 	// 회원이 진짜로 없는 error의 경우와 회원 가입이 필요하다는 응답을 구분하기 위함
 	public Member getMemberBySocialInfoForSignIn(String socialId, SocialType socialType) {
 		return memberRepository.findBySocialIdAndSocialType(socialId, socialType)
-			.orElseThrow(() -> new BaseCustomException(MemberExceptionType.NEED_TO_REGISTER));
+			.orElseThrow(() -> new BaseCustomException(ApiMemberExceptionType.NEED_TO_REGISTER));
 	}
 
 	public void checkIsNewMember(String socialId, SocialType socialType) {
