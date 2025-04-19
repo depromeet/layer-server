@@ -74,6 +74,8 @@ public class SpaceResponse {
         }
 
         public static SpaceWithMemberCountInfo of(Space space, Form form, Long memberCount, Leader leader) {
+            String formTag = form != null ? form.getFormTag().getTag() : null;
+
             return SpaceWithMemberCountInfo.builder()
                 .id(space.getId())
                 .category(space.getCategory())
@@ -81,7 +83,7 @@ public class SpaceResponse {
                 .name(space.getName())
                 .introduction(space.getIntroduction())
                 .formId(space.getFormId())
-                .formTag(form.getFormTag().getTag())
+                .formTag(formTag)
                 .memberCount(memberCount)
                 .bannerUrl(space.getBannerUrl())
                 .createdAt(space.getCreatedAt())
