@@ -16,7 +16,7 @@ import java.util.List;
 
 import static org.layer.config.AuthValueConfig.ACCESS_TOKEN_EXPIRATION_TIME;
 import static org.layer.config.AuthValueConfig.REFRESH_TOKEN_EXPIRATION_TIME;
-import static org.layer.global.exception.TokenExceptionType.*;
+import static org.layer.global.exception.ApiTokenExceptionType.*;
 
 @Slf4j
 @RequiredArgsConstructor

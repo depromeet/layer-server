@@ -1,8 +1,8 @@
-package org.layer.ncp.dto;
+package org.layer.storage.dto;
 
 import lombok.Builder;
 
-public class NcpResponse {
+public class StorageResponse {
 
     @Builder
     public record PresignedResult(
@@ -10,10 +10,8 @@ public class NcpResponse {
             String imageUrl
     ) {
 
-        public static PresignedResult toResponse(String presignedUrl,
-                                                 String imageUrl) {
+        public static PresignedResult toResponse(String presignedUrl, String imageUrl) {
             return PresignedResult.builder().presignedUrl(presignedUrl).imageUrl(imageUrl).build();
-
         }
     }
 }

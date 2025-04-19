@@ -12,7 +12,7 @@ import java.util.List;
 
 import static org.layer.domain.jwt.JwtValidationType.INVALID_JWT;
 import static org.layer.domain.jwt.JwtValidationType.VALID_JWT;
-import static org.layer.global.exception.TokenExceptionType.*;
+import static org.layer.global.exception.ApiTokenExceptionType.*;
 
 @Slf4j
 @RequiredArgsConstructor

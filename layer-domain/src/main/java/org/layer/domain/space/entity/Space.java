@@ -72,6 +72,13 @@ public class Space extends BaseTimeEntity {
         this.formId = formId;
     }
 
+    public void updateSpace(Long memberId, String bannerUrl, String name, String introduction){
+        isLeaderSpace(memberId);
+        this.bannerUrl = bannerUrl;
+        this.name = name;
+        this.introduction = introduction;
+    }
+
     @Builder
     public Space(String bannerUrl, SpaceCategory category, List<SpaceField> fieldList, String name, String introduction,
         Long leaderId, Long formId) {

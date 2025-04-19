@@ -11,7 +11,6 @@ import org.springframework.web.client.RestClient;
 
 import static org.layer.domain.member.entity.SocialType.GOOGLE;
 import static org.layer.global.exception.AuthExceptionType.*;
-import static org.layer.global.exception.MemberExceptionType.*;
 import static org.layer.oauth.config.GoogleOAuthConfig.*;
 
 @Slf4j

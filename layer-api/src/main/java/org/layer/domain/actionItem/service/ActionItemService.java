@@ -25,8 +25,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static org.layer.domain.retrospect.entity.RetrospectStatus.DONE;
-import static org.layer.global.exception.ActionItemExceptionType.*;
-import static org.layer.global.exception.MemberSpaceRelationExceptionType.*;
+import static org.layer.global.exception.ApiActionItemExceptionType.*;
+import static org.layer.global.exception.ApiMemberSpaceRelationExceptionType.*;
 
 @Slf4j
 @RequiredArgsConstructor

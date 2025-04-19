@@ -1,4 +1,4 @@
-package org.layer.ncp.service;
+package org.layer.storage.service;
 
 import static org.layer.global.exception.StorageExceptionType.*;
 
@@ -9,9 +9,9 @@ import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.layer.ncp.dto.NcpResponse;
-import org.layer.ncp.enums.ImageDomain;
-import org.layer.ncp.exception.ExternalException;
+import org.layer.storage.dto.StorageResponse;
+import org.layer.storage.enums.ImageDomain;
+import org.layer.storage.exception.StorageException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -21,20 +21,20 @@ import java.util.UUID;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class NcpService {
+public class StorageService {
 
     @Value("${ncp.storage.bucketName}")
     private String bucket;
 
     private final AmazonS3Client amazonS3Client;
 
-    public NcpResponse.PresignedResult getPreSignedUrl(Long memberId, ImageDomain imageDomain) {
+    public StorageResponse.PresignedResult getPreSignedUrl(Long memberId, ImageDomain imageDomain) {
         String imagePath = imageDomain + "/" + memberId.toString() + "/" + UUID.randomUUID();
         var imageUrl = amazonS3Client.getUrl(bucket, imagePath);
 
         GeneratePresignedUrlRequest generatePresignedUrlRequest = getGeneratePreSignedUrlRequest(imagePath);
 
-        return NcpResponse.PresignedResult.toResponse(
+        return StorageResponse.PresignedResult.toResponse(
                 amazonS3Client.generatePresignedUrl(generatePresignedUrlRequest).toString(),
                 imageUrl.toString()
         );
@@ -45,7 +45,7 @@ public class NcpService {
         String objectKey = extractObjectKey(url);
         boolean isExist = amazonS3Client.doesObjectExist(bucket, objectKey);
         if (!isExist) {
-            throw new ExternalException(OBJECT_INVALID_ERROR);
+            throw new StorageException(OBJECT_INVALID_ERROR);
         }
     }
 
@@ -74,7 +74,7 @@ public class NcpService {
         String expectedPrefix = "https://layer-bucket.kr.object.ncloudstorage.com";
 
         if (!url.startsWith(expectedPrefix)) {
-            throw new ExternalException(OBJECT_INVALID_ERROR);
+            throw new StorageException(OBJECT_INVALID_ERROR);
         }
         return url.substring(expectedPrefix.length() + 1); // "/" 이후부터 추출
     }

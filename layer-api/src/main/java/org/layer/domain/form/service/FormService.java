@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.layer.domain.form.entity.FormType.CUSTOM;
-import static org.layer.global.exception.FormExceptionType.*;
+import static org.layer.global.exception.ApiFormExceptionType.*;
 
 @Service
 @RequiredArgsConstructor

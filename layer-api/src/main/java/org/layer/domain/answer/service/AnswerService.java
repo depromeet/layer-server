@@ -1,7 +1,7 @@
 package org.layer.domain.answer.service;
 
-import static org.layer.global.exception.AnswerExceptionType.*;
-import static org.layer.global.exception.MemberSpaceRelationExceptionType.*;
+import static org.layer.global.exception.ApiAnswerExceptionType.*;
+import static org.layer.global.exception.ApiMemberSpaceRelationExceptionType.*;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
