@@ -10,6 +10,10 @@ import org.layer.common.dto.Meta;
 import org.layer.domain.actionItem.repository.ActionItemRepository;
 import org.layer.domain.common.time.Time;
 import org.layer.discord.event.CreateSpaceEvent;
+import org.layer.domain.form.entity.Form;
+import org.layer.domain.form.repository.FormRepository;
+import org.layer.domain.member.repository.MemberRepository;
+import org.layer.domain.space.dto.Leader;
 import org.layer.domain.space.dto.SpaceMember;
 import org.layer.domain.space.dto.SpaceWithMemberCount;
 import org.layer.storage.service.StorageService;
@@ -37,7 +41,10 @@ import java.util.Optional;
 @Transactional(readOnly = true)
 public class SpaceService {
 	private final StorageService storageService;
+
 	private final SpaceRepository spaceRepository;
+	private final FormRepository formRepository;
+	private final MemberRepository memberRepository;
 	private final MemberSpaceRelationRepository memberSpaceRelationRepository;
 	private final ActionItemRepository actionItemRepository;
 	private final RetrospectRepository retrospectRepository;
@@ -74,19 +81,24 @@ public class SpaceService {
 
 	@Transactional
 	public Long createSpace(Long memberId, SpaceRequest.CreateSpaceRequest createSpaceRequest) {
-		if (createSpaceRequest.bannerUrl() != null) {
-			storageService.checkObjectExistOrThrow(createSpaceRequest.bannerUrl());
+		Space space = createSpaceRequest.toEntity(memberId);
+
+		String bannerUrl = createSpaceRequest.bannerUrl();
+		if (!storageService.validateBannerUrl(bannerUrl)) {
+			bannerUrl = storageService.getDefaultBannerUrl(space.getFieldList());
 		}
-		Space newSpace = spaceRepository.save(createSpaceRequest.toEntity(memberId));
+		space.updateBannerUrl(bannerUrl);
+
 		MemberSpaceRelation memberSpaceRelation = MemberSpaceRelation.builder()
 			.memberId(memberId)
-			.space(newSpace)
+			.space(space)
 			.build();
 
+		spaceRepository.save(space);
 		memberSpaceRelationRepository.save(memberSpaceRelation);
 
-		publishCreateSpaceEvent(newSpace, memberId);
-		return newSpace.getId();
+		publishCreateSpaceEvent(space, memberId);
+		return space.getId();
 	}
 
 	private void publishCreateSpaceEvent(final Space space, final Long memberId) {
@@ -105,9 +117,18 @@ public class SpaceService {
 	}
 
 	public SpaceResponse.SpaceWithMemberCountInfo getSpaceById(Long memberId, Long spaceId) {
-		var foundSpace = spaceRepository.findByIdAndJoinedMemberId(spaceId, memberId)
-			.orElseThrow(() -> new SpaceException(NOT_FOUND_SPACE));
-		return SpaceResponse.SpaceWithMemberCountInfo.toResponse(foundSpace);
+		Space space = spaceRepository.findByIdOrThrow(spaceId);
+
+		Boolean isSpaceMember = memberSpaceRelationRepository.existsByMemberIdAndSpace(memberId, space);
+		if(!isSpaceMember){
+			throw new SpaceException(NOT_JOINED_SPACE);
+		}
+
+		Form form = formRepository.findByIdOrThrow(space.getFormId());
+		Long memberCount = memberSpaceRelationRepository.countAllBySpace(space);
+		Leader leader = Leader.of(memberRepository.findByIdOrThrow(space.getLeaderId()));
+
+		return SpaceResponse.SpaceWithMemberCountInfo.of(space, form, memberCount, leader);
 	}
 
 	public SpaceResponse.SpaceWithMemberCountInfo getPublicSpaceById(Long spaceId) {

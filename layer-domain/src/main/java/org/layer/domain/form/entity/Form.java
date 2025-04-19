@@ -8,6 +8,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -45,6 +46,7 @@ public class Form extends BaseTimeEntity {
 	@Enumerated(EnumType.STRING)
 	private FormTag formTag; // 기본 템플릿의 명칭. ex) KPT, 5F
 
+	@Builder
 	public Form(Long memberId, Long spaceId, String title, String introduction, FormType formType, FormTag formTag) {
 		this.memberId = memberId;
 		this.spaceId = spaceId;

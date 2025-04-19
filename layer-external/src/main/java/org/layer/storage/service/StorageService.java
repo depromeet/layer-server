@@ -9,6 +9,8 @@ import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.layer.domain.space.entity.SpaceField;
 import org.layer.storage.dto.StorageResponse;
 import org.layer.storage.enums.ImageDomain;
 import org.layer.storage.exception.StorageException;
@@ -16,6 +18,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -24,13 +27,13 @@ import java.util.UUID;
 public class StorageService {
 
     @Value("${ncp.storage.bucketName}")
-    private String bucket;
+    private String bucketName;
 
     private final AmazonS3Client amazonS3Client;
 
     public StorageResponse.PresignedResult getPreSignedUrl(Long memberId, ImageDomain imageDomain) {
         String imagePath = imageDomain + "/" + memberId.toString() + "/" + UUID.randomUUID();
-        var imageUrl = amazonS3Client.getUrl(bucket, imagePath);
+        var imageUrl = amazonS3Client.getUrl(bucketName, imagePath);
 
         GeneratePresignedUrlRequest generatePresignedUrlRequest = getGeneratePreSignedUrlRequest(imagePath);
 
@@ -40,18 +43,28 @@ public class StorageService {
         );
     }
 
-    public void checkObjectExistOrThrow(String url) {
+    public boolean validateBannerUrl(String url) {
+        if(url == null){
+            return false;
+        }
 
         String objectKey = extractObjectKey(url);
-        boolean isExist = amazonS3Client.doesObjectExist(bucket, objectKey);
+        boolean isExist = amazonS3Client.doesObjectExist(bucketName, objectKey);
         if (!isExist) {
             throw new StorageException(OBJECT_INVALID_ERROR);
         }
+        return true;
+    }
+
+    public String getDefaultBannerUrl(List<SpaceField> spaceFields){
+        String expectedPrefix = "https://" + bucketName + ".kr.object.ncloudstorage.com";
+
+        return expectedPrefix + "/category/" + spaceFields.get(0).getValue() + ".png";
     }
 
     private GeneratePresignedUrlRequest getGeneratePreSignedUrlRequest(String fileName) {
         GeneratePresignedUrlRequest generatePresignedUrlRequest =
-                new GeneratePresignedUrlRequest(bucket, fileName)
+                new GeneratePresignedUrlRequest(bucketName, fileName)
                         .withMethod(HttpMethod.PUT)
                         .withExpiration(getPreSignedUrlExpiration());
         generatePresignedUrlRequest.addRequestParameter(
@@ -71,7 +84,7 @@ public class StorageService {
     }
 
     private String extractObjectKey(String url) {
-        String expectedPrefix = "https://layer-bucket.kr.object.ncloudstorage.com";
+        String expectedPrefix = "https://" + bucketName + ".kr.object.ncloudstorage.com";
 
         if (!url.startsWith(expectedPrefix)) {
             throw new StorageException(OBJECT_INVALID_ERROR);
