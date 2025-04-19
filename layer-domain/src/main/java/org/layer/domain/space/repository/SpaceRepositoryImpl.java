@@ -77,20 +77,6 @@ public class SpaceRepositoryImpl implements SpaceCustomRepository {
     }
 
     @Override
-    public Long updateSpace(Long spaceId, SpaceCategory category, List<SpaceField> fieldList, String name, String introduction, String bannerUrl) {
-        var query = queryFactory.update(space);
-
-        // null 값 제거
-        Optional.ofNullable(category).ifPresent(it -> query.set(space.category, it));
-        Optional.ofNullable(fieldList).ifPresent(it -> query.set(new ArrayList<>(), it));
-        Optional.ofNullable(name).ifPresent(it -> query.set(space.name, it));
-        Optional.ofNullable(introduction).ifPresent(it -> query.set(space.introduction, it));
-        Optional.ofNullable(bannerUrl).ifPresent(it -> query.set(space.bannerUrl, it));
-
-        return query.where(space.id.eq(spaceId)).execute();
-    }
-
-    @Override
     public List<SpaceMember> findAllSpaceMemberBySpaceIdWithIsLeader(Long spaceId) {
         return queryFactory
                 .select(new QSpaceMember(

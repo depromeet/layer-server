@@ -51,20 +51,11 @@ public class SpaceRequest {
     public record UpdateSpaceRequest(
             @Schema(description = "수정하고자 하는 배너 주소")
             String bannerUrl,
-
             @Schema(description = "수정하고자 하는 스페이스 아이디")
             @NotNull
             Long id,
-
-            @Schema(description = "프로젝트 유형 카테고리", example = "INDIVIDUAL", nullable = true)
-            SpaceCategory category,
-            @Schema(description = "진행중인 프로젝트 유형", nullable = true)
-
-            List<SpaceField> fieldList,
             @Schema(description = "이름", nullable = true)
-
             String name,
-
             @Schema(description = "공간 설명", nullable = true)
             String introduction
     ) {

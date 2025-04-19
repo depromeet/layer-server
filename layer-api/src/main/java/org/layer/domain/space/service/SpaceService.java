@@ -63,7 +63,7 @@ public class SpaceService {
 
 		List<SpaceResponse.SpaceWithMemberCountInfo> responseList = spaces.stream()
 			.map(SpaceResponse.SpaceWithMemberCountInfo::toResponse)
-			.collect(Collectors.toList());
+			.toList();
 
 		Meta meta = Meta.builder()
 			.cursor(hasNext ? nextCursor : null)
@@ -78,8 +78,11 @@ public class SpaceService {
 		if (createSpaceRequest.bannerUrl() != null) {
 			storageService.checkObjectExistOrThrow(createSpaceRequest.bannerUrl());
 		}
-		var newSpace = spaceRepository.save(createSpaceRequest.toEntity(memberId));
-		var memberSpaceRelation = MemberSpaceRelation.builder().memberId(memberId).space(newSpace).build();
+		Space newSpace = spaceRepository.save(createSpaceRequest.toEntity(memberId));
+		MemberSpaceRelation memberSpaceRelation = MemberSpaceRelation.builder()
+			.memberId(memberId)
+			.space(newSpace)
+			.build();
 
 		memberSpaceRelationRepository.save(memberSpaceRelation);
 
@@ -87,7 +90,7 @@ public class SpaceService {
 		return newSpace.getId();
 	}
 
-	public void publishCreateSpaceEvent(final Space space, final Long memberId) {
+	private void publishCreateSpaceEvent(final Space space, final Long memberId) {
 		eventPublisher.publishEvent(CreateSpaceEvent.of(
 			space.getName(),
 			memberId,
@@ -97,10 +100,8 @@ public class SpaceService {
 
 	@Transactional
 	public void updateSpace(Long memberId, SpaceRequest.UpdateSpaceRequest updateSpaceRequest) {
-		spaceRepository.findByIdAndJoinedMemberId(updateSpaceRequest.id(), memberId)
-			.orElseThrow(() -> new SpaceException(NOT_FOUND_SPACE));
-		spaceRepository.updateSpace(updateSpaceRequest.id(), updateSpaceRequest.category(),
-			updateSpaceRequest.fieldList(), updateSpaceRequest.name(), updateSpaceRequest.introduction(),
+		Space space = spaceRepository.findByIdOrThrow(updateSpaceRequest.id());
+		space.updateSpace(memberId, updateSpaceRequest.name(), updateSpaceRequest.introduction(),
 			updateSpaceRequest.bannerUrl());
 	}
 
