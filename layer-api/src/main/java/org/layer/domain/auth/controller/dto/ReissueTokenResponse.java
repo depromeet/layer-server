@@ -1,7 +1,6 @@
 package org.layer.domain.auth.controller.dto;
 
 import lombok.Builder;
-import org.layer.domain.auth.service.dto.ReissueTokenServiceResponse;
 import org.layer.domain.jwt.JwtToken;
 import org.layer.domain.member.entity.Member;
 import org.layer.domain.member.entity.MemberRole;
