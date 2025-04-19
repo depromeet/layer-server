@@ -16,9 +16,7 @@ public record ReissueTokenResponse(Long memberId,
                                    SocialType socialType,
                                    String accessToken,
                                    String refreshToken){
-    public static ReissueTokenResponse of(ReissueTokenServiceResponse rtsr) {
-        Member member = rtsr.member();
-        JwtToken jwtToken = rtsr.jwtToken();
+    public static ReissueTokenResponse of(Member member, JwtToken jwtToken) {
         return ReissueTokenResponse.builder()
                 .memberId(member.getId())
                 .name(member.getName())

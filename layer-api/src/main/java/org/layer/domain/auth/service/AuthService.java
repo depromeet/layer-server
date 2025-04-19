@@ -3,7 +3,6 @@ package org.layer.domain.auth.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.layer.domain.auth.controller.dto.*;
-import org.layer.domain.auth.service.dto.ReissueTokenServiceResponse;
 import org.layer.domain.common.time.Time;
 import org.layer.domain.jwt.JwtToken;
 import org.layer.domain.jwt.exception.AuthException;
@@ -84,11 +83,11 @@ public class AuthService {
 
     //== 토큰 재발급. redis 확인 후 재발급 ==//
     @Transactional
-    public ReissueTokenServiceResponse reissueToken(final String refreshToken, final Long memberId) {
+    public ReissueTokenResponse reissueToken(final String refreshToken, final Long memberId) {
         Member member = memberService.getMemberByMemberId(memberId);
         JwtToken jwtToken = jwtService.reissueToken(refreshToken, memberId);
 
-        return ReissueTokenServiceResponse.of(member, jwtToken);
+        return ReissueTokenResponse.of(member, jwtToken);
     }
 
 
