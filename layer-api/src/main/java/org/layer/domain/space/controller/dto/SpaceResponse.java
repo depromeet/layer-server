@@ -6,9 +6,11 @@ import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 
 import org.layer.common.dto.Meta;
+import org.layer.domain.form.entity.Form;
 import org.layer.domain.space.dto.Leader;
 import org.layer.domain.space.dto.SpaceMember;
 import org.layer.domain.space.dto.SpaceWithMemberCount;
+import org.layer.domain.space.entity.Space;
 import org.layer.domain.space.entity.SpaceCategory;
 import org.layer.domain.space.entity.SpaceField;
 
@@ -30,28 +32,21 @@ public class SpaceResponse {
             @Schema(description = "진행중인 프로젝트 유형")
             @NotNull
             List<SpaceField> fieldList,
-
             @Schema(description = "이름")
             @NotNull
             String name,
-
             @Schema(description = "공간 설명")
             String introduction,
-
             @Schema(description = "설정된 회고 폼 아이디")
             Long formId,
             @Schema(description = "설정된 회고 폼 태그")
             String formTag,
-
             @Schema(description = "소속된 회원 수")
             Long memberCount,
-
             @Schema(description = "스페이스 배너 이미지")
             String bannerUrl,
-
             @Schema(description = "스페이스 생성 일자")
             LocalDateTime createdAt,
-
             @Schema(description = "스페이스 리더 아이디")
             Leader leader
     ) {
@@ -75,6 +70,22 @@ public class SpaceResponse {
                 .bannerUrl(space.getBannerUrl())
                 .createdAt(space.getCreatedAt())
                 .leader(space.getLeader())
+                .build();
+        }
+
+        public static SpaceWithMemberCountInfo of(Space space, Form form, Long memberCount, Leader leader) {
+            return SpaceWithMemberCountInfo.builder()
+                .id(space.getId())
+                .category(space.getCategory())
+                .fieldList(space.getFieldList())
+                .name(space.getName())
+                .introduction(space.getIntroduction())
+                .formId(space.getFormId())
+                .formTag(form.getFormTag().getTag())
+                .memberCount(memberCount)
+                .bannerUrl(space.getBannerUrl())
+                .createdAt(space.getCreatedAt())
+                .leader(leader)
                 .build();
         }
     }

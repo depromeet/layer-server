@@ -2,6 +2,7 @@ package org.layer.domain.space.controller.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import org.layer.annotation.AtLeastNotNull;
 import org.layer.domain.space.entity.Space;
@@ -25,6 +26,7 @@ public class SpaceRequest {
             SpaceCategory category,
             @Schema(description = "진행중인 프로젝트 유형")
             @NotNull
+			@Min(1)
             List<SpaceField> fieldList,
 
             @Schema(description = "이름")
