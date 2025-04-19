@@ -24,6 +24,7 @@ import org.layer.domain.space.controller.dto.SpaceResponse;
 import org.layer.domain.space.entity.MemberSpaceRelation;
 import org.layer.domain.space.entity.Space;
 import org.layer.domain.space.entity.SpaceCategory;
+import org.layer.domain.space.entity.SpaceField;
 import org.layer.domain.space.exception.SpaceException;
 import org.layer.domain.space.repository.MemberSpaceRelationRepository;
 import org.layer.domain.space.repository.SpaceRepository;
@@ -156,13 +157,38 @@ public class SpaceServiceTest {
 	@Nested
 	class 스페이스_생성 {
 		@Test
-		@DisplayName("스페이스를 생성할 수 있다.")
+		@DisplayName("스페이스를 생성할 때, 배너 url이 null인 경우 첫번째 분야를 기반으로 디폴트 이미지가 저장된다.")
 		void createSpaceTest1() {
 			// given
+			Long memberId = 1L;
+			SpaceRequest.CreateSpaceRequest req = new SpaceRequest.CreateSpaceRequest(null,
+				SpaceCategory.TEAM,
+				List.of(SpaceField.DESIGN, SpaceField.DEVELOPMENT), "스페이스 이름1", "스페이스 소개1");
 
 			// when
+			Long spaceId = spaceService.createSpace(memberId, req);
 
 			// then
+			Space space = spaceRepository.findByIdOrThrow(spaceId);
+			assertThat(space.getName()).isEqualTo("스페이스 이름1");
+			assertThat(space.getIntroduction()).isEqualTo("스페이스 소개1");
+			assertThat(space.getBannerUrl()).containsSubsequence("DESIGN");
+			assertThat(space.getCategory()).isEqualTo(SpaceCategory.TEAM);
+			assertThat(space.getFieldList()).isEqualTo(List.of(SpaceField.DESIGN, SpaceField.DEVELOPMENT));
+		}
+
+		@Test
+		@DisplayName("스페이스를 생성할 때, 배너 url이 올바르지 않은 경우 예외가 발생한다.")
+		void createSpaceTest2() {
+			// given
+			Long memberId = 1L;
+			SpaceRequest.CreateSpaceRequest req = new SpaceRequest.CreateSpaceRequest("invalid url",
+				SpaceCategory.TEAM,
+				List.of(SpaceField.DESIGN, SpaceField.DEVELOPMENT), "스페이스 이름1", "스페이스 소개1");
+
+			// when, then
+			assertThatThrownBy(() -> spaceService.createSpace(memberId, req));
+
 		}
 	}
 }
