@@ -6,8 +6,13 @@ import org.springframework.http.HttpStatus;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public enum FormExceptionType implements ExceptionType {
-	UNAUTHORIZED_GET_FORM(HttpStatus.UNAUTHORIZED, "회고 폼 조회 권한이 없습니다.");
+public enum ApiTokenExceptionType implements ExceptionType {
+	/**
+	 * 400
+	 */
+	INVALID_TOKEN(HttpStatus.BAD_REQUEST, "token이 유효하지 않습니다."),
+	INVALID_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "refresh token이 유효하지 않습니다."),
+	NO_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "refresh token이 존재하지 않습니다.");
 
 	private final HttpStatus status;
 	private final String message;

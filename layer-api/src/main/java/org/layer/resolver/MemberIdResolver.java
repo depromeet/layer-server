@@ -1,6 +1,6 @@
 package org.layer.resolver;
 
-import static org.layer.global.exception.MemberExceptionType.*;
+import static org.layer.global.exception.ApiMemberExceptionType.*;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

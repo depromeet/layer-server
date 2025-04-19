@@ -1,7 +1,7 @@
 package org.layer.domain.space.service;
 
-import static org.layer.global.exception.MemberSpaceRelationExceptionType.*;
-import static org.layer.global.exception.SpaceExceptionType.*;
+import static org.layer.global.exception.ApiMemberSpaceRelationExceptionType.*;
+import static org.layer.global.exception.ApiSpaceExceptionType.*;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +30,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -101,8 +100,8 @@ public class SpaceService {
 	@Transactional
 	public void updateSpace(Long memberId, SpaceRequest.UpdateSpaceRequest updateSpaceRequest) {
 		Space space = spaceRepository.findByIdOrThrow(updateSpaceRequest.id());
-		space.updateSpace(memberId, updateSpaceRequest.name(), updateSpaceRequest.introduction(),
-			updateSpaceRequest.bannerUrl());
+		space.updateSpace(memberId, updateSpaceRequest.bannerUrl(), updateSpaceRequest.name(),
+			updateSpaceRequest.introduction());
 	}
 
 	public SpaceResponse.SpaceWithMemberCountInfo getSpaceById(Long memberId, Long spaceId) {

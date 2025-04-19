@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public enum MemberSpaceRelationExceptionType implements ExceptionType {
+public enum ApiMemberSpaceRelationExceptionType implements ExceptionType {
 	/**
 	 * 400
 	 */
