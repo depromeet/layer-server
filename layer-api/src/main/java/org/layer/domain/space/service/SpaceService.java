@@ -124,7 +124,11 @@ public class SpaceService {
 			throw new SpaceException(NOT_JOINED_SPACE);
 		}
 
-		Form form = formRepository.findByIdOrThrow(space.getFormId());
+		// 최초 생성한 스페이스의 경우, null 일 수 있다.
+		Form form = null;
+		if(space.getFormId() != null){
+			form = formRepository.findByIdOrThrow(space.getFormId());
+		}
 		Long memberCount = memberSpaceRelationRepository.countAllBySpace(space);
 		Leader leader = Leader.of(memberRepository.findByIdOrThrow(space.getLeaderId()));
 
