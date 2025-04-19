@@ -7,8 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.layer.common.dto.Meta;
 import org.layer.domain.form.entity.Form;
+import org.layer.domain.member.entity.Member;
 import org.layer.domain.space.dto.Leader;
-import org.layer.domain.space.dto.SpaceMember;
 import org.layer.domain.space.dto.SpaceWithMemberCount;
 import org.layer.domain.space.entity.Space;
 import org.layer.domain.space.entity.SpaceCategory;
@@ -52,12 +52,6 @@ public class SpaceResponse {
     ) {
         public static SpaceWithMemberCountInfo toResponse(SpaceWithMemberCount space) {
 
-            // FIXME: 빠른 배포를 위한 임시코드..!
-            if (space.getBannerUrl() == null && !space.getFieldList().isEmpty()) {
-                space.setBannerUrl("https://layer-bucket.kr.object.ncloudstorage.com/category/" + space.getFieldList().get(0).getValue() + ".png");
-                log.error("잘못된 코드가 존재합니다.");
-            }
-
             return SpaceWithMemberCountInfo.builder()
                 .id(space.getId())
                 .category(space.getCategory())
@@ -93,12 +87,12 @@ public class SpaceResponse {
     }
 
     @Builder
-    @Schema()
+    @Schema
     public record SpacePage(
-            @Schema()
+            @Schema
             List<SpaceWithMemberCountInfo> data,
 
-            @Schema()
+            @Schema
             Meta meta
     ) {
 
@@ -133,13 +127,13 @@ public class SpaceResponse {
             @Schema(title = "스페이스 리더 여부")
             Boolean isLeader
     ) {
-        public static SpaceMemberResponse toResponse(SpaceMember spaceMember) {
+        public static SpaceMemberResponse of(Member member, boolean isLeader) {
             return SpaceMemberResponse
                 .builder()
-                .id(spaceMember.getId())
-                .name(spaceMember.getName())
-                .avatar(spaceMember.getAvatar())
-                .isLeader(spaceMember.getIsLeader())
+                .id(member.getId())
+                .name(member.getName())
+                .avatar(member.getProfileImageUrl())
+                .isLeader(isLeader)
                 .build();
         }
     }

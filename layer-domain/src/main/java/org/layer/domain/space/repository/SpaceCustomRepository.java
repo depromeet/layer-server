@@ -1,9 +1,7 @@
 package org.layer.domain.space.repository;
 
-import org.layer.domain.space.dto.SpaceMember;
 import org.layer.domain.space.dto.SpaceWithMemberCount;
 import org.layer.domain.space.entity.SpaceCategory;
-import org.layer.domain.space.entity.SpaceField;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,11 +15,4 @@ public interface SpaceCustomRepository {
      * @return ''
      */
     List<SpaceWithMemberCount> findAllSpacesByMemberIdAndCategoryAndCursor(Long memberId, Long cursorId, Optional<SpaceCategory> category, int pageSize);
-
-    Optional<SpaceWithMemberCount> findByIdAndJoinedMemberId(Long spaceId, Long memberId);
-
-    Optional<SpaceWithMemberCount> findByIdAndJoinedMemberId(Long spaceId);
-
-    List<SpaceMember> findAllSpaceMemberBySpaceIdWithIsLeader(Long spaceId);
-
 }

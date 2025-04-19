@@ -12,10 +12,11 @@ import org.layer.domain.common.time.Time;
 import org.layer.discord.event.CreateSpaceEvent;
 import org.layer.domain.form.entity.Form;
 import org.layer.domain.form.repository.FormRepository;
+import org.layer.domain.member.entity.Member;
 import org.layer.domain.member.repository.MemberRepository;
 import org.layer.domain.space.dto.Leader;
-import org.layer.domain.space.dto.SpaceMember;
 import org.layer.domain.space.dto.SpaceWithMemberCount;
+import org.layer.domain.space.entity.Team;
 import org.layer.storage.service.StorageService;
 import org.layer.domain.retrospect.repository.RetrospectRepository;
 import org.layer.domain.space.controller.dto.SpaceRequest;
@@ -31,9 +32,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -120,13 +119,13 @@ public class SpaceService {
 		Space space = spaceRepository.findByIdOrThrow(spaceId);
 
 		Boolean isSpaceMember = memberSpaceRelationRepository.existsByMemberIdAndSpace(memberId, space);
-		if(!isSpaceMember){
+		if (!isSpaceMember) {
 			throw new SpaceException(NOT_JOINED_SPACE);
 		}
 
 		// 최초 생성한 스페이스의 경우, null 일 수 있다.
 		Form form = null;
-		if(space.getFormId() != null){
+		if (space.getFormId() != null) {
 			form = formRepository.findByIdOrThrow(space.getFormId());
 		}
 		Long memberCount = memberSpaceRelationRepository.countAllBySpace(space);
@@ -136,10 +135,17 @@ public class SpaceService {
 	}
 
 	public SpaceResponse.SpaceWithMemberCountInfo getPublicSpaceById(Long spaceId) {
-		var foundSpace = spaceRepository.findByIdAndJoinedMemberId(spaceId)
-			.orElseThrow(() -> new SpaceException(NOT_FOUND_SPACE));
+		// 최초 생성한 스페이스의 경우, null 일 수 있다.
+		Space space = spaceRepository.findByIdOrThrow(spaceId);
 
-		return SpaceResponse.SpaceWithMemberCountInfo.toResponse(foundSpace);
+		Form form = null;
+		if (space.getFormId() != null) {
+			form = formRepository.findByIdOrThrow(space.getFormId());
+		}
+		Long memberCount = memberSpaceRelationRepository.countAllBySpace(space);
+		Leader leader = Leader.of(memberRepository.findByIdOrThrow(space.getLeaderId()));
+
+		return SpaceResponse.SpaceWithMemberCountInfo.of(space, form, memberCount, leader);
 	}
 
 	@Transactional
@@ -148,14 +154,10 @@ public class SpaceService {
         /*
           존재하는 스페이스 여부 확인
          */
-		var foundSpace = spaceRepository.findById(spaceId)
-			.orElseThrow(() -> new SpaceException(NOT_FOUND_SPACE)
-			);
-
+		var foundSpace = spaceRepository.findById(spaceId).orElseThrow(() -> new SpaceException(NOT_FOUND_SPACE));
 		if (foundSpace.getCategory() == SpaceCategory.INDIVIDUAL) {
-			throw new SpaceException(NOT_FOUND_SPACE);
+			throw new SpaceException(NOT_TEAM_SPACE);
 		}
-
 
         /*
           이미 참여중인 스페이스 여부 확인
@@ -179,9 +181,7 @@ public class SpaceService {
         /*
           존재하는 스페이스 여부 확인
          */
-		var foundSpace = spaceRepository.findById(spaceId)
-			.orElseThrow(() -> new SpaceException(NOT_FOUND_SPACE)
-			);
+		var foundSpace = spaceRepository.findById(spaceId).orElseThrow(() -> new SpaceException(NOT_FOUND_SPACE));
 
         /*
           스페이스 팀장 여부 확인
@@ -189,7 +189,6 @@ public class SpaceService {
 		if (foundSpace.getLeaderId().equals(memberId)) {
 			throw new SpaceException(SPACE_LEADER_CANNOT_LEAVE);
 		}
-
 
         /*
           개인 스페이스의 경우, 이탈 시 Space 엔티티의 로직이 된다.
@@ -206,9 +205,7 @@ public class SpaceService {
           이미 참여중인 스페이스 여부 확인
          */
 		var foundMemberSpaceRelation = memberSpaceRelationRepository.findBySpaceIdAndMemberId(spaceId, memberId)
-			.orElseThrow(
-				() -> new SpaceException(SPACE_ALREADY_JOINED)
-			);
+			.orElseThrow(() -> new SpaceException(SPACE_ALREADY_JOINED));
 
         /*
           스페이스 참여여부 삭제 ( 스페이스 떠나기 )
@@ -242,28 +239,22 @@ public class SpaceService {
 	}
 
 	public List<SpaceResponse.SpaceMemberResponse> getSpaceMembers(Long memberId, Long spaceId) {
-        /*
-            스페이스 소속 여부 조회
-         */
-		var isExist = findSpaceByIdAndJoinedMemberId(spaceId, memberId);
-		if (isExist.isEmpty()) {
-			throw new SpaceException(NOT_FOUND_SPACE);
-		}
 
-		List<SpaceMember> SpaceMembers = spaceRepository.findAllSpaceMemberBySpaceIdWithIsLeader(spaceId);
-		return SpaceMembers.stream()
+		Team team = new Team(memberSpaceRelationRepository.findAllBySpaceId(spaceId));
+		team.validateTeamMembership(memberId);
+
+		Space space = spaceRepository.findByIdOrThrow(spaceId);
+
+		List<Long> memberIds = team.getMemberIds();
+		List<Member> members = memberRepository.findAllByIdIn(memberIds);
+
+		return members.stream()
 			.filter(a -> a.getDeletedAt() == null)
-			.map(SpaceResponse.SpaceMemberResponse::toResponse)
-			.sorted(
-				Comparator.comparing(SpaceResponse.SpaceMemberResponse::isLeader).reversed())
+			.map(member -> {
+				boolean isLeader = member.getId().equals(space.getLeaderId());
+				return SpaceResponse.SpaceMemberResponse.of(member, isLeader);
+			})
 			.toList();
-	}
-
-	private Optional<MemberSpaceRelation> findSpaceByIdAndJoinedMemberId(Long spaceId, Long memberId) {
-        /*
-          이미 참여중인 스페이스 여부 확인
-         */
-		return memberSpaceRelationRepository.findBySpaceIdAndMemberId(spaceId, memberId);
 	}
 
 	@Transactional
