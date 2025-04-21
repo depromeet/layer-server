@@ -87,6 +87,11 @@ public class Retrospect extends BaseTimeEntity {
 		this.deadline = deadline;
 	}
 
+	public void completeRetrospectAndStartAnalysis(){
+		updateRetrospectStatus(RetrospectStatus.DONE);
+		updateAnalysisStatus(AnalysisStatus.PROCEEDING);
+	}
+
 	public void updateRetrospectStatus(RetrospectStatus retrospectStatus) {
 		isProceedingRetrospect();
 
