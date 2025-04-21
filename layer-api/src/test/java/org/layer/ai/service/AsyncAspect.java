@@ -35,6 +35,6 @@ class AsyncAspect {
 	}
 
 	public void await() throws InterruptedException {
-		latch.await(10, TimeUnit.SECONDS);
+		latch.await();
 	}
 }
