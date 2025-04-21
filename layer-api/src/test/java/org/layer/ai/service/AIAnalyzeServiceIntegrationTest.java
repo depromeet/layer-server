@@ -1,10 +1,12 @@
 package org.layer.ai.service;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import org.layer.ai.OpenAIResponseFixture;
 import org.layer.domain.analyze.entity.Analyze;
 import org.layer.domain.analyze.enums.AnalyzeType;
 import org.layer.domain.analyze.repository.AnalyzeRepository;
@@ -29,6 +31,7 @@ import org.layer.domain.space.repository.MemberSpaceRelationRepository;
 import org.layer.domain.space.repository.SpaceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
@@ -55,7 +58,7 @@ class AIAnalyzeServiceIntegrationTest {
 	@Autowired
 	private AIAnalyzeService aiAnalyzeService;
 
-	@Autowired
+	@SpyBean
 	private OpenAIService openAIService;
 
 	private String answer = "✅ KPT 회고 예시 (개인 개발 프로젝트 기준)\n"
@@ -118,6 +121,10 @@ class AIAnalyzeServiceIntegrationTest {
 		Answer a5 = new Answer(retrospect.getId(), questions.get(1).getId(), memberId, "2", AnswerStatus.DONE);
 		Answer a6 = new Answer(retrospect.getId(), questions.get(2).getId(), leaderId, answer, AnswerStatus.DONE);
 		answerRepository.saveAll(List.of(a1, a2, a3, a4, a5, a6));
+
+		// 4. OpenAI 응답 Mock 설정
+		when(openAIService.createAnalyze(anyString()))
+			.thenReturn(OpenAIResponseFixture.create()); // 테스트용 응답 객체
 
 		AsyncAspect latch = new AsyncAspect();
 		latch.init();
