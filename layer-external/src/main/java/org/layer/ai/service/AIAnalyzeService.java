@@ -51,7 +51,7 @@ public class AIAnalyzeService {
 
 	@Transactional
 	@Async
-	public void createAnalyze(Long spaceId, Long retrospectId, List<Long> memberIds) {
+	public void createAnalyze(Long retrospectId) {
 		String lockKey = RETROSPECT_LOCK_KEY + retrospectId;
 		String lockValue = UUID.randomUUID().toString();
 		boolean lockAcquired = false;
@@ -68,10 +68,6 @@ public class AIAnalyzeService {
 
 			long startTime = System.currentTimeMillis();
 			log.info("createAnalyze started for retrospectId: {}", retrospectId);
-
-			// 해당 스페이스 팀원인지 검증
-			Team team = new Team(memberSpaceRelationRepository.findAllBySpaceId(spaceId));
-			memberIds.forEach(team::validateTeamMembership);
 
 			// 회고 마감 여부 확인
 			Retrospect retrospect = retrospectRepository.findByIdOrThrow(retrospectId);
@@ -94,7 +90,10 @@ public class AIAnalyzeService {
 			Analyze teamAnalyze = getAnalyzeEntity(retrospectId, answers, rangeQuestionId, numberQuestionId, content, null, AnalyzeType.TEAM);
 			analyzes.add(teamAnalyze);
 
-			List<Analyze> individualAnalyzes = memberIds.stream()
+			// 팀원 개인마다의 분석 요청
+			Team team = new Team(memberSpaceRelationRepository.findAllBySpaceId(retrospect.getSpaceId()));
+
+			List<Analyze> individualAnalyzes = team.getMemberIds().stream()
 				.map(memberId -> {
 					String individualAnswer = answers.getIndividualAnswer(rangeQuestionId, numberQuestionId, memberId);
 					OpenAIResponse aiIndividualResponse = openAIService.createAnalyze(individualAnswer);
