@@ -27,9 +27,11 @@ import org.layer.domain.space.repository.SpaceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
 @ActiveProfiles("test")
+@Transactional
 class RetrospectServiceTest {
 
 	@Autowired
@@ -83,6 +85,11 @@ class RetrospectServiceTest {
 				.extracting("title", "introduction", "retrospectStatus")
 				.containsExactly("회고제목입니다", "회고소개입니다", RetrospectStatus.PROCEEDING);
 		}
+	}
+
+	@Nested
+	class 회고_마감{
+
 	}
 
 }
