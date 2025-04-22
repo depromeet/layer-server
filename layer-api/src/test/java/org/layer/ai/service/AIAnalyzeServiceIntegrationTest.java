@@ -89,7 +89,7 @@ class AIAnalyzeServiceIntegrationTest {
 			}
 
 			@After("execution(* org.layer.ai.service.AIAnalyzeService.createAnalyze(*))")
-			public void afterIcalendarCreation() {
+			public void after() {
 				log.info("비동기 메서드 실행 감지됨: createAnalyze 종료됨");
 				countDownLatch.countDown();
 			}

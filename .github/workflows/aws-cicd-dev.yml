@@ -70,6 +70,13 @@ jobs:
       - name: Test layer-api module
         run: ./gradlew :layer-api:test
 
+      - name: Upload Test Report
+        uses: actions/upload-artifact@v4
+        if: always()  # 테스트 실패해도 실행되도록
+        with:
+          name: test-report
+          path: layer-api/build/reports/tests/test/
+
 
       - name: Docker Hub Login
         uses: docker/login-action@v1
