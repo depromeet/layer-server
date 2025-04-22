@@ -65,10 +65,7 @@ jobs:
           echo "${APPLICATION_SECRET_PROPERTIES}" > ./layer-api/src/main/resources/application-secret.properties    
 
       - name: Build layer-api module
-        run: ./gradlew :layer-api:build
-
-      - name: Test layer-api module
-        run: ./gradlew :layer-api:test
+        run: ./gradlew build
 
       - name: Upload Test Report
         uses: actions/upload-artifact@v4
