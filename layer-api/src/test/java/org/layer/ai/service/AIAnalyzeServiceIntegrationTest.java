@@ -4,7 +4,10 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
+import org.aspectj.lang.annotation.After;
+import org.aspectj.lang.annotation.Aspect;
 import org.junit.jupiter.api.Test;
 import org.layer.ai.OpenAIResponseFixture;
 import org.layer.domain.analyze.entity.Analyze;
@@ -31,8 +34,10 @@ import org.layer.domain.space.repository.MemberSpaceRelationRepository;
 import org.layer.domain.space.repository.SpaceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.stereotype.Component;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 
@@ -61,37 +66,43 @@ class AIAnalyzeServiceIntegrationTest {
 	@SpyBean
 	private OpenAIService openAIService;
 
-	private String answer = "✅ KPT 회고 예시 (개인 개발 프로젝트 기준)\n"
-		+ "\uD83D\uDFE2 Keep (잘한 것, 계속 유지할 점)\n"
-		+ "매일 아침 스탠드업 미팅 전, 전날 작업을 간단히 정리하고 공유함 → 협업 효율이 높아짐\n"
-		+ "\n"
-		+ "커밋 메시지를 명확하게 작성하려고 노력함 → PR 리뷰 속도 향상\n"
-		+ "\n"
-		+ "API 응답 속도 개선을 위한 캐싱 전략(Caffeine 적용)을 시도하고 성공적으로 반영\n"
-		+ "\n"
-		+ "\uD83D\uDD34 Problem (문제였던 것, 아쉬운 점)\n"
-		+ "기능 구현에 집중하다 보니 테스트 코드 작성이 미흡했음\n"
-		+ "\n"
-		+ "의사결정 과정에서 팀원과의 충분한 논의 없이 혼자 판단한 부분이 있었음\n"
-		+ "\n"
-		+ "일정 계획이 현실적이지 않아 마지막에 작업이 몰림\n"
-		+ "\n"
-		+ "\uD83D\uDFE1 Try (개선할 점, 새롭게 시도해볼 것)\n"
-		+ "주요 기능 단위마다 테스트 코드를 먼저 작성하고 TDD에 가까운 흐름을 유지\n"
-		+ "\n"
-		+ "구현 전 간단한 설계/의논 시간을 미리 확보하고, 문서화도 함께 진행\n"
-		+ "\n"
-		+ "작업 계획을 세분화하고 매일 점검하여 일정 몰림을 방지";
-
-
 	@Autowired
 	private Time time;
 
+	@Autowired
+	private TestConfig.AsyncAspect asyncAspect;
+
+	@TestConfiguration
+	static class TestConfig {
+
+		@Aspect
+		@Component
+		static class AsyncAspect {
+
+			private CountDownLatch countDownLatch;
+
+			public void init() {
+				countDownLatch = new CountDownLatch(1);
+			}
+
+			@After("execution(* org.layer.ai.service.AIAnalyzeService.createAnalyze(*))")
+			public void afterIcalendarCreation() {
+				countDownLatch.countDown();
+			}
+
+			public void await() throws InterruptedException {
+				countDownLatch.await();
+				Thread.sleep(10);
+			}
+		}
+	}
+
 	@Test
-	void createAnalyze_shouldCreateAnalyzeAndUpdateStatus() {
+	void createAnalyze_shouldCreateAnalyzeAndUpdateStatus() throws InterruptedException {
 		// given
 		Long leaderId = 1L;
 		Long memberId = 2L;
+		String answer = "너무 재밌었어요.";
 
 		// 0. 스페이스 생성
 		Space space = SpaceFixture.createFixture(leaderId, 1L);
@@ -126,18 +137,11 @@ class AIAnalyzeServiceIntegrationTest {
 		when(openAIService.createAnalyze(anyString()))
 			.thenReturn(OpenAIResponseFixture.create()); // 테스트용 응답 객체
 
-		AsyncAspect latch = new AsyncAspect();
-		latch.init();
+		asyncAspect.init();
 
 		// when
 		aiAnalyzeService.createAnalyze(retrospect.getId());
-
-		try{
-			latch.await();
-		}
-		catch (Exception e){
-			throw new InternalError();
-		}
+		asyncAspect.await();
 
 		// then
 		List<Analyze> analyzes = analyzeRepository.findAll();
