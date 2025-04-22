@@ -47,11 +47,11 @@ public class AIAnalyzeService {
 
 	private final OpenAIService openAIService;
 
-	private final RedisTemplate<String, Object> redisTemplate;
+	private final RedisTemplate<String, String> redisTemplate;
 
 	@Transactional
 	@Async
-	public void createAnalyze(Long spaceId, Long retrospectId, List<Long> memberIds) {
+	public void createAnalyze(Long retrospectId) {
 		String lockKey = RETROSPECT_LOCK_KEY + retrospectId;
 		String lockValue = UUID.randomUUID().toString();
 		boolean lockAcquired = false;
@@ -69,10 +69,6 @@ public class AIAnalyzeService {
 			long startTime = System.currentTimeMillis();
 			log.info("createAnalyze started for retrospectId: {}", retrospectId);
 
-			// 해당 스페이스 팀원인지 검증
-			Team team = new Team(memberSpaceRelationRepository.findAllBySpaceId(spaceId));
-			memberIds.forEach(team::validateTeamMembership);
-
 			// 회고 마감 여부 확인
 			Retrospect retrospect = retrospectRepository.findByIdOrThrow(retrospectId);
 			retrospect.validateAnalysisStatusIsNotDone();
@@ -86,15 +82,16 @@ public class AIAnalyzeService {
 			String totalAnswer = answers.getTotalAnswer(rangeQuestionId, numberQuestionId);
 
 			// 분석 요청
-			List<Analyze> analyzes = new ArrayList<>();
-
 			OpenAIResponse aiResponse = openAIService.createAnalyze(totalAnswer);
 			OpenAIResponse.Content content = aiResponse.parseContent();
 
 			Analyze teamAnalyze = getAnalyzeEntity(retrospectId, answers, rangeQuestionId, numberQuestionId, content, null, AnalyzeType.TEAM);
-			analyzes.add(teamAnalyze);
+			analyzeRepository.save(teamAnalyze);
 
-			List<Analyze> individualAnalyzes = memberIds.stream()
+			// 팀원 개인마다의 분석 요청
+			Team team = new Team(memberSpaceRelationRepository.findAllBySpaceId(retrospect.getSpaceId()));
+
+			List<Analyze> individualAnalyzes = team.getMemberIds().stream()
 				.map(memberId -> {
 					String individualAnswer = answers.getIndividualAnswer(rangeQuestionId, numberQuestionId, memberId);
 					OpenAIResponse aiIndividualResponse = openAIService.createAnalyze(individualAnswer);
@@ -102,9 +99,7 @@ public class AIAnalyzeService {
 					return getAnalyzeEntity(retrospectId, answers, rangeQuestionId, numberQuestionId, individualContent, memberId, AnalyzeType.INDIVIDUAL);
 				})
 				.toList();
-			analyzes.addAll(individualAnalyzes);
-
-			analyzeRepository.saveAll(analyzes);
+			analyzeRepository.saveAll(individualAnalyzes);
 
 			long endTime = System.currentTimeMillis();
 			log.info("createAnalyze completed in {} ms", (endTime - startTime));
@@ -118,7 +113,7 @@ public class AIAnalyzeService {
 		} finally {
 			// 2. Redis Lock 해제 (현재 락을 가진 주체만 삭제)
 			if (lockAcquired) {
-				String currentLockValue = (String)redisTemplate.opsForValue().get(lockKey);
+				String currentLockValue = redisTemplate.opsForValue().get(lockKey);
 				if (lockValue.equals(currentLockValue)) {
 					redisTemplate.delete(lockKey);
 				}

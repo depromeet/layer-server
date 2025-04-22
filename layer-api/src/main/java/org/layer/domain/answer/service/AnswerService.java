@@ -6,6 +6,7 @@ import static org.layer.global.exception.ApiMemberSpaceRelationExceptionType.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.layer.ai.event.AIAnalyzeStartEvent;
 import org.layer.domain.analyze.entity.Analyze;
 import org.layer.domain.analyze.enums.AnalyzeType;
 import org.layer.domain.analyze.repository.AnalyzeRepository;
@@ -26,15 +27,13 @@ import org.layer.domain.question.entity.Question;
 import org.layer.domain.question.entity.Questions;
 import org.layer.domain.question.enums.QuestionType;
 import org.layer.domain.question.repository.QuestionRepository;
-import org.layer.domain.retrospect.entity.AnalysisStatus;
 import org.layer.domain.retrospect.entity.Retrospect;
-import org.layer.domain.retrospect.entity.RetrospectStatus;
 import org.layer.domain.retrospect.repository.RetrospectRepository;
 import org.layer.domain.space.entity.MemberSpaceRelation;
 import org.layer.domain.space.entity.Team;
 import org.layer.domain.space.exception.MemberSpaceRelationException;
 import org.layer.domain.space.repository.MemberSpaceRelationRepository;
-import org.layer.ai.service.AIAnalyzeService;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,7 +53,7 @@ public class AnswerService {
 	private final MemberRepository memberRepository;
 	private final AnalyzeRepository analyzeRepository;
 
-	private final AIAnalyzeService aiAnalyzeService;
+	private final ApplicationEventPublisher eventPublisher;
 
 	private final Time time;
 
@@ -104,15 +103,14 @@ public class AnswerService {
 
 		// 마지막 답변인 경우 -> ai 분석 실행
 		if (answers.getWriteCount(retrospectId) == team.getTeamMemberCount()) {
-			retrospect.updateAnalysisStatus(AnalysisStatus.PROCEEDING);
-			retrospect.updateRetrospectStatus(RetrospectStatus.DONE);
+			retrospect.completeRetrospectAndStartAnalysis();
 
 			if (!retrospect.hasDeadLine()) {
                 retrospect.updateDeadLine(time.now());
 			}
-			retrospectRepository.saveAndFlush(retrospect);
+			retrospectRepository.save(retrospect);
 
-			aiAnalyzeService.createAnalyze(spaceId, retrospectId, answers.getWriteMemberIds());
+			eventPublisher.publishEvent(AIAnalyzeStartEvent.of(retrospectId));
 		}
 	}
 

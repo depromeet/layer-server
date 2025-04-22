@@ -1,12 +1,9 @@
 package org.layer.domain.analyze.controller;
 
-import java.util.List;
-
 import org.layer.annotation.MemberId;
 import org.layer.domain.analyze.controller.dto.response.AnalyzesGetResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -23,7 +20,7 @@ public interface AnalyzeApi {
 	}
 	)
 	ResponseEntity<Void> createAnalyze(@PathVariable("spaceId") Long spaceId,
-		@PathVariable("retrospectId") Long retrospectId, @RequestParam List<Long> memberIds);
+		@PathVariable("retrospectId") Long retrospectId);
 
 	@Operation(summary = "회고 분석 조회", method = "GET", description = """
 		회고 분석 데이터를 조회합니다.

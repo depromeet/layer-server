@@ -1,7 +1,9 @@
 package org.layer.domain.retrospect.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+import org.layer.ai.event.AIAnalyzeStartEvent;
 import org.layer.domain.answer.entity.Answers;
 import org.layer.domain.answer.repository.AnswerRepository;
 import org.layer.domain.common.time.Time;
@@ -26,7 +28,6 @@ import org.layer.domain.space.entity.Space;
 import org.layer.domain.space.entity.Team;
 import org.layer.domain.space.repository.MemberSpaceRelationRepository;
 import org.layer.domain.space.repository.SpaceRepository;
-import org.layer.ai.service.AIAnalyzeService;
 import org.layer.discord.event.CreateRetrospectEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -38,6 +39,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j
 public class RetrospectService {
 
 	private final RetrospectRepository retrospectRepository;
@@ -48,8 +50,6 @@ public class RetrospectService {
 	private final SpaceRepository spaceRepository;
 
 	private final ApplicationEventPublisher eventPublisher;
-
-	private final AIAnalyzeService aiAnalyzeService;
 
 	private final Time time;
 
@@ -188,18 +188,16 @@ public class RetrospectService {
 
 		Retrospect retrospect = retrospectRepository.findByIdOrThrow(retrospectId);
 
-		retrospect.updateRetrospectStatus(RetrospectStatus.DONE);
-		if (retrospect.getAnalysisStatus().equals(AnalysisStatus.DONE)) {  // 이미 분석은 완료했지만, 마감되지 않은 경우
+		retrospect.completeRetrospectAndStartAnalysis();
+		if (retrospect.getAnalysisStatus().equals(AnalysisStatus.DONE)) {
+			// 비정상 케이스
+			log.error("비정상적인 오류입니다.");
 			return;
 		}
 
-		retrospect.updateAnalysisStatus(AnalysisStatus.PROCEEDING);
-		retrospectRepository.saveAndFlush(retrospect);
-
-		Answers answers = new Answers(answerRepository.findAllByRetrospectId(retrospectId));
+		retrospectRepository.save(retrospect);
 
 		// 회고 ai 분석 시작
-		aiAnalyzeService.createAnalyze(spaceId, retrospectId, answers.getWriteMemberIds());
-
+		eventPublisher.publishEvent(AIAnalyzeStartEvent.of(retrospectId));
 	}
 }

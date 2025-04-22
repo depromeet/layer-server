@@ -1,7 +1,5 @@
 package org.layer.domain.analyze.controller;
 
-import java.util.List;
-
 import org.layer.annotation.MemberId;
 import org.layer.domain.analyze.controller.dto.response.AnalyzesGetResponse;
 import org.layer.domain.analyze.service.AnalyzeService;
@@ -11,7 +9,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
@@ -27,10 +24,9 @@ public class AnalyzeController implements AnalyzeApi {
 	@PostMapping
 	public ResponseEntity<Void> createAnalyze(
 		@PathVariable("spaceId") Long spaceId,
-		@PathVariable("retrospectId") Long retrospectId,
-		@RequestParam List<Long> memberIds) {
+		@PathVariable("retrospectId") Long retrospectId) {
 
-		analyzeService.createAnalyzeTemp(spaceId, retrospectId, memberIds);
+		analyzeService.createAnalyzeTemp(retrospectId);
 		return ResponseEntity.status(HttpStatus.CREATED).build();
 	}
 
