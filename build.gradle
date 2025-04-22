@@ -84,6 +84,8 @@ project(":layer-api") {
         // redis
         implementation 'org.springframework.boot:spring-boot-starter-data-redis'
         testImplementation 'org.springframework.boot:spring-boot-starter-test'
+        testImplementation 'org.testcontainers:testcontainers:1.19.5'
+        testImplementation 'org.testcontainers:junit-jupiter:1.19.5'
 
         // openfeign
         implementation("org.springframework.cloud:spring-cloud-starter-openfeign:4.1.2")
@@ -176,6 +178,8 @@ project(":layer-external") {
 
         // redis
         implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+        testImplementation 'org.testcontainers:testcontainers:1.19.5'
+        testImplementation 'org.testcontainers:junit-jupiter:1.19.5'
 
         testImplementation platform('org.junit:junit-bom:5.9.1')
         testImplementation 'org.junit.jupiter:junit-jupiter'

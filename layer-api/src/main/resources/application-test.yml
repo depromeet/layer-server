@@ -23,12 +23,6 @@ spring:
     init:
       mode: never
 
-  data:
-    redis:
-      host: localhost
-      port: 6379
-      password:
-
 jwt:
   secret: ${DEV_JWT_SECRET}
 

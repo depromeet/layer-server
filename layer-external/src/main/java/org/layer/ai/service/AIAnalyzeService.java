@@ -47,7 +47,7 @@ public class AIAnalyzeService {
 
 	private final OpenAIService openAIService;
 
-	private final RedisTemplate<String, Object> redisTemplate;
+	private final RedisTemplate<String, String> redisTemplate;
 
 	@Transactional
 	@Async
