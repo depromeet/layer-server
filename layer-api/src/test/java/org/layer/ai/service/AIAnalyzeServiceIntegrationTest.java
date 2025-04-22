@@ -6,9 +6,11 @@ import static org.mockito.Mockito.*;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-import org.aspectj.lang.annotation.After;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.layer.ai.OpenAIResponseFixture;
 import org.layer.domain.analyze.entity.Analyze;
@@ -43,6 +45,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.jdbc.Sql;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -102,6 +106,7 @@ class AIAnalyzeServiceIntegrationTest {
 
 		@Aspect
 		@Component
+		@Order(-1)
 		static class AsyncAspect {
 
 			private CountDownLatch countDownLatch;
@@ -110,10 +115,24 @@ class AIAnalyzeServiceIntegrationTest {
 				countDownLatch = new CountDownLatch(1);
 			}
 
-			@After("execution(* org.layer.ai.service.AIAnalyzeService.createAnalyze(*))")
-			public void after() {
-				log.info("비동기 메서드 실행 감지됨: createAnalyze 종료됨");
-				countDownLatch.countDown();
+			@Around("execution(* org.layer.ai.service.AIAnalyzeService.createAnalyze(..))")
+
+			public Object afterTransactionCommitted(ProceedingJoinPoint joinPoint) throws Throwable {
+				Object result = joinPoint.proceed(); // 실제 메서드 실행
+				if (TransactionSynchronizationManager.isSynchronizationActive()) {
+					TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+						@Override
+						public void afterCommit() {
+							countDownLatch.countDown();
+							log.info("트랜잭션 커밋 후 countDown");
+						}
+					});
+				} else {
+					countDownLatch.countDown();
+					log.info("트랜잭션 없음, 즉시 countDown");
+				}
+
+				return result;
 			}
 
 			public void await() throws InterruptedException {
