@@ -58,7 +58,7 @@ public class RetrospectScheduler {
         answerMap.keySet().forEach(retrospectId -> {
             Retrospect retrospect = retrospectMap.get(retrospectId);
             Answers answers = new Answers(answerMap.get(retrospectId));
-            aiAnalyzeService.createAnalyze(retrospect.getSpaceId(), retrospectId, answers.getWriteMemberIds());
+            aiAnalyzeService.createAnalyze(retrospectId);
         });
 
         log.info("Batch End : updateRetrospectStatusToDone");

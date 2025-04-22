@@ -12,9 +12,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @NoArgsConstructor
+@Setter
 public class OpenAIResponse {
 	private String id;
 	private String object;
@@ -26,6 +28,7 @@ public class OpenAIResponse {
 
 	@Getter
 	@NoArgsConstructor
+	@Setter
 	public static class Choice {
 		private int index;
 		private Message message;
@@ -35,6 +38,7 @@ public class OpenAIResponse {
 
 	@Getter
 	@NoArgsConstructor
+	@Setter
 	public static class Message {
 		private String role;
 		private String content;  // This will be a JSON string
@@ -43,6 +47,7 @@ public class OpenAIResponse {
 
 	@Getter
 	@NoArgsConstructor
+	@Setter
 	public static class Content {
 
 		@JsonProperty("good_points")
@@ -60,6 +65,7 @@ public class OpenAIResponse {
 
 	@Getter
 	@NoArgsConstructor
+	@Setter
 	public static class ContentDetail {
 		private String point;
 		private int count;
@@ -67,6 +73,7 @@ public class OpenAIResponse {
 
 	@Getter
 	@NoArgsConstructor
+	@Setter
 	public static class Usage {
 		private int promptTokens;
 		private int completionTokens;

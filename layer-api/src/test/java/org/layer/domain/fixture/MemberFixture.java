@@ -14,4 +14,14 @@ public class MemberFixture {
 			.socialId("소셜 id1")
 			.build();
 	}
+
+	public static Member createFixture(String socialId){
+		return Member.builder()
+			.name("이름1")
+			.email("이메일1")
+			.memberRole(MemberRole.USER)
+			.socialType(SocialType.KAKAO)
+			.socialId(socialId)
+			.build();
+	}
 }

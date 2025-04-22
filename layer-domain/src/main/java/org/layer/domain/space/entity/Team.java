@@ -24,4 +24,10 @@ public class Team {
 	public long getTeamMemberCount(){
 		return memberSpaceRelations.size();
 	}
+
+	public List<Long> getMemberIds(){
+		return memberSpaceRelations.stream()
+			.map(MemberSpaceRelation::getMemberId)
+			.toList();
+	}
 }
