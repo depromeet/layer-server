@@ -41,10 +41,13 @@ import org.springframework.stereotype.Component;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 
+import lombok.extern.slf4j.Slf4j;
+
 @SpringBootTest
 @ActiveProfiles("test")
 @EnableAsync
 @Sql(value = "/sql/delete-all-test-data.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+@Slf4j
 class AIAnalyzeServiceIntegrationTest {
 
 	@Autowired
@@ -87,12 +90,15 @@ class AIAnalyzeServiceIntegrationTest {
 
 			@After("execution(* org.layer.ai.service.AIAnalyzeService.createAnalyze(*))")
 			public void afterIcalendarCreation() {
+				log.info("비동기 메서드 실행 감지됨: createAnalyze 종료됨");
 				countDownLatch.countDown();
 			}
 
 			public void await() throws InterruptedException {
+				log.info("CountDownLatch 대기 시작");
 				countDownLatch.await();
-				Thread.sleep(10);
+				log.info("CountDownLatch 완료, 약간의 대기 추가");
+				Thread.sleep(10); // 안정성을 위한 짧은 지연
 			}
 		}
 	}
@@ -137,11 +143,14 @@ class AIAnalyzeServiceIntegrationTest {
 		when(openAIService.createAnalyze(anyString()))
 			.thenReturn(OpenAIResponseFixture.create()); // 테스트용 응답 객체
 
+		log.info("AsyncAspect 초기화");
 		asyncAspect.init();
 
 		// when
+		log.info("비동기 분석 실행 시작");
 		aiAnalyzeService.createAnalyze(retrospect.getId());
 		asyncAspect.await();
+		log.info("비동기 분석 실행 완료");
 
 		// then
 		List<Analyze> analyzes = analyzeRepository.findAll();
