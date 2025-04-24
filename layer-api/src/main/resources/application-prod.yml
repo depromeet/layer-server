@@ -83,6 +83,7 @@ discord:
     space-url: ${DISCORD_SPACE_URL}
     member-url: ${DISCORD_MEMBER_URL}
     error-url: ${DISCORD_ERROR_URL}
+    member-activity-url: ${DISCORD_MEMBER_ACTIVITY_URL}
 
 # actuator
 management:
