@@ -24,15 +24,32 @@ public class MemberActivityAspect {
 
 	private final MemberActivityCache memberActivityCache;
 
-	@Pointcut("@annotation(io.swagger.v3.oas.annotations.Operation)")
-	public void operationAnnotatedMethod() {}
-
-	@Around("operationAnnotatedMethod()")
+	@Around("execution(* org.layer.domain..controller..*(..))")
 	public Object trackMemberActivity(ProceedingJoinPoint joinPoint) throws Throwable {
 		MethodSignature signature = (MethodSignature) joinPoint.getSignature();
 		Method method = signature.getMethod();
+
+		String summary = "unknown";
+
 		Operation operation = method.getAnnotation(Operation.class);
-		String summary = operation != null ? operation.summary() : "unknown";
+		if (operation != null && !operation.summary().isBlank()) {
+			summary = operation.summary();
+		} else {
+			// 구현체에 없으면 인터페이스에서 @Operation 찾기
+			Class<?>[] interfaces = joinPoint.getTarget().getClass().getInterfaces();
+			for (Class<?> iface : interfaces) {
+				try {
+					Method interfaceMethod = iface.getMethod(method.getName(), method.getParameterTypes());
+					Operation interfaceOp = interfaceMethod.getAnnotation(Operation.class);
+					if (interfaceOp != null && !interfaceOp.summary().isBlank()) {
+						summary = interfaceOp.summary();
+						break;
+					}
+				} catch (NoSuchMethodException ignored) {
+					// 메서드가 없을 수도 있으니 무시
+				}
+			}
+		}
 
 		Long memberId = extractMemberId(signature, joinPoint.getArgs());
 

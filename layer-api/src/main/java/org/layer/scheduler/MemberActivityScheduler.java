@@ -18,7 +18,7 @@ public class MemberActivityScheduler {
 	private final ApplicationEventPublisher eventPublisher;
 
 	// 매일 오후 9시에 실행됨
-	@Scheduled(cron = "0 */3 * * * *", zone = "Asia/Seoul")
+	@Scheduled(cron = "0 * * * * *", zone = "Asia/Seoul")
 	public void logDailyMemberActivity() {
 		log.info("🌙 유저 활동 통계 작업 시작");
 
