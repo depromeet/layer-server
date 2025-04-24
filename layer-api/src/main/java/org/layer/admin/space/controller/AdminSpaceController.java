@@ -1,10 +1,11 @@
-package org.layer.domain.admin.space.controller;
+package org.layer.admin.space.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.layer.domain.admin.retrospect.controller.dto.AdminRetrospectCountGetResponse;
-import org.layer.domain.admin.space.controller.dto.AdminSpaceCountGetResponse;
-import org.layer.domain.admin.space.controller.dto.AdminSpacesGetResponse;
-import org.layer.domain.admin.space.service.AdminSpaceService;
+
+import org.layer.admin.space.controller.dto.AdminSpaceCountGetResponse;
+import org.layer.admin.space.controller.dto.AdminSpacesGetResponse;
+import org.layer.admin.retrospect.controller.dto.AdminRetrospectCountGetResponse;
+import org.layer.admin.space.service.AdminSpaceService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

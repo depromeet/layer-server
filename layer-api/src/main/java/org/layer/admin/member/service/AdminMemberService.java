@@ -1,21 +1,14 @@
-package org.layer.domain.admin.member.service;
+package org.layer.admin.member.service;
 
 import lombok.RequiredArgsConstructor;
-import org.layer.common.dto.RecentActivityDto;
-import org.layer.domain.admin.member.controller.dto.GetMemberActivityResponse;
-import org.layer.domain.admin.member.controller.dto.GetMembersActivitiesResponse;
+
+import org.layer.admin.member.controller.dto.GetMembersActivitiesResponse;
 import org.layer.domain.answer.repository.AdminAnswerRepository;
-import org.layer.domain.member.entity.Member;
 import org.layer.domain.member.repository.AdminMemberRepository;
 import org.layer.domain.space.repository.AdminMemberSpaceRelationRepository;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor

@@ -1,4 +1,4 @@
-package org.layer.domain.admin.space.controller.dto;
+package org.layer.admin.space.controller.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 

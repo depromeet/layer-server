@@ -1,12 +1,12 @@
-package org.layer.domain.admin.retrospect.controller;
+package org.layer.admin.retrospect.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.layer.domain.admin.retrospect.controller.dto.AdminRetrospectCountGetResponse;
-import org.layer.domain.admin.retrospect.controller.dto.AdminRetrospectsGetResponse;
+import org.layer.admin.retrospect.controller.dto.AdminRetrospectCountGetResponse;
+import org.layer.admin.retrospect.controller.dto.AdminRetrospectsGetResponse;
 import org.layer.domain.retrospect.dto.AdminRetrospectCountGroupBySpaceGetResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestParam;

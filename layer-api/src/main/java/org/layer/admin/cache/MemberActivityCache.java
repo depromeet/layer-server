@@ -1,4 +1,4 @@
-package org.layer.domain.admin.cache;
+package org.layer.admin.cache;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

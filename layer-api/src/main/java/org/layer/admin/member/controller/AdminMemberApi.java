@@ -1,10 +1,11 @@
-package org.layer.domain.admin.member.controller;
+package org.layer.admin.member.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.layer.domain.admin.member.controller.dto.GetMembersActivitiesResponse;
+
+import org.layer.admin.member.controller.dto.GetMembersActivitiesResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestParam;
 

@@ -1,9 +1,9 @@
-package org.layer.domain.admin.retrospect.controller;
+package org.layer.admin.retrospect.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.layer.domain.admin.retrospect.controller.dto.AdminRetrospectCountGetResponse;
-import org.layer.domain.admin.retrospect.controller.dto.AdminRetrospectsGetResponse;
-import org.layer.domain.admin.retrospect.service.AdminRetrospectService;
+import org.layer.admin.retrospect.controller.dto.AdminRetrospectCountGetResponse;
+import org.layer.admin.retrospect.controller.dto.AdminRetrospectsGetResponse;
+import org.layer.admin.retrospect.service.AdminRetrospectService;
 import org.layer.domain.retrospect.dto.AdminRetrospectCountGroupBySpaceGetResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

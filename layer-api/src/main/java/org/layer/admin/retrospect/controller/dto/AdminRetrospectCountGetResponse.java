@@ -1,4 +1,4 @@
-package org.layer.domain.admin.retrospect.controller.dto;
+package org.layer.admin.retrospect.controller.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 

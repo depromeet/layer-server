@@ -1,4 +1,4 @@
-package org.layer.domain.admin.retrospect.controller.dto;
+package org.layer.admin.retrospect.controller.dto;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

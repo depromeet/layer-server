@@ -1,8 +1,8 @@
-package org.layer.domain.admin.retrospect.service;
+package org.layer.admin.retrospect.service;
 
 import lombok.RequiredArgsConstructor;
-import org.layer.domain.admin.retrospect.controller.dto.AdminRetrospectCountGetResponse;
-import org.layer.domain.admin.retrospect.controller.dto.AdminRetrospectsGetResponse;
+import org.layer.admin.retrospect.controller.dto.AdminRetrospectCountGetResponse;
+import org.layer.admin.retrospect.controller.dto.AdminRetrospectsGetResponse;
 import org.layer.domain.retrospect.dto.AdminRetrospectCountGroupBySpaceGetResponse;
 import org.layer.domain.retrospect.dto.AdminRetrospectGetResponse;
 import org.layer.domain.retrospect.repository.RetrospectAdminRepository;

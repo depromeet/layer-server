@@ -1,8 +1,9 @@
-package org.layer.domain.admin.member.controller;
+package org.layer.admin.member.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.layer.domain.admin.member.controller.dto.GetMembersActivitiesResponse;
-import org.layer.domain.admin.member.service.AdminMemberService;
+
+import org.layer.admin.member.controller.dto.GetMembersActivitiesResponse;
+import org.layer.admin.member.service.AdminMemberService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
