@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import lombok.RequiredArgsConstructor;
 
 @Component
-@Profile("prod")
+@Profile("dev")
 @RequiredArgsConstructor
 public class MemberActivityEventListener {
 	private final DiscordAppender discordAppender;
