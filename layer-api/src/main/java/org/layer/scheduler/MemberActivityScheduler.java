@@ -4,12 +4,14 @@ import org.layer.admin.cache.MemberActivityCache;
 import org.layer.discord.event.MemberActivityEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RequiredArgsConstructor
+@Component
 public class MemberActivityScheduler {
 
 	private final MemberActivityCache memberActivityCache;
