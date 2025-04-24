@@ -1,10 +1,12 @@
 package org.layer.discord;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.layer.discord.infra.DiscordWebhookErrorClient;
 import org.layer.discord.infra.DiscordWebhookMemberActivityClient;
@@ -116,19 +118,32 @@ public class DiscordAppender {
 	}
 
 	public void aggregateMemberActivity(Map<Long, Map<String, Integer>> activities) {
-		if (activities.isEmpty())
-			return;
+		if (activities.isEmpty()) return;
 
 		StringBuilder message = new StringBuilder();
-		message.append("📊 [일일 유저 API 호출 통계]\n\n");
 
-		for (Long memberId : activities.keySet()) {
-			message.append("👤 유저 ID: ").append(memberId.toString()).append("\n");
+		LocalDate today = LocalDate.now();
+		String formattedDate = today.format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일"));
 
-			activities.get(memberId).forEach((summary, count) ->
-				message.append("  - ").append(summary).append(": ").append(count).append("회\n")
-			);
-			message.append("\n");
+		message.append("📊 " + formattedDate + " [일일 유저 API 호출 통계]\n\n");
+
+		for (Map.Entry<Long, Map<String, Integer>> entry : activities.entrySet()) {
+			Long memberId = entry.getKey();
+			Map<String, Integer> summaryMap = entry.getValue();
+
+			message.append("👤 유저 ID: ").append(memberId).append("\n");
+
+			// count 높은 순으로 최대 5개 출력
+			AtomicInteger idx = new AtomicInteger(1);
+
+			summaryMap.entrySet().stream()
+				.sorted((a, b) -> Integer.compare(b.getValue(), a.getValue()))
+				.limit(5)
+				.forEach(e ->
+					message.append(idx.getAndIncrement() + ". ").append(e.getKey()).append(": ").append(e.getValue()).append("회\n")
+				);
+
+			message.append("---\n\n");
 		}
 
 		Map<String, Object> payload = Map.of("content", message.toString());
