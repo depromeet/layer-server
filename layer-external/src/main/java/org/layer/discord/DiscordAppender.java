@@ -1,12 +1,15 @@
 package org.layer.discord;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.layer.discord.infra.DiscordWebhookErrorClient;
+import org.layer.discord.infra.DiscordWebhookMemberActivityClient;
 import org.layer.discord.infra.DiscordWebhookMemberClient;
 import org.layer.discord.infra.DiscordWebhookRetrospectClient;
 import org.layer.discord.infra.DiscordWebhookSpaceClient;
@@ -27,6 +30,8 @@ public class DiscordAppender {
 	private final DiscordWebhookSpaceClient spaceClient;
 	private final DiscordWebhookErrorClient errorClient;
 
+	private final DiscordWebhookMemberActivityClient memberActivityClient;
+
 	public void createRetrospectAppend(String title, Long memberId, LocalDateTime now) {
 		String content = "회고";
 		int green = 3066993;
@@ -43,7 +48,7 @@ public class DiscordAppender {
 		spaceClient.sendNotification(body);
 	}
 
-	public void createMember(String name, Long memberId, LocalDateTime now){
+	public void createMember(String name, Long memberId, LocalDateTime now) {
 		Map<String, Object> embed = new HashMap<>();
 		embed.put("title", "\uD83D\uDE80[회원 가입] 새로운 유저가 가입하였습니다.\uD83D\uDE80");
 		embed.put("description", memberId + " 번째 유저가 회원가입하였습니다.");
@@ -85,7 +90,7 @@ public class DiscordAppender {
 		body.put("fields", List.of(field1, field2, field3));
 
 		Map<String, Object> payload = new HashMap<>();
-		payload.put("embeds", new Object[]{body});
+		payload.put("embeds", new Object[] {body});
 
 		errorClient.sendNotification(payload);
 	}
@@ -110,6 +115,41 @@ public class DiscordAppender {
 		body.put("content", "새 " + content + " 생성 알림");
 		body.put("embeds", List.of(embed));
 		return body;
+	}
+
+	public void aggregateMemberActivity(Map<Long, Map<String, Integer>> activities) {
+		if (activities.isEmpty()) return;
+
+		StringBuilder message = new StringBuilder();
+
+		LocalDate today = LocalDate.now();
+		String formattedDate = today.format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일"));
+
+		message.append("📊 " + formattedDate + " [일일 유저 API 호출 통계]\n\n");
+
+		for (Map.Entry<Long, Map<String, Integer>> entry : activities.entrySet()) {
+			Long memberId = entry.getKey();
+			Map<String, Integer> summaryMap = entry.getValue();
+
+			message.append("👤 유저 ID: ").append(memberId).append("\n");
+
+			// count 높은 순으로 최대 5개 출력
+			AtomicInteger idx = new AtomicInteger(1);
+
+			summaryMap.entrySet().stream()
+				.sorted((a, b) -> Integer.compare(b.getValue(), a.getValue()))
+				.limit(5)
+				.forEach(e ->
+					message.append(idx.getAndIncrement() + ". ").append(e.getKey()).append(": ").append(e.getValue()).append("회\n")
+				);
+
+			message.append("---\n\n");
+		}
+
+		Map<String, Object> payload = Map.of("content", message.toString());
+		memberActivityClient.sendNotification(payload);
+
+		log.info("✅ Discord에 유저 활동 통계 전송 완료");
 	}
 
 }
