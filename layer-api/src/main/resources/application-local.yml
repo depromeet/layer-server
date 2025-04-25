@@ -32,7 +32,7 @@ jwt:
 
 kakao:
   login:
-    api_key: ${DEV_KAKAO_API_KEY}
+    api_key: ${KAKAO_API_KEY}
     redirect_uri: http://localhost:8080/api/auth/oauth2/kakao
     uri:
       base: https://kauth.kakao.com
@@ -45,22 +45,14 @@ kakao:
 
 google:
   login:
-    client_id: ${DEV_GOOGLE_CLIENT_ID}
-    code_uri: ${DEV_GOOGLE_CODE_URI}
-    token_uri: ${DEV_GOOGLE_TOKEN_URI}
-    client_secret: ${DEV_GOOGLE_CLIENT_SECRET}
-    redirect_uri: ${DEV_GOOGLE_REDIRECT_URI}
-    code_redirect_uri: http://localhost:8080/api/auth/oauth2/google/code
-  sheet:
-    id: ${GOOGLE_SHEET_ID}
-    token_path: ${LOCAL_GOOGLE_TOKEN_PATH}
-    credential_path: ${PROD_GOOGLE_CREDENTIAL_PATH}
+    client_id: ${GOOGLE_CLIENT_ID}
+    client_secret: ${GOOGLE_CLIENT_SECRET}
+    redirect_uri: ${GOOGLE_REDIRECT_URI}
 
 apple:
   login:
-    issuer: ${DEV_APPLE_ISSUER}
-    client_id: ${DEV_APPLE_CLIENT_ID}
-    audience: ${DEV_APPLE_AUD}
+    issuer: ${APPLE_ISSUER}
+    audience: ${APPLE_AUD}
 
 ncp:
   storage:
@@ -79,9 +71,6 @@ openai:
 admin:
   password: ${ADMIN_PASSWORD}
 
-greeting:
-  message: this is local
-
 discord:
   webhook:
     retrospect-url: ${DISCORD_RETROSPECT_URL}
@@ -89,3 +78,11 @@ discord:
     member-url: ${DISCORD_MEMBER_URL}
     error-url: ${DISCORD_ERROR_URL}
     member-activity-url: ${DISCORD_MEMBER_ACTIVITY_URL}
+
+# actuator
+management:
+  endpoints:
+    enabled-by-default: false
+  endpoint:
+    health:
+      enabled: true

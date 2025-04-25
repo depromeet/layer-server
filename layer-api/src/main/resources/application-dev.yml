@@ -2,9 +2,9 @@ spring:
   config:
     import: application-secret.properties
   datasource:
-    url: ${AWS_DEV_DB_URL}
-    username: ${AWS_PROD_DB_NAME}
-    password: ${AWS_PROD_DB_PASSWORD}
+    url: ${DEV_DB_URL}
+    username: ${DEV_DB_NAME}
+    password: ${DEV_DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
@@ -18,7 +18,7 @@ spring:
 
   data:
     redis:
-      host: localhost
+      host: ${DEV_REDIS_HOST}
       port: ${DEV_REDIS_PORT}
       password: ${DEV_REDIS_PASSWORD}
 
@@ -27,8 +27,8 @@ jwt:
 
 kakao:
   login:
-    api_key: ${DEV_KAKAO_API_KEY}
-    redirect_uri: ${DEV_KAKAO_REDIRECT_URI}
+    api_key: ${KAKAO_API_KEY}
+    redirect_uri: ${KAKAO_REDIRECT_URI}
     uri:
       base: https://kauth.kakao.com
       code: /oauth/authorize
@@ -40,22 +40,14 @@ kakao:
 
 google:
   login:
-    client_id: ${DEV_GOOGLE_CLIENT_ID}
-    code_uri: ${DEV_GOOGLE_CODE_URI}
-    token_uri: ${DEV_GOOGLE_TOKEN_URI}
-    client_secret: ${DEV_GOOGLE_CLIENT_SECRET}
-    redirect_uri: ${DEV_GOOGLE_REDIRECT_URI}
-    code_redirect_uri: http://localhost:8080/api/auth/oauth2/google/code
-  sheet:
-    id: ${GOOGLE_SHEET_ID}
-    token_path: ${PROD_GOOGLE_TOKEN_PATH}
-    credential_path: ${PROD_GOOGLE_TOKEN_PATH}
+    client_id: ${GOOGLE_CLIENT_ID}
+    client_secret: ${GOOGLE_CLIENT_SECRET}
+    redirect_uri: ${GOOGLE_REDIRECT_URI}
 
 apple:
   login:
-    issuer: ${DEV_APPLE_ISSUER}
-    client_id: ${DEV_APPLE_CLIENT_ID}
-    audience: ${DEV_APPLE_AUD}
+    issuer: ${APPLE_ISSUER}
+    audience: ${APPLE_AUD}
 
 ncp:
   storage:
@@ -73,9 +65,6 @@ openai:
 
 admin:
   password: ${ADMIN_PASSWORD}
-
-greeting:
-  message: this is dev
 
 discord:
   webhook:
