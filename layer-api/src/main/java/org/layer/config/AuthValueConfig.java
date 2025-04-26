@@ -14,12 +14,8 @@ public class AuthValueConfig {
     @Value("${jwt.secret}")
     private String JWT_SECRET;
 
-    public static final Long ACCESS_TOKEN_EXPIRATION_TIME = 1000 * 60 * 60 * 24 * 30L; // 한달
-    //    public static final Long ACCESS_TOKEN_EXPIRATION_TIME = 1000 * 60 * 30L; // 30분
+    public static final Long ACCESS_TOKEN_EXPIRATION_TIME = 1000 * 60 * 60L; // 1시간
     public static final Long REFRESH_TOKEN_EXPIRATION_TIME = 1000 * 60 * 60 * 24 * 14L; // 2주
-    public static final String AUTHORIZATION = "Authorization";
-    public static final String KAKAO_URI = "https://kapi.kakao.com/v2/user/me";
-
 
     @PostConstruct
     protected void init() {
