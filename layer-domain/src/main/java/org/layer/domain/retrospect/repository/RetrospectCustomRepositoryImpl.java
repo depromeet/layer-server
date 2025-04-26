@@ -1,17 +1,15 @@
 package org.layer.domain.retrospect.repository;
 
-import static org.layer.domain.retrospect.entity.QRetrospect.*;
-
-import java.time.LocalDateTime;
-
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import jakarta.persistence.EntityManager;
 import org.layer.domain.retrospect.entity.RetrospectStatus;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.time.LocalDateTime;
 
-import jakarta.persistence.EntityManager;
+import static org.layer.domain.retrospect.entity.QRetrospect.retrospect;
 
 @Repository
 public class RetrospectCustomRepositoryImpl implements RetrospectCustomRepository {
@@ -28,7 +26,5 @@ public class RetrospectCustomRepositoryImpl implements RetrospectCustomRepositor
 			.where(Expressions.asDate(now).after(retrospect.deadline))
 			.set(retrospect.retrospectStatus, RetrospectStatus.DONE)
 			.execute();
-
-			// LocalDate.now(ZoneId.of("Asia/Seoul"))
 	}
 }

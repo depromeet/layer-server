@@ -1,7 +1,6 @@
 package org.layer.domain.member.service;
 
 import lombok.RequiredArgsConstructor;
-import org.layer.common.exception.BaseCustomException;
 import org.layer.domain.analyze.entity.Analyze;
 import org.layer.domain.analyze.entity.AnalyzeDetail;
 import org.layer.domain.analyze.enums.AnalyzeDetailType;
@@ -11,6 +10,7 @@ import org.layer.domain.common.time.Time;
 import org.layer.domain.member.controller.dto.*;
 import org.layer.domain.member.entity.Member;
 import org.layer.domain.member.entity.SocialType;
+import org.layer.domain.member.exception.MemberException;
 import org.layer.domain.member.repository.MemberRepository;
 import org.layer.domain.retrospect.dto.SpaceRetrospectDto;
 import org.layer.domain.retrospect.entity.RetrospectStatus;
@@ -29,7 +29,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.layer.domain.member.entity.MemberRole.USER;
-import static org.layer.global.exception.ApiMemberExceptionType.*;
+import static org.layer.global.exception.ApiMemberExceptionType.NOT_A_NEW_MEMBER;
+import static org.layer.global.exception.ApiMemberExceptionType.NOT_FOUND_USER;
 
 @RequiredArgsConstructor
 @Service
@@ -46,15 +47,15 @@ public class MemberService {
 	// sign-in만을 위한 메서드. 멤버가 없을시 회원가입이 필요함을 알려준다.
 	// 회원이 진짜로 없는 error의 경우와 회원 가입이 필요하다는 응답을 구분하기 위함
 	public Member getMemberBySocialInfoForSignIn(String socialId, SocialType socialType) {
-		return memberRepository.findBySocialIdAndSocialType(socialId, socialType)
-			.orElseThrow(() -> new BaseCustomException(ApiMemberExceptionType.NEED_TO_REGISTER));
+		return memberRepository.findMember(socialId, socialType)
+			.orElseThrow(() -> new MemberException(ApiMemberExceptionType.NEED_TO_REGISTER));
 	}
 
 	public void checkIsNewMember(String socialId, SocialType socialType) {
-		Optional<Member> memberOpt = memberRepository.findBySocialIdAndSocialType(socialId, socialType);
+		Optional<Member> memberOpt = memberRepository.findMember(socialId, socialType);
 
 		if (memberOpt.isPresent()) {
-			throw new BaseCustomException(NOT_A_NEW_MEMBER);
+			throw new MemberException(NOT_A_NEW_MEMBER);
 		}
 	}
 
@@ -76,13 +77,13 @@ public class MemberService {
 	public Member getMemberByMemberId(Long memberId) {
 		return memberRepository.
 			findById(memberId)
-			.orElseThrow(() -> new BaseCustomException(NOT_FOUND_USER));
+			.orElseThrow(() -> new MemberException(NOT_FOUND_USER));
 	}
 
 	@Transactional
 	public void withdrawMember(Long memberId) {
 		Member currentMember = memberRepository.findById(memberId)
-			.orElseThrow(() -> new BaseCustomException(NOT_FOUND_USER));
+			.orElseThrow(() -> new MemberException(NOT_FOUND_USER));
 		currentMember.deleteMember();
 	}
 
