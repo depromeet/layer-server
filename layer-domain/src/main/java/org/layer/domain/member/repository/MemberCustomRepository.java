@@ -6,5 +6,5 @@ import org.layer.domain.member.entity.SocialType;
 import java.util.Optional;
 
 public interface MemberCustomRepository {
-    Optional<Member> findMember(String socialId, SocialType socialType);
+    Optional<Member> findValidMember(String socialId, SocialType socialType);
 }

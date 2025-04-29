@@ -17,13 +17,13 @@ public class MemberRepositoryImpl implements MemberCustomRepository {
     }
 
     @Override
-    public Optional<Member> findMember(String socialId, SocialType socialType) {
+    public Optional<Member> findValidMember(String socialId, SocialType socialType) {
         Member member = queryFactory
                 .select(QMember.member)
                 .from(QMember.member)
                 .where(QMember.member.socialId.eq(socialId)
                         .and(QMember.member.socialType.eq(socialType))
-                        .and(QMember.member.deletedAt.isNotNull())
+                        .and(QMember.member.deletedAt.isNull())
                 ).fetchFirst();
 
         return Optional.ofNullable(member);

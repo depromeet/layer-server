@@ -47,12 +47,12 @@ public class MemberService {
 	// sign-in만을 위한 메서드. 멤버가 없을시 회원가입이 필요함을 알려준다.
 	// 회원이 진짜로 없는 error의 경우와 회원 가입이 필요하다는 응답을 구분하기 위함
 	public Member getMemberBySocialInfoForSignIn(String socialId, SocialType socialType) {
-		return memberRepository.findMember(socialId, socialType)
+		return memberRepository.findValidMember(socialId, socialType)
 			.orElseThrow(() -> new MemberException(ApiMemberExceptionType.NEED_TO_REGISTER));
 	}
 
 	public void checkIsNewMember(String socialId, SocialType socialType) {
-		Optional<Member> memberOpt = memberRepository.findMember(socialId, socialType);
+		Optional<Member> memberOpt = memberRepository.findValidMember(socialId, socialType);
 
 		if (memberOpt.isPresent()) {
 			throw new MemberException(NOT_A_NEW_MEMBER);
