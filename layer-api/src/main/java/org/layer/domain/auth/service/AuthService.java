@@ -2,6 +2,7 @@ package org.layer.domain.auth.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.layer.discord.event.SignUpEvent;
 import org.layer.domain.auth.controller.dto.*;
 import org.layer.domain.common.time.Time;
 import org.layer.domain.jwt.JwtToken;
@@ -11,12 +12,17 @@ import org.layer.domain.jwt.service.JwtService;
 import org.layer.domain.member.entity.Member;
 import org.layer.domain.member.entity.SocialType;
 import org.layer.domain.member.service.MemberService;
-import org.layer.discord.event.SignUpEvent;
 import org.layer.oauth.dto.service.MemberInfoServiceResponse;
 import org.layer.oauth.service.OAuthService;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Duration;
+import java.util.UUID;
+
+import static org.layer.domain.jwt.exception.AuthExceptionType.DUPLICATED_SIGN_UP_REQUEST;
 
 
 @Slf4j
@@ -29,8 +35,11 @@ public class AuthService {
     private final JwtService jwtService;
     private final MemberService memberService;
 
+    private final RedisTemplate<String, Object> redisTemplate;
     private final ApplicationEventPublisher eventPublisher;
     private final Time time;
+
+    private static final String SIGN_UP_LOCK_KEY = "signup:lock";
 
     //== 로그인 ==//
     @Transactional
@@ -48,15 +57,45 @@ public class AuthService {
     public SignUpResponse signUp(final String socialAccessToken, final SignUpRequest signUpRequest) {
         MemberInfoServiceResponse memberInfo = getMemberInfo(signUpRequest.socialType(), socialAccessToken);
 
-        // 이미 있는 회원인지 확인
-        isNewMember(memberInfo.socialType(), memberInfo.socialId());
+        String lockKey = SIGN_UP_LOCK_KEY + signUpRequest.socialType() + "_" + memberInfo.socialId();
+        String lockValue = UUID.randomUUID().toString();
+        boolean lockAcquired = false;
 
-        // DB에 회원 저장
-        Member member = memberService.saveMember(signUpRequest, memberInfo);
-        publishCreateRetrospectEvent(member);
+        Member member = null;
+        JwtToken jwtToken = null;
 
-        // 토큰 발급
-        JwtToken jwtToken = jwtService.issueToken(member.getId(), member.getMemberRole());
+        try {
+            // 1. Redis lock 설정
+            lockAcquired = Boolean.TRUE.equals(redisTemplate.opsForValue()
+                    .setIfAbsent(lockKey, lockValue, Duration.ofSeconds(15)));
+
+            if(!lockAcquired) {
+                throw new AuthException(DUPLICATED_SIGN_UP_REQUEST); // TODO: 프론트엔드와 논의 필요할 수 있음
+            }
+
+            // 2. 이미 있는 회원인지 확인
+            isNewMember(memberInfo.socialType(), memberInfo.socialId());
+
+            // 3. DB에 회원 저장
+            member = memberService.saveMember(signUpRequest, memberInfo);
+            publishCreateRetrospectEvent(member);
+
+            // 4. 토큰 발급
+            jwtToken = jwtService.issueToken(member.getId(), member.getMemberRole());
+
+        } catch(Exception e) {
+            log.info("Another process is already handling signing up: {}, socialId: {}", signUpRequest.socialType(), memberInfo.socialId());
+            log.error("Error in signUp: {}", e.getMessage(), e);
+        } finally {
+            // 5. Redis lock 해제 (현재 락을 가진 주체만 해제)
+            if (lockAcquired) {
+                String currentLockValue = (String)redisTemplate.opsForValue().get(lockKey);
+                if (lockValue.equals(currentLockValue)) {
+                    redisTemplate.delete(lockKey);
+                }
+            }
+        }
+
         return SignUpResponse.of(member, jwtToken);
     }
 
