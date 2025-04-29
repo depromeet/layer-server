@@ -7,4 +7,6 @@ import java.util.Optional;
 
 public interface MemberCustomRepository {
     Optional<Member> findValidMember(String socialId, SocialType socialType);
+
+    Member findValidMemberByIdOrThrow(Long memberId);
 }

@@ -1,6 +1,5 @@
 package org.layer.domain.auth.service;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,6 +30,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 
 @ActiveProfiles("test")
@@ -113,8 +114,8 @@ class AuthServiceTest {
         Optional<Member> validMember = memberRepository.findValidMember(socialId, socialType);
 
         // then
-        Assertions.assertTrue(validMember.isPresent(), "회원 가입된 멤버가 존재해야함");
-        Assertions.assertEquals(1, successCount.get(), "동시에 요청한 회원가입 중 하나만 성공해야 함");
-        Assertions.assertEquals(9, failCount.get(), "나머지 요청은 모두 실패해야 함");
+        assertTrue(validMember.isPresent(), "회원 가입된 멤버가 존재해야함");
+        assertEquals(1, successCount.get(), "동시에 요청한 회원가입 중 하나만 성공해야 함");
+        assertEquals(9, failCount.get(), "나머지 요청은 모두 실패해야 함");
     }
 }

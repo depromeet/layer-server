@@ -82,14 +82,13 @@ public class MemberService {
 
 	@Transactional
 	public void withdrawMember(Long memberId) {
-		Member currentMember = memberRepository.findById(memberId)
-			.orElseThrow(() -> new MemberException(NOT_FOUND_USER));
+		Member currentMember = memberRepository.findValidMemberByIdOrThrow(memberId);
 		currentMember.deleteMember();
 	}
 
 	@Transactional
 	public UpdateMemberInfoResponse updateMemberInfo(Long memberId, UpdateMemberInfoRequest updateMemberInfoRequest) {
-		Member member = memberRepository.findByIdOrThrow(memberId);
+		Member member = memberRepository.findValidMemberByIdOrThrow(memberId);
 		member.updateName(updateMemberInfoRequest.name());
 		member.updateProfileImageUrl(updateMemberInfoRequest.profileImageUrl());
 

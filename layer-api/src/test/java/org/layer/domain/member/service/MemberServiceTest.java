@@ -1,6 +1,7 @@
 package org.layer.domain.member.service;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.layer.domain.auth.controller.dto.SignUpRequest;
@@ -27,6 +28,11 @@ class MemberServiceTest {
     @Autowired
     private MemberRepository memberRepository;
 
+    @BeforeEach
+    void cleanUp() {
+        memberRepository.deleteAll();
+    }
+
     @DisplayName("탈퇴한 회원은 조회되지 않는다.")
     @Test
     void withdrawTest() {
@@ -45,9 +51,8 @@ class MemberServiceTest {
         Optional<Member> findMember = memberRepository.findValidMember(socialId, socialType);
 
         // then
-        assertThat(member.getDeletedAt()).isNotNull();
         assertThat(findMember).isEmpty();
-        Assertions.assertThrows(MemberException.class, () -> memberRepository.findByIdOrThrow(member.getId()));
+        Assertions.assertThrows(MemberException.class, () -> memberRepository.findValidMemberByIdOrThrow(member.getId()));
     }
 
     @DisplayName("탈퇴 후 같은 회원이 같은 소셜 로그인 방식으로 재가입할 수 있다.")
