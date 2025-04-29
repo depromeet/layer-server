@@ -2,7 +2,9 @@ package org.layer.domain.auth.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.layer.discord.event.SignUpEvent;
 import org.layer.domain.auth.controller.dto.*;
+import org.layer.domain.common.time.Time;
 import org.layer.domain.jwt.JwtToken;
 import org.layer.domain.jwt.exception.AuthException;
 import org.layer.domain.jwt.exception.AuthExceptionType;
@@ -12,6 +14,7 @@ import org.layer.domain.member.entity.SocialType;
 import org.layer.domain.member.service.MemberService;
 import org.layer.oauth.dto.service.MemberInfoServiceResponse;
 import org.layer.oauth.service.OAuthService;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,7 +36,11 @@ public class AuthService {
     private final MemberService memberService;
     private final RedisTemplate<String, String> redisTemplate;
 
+    private final ApplicationEventPublisher eventPublisher;
+    private final Time time;
+
     private static final String SIGN_UP_LOCK_KEY = "signup:lock";
+
 
     //== 로그인 ==//
     @Transactional
@@ -72,6 +79,7 @@ public class AuthService {
 
             // 3. DB에 회원 저장
             member = memberService.saveMember(signUpRequest, memberInfo);
+            publishCreateRetrospectEvent(member);
 
             // 4. 토큰 발급
             jwtToken = jwtService.issueToken(member.getId(), member.getMemberRole());
@@ -90,6 +98,14 @@ public class AuthService {
         }
 
         return SignUpResponse.of(member, jwtToken);
+    }
+
+    private void publishCreateRetrospectEvent(final Member member) {
+        eventPublisher.publishEvent(SignUpEvent.of(
+                member.getName(),
+                member.getId(),
+                time.now()
+        ));
     }
 
     //== 로그아웃 ==//
