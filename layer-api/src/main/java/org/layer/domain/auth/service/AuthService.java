@@ -2,9 +2,7 @@ package org.layer.domain.auth.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.layer.discord.event.SignUpEvent;
 import org.layer.domain.auth.controller.dto.*;
-import org.layer.domain.common.time.Time;
 import org.layer.domain.jwt.JwtToken;
 import org.layer.domain.jwt.exception.AuthException;
 import org.layer.domain.jwt.exception.AuthExceptionType;
@@ -14,7 +12,6 @@ import org.layer.domain.member.entity.SocialType;
 import org.layer.domain.member.service.MemberService;
 import org.layer.oauth.dto.service.MemberInfoServiceResponse;
 import org.layer.oauth.service.OAuthService;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,10 +31,7 @@ public class AuthService {
     private final OAuthService appleService;
     private final JwtService jwtService;
     private final MemberService memberService;
-
-    private final RedisTemplate<String, Object> redisTemplate;
-    private final ApplicationEventPublisher eventPublisher;
-    private final Time time;
+    private final RedisTemplate<String, String> redisTemplate;
 
     private static final String SIGN_UP_LOCK_KEY = "signup:lock";
 
@@ -70,7 +64,7 @@ public class AuthService {
                     .setIfAbsent(lockKey, lockValue, Duration.ofSeconds(15)));
 
             if(!lockAcquired) {
-                throw new AuthException(DUPLICATED_SIGN_UP_REQUEST); // TODO: 프론트엔드와 논의 필요할 수 있음
+                throw new AuthException(DUPLICATED_SIGN_UP_REQUEST);
             }
 
             // 2. 이미 있는 회원인지 확인
@@ -83,7 +77,7 @@ public class AuthService {
             jwtToken = jwtService.issueToken(member.getId(), member.getMemberRole());
 
         } catch(Exception e) {
-            log.info("Another process is already handling signing up: {}, socialId: {}", signUpRequest.socialType(), memberInfo.socialId());
+            log.info("Another process is already handling signing up: {}, socialId: {}, name: {}", signUpRequest.socialType(), memberInfo.socialId(), signUpRequest.name());
             log.error("Error in signUp: {}", e.getMessage(), e);
         } finally {
             // 5. Redis lock 해제 (현재 락을 가진 주체만 해제)
@@ -96,14 +90,6 @@ public class AuthService {
         }
 
         return SignUpResponse.of(member, jwtToken);
-    }
-
-    private void publishCreateRetrospectEvent(final Member member) {
-        eventPublisher.publishEvent(SignUpEvent.of(
-            member.getName(),
-            member.getId(),
-            time.now()
-        ));
     }
 
     //== 로그아웃 ==//
