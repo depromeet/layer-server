@@ -78,7 +78,6 @@ public class AuthService {
 
             // 3. DB에 회원 저장
             member = memberService.saveMember(signUpRequest, memberInfo);
-            publishCreateRetrospectEvent(member);
 
             // 4. 토큰 발급
             jwtToken = jwtService.issueToken(member.getId(), member.getMemberRole());
