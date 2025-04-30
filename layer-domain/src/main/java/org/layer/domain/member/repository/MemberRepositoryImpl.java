@@ -7,7 +7,6 @@ import org.layer.domain.member.entity.QMember;
 import org.layer.domain.member.entity.SocialType;
 import org.layer.domain.member.exception.MemberException;
 
-import java.util.List;
 import java.util.Optional;
 
 import static org.layer.global.exception.MemberExceptionType.NOT_FOUND_USER;
@@ -35,17 +34,17 @@ public class MemberRepositoryImpl implements MemberCustomRepository {
 
     @Override
     public Member findValidMemberByIdOrThrow(Long memberId) {
-        List<Member> fetch = queryFactory
+        Member member = queryFactory
                 .select(QMember.member)
                 .from(QMember.member)
                 .where(QMember.member.id.eq(memberId)
                         .and(QMember.member.deletedAt.isNull())
-                ).fetch();
+                ).fetchOne();
 
-        if(fetch.isEmpty()) {
+        if(member == null) {
             throw new MemberException(NOT_FOUND_USER);
         }
 
-        return fetch.get(0);
+        return member;
     }
 }

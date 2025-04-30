@@ -5,8 +5,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.layer.domain.auth.controller.dto.SignUpRequest;
 import org.layer.domain.auth.controller.dto.SignUpResponse;
-import org.layer.domain.jwt.JwtToken;
-import org.layer.domain.jwt.service.JwtService;
 import org.layer.domain.member.entity.Member;
 import org.layer.domain.member.entity.SocialType;
 import org.layer.domain.member.repository.MemberRepository;
@@ -49,9 +47,6 @@ class AuthServiceTest {
     RedisTemplate<String, String> redisTemplate;
 
     @MockBean
-    private JwtService jwtService;
-
-    @MockBean
     private KakaoService kakaoService;
 
 
@@ -89,7 +84,6 @@ class AuthServiceTest {
         SignUpRequest signUpRequest = new SignUpRequest(socialType, name);
         MemberInfoServiceResponse memberInfoServiceResponse = new MemberInfoServiceResponse(socialId, socialType, email);
 
-        Mockito.when(jwtService.issueToken(any(), any())).thenReturn(new JwtToken("fake-access", "fake-refresh"));
         Mockito.when(kakaoService.getMemberInfo(any())).thenReturn(memberInfoServiceResponse);
 
         // when : 동시 10번 회원가입 요청
