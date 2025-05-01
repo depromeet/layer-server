@@ -11,7 +11,7 @@ public enum AuthExceptionType implements ExceptionType {
      * 400
      */
     INVALID_SOCIAL_TYPE(HttpStatus.BAD_REQUEST, "지원하지 않는 방식의 로그인입니다."),
-    FORBIDDEN(HttpStatus.FORBIDDEN, "권한이 없습니다.");
+    DUPLICATED_SIGN_UP_REQUEST(HttpStatus.BAD_REQUEST, "중복된 회원 가입 요청입니다. (다른 요청이 이미 처리 중)");
 
 
     private final HttpStatus status;
