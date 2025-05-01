@@ -1,38 +1,37 @@
 package org.layer.domain.space.service;
 
-import static org.layer.global.exception.ApiMemberSpaceRelationExceptionType.*;
-import static org.layer.global.exception.ApiSpaceExceptionType.*;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.layer.common.dto.Meta;
+import org.layer.discord.event.CreateSpaceEvent;
 import org.layer.domain.actionItem.repository.ActionItemRepository;
 import org.layer.domain.common.time.Time;
-import org.layer.discord.event.CreateSpaceEvent;
 import org.layer.domain.form.entity.Form;
 import org.layer.domain.form.repository.FormRepository;
 import org.layer.domain.member.entity.Member;
 import org.layer.domain.member.repository.MemberRepository;
-import org.layer.domain.space.dto.Leader;
-import org.layer.domain.space.dto.SpaceWithMemberCount;
-import org.layer.domain.space.entity.Team;
-import org.layer.storage.service.StorageService;
 import org.layer.domain.retrospect.repository.RetrospectRepository;
 import org.layer.domain.space.controller.dto.SpaceRequest;
 import org.layer.domain.space.controller.dto.SpaceResponse;
+import org.layer.domain.space.dto.Leader;
+import org.layer.domain.space.dto.SpaceWithMemberCount;
 import org.layer.domain.space.entity.MemberSpaceRelation;
 import org.layer.domain.space.entity.Space;
 import org.layer.domain.space.entity.SpaceCategory;
+import org.layer.domain.space.entity.Team;
 import org.layer.domain.space.exception.MemberSpaceRelationException;
 import org.layer.domain.space.exception.SpaceException;
 import org.layer.domain.space.repository.MemberSpaceRelationRepository;
 import org.layer.domain.space.repository.SpaceRepository;
+import org.layer.storage.service.StorageService;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+
+import static org.layer.global.exception.ApiMemberSpaceRelationExceptionType.NOT_FOUND_MEMBER_SPACE_RELATION;
+import static org.layer.global.exception.ApiSpaceExceptionType.*;
 
 @Service
 @RequiredArgsConstructor
@@ -129,7 +128,7 @@ public class SpaceService {
 			form = formRepository.findByIdOrThrow(space.getFormId());
 		}
 		Long memberCount = memberSpaceRelationRepository.countAllBySpace(space);
-		Leader leader = Leader.of(memberRepository.findByIdOrThrow(space.getLeaderId()));
+		Leader leader = Leader.of(memberRepository.findValidMemberByIdOrThrow(space.getLeaderId()));
 
 		return SpaceResponse.SpaceWithMemberCountInfo.of(space, form, memberCount, leader);
 	}
@@ -143,7 +142,7 @@ public class SpaceService {
 			form = formRepository.findByIdOrThrow(space.getFormId());
 		}
 		Long memberCount = memberSpaceRelationRepository.countAllBySpace(space);
-		Leader leader = Leader.of(memberRepository.findByIdOrThrow(space.getLeaderId()));
+		Leader leader = Leader.of(memberRepository.findValidMemberByIdOrThrow(space.getLeaderId()));
 
 		return SpaceResponse.SpaceWithMemberCountInfo.of(space, form, memberCount, leader);
 	}
