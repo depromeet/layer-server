@@ -30,7 +30,6 @@ import java.util.stream.Collectors;
 
 import static org.layer.domain.member.entity.MemberRole.USER;
 import static org.layer.global.exception.ApiMemberExceptionType.NOT_A_NEW_MEMBER;
-import static org.layer.global.exception.ApiMemberExceptionType.NOT_FOUND_USER;
 
 @RequiredArgsConstructor
 @Service
@@ -75,9 +74,7 @@ public class MemberService {
 	}
 
 	public Member getMemberByMemberId(Long memberId) {
-		return memberRepository.
-				findById(memberId)
-				.orElseThrow(() -> new MemberException(NOT_FOUND_USER));
+		return memberRepository.findValidMemberByIdOrThrow(memberId);
 	}
 
 	@Transactional
