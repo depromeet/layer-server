@@ -58,7 +58,6 @@ public class JwtService {
             throw new TokenException(INVALID_TOKEN);
         }
 
-
         return issueToken(memberId, getMemberRoleFromRefreshToken(refreshToken));
     }
 
