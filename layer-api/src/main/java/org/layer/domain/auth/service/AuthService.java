@@ -84,13 +84,13 @@ public class AuthService {
             // 4. 토큰 발급
             jwtToken = jwtService.issueToken(member.getId(), member.getMemberRole());
 
-        } catch(Exception e) {
+        } catch(AuthException e) {
             log.info("Another process is already handling signing up: {}, socialId: {}, name: {}", signUpRequest.socialType(), memberInfo.socialId(), signUpRequest.name());
             log.error("Error in signUp: {}", e.getMessage(), e);
         } finally {
             // 5. Redis lock 해제 (현재 락을 가진 주체만 해제)
             if (lockAcquired) {
-                String currentLockValue = (String)redisTemplate.opsForValue().get(lockKey);
+                String currentLockValue = redisTemplate.opsForValue().get(lockKey);
                 if (lockValue.equals(currentLockValue)) {
                     redisTemplate.delete(lockKey);
                 }
