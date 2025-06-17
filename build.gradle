@@ -229,3 +229,11 @@ project(":layer-admin") {
     }
 
 }
+project(":layer-event") {
+    bootJar.enabled = false
+    jar.enabled = true
+
+    dependencies {
+        implementation project(path: ':layer-common')
+    }
+}

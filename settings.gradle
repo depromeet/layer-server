@@ -6,3 +6,4 @@ include 'layer-external'
 include 'layer-batch'
 include 'layer-admin'
 
+include 'layer-event'
