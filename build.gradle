@@ -112,10 +112,7 @@ project(":layer-common") {
     jar.enabled = true
 
     dependencies {
-        // swagger
-        implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0")
-
-        implementation 'org.springframework.boot:spring-boot-starter-web'
+        implementation 'org.springframework.boot:spring-boot-starter-validation'
     }
 
 }
