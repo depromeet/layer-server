@@ -229,3 +229,13 @@ project(":layer-admin") {
     }
 
 }
+
+project(":layer-event") {
+    jar.enabled = false
+    bootJar.enabled = true
+
+    dependencies {
+
+    }
+
+}
