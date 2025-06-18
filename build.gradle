@@ -68,6 +68,8 @@ project(":layer-api") {
         implementation project(path: ':layer-common')
         implementation project(path: ':layer-domain')
         implementation project(path: ':layer-external')
+        implementation project(path: ':layer-event')
+        runtimeOnly project(path: ':layer-admin')
 
         implementation 'org.springframework.boot:spring-boot-starter-actuator'
         implementation 'org.springframework.boot:spring-boot-starter-validation'
@@ -204,32 +206,30 @@ project(":layer-batch") {
 }
 
 project(":layer-admin") {
-    jar.enabled = false
-    bootJar.enabled = true
+    jar.enabled = true
+    bootJar.enabled = false
 
     dependencies {
-        implementation project(path: ':layer-domain')
-        implementation project(path: ':layer-common')
+        compileOnly project(path: ':layer-event')
 
-        implementation 'org.springframework.boot:spring-boot-starter-web'
-        implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+        compileOnly 'org.springframework.boot:spring-boot-starter-data-jpa'
+        compileOnly 'org.springframework.boot:spring-boot-starter-web'
+        compileOnly 'org.springframework.boot:spring-boot-starter-data-jpa'
+        compileOnly 'org.springframework.boot:spring-boot-starter-aop'
         runtimeOnly 'com.mysql:mysql-connector-j'
 
         // swagger
-        implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0")
-
-        // Security
-        implementation 'org.springframework.boot:spring-boot-starter-security'
+        compileOnly("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0")
 
         // redis
-        implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+        compileOnly 'org.springframework.boot:spring-boot-starter-data-redis'
     }
 
 }
 
 project(":layer-event") {
-    jar.enabled = false
-    bootJar.enabled = true
+    jar.enabled = true
+    bootJar.enabled = false
 
     dependencies {
 
