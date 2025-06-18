@@ -3,6 +3,7 @@ package org.layer.domain.form.service;
 import lombok.RequiredArgsConstructor;
 
 import org.layer.domain.common.random.CustomRandom;
+import org.layer.domain.common.time.Time;
 import org.layer.domain.form.controller.dto.request.FormNameUpdateRequest;
 import org.layer.domain.form.controller.dto.request.RecommendFormQueryDto;
 import org.layer.domain.form.controller.dto.request.RecommendFormSetRequest;
@@ -26,10 +27,13 @@ import org.layer.domain.space.repository.MemberSpaceRelationRepository;
 import org.layer.domain.space.repository.SpaceRepository;
 import org.layer.domain.template.entity.TemplateMetadata;
 import org.layer.domain.template.repository.TemplateMetadataRepository;
+import org.layer.event.template.TemplateRecommendedEvent;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Propagation;
 
 import java.util.List;
 import java.util.Optional;
@@ -48,6 +52,8 @@ public class FormService {
 	private final TemplateMetadataRepository metadataRepository;
 
 	private final CustomRandom customRandom;
+	private final Time time;
+	private final ApplicationEventPublisher eventPublisher;
 
 	/**
 	 * 회고 폼 질문을 조회한다.
@@ -74,11 +80,15 @@ public class FormService {
 		return FormGetResponse.of(form.getTitle(), form.getFormTag().getTag(), questionResponses);
 	}
 
-	public RecommendFormResponseDto getRecommendTemplate(RecommendFormQueryDto queryDto) {
+	@Transactional
+	public RecommendFormResponseDto getRecommendTemplate(RecommendFormQueryDto queryDto, Long memberId) {
 		FormTag recommandFormTag = FormTag.getRecommandFormTag(queryDto.purpose(), customRandom);
 
 		Form form = formRepository.findByFormTagAndFormTypeOrThrow(recommandFormTag, FormType.TEMPLATE);
 		TemplateMetadata metadata = metadataRepository.findByFormIdOrThrow(form.getId());
+
+		eventPublisher.publishEvent(new TemplateRecommendedEvent(
+			customRandom.generateRandomValue(), memberId, recommandFormTag.getTag(), time.now()));
 
 		return RecommendFormResponseDto.of(form, metadata.getTemplateImageUrl());
 	}
@@ -111,14 +121,17 @@ public class FormService {
 
 	public CustomTemplateListResponse getCustomTemplateList(Pageable pageable, Long spaceId, Long memberId) {
 		// 멤버가 스페이스에 속하는지 검증
-		Optional<MemberSpaceRelation> spaceMemberRelation = memberSpaceRelationRepository.findBySpaceIdAndMemberId(spaceId, memberId);
-		if(spaceMemberRelation.isEmpty()) {
+		Optional<MemberSpaceRelation> spaceMemberRelation = memberSpaceRelationRepository.findBySpaceIdAndMemberId(
+			spaceId, memberId);
+		if (spaceMemberRelation.isEmpty()) {
 			throw new FormException(UNAUTHORIZED_GET_FORM);
 		}
 
 		Page<Form> customFormList = formRepository.findAllByFormTypeAndSpaceIdOrderByIdDesc(pageable, CUSTOM, spaceId);
 
-		Page<CustomTemplateResponse> customFormResList = customFormList.map(form -> new CustomTemplateResponse(form.getId(), form.getTitle(), form.getFormTag().getTag(), form.getCreatedAt()));
+		Page<CustomTemplateResponse> customFormResList = customFormList.map(
+			form -> new CustomTemplateResponse(form.getId(), form.getTitle(), form.getFormTag().getTag(),
+				form.getCreatedAt()));
 
 		return CustomTemplateListResponse.builder()
 			.customTemplateList(customFormResList)
