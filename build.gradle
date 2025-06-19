@@ -214,15 +214,8 @@ project(":layer-admin") {
 
         compileOnly 'org.springframework.boot:spring-boot-starter-data-jpa'
         compileOnly 'org.springframework.boot:spring-boot-starter-web'
-        compileOnly 'org.springframework.boot:spring-boot-starter-data-jpa'
-        compileOnly 'org.springframework.boot:spring-boot-starter-aop'
+        compileOnly 'org.springframework.boot:spring-boot-starter-validation'
         runtimeOnly 'com.mysql:mysql-connector-j'
-
-        // swagger
-        compileOnly("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0")
-
-        // redis
-        compileOnly 'org.springframework.boot:spring-boot-starter-data-redis'
     }
 
 }
