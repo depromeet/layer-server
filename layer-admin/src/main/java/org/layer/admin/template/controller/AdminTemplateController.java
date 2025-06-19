@@ -2,7 +2,7 @@ package org.layer.admin.template.controller;
 
 import java.util.List;
 
-import org.layer.admin.template.controller.dto.TemplateRecommendedRatioResponse;
+import org.layer.admin.template.controller.dto.TemplateRecommendedCountResponse;
 import org.layer.admin.template.service.AdminTemplateService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,10 +15,10 @@ import lombok.RequiredArgsConstructor;
 public class AdminTemplateController {
 	private final AdminTemplateService adminTemplateService;
 
-	@GetMapping("/admin/template/recommended-ratio")
-	public ResponseEntity<List<TemplateRecommendedRatioResponse>> getTemplateRecommendedRatio() {
+	@GetMapping("/admin/template/recommended-count")
+	public ResponseEntity<List<TemplateRecommendedCountResponse>> getTemplateRecommendedCount() {
 
-		List<TemplateRecommendedRatioResponse> response = adminTemplateService.getTemplateRecommendedRatio();
+		List<TemplateRecommendedCountResponse> response = adminTemplateService.getTemplateRecommendedCount();
 		return ResponseEntity.ok().body(response);
 	}
 }

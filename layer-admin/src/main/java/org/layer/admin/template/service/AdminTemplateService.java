@@ -4,7 +4,7 @@ import static org.springframework.transaction.annotation.Propagation.*;
 
 import java.util.List;
 
-import org.layer.admin.template.controller.dto.TemplateRecommendedRatioResponse;
+import org.layer.admin.template.controller.dto.TemplateRecommendedCountResponse;
 import org.layer.admin.template.entity.AdminTemplateRecommendation;
 import org.layer.admin.template.enums.AdminFormTag;
 import org.layer.admin.template.repository.AdminTemplateRepository;
@@ -22,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 public class AdminTemplateService {
 	private final AdminTemplateRepository adminTemplateRepository;
 
-	public List<TemplateRecommendedRatioResponse> getTemplateRecommendedRatio(){
+	public List<TemplateRecommendedCountResponse> getTemplateRecommendedCount(){
 		return adminTemplateRepository.countByFormTag();
 	}
 
