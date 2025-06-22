@@ -61,6 +61,7 @@ public class SecurityConfig {
 					.requestMatchers(new AntPathRequestMatcher("/api/auth/create-token")).permitAll()
 					.requestMatchers(new AntPathRequestMatcher("/admin/**")).permitAll()
 					.requestMatchers(new AntPathRequestMatcher("/actuator/health")).permitAll()
+					.requestMatchers(new AntPathRequestMatcher("/admin/**")).permitAll()
 					.anyRequest().authenticated()
 			)
 			.headers(headers -> headers
