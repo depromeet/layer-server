@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 @Component
 @Profile("prod")
 @RequiredArgsConstructor
-public class CreateSpaceEventListener {
+public class CreateSpaceEventNotifier {
 
 	private final DiscordAppender discordAppender;
 
