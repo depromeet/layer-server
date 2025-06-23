@@ -156,6 +156,7 @@ project(":layer-external") {
     dependencies {
         implementation project(path: ':layer-common')
         implementation project(path: ':layer-domain')
+        implementation project(path: ':layer-event')
 
         implementation 'io.jsonwebtoken:jjwt-api:0.12.5'
         runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.5'
