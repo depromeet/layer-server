@@ -10,13 +10,14 @@ import lombok.RequiredArgsConstructor;
 @Component
 @Profile("prod")
 @RequiredArgsConstructor
-public class SignUpEventListener {
+public class CreateRetrospectEventNotifier {
+
 	private final DiscordAppender discordAppender;
 
 	@EventListener
-	public void handleSignUpEvent(SignUpEvent event) {
-		discordAppender.createMember(
-			event.name(),
+	public void handleSignUpEvent(CreateRetrospectEvent event) {
+		discordAppender.createRetrospectAppend(
+			event.title(),
 			event.memberId(),
 			event.createdDate());
 	}

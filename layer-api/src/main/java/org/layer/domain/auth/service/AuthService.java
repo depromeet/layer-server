@@ -2,7 +2,9 @@ package org.layer.domain.auth.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.layer.discord.event.SignUpEvent;
+
+import org.layer.domain.common.random.CustomRandom;
+import org.layer.event.member.SignUpEvent;
 import org.layer.domain.auth.controller.dto.*;
 import org.layer.domain.common.time.Time;
 import org.layer.domain.jwt.JwtToken;
@@ -38,6 +40,7 @@ public class AuthService {
 
     private final ApplicationEventPublisher eventPublisher;
     private final Time time;
+    private final CustomRandom random;
 
     private static final String SIGN_UP_LOCK_KEY = "signup:lock";
 
@@ -101,9 +104,10 @@ public class AuthService {
     }
 
     private void publishCreateRetrospectEvent(final Member member) {
-        eventPublisher.publishEvent(SignUpEvent.of(
-                member.getName(),
-                member.getId(),
+        eventPublisher.publishEvent(new SignUpEvent(
+            	random.generateRandomValue(),
+				member.getId(),
+				member.getName(),
                 time.now()
         ));
     }

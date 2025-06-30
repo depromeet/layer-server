@@ -10,15 +10,13 @@ import lombok.RequiredArgsConstructor;
 @Component
 @Profile("prod")
 @RequiredArgsConstructor
-public class CreateSpaceEventListener {
-
+public class ErrorEventNotifier {
 	private final DiscordAppender discordAppender;
 
 	@EventListener
-	public void handleSignUpEvent(CreateSpaceEvent event) {
-		discordAppender.createSpaceAppend(
-			event.title(),
-			event.memberId(),
-			event.createdDate());
+	public void handleSignUpEvent(ErrorEvent event) {
+		discordAppender.createErrorAppend(
+			event.message(),
+			event.stackTrace());
 	}
 }

@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 @Component
 @Profile("prod")
 @RequiredArgsConstructor
-public class MemberActivityEventListener {
+public class MemberActivityEventNotifier {
 	private final DiscordAppender discordAppender;
 
 	@EventListener
