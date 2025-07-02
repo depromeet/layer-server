@@ -3,9 +3,9 @@ VALUES
     (1, '2024-12-27 00:00:00', '2024-12-27 00:00:00', 'user1@example.com', 'USER', '홍길동', 'https://example.com/image1.png', 'social_id_1', 'KAKAO', NULL),
     (2, '2024-12-27 00:00:00', '2024-12-27 00:00:00', 'user2@example.com', 'USER', '김철수', 'https://example.com/image2.png', 'social_id_2', 'KAKAO', NULL);
 
-INSERT INTO space (created_at, updated_at, banner_url, category, field_list, form_id, introduction, leader_id, name)
+INSERT INTO space (id, created_at, updated_at, banner_url, category, field_list, form_id, introduction, leader_id, name)
 VALUES
-    ('2024-12-27 00:00:00', '2024-12-27 00:00:00', 'https://example.com/banner1.jpg', 'INDIVIDUAL', 'EDUCATION,DEVELOPMENT', NULL, '개인 프로젝트를 위한 공간입니다.', 1, '개인 공간 1');
+    (1, '2024-12-27 00:00:00', '2024-12-27 00:00:00', 'https://example.com/banner1.jpg', 'INDIVIDUAL', 'EDUCATION,DEVELOPMENT', NULL, '개인 프로젝트를 위한 공간입니다.', 1, '개인 공간 1');
 
 INSERT INTO member_space_relation (created_at, updated_at, member_id, space_id)
 VALUES

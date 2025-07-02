@@ -61,6 +61,7 @@ public class SecurityConfig {
 					.requestMatchers(new AntPathRequestMatcher("/api/auth/create-token")).permitAll()
 					.requestMatchers(new AntPathRequestMatcher("/admin/**")).permitAll()
 					.requestMatchers(new AntPathRequestMatcher("/actuator/health")).permitAll()
+					.requestMatchers(new AntPathRequestMatcher("/admin/**")).permitAll()
 					.anyRequest().authenticated()
 			)
 			.headers(headers -> headers
@@ -95,7 +96,10 @@ public class SecurityConfig {
 			"https://www.layerapp.io",
 			"http://localhost:5173",
 			"https://stg.layerapp.io",
-			"https://stgapi.layerapp.io"));
+			"https://stgapi.layerapp.io",
+			"https://admin-dev.layerapp.io",
+			"https://admin-prod.layerapp.io"
+		));
 		config.setAllowedMethods(Arrays.asList("GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"));
 		config.setAllowedHeaders(Collections.singletonList("*"));
 		config.setAllowCredentials(false);
