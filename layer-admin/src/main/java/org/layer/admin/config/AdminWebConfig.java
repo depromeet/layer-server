@@ -1,6 +1,6 @@
 package org.layer.admin.config;
 
-import org.layer.admin.auth.AdminAuthorizationInterceptor;
+import org.layer.admin.interceptor.AdminAuthorizationInterceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
