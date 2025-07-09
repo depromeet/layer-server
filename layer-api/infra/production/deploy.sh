@@ -1,6 +1,6 @@
 #!/bin/bash
 
-IS_GREEN=$(sudo docker ps | grep layer-api-green) # 현재 실행중인 App이 blue인지 확인합니다.
+IS_GREEN=$(sudo docker ps | grep layer-api-prod-green) # 현재 실행중인 App이 blue인지 확인합니다.
 
 if [ -z $IS_GREEN  ];then # blue라면
 
@@ -27,7 +27,7 @@ if [ -z $IS_GREEN  ];then # blue라면
   sudo nginx -s reload
 
   echo "5. blue container down"
-  sudo docker compose -f docker-compose-blue.yaml rm -s -f layer-api-blue
+  sudo docker compose -f docker-compose-blue.yaml rm -s -f layer-api-prod-blue
 else
 
   echo "### GREEN => BLUE ###"
@@ -54,5 +54,5 @@ else
   sudo nginx -s reload
 
   echo "5. green container down"
-  sudo docker compose -f docker-compose-green.yaml rm -s -f layer-api-green
+  sudo docker compose -f docker-compose-green.yaml rm -s -f layer-api-prod-green
 fi
