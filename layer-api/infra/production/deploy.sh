@@ -10,10 +10,10 @@ if [ -z $IS_GREEN  ];then # blue라면
   cd ./layer-api/infra/production
 
   echo "1.1. pull latest green image"
-  sudo docker-compose -f docker-compose-green.yaml pull
+  sudo docker compose -f docker-compose-green.yaml pull
 
   echo "2. green container up"
-  sudo docker-compose -f docker-compose-green.yaml up -d
+  sudo docker compose -f docker-compose-green.yaml up -d
 
   while [ 1 = 1 ]; do
   echo "3. green health check..."
@@ -31,17 +31,17 @@ if [ -z $IS_GREEN  ];then # blue라면
   sudo nginx -s reload
 
   echo "5. blue container down"
-  sudo docker-compose -f docker-compose-blue.yaml rm -s -f layer-api-blue
+  sudo docker compose -f docker-compose-blue.yaml rm -s -f layer-api-blue
 else
   echo "### GREEN => BLUE ###"
   echo "1. get blue image"
   cd ./layer-api/infra/production
 
   echo "1.1. pull latest blue image"
-  sudo docker-compose -f docker-compose-blue.yaml pull
+  sudo docker compose -f docker-compose-blue.yaml pull
 
   echo "2. blue container up"
-  sudo docker-compose -f docker-compose-blue.yaml up -d
+  sudo docker compose -f docker-compose-blue.yaml up -d
 
 
   while [ 1 = 1 ]; do
@@ -60,5 +60,5 @@ else
   sudo nginx -s reload
 
   echo "5. green container down"
-  sudo docker-compose -f docker-compose-green.yaml rm -s -f layer-api-green
+  sudo docker compose -f docker-compose-green.yaml rm -s -f layer-api-green
 fi
