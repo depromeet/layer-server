@@ -7,7 +7,7 @@ import org.layer.admin.template.entity.AdminTemplateRecommendation;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-public interface AdminTemplateRepository extends JpaRepository<AdminTemplateRecommendation, Long> {
+public interface AdminTemplateRecommendationRepository extends JpaRepository<AdminTemplateRecommendation, Long> {
 
 	@Query("SELECT new org.layer.admin.template.controller.dto.TemplateRecommendedCountResponse(r.formTag, COUNT(r)) " +
 		"FROM AdminTemplateRecommendation r " +

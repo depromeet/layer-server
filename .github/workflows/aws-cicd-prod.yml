@@ -38,7 +38,6 @@ jobs:
       REGISTRY: "docker.io"
       NAMESPACE: "clean01"
       APPLICATION_SECRET_PROPERTIES: ${{ secrets.AWS_APPLICATION_SECRET_PROPERTIES }}
-      GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
 
     steps:
       - name: Setup Java
@@ -108,7 +107,7 @@ jobs:
 
       - name: Archive Files
         run: |
-          tar -cvzf layer-api.tar.gz ./layer-api/infra/${{ env.DEPLOY_TARGET }}/
+          tar -cvzf layer-api.tar.gz ./layer-api/infra/
 
       - name: Send Docker Compose
         uses: appleboy/scp-action@master

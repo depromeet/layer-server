@@ -9,12 +9,11 @@ services:
     networks:
       - app-network
 
-
   layer-api-green:
     image: docker.io/clean01/layer-server_layer-api:latest
     container_name: layer-api-green
     ports:
-      - "8080:8080"
+      - "8090:8080"
     environment:
       - TZ=Asia/Seoul
       - SPRING_PROFILES_ACTIVE=dev
