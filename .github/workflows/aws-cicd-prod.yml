@@ -38,7 +38,6 @@ jobs:
       REGISTRY: "docker.io"
       NAMESPACE: "clean01"
       APPLICATION_SECRET_PROPERTIES: ${{ secrets.AWS_APPLICATION_SECRET_PROPERTIES }}
-      GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
 
     steps:
       - name: Setup Java

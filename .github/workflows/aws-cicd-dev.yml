@@ -41,11 +41,10 @@ jobs:
       packages: write
 
     env:
-      DEPLOY_TARGET: ${{ needs.setup.outputs.deploy_target }} # 이부분
+      DEPLOY_TARGET: ${{ needs.setup.outputs.deploy_target }}
       REGISTRY: "docker.io"
       NAMESPACE: "clean01"
       APPLICATION_SECRET_PROPERTIES: ${{ secrets.AWS_APPLICATION_SECRET_PROPERTIES }}
-      GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
 
     steps:
       - name: Setup Java
@@ -73,7 +72,6 @@ jobs:
         with:
           name: test-report
           path: layer-api/build/reports/tests/test/
-
 
       - name: Docker Hub Login
         uses: docker/login-action@v1
@@ -145,7 +143,6 @@ jobs:
             sudo chmod -R 755 /home/ubuntu/layer-api/infra/${{ env.DEPLOY_TARGET }}
             sudo chown -R ubuntu:ubuntu /home/ubuntu/layer-api/infra/${{ env.DEPLOY_TARGET }}
 
-
       - name: Set Permissions on Transferred Files
         uses: appleboy/ssh-action@master
         with:
@@ -165,8 +162,6 @@ jobs:
           key: ${{ secrets.AWS_INSTANCE_PEM }}
           port: 22
           script: |
-            rm -rf layer-server
-            git clone https://github.com/depromeet/layer-server.git
             sudo docker login --username ${{ secrets.DOCKER_EMAIL }} --password ${{ secrets.DOCKER_PASSWORD }}
             cd /home/ubuntu/layer-api/infra/${{ env.DEPLOY_TARGET }}
             chmod 777 ./deploy.sh
