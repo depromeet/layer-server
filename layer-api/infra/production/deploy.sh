@@ -1,6 +1,6 @@
 #!/bin/bash
 
-IS_GREEN=$(sudo docker ps | grep layer-api-green) # 현재 실행중인 App이 blue인지 확인합니다.
+IS_GREEN=$(sudo docker ps | grep layer-api-prod-green) # 현재 실행중인 App이 blue인지 확인합니다.
 
 if [ -z $IS_GREEN  ];then # blue라면
 
