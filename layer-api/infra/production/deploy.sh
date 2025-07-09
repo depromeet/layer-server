@@ -5,10 +5,6 @@ IS_GREEN=$(sudo docker ps | grep layer-api-green) # 현재 실행중인 App이 b
 if [ -z $IS_GREEN  ];then # blue라면
 
   echo "### BLUE => GREEN ###"
-
-  echo "1. get green image"
-  cd ./layer-api/infra/production
-
   echo "1.1. pull latest green image"
   sudo docker compose -f docker-compose-green.yaml pull
 
@@ -33,11 +29,9 @@ if [ -z $IS_GREEN  ];then # blue라면
   echo "5. blue container down"
   sudo docker compose -f docker-compose-blue.yaml rm -s -f layer-api-blue
 else
-  echo "### GREEN => BLUE ###"
-  echo "1. get blue image"
-  cd ./layer-api/infra/production
 
-  echo "1.1. pull latest blue image"
+  echo "### GREEN => BLUE ###"
+  echo "1. pull latest blue image"
   sudo docker compose -f docker-compose-blue.yaml pull
 
   echo "2. blue container up"
