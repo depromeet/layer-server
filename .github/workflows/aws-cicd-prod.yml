@@ -107,7 +107,7 @@ jobs:
 
       - name: Archive Files
         run: |
-          tar -cvzf layer-api.tar.gz ./layer-api/infra/${{ env.DEPLOY_TARGET }}/
+          tar -cvzf layer-api.tar.gz ./layer-api/infra/
 
       - name: Send Docker Compose
         uses: appleboy/scp-action@master
