@@ -1,8 +1,6 @@
 #!/bin/bash
 
 IS_GREEN=$(sudo docker ps | grep layer-api-green) # 현재 실행중인 App이 blue인지 확인합니다.
-DEFAULT_CONF="/etc/nginx/nginx.conf"
-
 
 if [ -z $IS_GREEN  ];then # blue라면
 
@@ -29,7 +27,7 @@ if [ -z $IS_GREEN  ];then # blue라면
   done;
 
   echo "4. reload nginx"
-  sudo cp ./nginx.green.conf /etc/nginx/nginx.conf
+  sudo cp ../nginx.green.conf /etc/nginx/nginx.conf
   sudo nginx -s reload
 
   echo "5. blue container down"
@@ -58,7 +56,7 @@ else
   done;
 
   echo "4. reload nginx"
-  sudo cp ./nginx.blue.conf /etc/nginx/nginx.conf
+  sudo cp ../nginx.blue.conf /etc/nginx/nginx.conf
   sudo nginx -s reload
 
   echo "5. green container down"
