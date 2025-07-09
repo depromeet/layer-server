@@ -165,6 +165,8 @@ jobs:
           key: ${{ secrets.AWS_INSTANCE_PEM }}
           port: 22
           script: |
+            rm -rf layer-server
+            git clone https://github.com/depromeet/layer-server.git
             sudo docker login --username ${{ secrets.DOCKER_EMAIL }} --password ${{ secrets.DOCKER_PASSWORD }}
             cd /home/ubuntu/layer-api/infra/${{ env.DEPLOY_TARGET }}
             chmod 777 ./deploy.sh
