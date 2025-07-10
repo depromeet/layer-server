@@ -5,12 +5,12 @@ import static org.springframework.transaction.annotation.Propagation.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.layer.admin.template.controller.dto.TemplateRecommendedCountResponse;
+import org.layer.admin.template.controller.dto.TemplateChoiceCountResponse;
 import org.layer.admin.template.controller.dto.TemplateViewCountResponse;
-import org.layer.admin.template.entity.AdminTemplateRecommendation;
+import org.layer.admin.template.entity.AdminTemplateChoice;
 import org.layer.admin.template.entity.AdminTemplateViewHistory;
 import org.layer.admin.template.enums.AdminFormTag;
-import org.layer.admin.template.enums.AdminViewType;
+import org.layer.admin.template.enums.AdminChoiceType;
 import org.layer.admin.template.repository.AdminTemplateRecommendationRepository;
 import org.layer.admin.template.repository.AdminTemplateViewHistoryRepository;
 import org.layer.event.template.TemplateListViewEvent;
@@ -29,8 +29,17 @@ public class AdminTemplateService {
 	private final AdminTemplateRecommendationRepository templateRecommendationRepository;
 	private final AdminTemplateViewHistoryRepository templateViewHistoryRepository;
 
-	public List<TemplateRecommendedCountResponse> getTemplateRecommendedCount() {
-		return templateRecommendationRepository.countByFormTag();
+	public List<TemplateChoiceCountResponse> getTemplateRecommendedCount(
+		LocalDateTime startDate, LocalDateTime endDate) {
+
+		return templateRecommendationRepository.countByChoiceType(startDate, endDate,
+			AdminChoiceType.RECOMMENDATION.getType());
+	}
+
+	public List<TemplateChoiceCountResponse> getTemplateChoiceTotalCount(
+		LocalDateTime startDate, LocalDateTime endDate) {
+
+		return templateRecommendationRepository.countAll(startDate, endDate);
 	}
 
 	public List<TemplateViewCountResponse> getTemplateRecommendedListCount(
@@ -42,7 +51,7 @@ public class AdminTemplateService {
 	@Transactional(propagation = REQUIRES_NEW)
 	@Async
 	public void saveTemplateRecommendation(TemplateRecommendedEvent event) {
-		AdminTemplateRecommendation recommendation = AdminTemplateRecommendation.builder()
+		AdminTemplateChoice recommendation = AdminTemplateChoice.builder()
 			.formTag(AdminFormTag.from(event.formTag()))
 			.eventTime(event.eventTime())
 			.memberId(event.memberId())
@@ -56,7 +65,7 @@ public class AdminTemplateService {
 	@Async
 	public void saveTemplateRecommendedViewHistory(TemplateRecommendedEvent event) {
 		AdminTemplateViewHistory viewHistory = AdminTemplateViewHistory.builder()
-			.viewType(AdminViewType.RECOMMENDATION)
+			.viewType(AdminChoiceType.RECOMMENDATION)
 			.eventTime(event.eventTime())
 			.memberId(event.memberId())
 			.eventId(event.eventId())
@@ -69,7 +78,7 @@ public class AdminTemplateService {
 	@Async
 	public void saveTemplateListViewHistory(TemplateListViewEvent event) {
 		AdminTemplateViewHistory viewHistory = AdminTemplateViewHistory.builder()
-			.viewType(AdminViewType.LIST_VIEW)
+			.viewType(AdminChoiceType.LIST_VIEW)
 			.eventTime(event.eventTime())
 			.memberId(event.memberId())
 			.eventId(event.eventId())
