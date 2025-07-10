@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Getter
-public enum AdminViewType {
+public enum AdminChoiceType {
 	RECOMMENDATION("RECOMMENDATION"),
 	LIST_VIEW("LIST_VIEW");
 

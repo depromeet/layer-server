@@ -2,7 +2,7 @@ package org.layer.admin.template.entity;
 
 import java.time.LocalDateTime;
 
-import org.layer.admin.template.enums.AdminViewType;
+import org.layer.admin.template.enums.AdminChoiceType;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -26,7 +26,7 @@ public class AdminTemplateViewHistory {
 
 	@Enumerated(EnumType.STRING)
 	@NotNull
-	private AdminViewType viewType;
+	private AdminChoiceType viewType;
 
 	@NotNull
 	private LocalDateTime eventTime;
@@ -38,7 +38,7 @@ public class AdminTemplateViewHistory {
 	private String eventId;
 
 	@Builder
-	private AdminTemplateViewHistory(AdminViewType viewType, LocalDateTime eventTime, Long memberId, String eventId) {
+	private AdminTemplateViewHistory(AdminChoiceType viewType, LocalDateTime eventTime, Long memberId, String eventId) {
 		this.viewType = viewType;
 		this.eventTime = eventTime;
 		this.memberId = memberId;
