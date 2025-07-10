@@ -29,15 +29,12 @@ public class AdminTemplateService {
 	private final AdminTemplateRecommendationRepository templateRecommendationRepository;
 	private final AdminTemplateViewHistoryRepository templateViewHistoryRepository;
 
-	public List<TemplateChoiceCountResponse> getTemplateRecommendedCount(
-		LocalDateTime startDate, LocalDateTime endDate) {
+	public List<TemplateChoiceCountResponse> getTemplateChoiceCount(
+		LocalDateTime startDate, LocalDateTime endDate, AdminChoiceType choiceType) {
 
-		return templateRecommendationRepository.countByChoiceType(startDate, endDate,
-			AdminChoiceType.RECOMMENDATION.getType());
-	}
-
-	public List<TemplateChoiceCountResponse> getTemplateChoiceTotalCount(
-		LocalDateTime startDate, LocalDateTime endDate) {
+		if( choiceType != null) {
+			return templateRecommendationRepository.countByChoiceType(startDate, endDate, choiceType.getType());
+		}
 
 		return templateRecommendationRepository.countAll(startDate, endDate);
 	}
