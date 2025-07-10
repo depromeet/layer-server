@@ -33,7 +33,7 @@ public class AdminTemplateService {
 		LocalDateTime startDate, LocalDateTime endDate, AdminChoiceType choiceType) {
 
 		if( choiceType != null) {
-			return templateRecommendationRepository.countByChoiceType(startDate, endDate, choiceType.getType());
+			return templateRecommendationRepository.countByChoiceType(startDate, endDate, choiceType);
 		}
 
 		return templateRecommendationRepository.countAll(startDate, endDate);
