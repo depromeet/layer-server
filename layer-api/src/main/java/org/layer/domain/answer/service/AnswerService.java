@@ -20,6 +20,7 @@ import org.layer.domain.answer.entity.Answers;
 import org.layer.domain.answer.enums.AnswerStatus;
 import org.layer.domain.answer.exception.AnswerException;
 import org.layer.domain.answer.repository.AnswerRepository;
+import org.layer.domain.common.random.CustomRandom;
 import org.layer.domain.common.time.Time;
 import org.layer.domain.member.entity.Members;
 import org.layer.domain.member.repository.MemberRepository;
@@ -33,13 +34,13 @@ import org.layer.domain.space.entity.MemberSpaceRelation;
 import org.layer.domain.space.entity.Team;
 import org.layer.domain.space.exception.MemberSpaceRelationException;
 import org.layer.domain.space.repository.MemberSpaceRelationRepository;
+import org.layer.event.retrospect.WriteRetrospectEndEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-
 
 @Slf4j
 @Service
@@ -56,6 +57,7 @@ public class AnswerService {
 	private final ApplicationEventPublisher eventPublisher;
 
 	private final Time time;
+	private final CustomRandom random;
 
 	@Transactional
 	public void create(AnswerListCreateRequest request, Long spaceId, Long retrospectId, Long memberId) {
@@ -112,6 +114,21 @@ public class AnswerService {
 
 			eventPublisher.publishEvent(AIAnalyzeStartEvent.of(retrospectId));
 		}
+
+		publishWriteRetrospectEvent(spaceId, retrospectId, memberId, questions, answers);
+	}
+
+	private void publishWriteRetrospectEvent(Long spaceId, Long retrospectId, Long memberId, Questions questions, Answers answers) {
+		Long rangeQuestionId = questions.extractEssentialQuestionIdBy(QuestionType.RANGER);
+		Long numberQuestionId = questions.extractEssentialQuestionIdBy(QuestionType.NUMBER);
+
+		eventPublisher.publishEvent(
+			WriteRetrospectEndEvent.of(
+				random.generateRandomValue(), time.now(),
+				memberId, spaceId, retrospectId,
+				answers.getIndividualAnswer(rangeQuestionId, numberQuestionId, memberId)
+			)
+		);
 	}
 
 	@Transactional
