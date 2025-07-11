@@ -5,6 +5,8 @@ import java.util.List;
 import org.layer.domain.answer.entity.Answers;
 import org.layer.domain.answer.enums.AnswerStatus;
 import org.layer.domain.answer.repository.AnswerRepository;
+import org.layer.domain.common.random.CustomRandom;
+import org.layer.domain.common.time.Time;
 import org.layer.domain.question.controller.dto.response.QuestionGetResponse;
 import org.layer.domain.question.controller.dto.response.QuestionListGetResponse;
 import org.layer.domain.question.entity.Question;
@@ -14,6 +16,8 @@ import org.layer.domain.retrospect.entity.Retrospect;
 import org.layer.domain.retrospect.repository.RetrospectRepository;
 import org.layer.domain.space.entity.Team;
 import org.layer.domain.space.repository.MemberSpaceRelationRepository;
+import org.layer.event.retrospect.WriteRetrospectStartEvent;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +31,11 @@ public class QuestionService {
 	private final MemberSpaceRelationRepository memberSpaceRelationRepository;
 	private final RetrospectRepository retrospectRepository;
 	private final AnswerRepository answerRepository;
+
+	private final ApplicationEventPublisher eventPublisher;
+
+	private final Time time;
+	private final CustomRandom random;
 
 	public QuestionListGetResponse getRetrospectQuestions(Long spaceId, Long retrospectId, Long memberId){
 
@@ -48,6 +57,9 @@ public class QuestionService {
 		// 임시 저장 여부 확인
 		Answers answers = new Answers(
 			answerRepository.findAllByRetrospectIdAndMemberIdAndAnswerStatus(retrospectId, memberId, AnswerStatus.TEMPORARY));
+
+		eventPublisher.publishEvent(WriteRetrospectStartEvent.of(random.generateRandomValue(), time.now(),
+			memberId, spaceId, retrospectId));
 
 		return QuestionListGetResponse.of(responses, answers.hasRetrospectAnswer(memberId, retrospectId));
 	}
