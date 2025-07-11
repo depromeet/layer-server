@@ -10,7 +10,7 @@ services:
       - app-network
 
   layer-api-dev-green:
-    image: docker.io/clean01/layer-server_layer-api:latest
+    image: docker.io/layerapp/layer-repo:dev
     container_name: layer-api-dev-green
     ports:
       - "8090:8080"

@@ -36,12 +36,7 @@ jobs:
     permissions:
       contents: read
       packages: write
-
     env:
-      DEPLOY_TARGET: ${{ needs.setup.outputs.deploy_target }}
-      REGISTRY: "layerapp"
-      NAMESPACE: "layer-repo"
-      IMAGE_NAME: "layer-api"
       APPLICATION_SECRET_PROPERTIES: ${{ secrets.AWS_APPLICATION_SECRET_PROPERTIES }}
 
     steps:
@@ -79,6 +74,22 @@ jobs:
           name: test-report
           path: layer-api/build/reports/tests/test/
 
+  deploy:
+    name: Deploy
+    needs: [ build, setup ]
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
+    env:
+      DEPLOY_TARGET: ${{ needs.setup.outputs.deploy_target }}
+      REGISTRY: "docker.io"
+      NAMESPACE: "layerapp"
+      IMAGE_NAME: "layer-repo"
+      APPLICATION_SECRET_PROPERTIES: ${{ secrets.AWS_APPLICATION_SECRET_PROPERTIES }}
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
       - name: Docker Hub Login
         uses: docker/login-action@v1
         with:
@@ -96,18 +107,6 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ env.DEPLOY_TARGET }}
           build-args: |
             SPRING_PROFILE=${{ env.DEPLOY_TARGET }}
-
-  deploy:
-    name: Deploy
-    needs: [ build, setup ]
-    runs-on: ubuntu-latest
-    if: github.event_name != 'pull_request'
-    env:
-      DEPLOY_TARGET: ${{ needs.setup.outputs.deploy_target }}
-
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@v4
 
       - name: application-secret.properties 생성
         run: |
