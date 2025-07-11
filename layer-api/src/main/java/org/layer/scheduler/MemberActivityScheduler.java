@@ -3,7 +3,7 @@ package org.layer.scheduler;
 import java.time.LocalDateTime;
 
 import org.layer.tmpadmin.cache.MemberActivityCache;
-import org.layer.discord.event.MemberActivityEvent;
+import org.layer.discord.notifier.MemberActivityEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;

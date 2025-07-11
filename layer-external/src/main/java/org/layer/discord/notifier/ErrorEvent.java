@@ -1,4 +1,4 @@
-package org.layer.discord.event;
+package org.layer.discord.notifier;
 
 import java.time.LocalDateTime;
 
