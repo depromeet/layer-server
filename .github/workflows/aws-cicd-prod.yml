@@ -3,7 +3,7 @@ name: prod deploy action
 on:
   push:
     branches:
-      - main
+      - deprecated
 
 env:
   REGISTRY: "docker.io"
@@ -152,7 +152,7 @@ jobs:
           key: ${{ secrets.AWS_INSTANCE_PEM }}
           port: 22
           script: |
-            sudo docker login --username ${{ secrets.DOCKER_EMAIL }} --password ${{ secrets.DOCKER_PASSWORD }}
+            sudo docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_ACCESS_TOKEN }}
             cd /home/ubuntu/layer-api/infra/${{ env.DEPLOY_TARGET }}
             chmod 777 ./deploy.sh
             ./deploy.sh
