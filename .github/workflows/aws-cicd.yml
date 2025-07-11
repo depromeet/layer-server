@@ -39,9 +39,9 @@ jobs:
 
     env:
       DEPLOY_TARGET: ${{ needs.setup.outputs.deploy_target }}
-      REGISTRY: "layerapp"
-      NAMESPACE: "layer-repo"
-      IMAGE_NAME: "layer-api"
+      REGISTRY: "docker.io"
+      NAMESPACE: "layerapp"
+      IMAGE_NAME: "layer-repo"
       APPLICATION_SECRET_PROPERTIES: ${{ secrets.AWS_APPLICATION_SECRET_PROPERTIES }}
 
     steps:
