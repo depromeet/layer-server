@@ -95,7 +95,7 @@ jobs:
           password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
 
       - name: Push layer-api Docker Image
-        uses: docker/build-push-action@v4경
+        uses: docker/build-push-action@v4
         with:
           context: ./layer-api
           file: ./layer-api/Dockerfile  # Dockerfile 이름 지정
