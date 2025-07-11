@@ -36,6 +36,8 @@ jobs:
     permissions:
       contents: read
       packages: write
+    env:
+      APPLICATION_SECRET_PROPERTIES: ${{ secrets.AWS_APPLICATION_SECRET_PROPERTIES }}
 
     steps:
       - name: Checkout sources
