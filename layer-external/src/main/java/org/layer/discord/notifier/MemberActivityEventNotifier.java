@@ -1,7 +1,6 @@
-package org.layer.discord.event;
+package org.layer.discord.notifier;
 
 import org.layer.discord.DiscordAppender;
-import org.layer.event.retrospect.CreateRetrospectEvent;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
@@ -11,15 +10,11 @@ import lombok.RequiredArgsConstructor;
 @Component
 @Profile("prod")
 @RequiredArgsConstructor
-public class CreateRetrospectEventNotifier {
-
+public class MemberActivityEventNotifier {
 	private final DiscordAppender discordAppender;
 
 	@EventListener
-	public void handleSignUpEvent(CreateRetrospectEvent event) {
-		discordAppender.createRetrospectAppend(
-			event.title(),
-			event.memberId(),
-			event.createdDate());
+	public void handleSignUpEvent(MemberActivityEvent event) {
+		discordAppender.aggregateMemberActivity(event.activities());
 	}
 }

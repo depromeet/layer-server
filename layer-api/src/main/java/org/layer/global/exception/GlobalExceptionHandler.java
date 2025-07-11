@@ -6,7 +6,7 @@ import java.util.Arrays;
 import org.layer.common.exception.BaseCustomException;
 import org.layer.common.exception.ExceptionResponse;
 import org.layer.common.exception.ExceptionType;
-import org.layer.discord.event.ErrorEvent;
+import org.layer.discord.notifier.ErrorEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
