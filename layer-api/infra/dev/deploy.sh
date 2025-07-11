@@ -38,7 +38,7 @@ done
 
 echo "4. reload nginx config"
 export DEV_PORT=$PORT_NUMBER
-sudo envsubst '${DEV_PORT}' < /home/ubuntu/layer-api/infra/nginx.template.conf > /etc/nginx/nginx.conf
+sudo envsubst '${DEV_PORT}' < /home/ubuntu/layer-api/infra/nginx.template.conf | sudo tee /etc/nginx/nginx.conf > /dev/null
 sudo nginx -s reload
 
 echo "5. remove old container"
