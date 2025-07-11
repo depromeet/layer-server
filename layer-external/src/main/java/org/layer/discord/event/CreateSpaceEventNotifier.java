@@ -1,6 +1,7 @@
 package org.layer.discord.event;
 
 import org.layer.discord.DiscordAppender;
+import org.layer.event.space.CreateSpaceEvent;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
@@ -19,6 +20,6 @@ public class CreateSpaceEventNotifier {
 		discordAppender.createSpaceAppend(
 			event.title(),
 			event.memberId(),
-			event.createdDate());
+			event.eventTime());
 	}
 }

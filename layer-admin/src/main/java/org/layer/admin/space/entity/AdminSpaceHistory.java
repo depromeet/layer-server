@@ -1,8 +1,8 @@
-package org.layer.admin.template.entity;
+package org.layer.admin.space.entity;
 
 import java.time.LocalDateTime;
 
-import org.layer.admin.template.enums.AdminChoiceType;
+import org.layer.admin.space.enums.AdminSpaceCategory;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -19,14 +19,10 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class AdminTemplateViewHistory {
+public class AdminSpaceHistory {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-
-	@Enumerated(EnumType.STRING)
-	@NotNull
-	private AdminChoiceType viewType;
 
 	@NotNull
 	private LocalDateTime eventTime;
@@ -37,11 +33,15 @@ public class AdminTemplateViewHistory {
 	@NotNull
 	private String eventId;
 
+	@NotNull
+	@Enumerated(EnumType.STRING)
+	private AdminSpaceCategory category;
+
 	@Builder
-	private AdminTemplateViewHistory(AdminChoiceType viewType, LocalDateTime eventTime, Long memberId, String eventId) {
-		this.viewType = viewType;
+	private AdminSpaceHistory(LocalDateTime eventTime, Long memberId, String eventId, AdminSpaceCategory category) {
 		this.eventTime = eventTime;
 		this.memberId = memberId;
 		this.eventId = eventId;
+		this.category = category;
 	}
 }

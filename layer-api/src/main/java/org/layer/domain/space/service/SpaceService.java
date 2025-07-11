@@ -3,7 +3,8 @@ package org.layer.domain.space.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.layer.common.dto.Meta;
-import org.layer.discord.event.CreateSpaceEvent;
+import org.layer.domain.common.random.CustomRandom;
+import org.layer.event.space.CreateSpaceEvent;
 import org.layer.domain.actionItem.repository.ActionItemRepository;
 import org.layer.domain.common.time.Time;
 import org.layer.domain.form.entity.Form;
@@ -50,6 +51,7 @@ public class SpaceService {
 	private final ApplicationEventPublisher eventPublisher;
 
 	private final Time time;
+	private final CustomRandom random;
 
 	public SpaceResponse.SpacePage getSpaceListFromMemberId(Long memberId, SpaceRequest.GetSpaceRequest request) {
 
@@ -101,9 +103,11 @@ public class SpaceService {
 
 	private void publishCreateSpaceEvent(final Space space, final Long memberId) {
 		eventPublisher.publishEvent(CreateSpaceEvent.of(
-			space.getName(),
+			random.generateRandomValue(),
 			memberId,
-			time.now()
+			time.now(),
+			space.getName(),
+			space.getCategory().name()
 		));
 	}
 

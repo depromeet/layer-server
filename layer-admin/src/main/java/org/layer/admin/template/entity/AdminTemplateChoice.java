@@ -3,6 +3,7 @@ package org.layer.admin.template.entity;
 import java.time.LocalDateTime;
 
 import org.layer.admin.template.enums.AdminFormTag;
+import org.layer.admin.template.enums.AdminChoiceType;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -19,7 +20,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class AdminTemplateRecommendation {
+public class AdminTemplateChoice {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,11 +39,17 @@ public class AdminTemplateRecommendation {
 	@NotNull
 	private String eventId;
 
+	@Enumerated(EnumType.STRING)
+	@NotNull
+	private AdminChoiceType choiceType;
+
 	@Builder
-	private AdminTemplateRecommendation(AdminFormTag formTag, LocalDateTime eventTime, Long memberId, String eventId) {
+	private AdminTemplateChoice(AdminFormTag formTag, LocalDateTime eventTime, Long memberId, String eventId,
+		AdminChoiceType choiceType) {
 		this.formTag = formTag;
 		this.eventTime = eventTime;
 		this.memberId = memberId;
 		this.eventId = eventId;
+		this.choiceType = choiceType;
 	}
 }
