@@ -9,11 +9,11 @@ services:
     networks:
       - app-network
 
-  layer-api-prod-blue:
-    image: docker.io/clean01/layer-server_layer-api:latest
-    container_name: layer-api-prod-blue
+  layer-api-prod-green:
+    image: docker.io/layerapp/layer-repo:prod
+    container_name: layer-api-prod-green
     ports:
-      - "8081:8080"
+      - "8080:8080"
     environment:
       - TZ=Asia/Seoul
       - SPRING_PROFILES_ACTIVE=prod
