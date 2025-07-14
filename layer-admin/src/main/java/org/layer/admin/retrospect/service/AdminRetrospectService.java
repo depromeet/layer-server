@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.layer.admin.member.repository.AdminMemberRepository;
+import org.layer.admin.retrospect.controller.dto.MeaningfulRetrospectMemberResponse;
 import org.layer.admin.retrospect.controller.dto.RetrospectStayTimeResponse;
 import org.layer.admin.retrospect.entity.AdminRetrospectAnswerHistory;
 import org.layer.admin.retrospect.enums.AnswerTimeRange;
@@ -25,10 +27,21 @@ import lombok.RequiredArgsConstructor;
 public class AdminRetrospectService {
 
 	private final AdminRetrospectRepository adminRetrospectRepository;
+	private final AdminMemberRepository adminMemberRepository;
+
+	public MeaningfulRetrospectMemberResponse getAllMeaningfulRetrospect(
+		LocalDateTime startTime, LocalDateTime endTime, int retrospectLength, int retrospectCount) {
+		List<Long> meaningfulMemberIds = adminRetrospectRepository.findMeaningfulMemberIds(
+			startTime, endTime, retrospectLength, retrospectCount);
+
+		long totalMemberCount = adminMemberRepository.count();
+
+		return new MeaningfulRetrospectMemberResponse(meaningfulMemberIds.size(), totalMemberCount);
+	}
 
 	public List<RetrospectStayTimeResponse> getAllRetrospectStayTime(
 		LocalDateTime startTime, LocalDateTime endTime) {
-		List<AdminRetrospectAnswerHistory> retrospectAnswerHistories = adminRetrospectRepository.findAllByEventTimeBetween(
+		List<AdminRetrospectAnswerHistory> retrospectAnswerHistories = adminRetrospectRepository.findAllByEventTimeBetweenAndAnswerEndTimeIsNotNull(
 			startTime, endTime);
 
 		Map<AnswerTimeRange, Long> countMap = new HashMap<>();
