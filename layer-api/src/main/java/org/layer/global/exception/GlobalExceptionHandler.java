@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
@@ -74,4 +75,10 @@ public class GlobalExceptionHandler {
 			.body(ExceptionResponse.of(HttpStatus.METHOD_NOT_ALLOWED.name(), "지원하지 않는 HTTP 메서드입니다."));
 	}
 
+	@ExceptionHandler(MissingServletRequestParameterException.class)
+	public ResponseEntity<ExceptionResponse> handleMissingServletRequestParameterException(Exception e) {
+		log.warn(String.format(LOG_FORMAT, e.getMessage()), e);
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+			.body(ExceptionResponse.of(HttpStatus.BAD_REQUEST.name(), "유효하지 않은 값."));
+	}
 }
