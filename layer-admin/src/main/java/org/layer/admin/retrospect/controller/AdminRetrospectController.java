@@ -3,6 +3,7 @@ package org.layer.admin.retrospect.controller;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.layer.admin.retrospect.controller.dto.MeaningfulRetrospectMemberResponse;
 import org.layer.admin.retrospect.controller.dto.RetrospectStayTimeResponse;
 import org.layer.admin.retrospect.service.AdminRetrospectService;
 import org.springframework.http.ResponseEntity;
@@ -27,5 +28,18 @@ public class AdminRetrospectController {
 			startDate, endDate);
 
 		return ResponseEntity.ok().body(responses);
+	}
+
+	@GetMapping("/admin/retrospect/meaningful")
+	public ResponseEntity<MeaningfulRetrospectMemberResponse> getAllMeaningfulRetrospect(
+		@RequestParam(name = "startDate") LocalDateTime startDate,
+		@RequestParam(name = "endDate") LocalDateTime endDate,
+		@RequestParam(name = "retrospectLength") int retrospectLength,
+		@RequestParam(name = "retrospectCount") int retrospectCount) {
+
+		MeaningfulRetrospectMemberResponse response = adminRetrospectService.getAllMeaningfulRetrospect(
+			startDate, endDate, retrospectLength, retrospectCount);
+
+		return ResponseEntity.ok().body(response);
 	}
 }
