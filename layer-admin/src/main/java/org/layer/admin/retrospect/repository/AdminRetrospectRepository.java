@@ -1,6 +1,8 @@
 package org.layer.admin.retrospect.repository;
 
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import org.layer.admin.retrospect.entity.AdminRetrospectAnswerHistory;
@@ -13,5 +15,10 @@ public interface AdminRetrospectRepository extends JpaRepository<AdminRetrospect
 		@Param("memberId") Long memberId,
 		@Param("spaceId") Long spaceId,
 		@Param("retrospectId") Long retrospectId
+	);
+
+	List<AdminRetrospectAnswerHistory> findAllByEventTimeBetween(
+		@Param("startTime") LocalDateTime startTime,
+		@Param("endTime") LocalDateTime endTime
 	);
 }
