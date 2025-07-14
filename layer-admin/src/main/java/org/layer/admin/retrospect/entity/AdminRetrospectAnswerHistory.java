@@ -1,5 +1,6 @@
 package org.layer.admin.retrospect.entity;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Entity;
@@ -44,6 +45,15 @@ public class AdminRetrospectAnswerHistory {
 	public void updateRetrospectCompleted (LocalDateTime answerEndTime, String answerContent) {
 		this.answerEndTime = answerEndTime;
 		this.answerContent = answerContent;
+	}
+
+	public long getAnswerTime() {
+		if (answerStartTime == null || answerEndTime == null) {
+			return 0L;
+		}
+		Duration duration = Duration.between(answerEndTime, answerStartTime);
+
+		return duration.toMinutes();
 	}
 
 	@Builder
