@@ -51,7 +51,7 @@ public class AdminRetrospectAnswerHistory {
 		if (answerStartTime == null || answerEndTime == null) {
 			return 0L;
 		}
-		Duration duration = Duration.between(answerEndTime, answerStartTime);
+		Duration duration = Duration.between(answerStartTime, answerEndTime);
 
 		return duration.toMinutes();
 	}
