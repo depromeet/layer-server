@@ -49,6 +49,9 @@ public class AdminRetrospectService {
 	@Transactional(propagation = REQUIRES_NEW)
 	@Async
 	public void saveRetrospectAnswerHistory(WriteRetrospectStartEvent event) {
+		adminRetrospectRepository.deleteByMemberIdAndSpaceIdAndRetrospectId(event.memberId(), event.spaceId(),
+			event.retrospectId());
+
 		AdminRetrospectAnswerHistory retrospectAnswerHistory = AdminRetrospectAnswerHistory.builder()
 			.eventTime(event.eventTime())
 			.memberId(event.memberId())
@@ -65,8 +68,8 @@ public class AdminRetrospectService {
 	@Async
 	public void updateRetrospectAnswerHistory(WriteRetrospectEndEvent event) {
 
-		adminRetrospectRepository.findByMemberIdAndSpaceIdAndRetrospectId(event.memberId(), event.spaceId(),
-				event.retrospectId())
+		adminRetrospectRepository.findTopByMemberIdAndSpaceIdAndRetrospectIdOrderByAnswerStartTimeDesc(
+			event.memberId(), event.spaceId(), event.retrospectId())
 			.ifPresentOrElse(
 				history -> {
 					history.updateRetrospectCompleted(event.eventTime(), event.answerContent());
