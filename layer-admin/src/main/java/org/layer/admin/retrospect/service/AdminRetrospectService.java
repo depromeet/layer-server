@@ -31,7 +31,7 @@ public class AdminRetrospectService {
 
 	public MeaningfulRetrospectMemberResponse getAllMeaningfulRetrospect(
 		LocalDateTime startTime, LocalDateTime endTime, int retrospectLength, int retrospectCount) {
-		List<Long> meaningfulMemberIds = adminRetrospectRepository.findConsistentlyMeaningfulMemberIds(
+		List<Long> meaningfulMemberIds = adminRetrospectRepository.findMeaningfulMemberIds(
 			startTime, endTime, retrospectLength, retrospectCount);
 
 		long totalMemberCount = adminMemberRepository.count();
