@@ -80,7 +80,7 @@ public class AdminRetrospectService {
 
 		// 신규 가입자 목록 조회
 		Set<Long> newMemberIdSet = new HashSet<>(
-			adminMemberRepository.findAllMemberIdsByEventTimeBetween(startTime, endTime));
+			adminMemberRepository.findMemberIdsByEventTimeBetween(startTime, endTime));
 
 		// 리텐션 유저 추출
 		List<Long> retainedMemberIds = retrospectCountMap.entrySet().stream()
