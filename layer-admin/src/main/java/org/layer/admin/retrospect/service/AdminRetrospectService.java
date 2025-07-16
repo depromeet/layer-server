@@ -15,7 +15,7 @@ import org.layer.admin.retrospect.entity.AdminRetrospectAnswerHistory;
 import org.layer.admin.retrospect.enums.AnswerTimeRange;
 import org.layer.admin.retrospect.repository.AdminRetrospectRepository;
 import org.layer.event.retrospect.WriteRetrospectEndEvent;
-import org.layer.event.retrospect.WriteRetrospectStartEvent;
+import org.layer.event.retrospect.AnswerRetrospectStartEvent;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -61,7 +61,7 @@ public class AdminRetrospectService {
 
 	@Transactional(propagation = REQUIRES_NEW)
 	@Async
-	public void saveRetrospectAnswerHistory(WriteRetrospectStartEvent event) {
+	public void saveRetrospectAnswerHistory(AnswerRetrospectStartEvent event) {
 		adminRetrospectRepository.deleteByMemberIdAndSpaceIdAndRetrospectId(event.memberId(), event.spaceId(),
 			event.retrospectId());
 

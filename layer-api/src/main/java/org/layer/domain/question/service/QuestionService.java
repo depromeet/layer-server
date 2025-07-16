@@ -16,7 +16,7 @@ import org.layer.domain.retrospect.entity.Retrospect;
 import org.layer.domain.retrospect.repository.RetrospectRepository;
 import org.layer.domain.space.entity.Team;
 import org.layer.domain.space.repository.MemberSpaceRelationRepository;
-import org.layer.event.retrospect.WriteRetrospectStartEvent;
+import org.layer.event.retrospect.AnswerRetrospectStartEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,7 +58,7 @@ public class QuestionService {
 		Answers answers = new Answers(
 			answerRepository.findAllByRetrospectIdAndMemberIdAndAnswerStatus(retrospectId, memberId, AnswerStatus.TEMPORARY));
 
-		eventPublisher.publishEvent(WriteRetrospectStartEvent.of(random.generateRandomValue(), time.now(),
+		eventPublisher.publishEvent(AnswerRetrospectStartEvent.of(random.generateRandomValue(), time.now(),
 			memberId, spaceId, retrospectId));
 
 		return QuestionListGetResponse.of(responses, answers.hasRetrospectAnswer(memberId, retrospectId));
