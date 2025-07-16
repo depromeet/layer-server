@@ -14,7 +14,8 @@ import org.layer.admin.retrospect.controller.dto.RetrospectStayTimeResponse;
 import org.layer.admin.retrospect.entity.AdminRetrospectAnswerHistory;
 import org.layer.admin.retrospect.enums.AnswerTimeRange;
 import org.layer.admin.retrospect.repository.AdminRetrospectRepository;
-import org.layer.event.retrospect.WriteRetrospectEndEvent;
+import org.layer.event.retrospect.CreateRetrospectEvent;
+import org.layer.event.retrospect.AnswerRetrospectEndEvent;
 import org.layer.event.retrospect.AnswerRetrospectStartEvent;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -79,7 +80,7 @@ public class AdminRetrospectService {
 
 	@Transactional(propagation = REQUIRES_NEW)
 	@Async
-	public void updateRetrospectAnswerHistory(WriteRetrospectEndEvent event) {
+	public void updateRetrospectAnswerHistory(AnswerRetrospectEndEvent event) {
 
 		adminRetrospectRepository.findTopByMemberIdAndSpaceIdAndRetrospectIdOrderByAnswerStartTimeDesc(
 			event.memberId(), event.spaceId(), event.retrospectId())
@@ -101,5 +102,23 @@ public class AdminRetrospectService {
 					adminRetrospectRepository.save(retrospectAnswerHistory);
 				}
 			);
+	}
+
+	@Transactional(propagation = REQUIRES_NEW)
+	@Async
+	public void saveRetrospectHistory(CreateRetrospectEvent event) {
+		adminRetrospectRepository.deleteByMemberIdAndSpaceIdAndRetrospectId(event.memberId(), event.spaceId(),
+			event.retrospectId());
+
+		AdminRetrospectAnswerHistory retrospectAnswerHistory = AdminRetrospectAnswerHistory.builder()
+			.eventTime(event.eventTime())
+			.memberId(event.memberId())
+			.eventId(event.eventId())
+			.spaceId(event.spaceId())
+			.retrospectId(event.retrospectId())
+			.answerStartTime(event.eventTime())
+			.build();
+
+		adminRetrospectRepository.save(retrospectAnswerHistory);
 	}
 }

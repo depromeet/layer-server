@@ -1,7 +1,7 @@
 package org.layer.admin.retrospect.listener;
 
 import org.layer.admin.retrospect.service.AdminRetrospectService;
-import org.layer.event.retrospect.WriteRetrospectEndEvent;
+import org.layer.event.retrospect.AnswerRetrospectEndEvent;
 import org.layer.event.retrospect.AnswerRetrospectStartEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
@@ -19,7 +19,7 @@ public class AnswerRetrospectEventListener {
 	}
 
 	@EventListener
-	public void handleWriteRetrospectEnd(WriteRetrospectEndEvent event) {
+	public void handleWriteRetrospectEnd(AnswerRetrospectEndEvent event) {
 		adminRetrospectService.updateRetrospectAnswerHistory(event);
 	}
 }
