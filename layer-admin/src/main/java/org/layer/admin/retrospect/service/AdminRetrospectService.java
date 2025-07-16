@@ -12,7 +12,9 @@ import org.layer.admin.member.repository.AdminMemberRepository;
 import org.layer.admin.retrospect.controller.dto.MeaningfulRetrospectMemberResponse;
 import org.layer.admin.retrospect.controller.dto.RetrospectStayTimeResponse;
 import org.layer.admin.retrospect.entity.AdminRetrospectAnswerHistory;
+import org.layer.admin.retrospect.entity.AdminRetrospectHistory;
 import org.layer.admin.retrospect.enums.AnswerTimeRange;
+import org.layer.admin.retrospect.repository.AdminRetrospectAnswerRepository;
 import org.layer.admin.retrospect.repository.AdminRetrospectRepository;
 import org.layer.event.retrospect.CreateRetrospectEvent;
 import org.layer.event.retrospect.AnswerRetrospectEndEvent;
@@ -28,11 +30,12 @@ import lombok.RequiredArgsConstructor;
 public class AdminRetrospectService {
 
 	private final AdminRetrospectRepository adminRetrospectRepository;
+	private final AdminRetrospectAnswerRepository adminRetrospectAnswerRepository;
 	private final AdminMemberRepository adminMemberRepository;
 
 	public MeaningfulRetrospectMemberResponse getAllMeaningfulRetrospect(
 		LocalDateTime startTime, LocalDateTime endTime, int retrospectLength, int retrospectCount) {
-		List<Long> meaningfulMemberIds = adminRetrospectRepository.findMeaningfulMemberIds(
+		List<Long> meaningfulMemberIds = adminRetrospectAnswerRepository.findMeaningfulMemberIds(
 			startTime, endTime, retrospectLength, retrospectCount);
 
 		long totalMemberCount = adminMemberRepository.count();
@@ -42,7 +45,7 @@ public class AdminRetrospectService {
 
 	public List<RetrospectStayTimeResponse> getAllRetrospectStayTime(
 		LocalDateTime startTime, LocalDateTime endTime) {
-		List<AdminRetrospectAnswerHistory> retrospectAnswerHistories = adminRetrospectRepository.findAllByEventTimeBetweenAndAnswerEndTimeIsNotNull(
+		List<AdminRetrospectAnswerHistory> retrospectAnswerHistories = adminRetrospectAnswerRepository.findAllByEventTimeBetweenAndAnswerEndTimeIsNotNull(
 			startTime, endTime);
 
 		Map<AnswerTimeRange, Long> countMap = new HashMap<>();
@@ -63,7 +66,7 @@ public class AdminRetrospectService {
 	@Transactional(propagation = REQUIRES_NEW)
 	@Async
 	public void saveRetrospectAnswerHistory(AnswerRetrospectStartEvent event) {
-		adminRetrospectRepository.deleteByMemberIdAndSpaceIdAndRetrospectId(event.memberId(), event.spaceId(),
+		adminRetrospectAnswerRepository.deleteByMemberIdAndSpaceIdAndRetrospectId(event.memberId(), event.spaceId(),
 			event.retrospectId());
 
 		AdminRetrospectAnswerHistory retrospectAnswerHistory = AdminRetrospectAnswerHistory.builder()
@@ -75,19 +78,19 @@ public class AdminRetrospectService {
 			.answerStartTime(event.eventTime())
 			.build();
 
-		adminRetrospectRepository.save(retrospectAnswerHistory);
+		adminRetrospectAnswerRepository.save(retrospectAnswerHistory);
 	}
 
 	@Transactional(propagation = REQUIRES_NEW)
 	@Async
 	public void updateRetrospectAnswerHistory(AnswerRetrospectEndEvent event) {
 
-		adminRetrospectRepository.findTopByMemberIdAndSpaceIdAndRetrospectIdOrderByAnswerStartTimeDesc(
+		adminRetrospectAnswerRepository.findTopByMemberIdAndSpaceIdAndRetrospectIdOrderByAnswerStartTimeDesc(
 			event.memberId(), event.spaceId(), event.retrospectId())
 			.ifPresentOrElse(
 				history -> {
 					history.updateRetrospectCompleted(event.eventTime(), event.answerContent());
-					adminRetrospectRepository.save(history);
+					adminRetrospectAnswerRepository.save(history);
 				},
 				() -> {
 					AdminRetrospectAnswerHistory retrospectAnswerHistory = AdminRetrospectAnswerHistory.builder()
@@ -99,7 +102,7 @@ public class AdminRetrospectService {
 						.answerEndTime(event.eventTime())
 						.answerContent(event.answerContent())
 						.build();
-					adminRetrospectRepository.save(retrospectAnswerHistory);
+					adminRetrospectAnswerRepository.save(retrospectAnswerHistory);
 				}
 			);
 	}
@@ -107,18 +110,15 @@ public class AdminRetrospectService {
 	@Transactional(propagation = REQUIRES_NEW)
 	@Async
 	public void saveRetrospectHistory(CreateRetrospectEvent event) {
-		adminRetrospectRepository.deleteByMemberIdAndSpaceIdAndRetrospectId(event.memberId(), event.spaceId(),
-			event.retrospectId());
-
-		AdminRetrospectAnswerHistory retrospectAnswerHistory = AdminRetrospectAnswerHistory.builder()
+		AdminRetrospectHistory retrospectHistory = AdminRetrospectHistory.builder()
 			.eventTime(event.eventTime())
 			.memberId(event.memberId())
 			.eventId(event.eventId())
 			.spaceId(event.spaceId())
 			.retrospectId(event.retrospectId())
-			.answerStartTime(event.eventTime())
+			.targetAnswerCount(event.targetAnswerCount())
 			.build();
 
-		adminRetrospectRepository.save(retrospectAnswerHistory);
+		adminRetrospectRepository.save(retrospectHistory);
 	}
 }
