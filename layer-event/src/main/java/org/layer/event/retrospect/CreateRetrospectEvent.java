@@ -3,11 +3,26 @@ package org.layer.event.retrospect;
 import java.time.LocalDateTime;
 
 public record CreateRetrospectEvent(
+	String eventId,
+	Long spaceId,
+	Long retrospectId,
+	long targetAnswerCount,
 	String title,
 	Long memberId,
-	LocalDateTime createdDate
+	LocalDateTime eventTime
 ) {
-	public static CreateRetrospectEvent of(String title, Long memberId, LocalDateTime createdDate) {
-		return new CreateRetrospectEvent(title, memberId, createdDate);
+	public static CreateRetrospectEvent of(
+		String eventId,
+		Long spaceId,
+		Long retrospectId,
+		long targetAnswerCount,
+		String title,
+		Long memberId,
+		LocalDateTime eventTime
+	) {
+		return new CreateRetrospectEvent(
+			eventId, spaceId, retrospectId, targetAnswerCount, title, memberId, eventTime
+		);
 	}
+
 }
