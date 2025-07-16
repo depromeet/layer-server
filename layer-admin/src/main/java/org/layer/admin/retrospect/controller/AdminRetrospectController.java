@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.layer.admin.retrospect.controller.dto.MeaningfulRetrospectMemberResponse;
+import org.layer.admin.retrospect.controller.dto.RetrospectRetentionResponse;
 import org.layer.admin.retrospect.controller.dto.RetrospectStayTimeResponse;
 import org.layer.admin.retrospect.service.AdminRetrospectService;
 import org.springframework.http.ResponseEntity;
@@ -41,5 +42,13 @@ public class AdminRetrospectController {
 			startDate, endDate, retrospectLength, retrospectCount);
 
 		return ResponseEntity.ok().body(response);
+	}
+
+	@GetMapping("/admin/retrospect/retention")
+	public RetrospectRetentionResponse getRetrospectRetention(
+		@RequestParam(name = "startDate") LocalDateTime startDate,
+		@RequestParam(name = "endDate") LocalDateTime endDate) {
+
+		return adminRetrospectService.getRetrospectRetention(startDate, endDate);
 	}
 }

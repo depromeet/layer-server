@@ -11,4 +11,9 @@ public interface AdminMemberRepository extends JpaRepository<AdminMemberSignupHi
 		LocalDateTime startTime,
 		LocalDateTime endTime
 	);
+
+	List<Long> findAllMemberIdsByEventTimeBetween(
+		LocalDateTime startTime,
+		LocalDateTime endTime
+	);
 }
