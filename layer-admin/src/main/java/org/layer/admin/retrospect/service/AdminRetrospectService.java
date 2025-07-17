@@ -181,7 +181,7 @@ public class AdminRetrospectService {
 			.sum();
 
 		Long totalSpaceCount = adminSpaceRepository.countAllByEventTimeBetween(startTime, endTime);
-		long averageCumulativeCount = totalSpaceCount == 0 ? 0 : totalRetrospectCount / totalSpaceCount;
+		double averageCumulativeCount = totalSpaceCount == 0 ? 0.0 : (double)totalRetrospectCount / totalSpaceCount;
 		return new CumulativeRetrospectCountResponse(averageCumulativeCount);
 	}
 
