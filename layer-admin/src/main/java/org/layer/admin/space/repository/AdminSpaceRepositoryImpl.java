@@ -12,7 +12,7 @@ import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class AdminSpaceHistoryRepositoryImpl implements AdminSpaceHistoryRepositoryCustom {
+public class AdminSpaceRepositoryImpl implements AdminSpaceRepositoryCustom {
 
 	private final EntityManager em;
 
@@ -60,7 +60,7 @@ public class AdminSpaceHistoryRepositoryImpl implements AdminSpaceHistoryReposit
 	public double findAverageOfTeamSpaceRatiosWithPeriod(LocalDateTime startTime, LocalDateTime endTime) {
 		String sql = """
         SELECT AVG(ratio) FROM (
-            SELECT 
+            SELECT
                 member_id,
                 SUM(CASE WHEN category = 'TEAM' THEN 1 ELSE 0 END) * 1.0 / COUNT(*) AS ratio
             FROM admin_space_history
@@ -79,4 +79,3 @@ public class AdminSpaceHistoryRepositoryImpl implements AdminSpaceHistoryReposit
 	}
 
 }
-
