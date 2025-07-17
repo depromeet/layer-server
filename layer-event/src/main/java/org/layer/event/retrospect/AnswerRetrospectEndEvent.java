@@ -2,7 +2,7 @@ package org.layer.event.retrospect;
 
 import java.time.LocalDateTime;
 
-public record WriteRetrospectEndEvent(
+public record AnswerRetrospectEndEvent(
 	String eventId,
 	LocalDateTime eventTime,
 	Long memberId,
@@ -10,7 +10,7 @@ public record WriteRetrospectEndEvent(
 	Long retrospectId,
 	String answerContent
 ) {
-	public static WriteRetrospectEndEvent of(
+	public static AnswerRetrospectEndEvent of(
 		String eventId,
 		LocalDateTime eventTime,
 		Long memberId,
@@ -18,7 +18,7 @@ public record WriteRetrospectEndEvent(
 		Long retrospectId,
 		String answerContent
 	) {
-		return new WriteRetrospectEndEvent(
+		return new AnswerRetrospectEndEvent(
 			eventId, eventTime, memberId, spaceId, retrospectId, answerContent
 		);
 	}

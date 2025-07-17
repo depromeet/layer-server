@@ -20,6 +20,6 @@ public class CreateRetrospectEventNotifier {
 		discordAppender.createRetrospectAppend(
 			event.title(),
 			event.memberId(),
-			event.createdDate());
+			event.eventTime());
 	}
 }

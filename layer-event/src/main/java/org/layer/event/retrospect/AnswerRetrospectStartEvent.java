@@ -2,21 +2,21 @@ package org.layer.event.retrospect;
 
 import java.time.LocalDateTime;
 
-public record WriteRetrospectStartEvent(
+public record AnswerRetrospectStartEvent(
 	String eventId,
 	LocalDateTime eventTime,
 	Long memberId,
 	Long spaceId,
 	Long retrospectId
 ) {
-	public static WriteRetrospectStartEvent of(
+	public static AnswerRetrospectStartEvent of(
 		String eventId,
 		LocalDateTime eventTime,
 		Long memberId,
 		Long spaceId,
 		Long retrospectId
 	) {
-		return new WriteRetrospectStartEvent(
+		return new AnswerRetrospectStartEvent(
 			eventId, eventTime, memberId, spaceId, retrospectId
 		);
 	}

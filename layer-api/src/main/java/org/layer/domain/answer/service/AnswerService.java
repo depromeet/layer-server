@@ -34,7 +34,7 @@ import org.layer.domain.space.entity.MemberSpaceRelation;
 import org.layer.domain.space.entity.Team;
 import org.layer.domain.space.exception.MemberSpaceRelationException;
 import org.layer.domain.space.repository.MemberSpaceRelationRepository;
-import org.layer.event.retrospect.WriteRetrospectEndEvent;
+import org.layer.event.retrospect.AnswerRetrospectEndEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -123,7 +123,7 @@ public class AnswerService {
 		Long numberQuestionId = questions.extractEssentialQuestionIdBy(QuestionType.NUMBER);
 
 		eventPublisher.publishEvent(
-			WriteRetrospectEndEvent.of(
+			AnswerRetrospectEndEvent.of(
 				random.generateRandomValue(), time.now(),
 				memberId, spaceId, retrospectId,
 				answers.getIndividualAnswer(rangeQuestionId, numberQuestionId, memberId)

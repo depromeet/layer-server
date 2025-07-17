@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.layer.ai.event.AIAnalyzeStartEvent;
 import org.layer.domain.answer.entity.Answers;
 import org.layer.domain.answer.repository.AnswerRepository;
+import org.layer.domain.common.random.CustomRandom;
 import org.layer.domain.common.time.Time;
 import org.layer.domain.form.entity.Form;
 import org.layer.domain.form.entity.FormType;
@@ -51,6 +52,7 @@ public class RetrospectService {
 
 	private final ApplicationEventPublisher eventPublisher;
 
+	private final CustomRandom random;
 	private final Time time;
 
 	@Transactional
@@ -65,7 +67,8 @@ public class RetrospectService {
 		List<Question> questions = getQuestions(request.questions(), savedRetrospect.getId(), null);
 		questionRepository.saveAll(questions);
 
-		publishCreateRetrospectEvent(retrospect, memberId);
+		publishCreateRetrospectEvent(spaceId, retrospect.getId(), team.getTeamMemberCount(),
+			retrospect.getTitle(), memberId);
 
 		Space space = spaceRepository.findByIdOrThrow(spaceId);
 
@@ -104,9 +107,14 @@ public class RetrospectService {
 			.build();
 	}
 
-	private void publishCreateRetrospectEvent(final Retrospect retrospect, final Long memberId) {
+	private void publishCreateRetrospectEvent(Long spaceId, Long retrospectId, long targetAnswerCount,
+		String title, Long memberId) {
 		eventPublisher.publishEvent(CreateRetrospectEvent.of(
-			retrospect.getTitle(),
+			random.generateRandomValue(),
+			spaceId,
+			retrospectId,
+			targetAnswerCount,
+			title,
 			memberId,
 			time.now()
 		));
