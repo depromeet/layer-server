@@ -14,6 +14,8 @@ public interface AdminMemberRepository extends JpaRepository<AdminMemberSignupHi
 		LocalDateTime endTime
 	);
 
+	List<AdminMemberSignupHistory> findAllByEventTimeBefore(LocalDateTime time);
+
 	@Query("SELECT a.memberId "
 		+ "FROM AdminMemberSignupHistory a "
 		+ "WHERE a.eventTime BETWEEN :startTime AND :endTime")
