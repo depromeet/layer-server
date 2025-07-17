@@ -66,7 +66,7 @@ public class AdminMemberSpaceRepositoryImpl implements AdminMemberSpaceRepositor
                 SUM(CASE WHEN ash.category = 'TEAM' THEN 1 ELSE 0 END) * 1.0 / COUNT(*) AS ratio
             FROM admin_member_space_history amsh
             JOIN admin_space_history ash ON amsh.space_id = ash.space_id
-            WHERE event_time BETWEEN :startTime AND :endTime
+            WHERE amsh.event_time BETWEEN :startTime AND :endTime
             GROUP BY member_id
         ) AS per_member
     """;
