@@ -2,11 +2,7 @@ package org.layer.admin.space.entity;
 
 import java.time.LocalDateTime;
 
-import org.layer.admin.space.enums.AdminSpaceCategory;
-
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -19,7 +15,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class AdminSpaceHistory {
+public class AdminMemberSpaceHistory {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -36,22 +32,18 @@ public class AdminSpaceHistory {
 	@NotNull
 	private Long spaceId;
 
-	@NotNull
-	@Enumerated(EnumType.STRING)
-	private AdminSpaceCategory category;
-
 	@Builder
-	private AdminSpaceHistory(
+	private AdminMemberSpaceHistory(
 		LocalDateTime eventTime,
 		Long memberId,
 		String eventId,
-		Long spaceId,
-		AdminSpaceCategory category
+		Long spaceId
 	) {
 		this.eventTime = eventTime;
 		this.memberId = memberId;
 		this.eventId = eventId;
 		this.spaceId = spaceId;
-		this.category = category;
 	}
+
+
 }
