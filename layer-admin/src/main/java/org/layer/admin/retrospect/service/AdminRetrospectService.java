@@ -46,7 +46,7 @@ public class AdminRetrospectService {
 		List<Long> meaningfulMemberIds = adminRetrospectAnswerRepository.findMeaningfulMemberIds(
 			startTime, endTime, retrospectLength, retrospectCount);
 
-		long totalMemberCount = adminMemberRepository.count();
+		long totalMemberCount = adminMemberRepository.findAllByEventTimeBefore(endTime).size();
 
 		return new MeaningfulRetrospectMemberResponse(meaningfulMemberIds.size(), totalMemberCount);
 	}
@@ -101,7 +101,7 @@ public class AdminRetrospectService {
 			.toList();
 
 		// 전체 가입자 수 조회
-		long totalMemberCount = adminMemberRepository.count();
+		long totalMemberCount = adminMemberRepository.findAllByEventTimeBefore(endTime).size();
 
 		// 평균 리텐션 기간 계산
 		long avgRetentionGapSeconds = calculateAverageMinGapInSeconds(histories, prevHistories);

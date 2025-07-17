@@ -26,4 +26,6 @@ public class AdminSpaceController {
 		List<SpaceCountResponse> response = adminSpaceService.getSpaceCount(startDate, endDate);
 		return ResponseEntity.ok().body(response);
 	}
+
+
 }
