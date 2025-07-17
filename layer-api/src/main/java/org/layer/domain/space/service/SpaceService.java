@@ -2,6 +2,7 @@ package org.layer.domain.space.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.layer.common.dto.Meta;
 import org.layer.domain.common.random.CustomRandom;
 import org.layer.event.space.CreateSpaceEvent;
@@ -24,6 +25,8 @@ import org.layer.domain.space.exception.MemberSpaceRelationException;
 import org.layer.domain.space.exception.SpaceException;
 import org.layer.domain.space.repository.MemberSpaceRelationRepository;
 import org.layer.domain.space.repository.SpaceRepository;
+import org.layer.event.space.JoinSpaceEvent;
+import org.layer.event.space.LeaveSpaceEvent;
 import org.layer.storage.service.StorageService;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -98,6 +101,7 @@ public class SpaceService {
 		memberSpaceRelationRepository.save(memberSpaceRelation);
 
 		publishCreateSpaceEvent(space, memberId);
+		publishJoinSpaceEvent(memberId, space.getId());
 		return space.getId();
 	}
 
@@ -153,42 +157,51 @@ public class SpaceService {
 
 	@Transactional
 	public void createMemberSpace(Long memberId, Long spaceId) {
-
-        /*
-          존재하는 스페이스 여부 확인
-         */
+		// 존재하는 스페이스 여부 확인
 		var foundSpace = spaceRepository.findById(spaceId).orElseThrow(() -> new SpaceException(NOT_FOUND_SPACE));
 		if (foundSpace.getCategory() == SpaceCategory.INDIVIDUAL) {
 			throw new SpaceException(NOT_TEAM_SPACE);
 		}
 
-        /*
-          이미 참여중인 스페이스 여부 확인
-         */
+		// 이미 참여중인 스페이스 여부 확인
 		memberSpaceRelationRepository.findBySpaceIdAndMemberId(spaceId, memberId).ifPresent(it -> {
 			throw new SpaceException(SPACE_ALREADY_JOINED);
 		});
 
-        /*
-          스페이스 참여여부 저장
-         */
+        // 스페이스 참여여부 저장
 		var joinedSpace = MemberSpaceRelation.builder()
 			.space(foundSpace)
 			.memberId(memberId)
 			.build();
 		memberSpaceRelationRepository.save(joinedSpace);
+
+		publishJoinSpaceEvent(memberId, spaceId);
+	}
+
+	private void publishJoinSpaceEvent(Long memberId, Long spaceId) {
+		eventPublisher.publishEvent(JoinSpaceEvent.of(
+			random.generateRandomValue(),
+			memberId,
+			time.now(),
+			spaceId
+		));
+	}
+
+	private void publishLeaveSpaceEvent(Long memberId, Long spaceId) {
+		eventPublisher.publishEvent(LeaveSpaceEvent.of(
+			random.generateRandomValue(),
+			memberId,
+			time.now(),
+			spaceId
+		));
 	}
 
 	@Transactional
 	public void removeMemberSpace(Long memberId, Long spaceId) {
-        /*
-          존재하는 스페이스 여부 확인
-         */
+        //  존재하는 스페이스 여부 확인
 		var foundSpace = spaceRepository.findById(spaceId).orElseThrow(() -> new SpaceException(NOT_FOUND_SPACE));
 
-        /*
-          스페이스 팀장 여부 확인
-         */
+        //  스페이스 팀장 여부 확인
 		if (foundSpace.getLeaderId().equals(memberId)) {
 			throw new SpaceException(SPACE_LEADER_CANNOT_LEAVE);
 		}
@@ -204,16 +217,14 @@ public class SpaceService {
 			throw new SpaceException(NOT_FOUND_SPACE);
 		}
 
-        /*
-          이미 참여중인 스페이스 여부 확인
-         */
+        //  이미 참여중인 스페이스 여부 확인
 		var foundMemberSpaceRelation = memberSpaceRelationRepository.findBySpaceIdAndMemberId(spaceId, memberId)
 			.orElseThrow(() -> new SpaceException(SPACE_ALREADY_JOINED));
 
-        /*
-          스페이스 참여여부 삭제 ( 스페이스 떠나기 )
-         */
+        //  스페이스 참여여부 삭제 ( 스페이스 떠나기 )
 		memberSpaceRelationRepository.deleteById(foundMemberSpaceRelation.getId());
+
+		publishLeaveSpaceEvent(memberId, spaceId);
 	}
 
 	@Transactional
@@ -239,6 +250,8 @@ public class SpaceService {
 
 		// 팀에서 삭제하기
 		memberSpaceRelationRepository.delete(foundTeamByMemberId);
+
+		publishLeaveSpaceEvent(memberId, spaceId);
 	}
 
 	public List<SpaceResponse.SpaceMemberResponse> getSpaceMembers(Long memberId, Long spaceId) {

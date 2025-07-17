@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface AdminSpaceRepository
-	extends JpaRepository<AdminSpaceHistory, Long>, AdminSpaceRepositoryCustom {
+	extends JpaRepository<AdminSpaceHistory, Long> {
 
 	@Query("SELECT new org.layer.admin.space.controller.dto.SpaceCountResponse(a.category, COUNT(a)) " +
 		"FROM AdminSpaceHistory a " +
