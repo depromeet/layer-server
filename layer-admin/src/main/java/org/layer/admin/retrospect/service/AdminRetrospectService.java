@@ -5,6 +5,8 @@ import static org.springframework.transaction.annotation.Propagation.*;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -72,6 +74,7 @@ public class AdminRetrospectService {
 	public RetrospectRetentionResponse getRetrospectRetention(LocalDateTime startTime, LocalDateTime endTime) {
 		List<AdminRetrospectHistory> histories = adminRetrospectRepository.findAllByEventTimeBetween(
 			startTime, endTime);
+		List<AdminRetrospectHistory> prevHistories = adminRetrospectRepository.findAllByEventTimeBefore(startTime);
 
 		Map<Long, Long> retrospectCountMap = new HashMap<>();
 		histories.forEach(history ->
@@ -101,35 +104,54 @@ public class AdminRetrospectService {
 		long totalMemberCount = adminMemberRepository.count();
 
 		// 평균 리텐션 기간 계산
-		long avgRetentionGapSeconds = calculateAverageMinGapInSeconds(histories);
+		long avgRetentionGapSeconds = calculateAverageMinGapInSeconds(histories, prevHistories);
 
 		return new RetrospectRetentionResponse(avgRetentionGapSeconds, retainedMemberIds.size(), totalMemberCount);
 	}
 
-	private long calculateAverageMinGapInSeconds(List<AdminRetrospectHistory> histories) {
+	private long calculateAverageMinGapInSeconds(List<AdminRetrospectHistory> histories, List<AdminRetrospectHistory> prevHistories) {
 		// 1. memberId별로 묶음
 		Map<Long, List<AdminRetrospectHistory>> grouped = histories.stream()
 			.collect(Collectors.groupingBy(AdminRetrospectHistory::getMemberId));
 
+		// 2. prevHistories를 memberId별 최신 eventTime으로 매핑
+		Map<Long, LocalDateTime> prevLatestMap = prevHistories.stream()
+			.collect(Collectors.groupingBy(
+				AdminRetrospectHistory::getMemberId,
+				Collectors.collectingAndThen(
+					Collectors.maxBy(Comparator.comparing(AdminRetrospectHistory::getEventTime)),
+					opt -> opt.map(AdminRetrospectHistory::getEventTime).orElse(null)
+				)
+			));
+
 		// 2. 각 memberId마다 최소 시간차(초)를 구함
-		List<Long> minGapsPerMember = grouped.values().stream()
-			.map(memberHistories -> {
-				List<LocalDateTime> sortedTimes = memberHistories.stream()
+		List<Long> minGapsPerMember = grouped.entrySet().stream()
+			.map(entry -> {
+				Long memberId = entry.getKey();
+				List<LocalDateTime> sortedTimes = entry.getValue().stream()
 					.map(AdminRetrospectHistory::getEventTime)
 					.sorted()
 					.toList();
 
-				if (sortedTimes.size() < 2)
-					return null;
-
 				List<Long> gaps = new ArrayList<>();
+
+				// prevHistories와 비교할 수 있는 시점이 있다면 추가
+				if (prevLatestMap.containsKey(memberId)) {
+					LocalDateTime prevLatest = prevLatestMap.get(memberId);
+					long seconds = Duration.between(prevLatest, sortedTimes.get(0)).getSeconds();
+					gaps.add(seconds);
+				}
+
+				// 현재 리스트 내에서 시간차 추가
 				for (int i = 1; i < sortedTimes.size(); i++) {
 					long seconds = Duration.between(sortedTimes.get(i - 1), sortedTimes.get(i)).getSeconds();
 					gaps.add(seconds);
 				}
-				return gaps.stream().min(Long::compareTo).orElse(null);
+
+				// 최소 gap 반환
+				return gaps.isEmpty() ? null : Collections.min(gaps);
 			})
-			.filter(Objects::nonNull) // eventTime이 2개 이상인 멤버만 포함
+			.filter(Objects::nonNull)
 			.toList();
 
 		// 3. 전체 평균 계산 (소수점 버리고 long 반환)
@@ -137,7 +159,6 @@ public class AdminRetrospectService {
 			.mapToLong(Long::longValue)
 			.average()
 			.orElse(0.0);  // 데이터가 없을 경우 0
-
 	}
 
 	@Transactional(propagation = REQUIRES_NEW)
