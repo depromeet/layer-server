@@ -12,7 +12,7 @@ import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class AdminSpaceRepositoryImpl implements AdminSpaceRepositoryCustom {
+public class AdminMemberSpaceRepositoryImpl implements AdminMemberSpaceRepositoryCustom {
 
 	private final EntityManager em;
 
@@ -22,7 +22,7 @@ public class AdminSpaceRepositoryImpl implements AdminSpaceRepositoryCustom {
             SELECT ash.member_id AS memberId,
                    COUNT(*) AS totalCount,
                    SUM(CASE WHEN ash.category = 'TEAM' THEN 1 ELSE 0 END) AS teamCount
-            FROM admin_space_history ash
+            FROM admin_member_space_history ash
             WHERE ash.event_time BETWEEN :startTime AND :endTime
             GROUP BY ash.member_id
             ORDER BY ash.member_id
@@ -47,7 +47,7 @@ public class AdminSpaceRepositoryImpl implements AdminSpaceRepositoryCustom {
 		// 전체 멤버 수 (조건 포함)
 		Long total = ((Number) em.createNativeQuery("""
             SELECT COUNT(DISTINCT ash.member_id)
-            FROM admin_space_history ash
+            FROM admin_member_space_history ash
             WHERE ash.event_time BETWEEN :startTime AND :endTime
         """)
 			.setParameter("startTime", start)
@@ -63,7 +63,7 @@ public class AdminSpaceRepositoryImpl implements AdminSpaceRepositoryCustom {
             SELECT
                 member_id,
                 SUM(CASE WHEN category = 'TEAM' THEN 1 ELSE 0 END) * 1.0 / COUNT(*) AS ratio
-            FROM admin_space_history
+            FROM admin_member_space_history
             WHERE event_time BETWEEN :startTime AND :endTime
             GROUP BY member_id
         ) AS per_member
