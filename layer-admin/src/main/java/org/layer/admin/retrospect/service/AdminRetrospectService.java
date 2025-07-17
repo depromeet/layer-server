@@ -16,6 +16,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.layer.admin.member.repository.AdminMemberRepository;
+import org.layer.admin.retrospect.controller.dto.CumulativeRetrospectCountResponse;
 import org.layer.admin.retrospect.controller.dto.MeaningfulRetrospectMemberResponse;
 import org.layer.admin.retrospect.controller.dto.RetrospectRetentionResponse;
 import org.layer.admin.retrospect.controller.dto.RetrospectStayTimeResponse;
@@ -24,6 +25,8 @@ import org.layer.admin.retrospect.entity.AdminRetrospectHistory;
 import org.layer.admin.retrospect.enums.AnswerTimeRange;
 import org.layer.admin.retrospect.repository.AdminRetrospectAnswerRepository;
 import org.layer.admin.retrospect.repository.AdminRetrospectRepository;
+import org.layer.admin.retrospect.repository.dto.SpaceRetrospectCountDto;
+import org.layer.admin.space.repository.AdminSpaceRepository;
 import org.layer.event.retrospect.CreateRetrospectEvent;
 import org.layer.event.retrospect.AnswerRetrospectEndEvent;
 import org.layer.event.retrospect.AnswerRetrospectStartEvent;
@@ -40,6 +43,7 @@ public class AdminRetrospectService {
 	private final AdminRetrospectRepository adminRetrospectRepository;
 	private final AdminRetrospectAnswerRepository adminRetrospectAnswerRepository;
 	private final AdminMemberRepository adminMemberRepository;
+	private final AdminSpaceRepository adminSpaceRepository;
 
 	public MeaningfulRetrospectMemberResponse getAllMeaningfulRetrospect(
 		LocalDateTime startTime, LocalDateTime endTime, int retrospectLength, int retrospectCount) {
@@ -109,7 +113,8 @@ public class AdminRetrospectService {
 		return new RetrospectRetentionResponse(avgRetentionGapSeconds, retainedMemberIds.size(), totalMemberCount);
 	}
 
-	private long calculateAverageMinGapInSeconds(List<AdminRetrospectHistory> histories, List<AdminRetrospectHistory> prevHistories) {
+	private long calculateAverageMinGapInSeconds(List<AdminRetrospectHistory> histories,
+		List<AdminRetrospectHistory> prevHistories) {
 		// 1. memberId별로 묶음
 		Map<Long, List<AdminRetrospectHistory>> grouped = histories.stream()
 			.collect(Collectors.groupingBy(AdminRetrospectHistory::getMemberId));
@@ -159,6 +164,25 @@ public class AdminRetrospectService {
 			.mapToLong(Long::longValue)
 			.average()
 			.orElse(0.0);  // 데이터가 없을 경우 0
+	}
+
+	public CumulativeRetrospectCountResponse getCumulativeRetrospectCount(
+		LocalDateTime startTime, LocalDateTime endTime) {
+
+		List<SpaceRetrospectCountDto> histories = adminRetrospectRepository.findRetrospectCountGroupedBySpaceWithPeriod(startTime,
+			endTime);
+
+		if (histories.isEmpty()) {
+			return new CumulativeRetrospectCountResponse(0L); // 또는 null/Optional 등으로 처리 가능
+		}
+
+		long totalRetrospectCount = histories.stream()
+			.mapToLong(SpaceRetrospectCountDto::count)
+			.sum();
+
+		Long totalSpaceCount = adminSpaceRepository.countAllByEventTimeBetween(startTime, endTime);
+		long averageCumulativeCount = totalSpaceCount == 0 ? 0 : totalRetrospectCount / totalSpaceCount;
+		return new CumulativeRetrospectCountResponse(averageCumulativeCount);
 	}
 
 	@Transactional(propagation = REQUIRES_NEW)
