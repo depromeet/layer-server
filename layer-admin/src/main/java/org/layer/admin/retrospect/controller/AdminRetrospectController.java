@@ -3,6 +3,7 @@ package org.layer.admin.retrospect.controller;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.layer.admin.retrospect.controller.dto.CumulativeRetrospectCountResponse;
 import org.layer.admin.retrospect.controller.dto.MeaningfulRetrospectMemberResponse;
 import org.layer.admin.retrospect.controller.dto.RetrospectRetentionResponse;
 import org.layer.admin.retrospect.controller.dto.RetrospectStayTimeResponse;
@@ -50,5 +51,16 @@ public class AdminRetrospectController {
 		@RequestParam(name = "endDate") LocalDateTime endDate) {
 
 		return adminRetrospectService.getRetrospectRetention(startDate, endDate);
+	}
+
+	@GetMapping("/admin/retrospect/cumulative-count")
+	public ResponseEntity<CumulativeRetrospectCountResponse> getCumulativeRetrospectCount(
+		@RequestParam(name = "startDate") LocalDateTime startDate,
+		@RequestParam(name = "endDate") LocalDateTime endDate) {
+
+		CumulativeRetrospectCountResponse response = adminRetrospectService.getCumulativeRetrospectCount(
+			startDate, endDate);
+
+		return ResponseEntity.ok().body(response);
 	}
 }

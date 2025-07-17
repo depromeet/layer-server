@@ -18,17 +18,19 @@ public class AdminMemberSpaceRepositoryImpl implements AdminMemberSpaceRepositor
 
 	@Override
 	public Page<TeamSpaceRatioPerMemberDto> findTeamSpaceRatioPerMemberWithPeriod(LocalDateTime start, LocalDateTime end, Pageable pageable) {
+
 		String sql = """
-            SELECT amsh.member_id AS memberId,
-                   COUNT(*) AS totalCount,
-                   SUM(CASE WHEN ash.category = 'TEAM' THEN 1 ELSE 0 END) AS teamCount
-            FROM admin_member_space_history amsh
-            JOIN admin_space_history ash ON amsh.space_id = ash.space_id
-            WHERE amsh.event_time BETWEEN :startTime AND :endTime
-            GROUP BY amsh.member_id
-            ORDER BY amsh.member_id
-            LIMIT :limit OFFSET :offset
-        """;
+			SELECT amsh.member_id AS memberId,
+				   COUNT(*) AS totalCount,
+				   SUM(CASE WHEN ash.category = 'TEAM' THEN 1 ELSE 0 END) AS teamCount,
+				   SUM(CASE WHEN ash.category = 'TEAM' THEN 1 ELSE 0 END) * 1.0 / COUNT(*) AS teamRatio
+			FROM admin_member_space_history amsh
+			JOIN admin_space_history ash ON amsh.space_id = ash.space_id
+			WHERE amsh.event_time BETWEEN :startTime AND :endTime
+			GROUP BY amsh.member_id
+			ORDER BY teamRatio DESC
+			LIMIT :limit OFFSET :offset
+		""";
 
 		List<Object[]> rows = em.createNativeQuery(sql)
 			.setParameter("startTime", start)
@@ -41,7 +43,8 @@ public class AdminMemberSpaceRepositoryImpl implements AdminMemberSpaceRepositor
 			.map(row -> new TeamSpaceRatioPerMemberDto(
 				((Number) row[0]).longValue(),
 				((Number) row[1]).longValue(),
-				((Number) row[2]).longValue()
+				((Number) row[2]).longValue(),
+				((Number) row[3]).doubleValue()
 			))
 			.toList();
 
