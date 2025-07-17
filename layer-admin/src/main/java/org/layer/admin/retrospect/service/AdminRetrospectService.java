@@ -5,6 +5,7 @@ import static org.springframework.transaction.annotation.Propagation.*;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -132,25 +133,23 @@ public class AdminRetrospectService {
 					.sorted()
 					.toList();
 
-				// 설정 기간에 회고를 한 번만 작성한 경우
-				if (sortedTimes.size() < 2) {
+				List<Long> gaps = new ArrayList<>();
 
-					// a. 설정 기간 이전에 작성한 회고가 없을 경우, 해당 유저는 리텐션 대상이 아니므로 무시 (null 반환)
-					if (!prevLatestMap.containsKey(memberId)) {
-						return null;
-					}
-
-					// b. 설정 기간 이전에 작성한 회고가 있을 때 해당 회고와의 시간차를 구한다.
+				// prevHistories와 비교할 수 있는 시점이 있다면 추가
+				if (prevLatestMap.containsKey(memberId)) {
 					LocalDateTime prevLatest = prevLatestMap.get(memberId);
-					return Duration.between(prevLatest, sortedTimes.get(0)).getSeconds();
+					long seconds = Duration.between(prevLatest, sortedTimes.get(0)).getSeconds();
+					gaps.add(seconds);
 				}
 
-				List<Long> gaps = new ArrayList<>();
+				// 현재 리스트 내에서 시간차 추가
 				for (int i = 1; i < sortedTimes.size(); i++) {
 					long seconds = Duration.between(sortedTimes.get(i - 1), sortedTimes.get(i)).getSeconds();
 					gaps.add(seconds);
 				}
-				return gaps.stream().min(Long::compareTo).orElse(null);
+
+				// 최소 gap 반환
+				return gaps.isEmpty() ? null : Collections.min(gaps);
 			})
 			.filter(Objects::nonNull)
 			.toList();
