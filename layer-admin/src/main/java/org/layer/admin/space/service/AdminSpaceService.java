@@ -43,7 +43,7 @@ public class AdminSpaceService {
 			endDate);
 
 		return TeamSpaceRatioResponse.of(histories.getContent(), averageTeamSpaceRatioPerMember, histories.hasNext(),
-			histories.getTotalElements());
+			histories.getTotalPages());
 	}
 
 	@Transactional(propagation = REQUIRES_NEW)
