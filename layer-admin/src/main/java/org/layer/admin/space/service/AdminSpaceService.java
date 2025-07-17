@@ -1,13 +1,20 @@
 package org.layer.admin.space.service;
 
+import static org.springframework.transaction.annotation.Propagation.*;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
 import org.layer.admin.space.controller.dto.SpaceCountResponse;
+import org.layer.admin.space.controller.dto.TeamSpaceRatioPerMemberDto;
+import org.layer.admin.space.controller.dto.TeamSpaceRatioResponse;
 import org.layer.admin.space.entity.AdminSpaceHistory;
 import org.layer.admin.space.enums.AdminSpaceCategory;
 import org.layer.admin.space.repository.AdminSpaceRepository;
 import org.layer.event.space.CreateSpaceEvent;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,7 +30,24 @@ public class AdminSpaceService {
 		return adminSpaceRepository.findAllByCategory(startDate, endDate);
 	}
 
-	@Transactional
+	public TeamSpaceRatioResponse getAverageTeamSpaceRatioPerMember(
+		LocalDateTime startDate, LocalDateTime endDate, int page, int size) {
+
+		Page<TeamSpaceRatioPerMemberDto> histories = adminSpaceRepository.findTeamSpaceRatioPerMemberWithPeriod(
+			startDate, endDate, PageRequest.of(page - 1, size));
+		if (histories.isEmpty()) {
+			return new TeamSpaceRatioResponse(null, 0.0, false, 0);
+		}
+
+		double averageTeamSpaceRatioPerMember = adminSpaceRepository.findAverageOfTeamSpaceRatiosWithPeriod(startDate,
+			endDate);
+
+		return TeamSpaceRatioResponse.of(histories.getContent(), averageTeamSpaceRatioPerMember, histories.hasNext(),
+			histories.getTotalElements());
+	}
+
+	@Transactional(propagation = REQUIRES_NEW)
+	@Async
 	public void saveSpaceHistory(CreateSpaceEvent event) {
 		AdminSpaceHistory adminMemberSignupHistory = AdminSpaceHistory.builder()
 			.eventId(event.eventId())
