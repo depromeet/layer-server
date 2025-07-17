@@ -19,13 +19,14 @@ public class AdminMemberSpaceRepositoryImpl implements AdminMemberSpaceRepositor
 	@Override
 	public Page<TeamSpaceRatioPerMemberDto> findTeamSpaceRatioPerMemberWithPeriod(LocalDateTime start, LocalDateTime end, Pageable pageable) {
 		String sql = """
-            SELECT ash.member_id AS memberId,
+            SELECT amsh.member_id AS memberId,
                    COUNT(*) AS totalCount,
                    SUM(CASE WHEN ash.category = 'TEAM' THEN 1 ELSE 0 END) AS teamCount
-            FROM admin_member_space_history ash
-            WHERE ash.event_time BETWEEN :startTime AND :endTime
-            GROUP BY ash.member_id
-            ORDER BY ash.member_id
+            FROM admin_member_space_history amsh
+            JOIN admin_space_history ash ON amsh.space_id = ash.space_id
+            WHERE amsh.event_time BETWEEN :startTime AND :endTime
+            GROUP BY amsh.member_id
+            ORDER BY amsh.member_id
             LIMIT :limit OFFSET :offset
         """;
 
@@ -46,9 +47,9 @@ public class AdminMemberSpaceRepositoryImpl implements AdminMemberSpaceRepositor
 
 		// 전체 멤버 수 (조건 포함)
 		Long total = ((Number) em.createNativeQuery("""
-            SELECT COUNT(DISTINCT ash.member_id)
-            FROM admin_member_space_history ash
-            WHERE ash.event_time BETWEEN :startTime AND :endTime
+            SELECT COUNT(DISTINCT amsh.member_id)
+            FROM admin_member_space_history amsh
+            WHERE amsh.event_time BETWEEN :startTime AND :endTime
         """)
 			.setParameter("startTime", start)
 			.setParameter("endTime", end)
@@ -61,9 +62,10 @@ public class AdminMemberSpaceRepositoryImpl implements AdminMemberSpaceRepositor
 		String sql = """
         SELECT AVG(ratio) FROM (
             SELECT
-                member_id,
-                SUM(CASE WHEN category = 'TEAM' THEN 1 ELSE 0 END) * 1.0 / COUNT(*) AS ratio
-            FROM admin_member_space_history
+                amsh.member_id,
+                SUM(CASE WHEN ash.category = 'TEAM' THEN 1 ELSE 0 END) * 1.0 / COUNT(*) AS ratio
+            FROM admin_member_space_history amsh
+            JOIN admin_space_history ash ON amsh.space_id = ash.space_id
             WHERE event_time BETWEEN :startTime AND :endTime
             GROUP BY member_id
         ) AS per_member

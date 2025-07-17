@@ -34,14 +34,24 @@ public class AdminSpaceHistory {
 	private String eventId;
 
 	@NotNull
+	private Long spaceId;
+
+	@NotNull
 	@Enumerated(EnumType.STRING)
 	private AdminSpaceCategory category;
 
 	@Builder
-	private AdminSpaceHistory(LocalDateTime eventTime, Long memberId, String eventId, AdminSpaceCategory category) {
+	private AdminSpaceHistory(
+		LocalDateTime eventTime,
+		Long memberId,
+		String eventId,
+		Long spaceId,
+		AdminSpaceCategory category
+	) {
 		this.eventTime = eventTime;
 		this.memberId = memberId;
 		this.eventId = eventId;
+		this.spaceId = spaceId;
 		this.category = category;
 	}
 }

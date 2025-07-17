@@ -29,6 +29,7 @@ public class AdminMemberSpaceHistory {
 	@NotNull
 	private String eventId;
 
+	@NotNull
 	private Long spaceId;
 
 	@Builder
