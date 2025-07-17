@@ -20,4 +20,10 @@ public interface AdminSpaceRepository
 		@Param("startTime") LocalDateTime startTime,
 		@Param("endTime") LocalDateTime endTime
 	);
+
+	@Query("SELECT COUNT(a) FROM AdminSpaceHistory a " +
+		"WHERE a.eventTime BETWEEN :startTime AND :endTime")
+	Long countAllByEventTimeBetween(
+		@Param("startTime") LocalDateTime startTime,
+		@Param("endTime") LocalDateTime endTime);
 }
