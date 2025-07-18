@@ -3,6 +3,8 @@ package org.layer.admin.member.entity;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -29,10 +31,20 @@ public class AdminMemberSignupHistory {
 	@NotNull
 	private String eventId;
 
+	@NotNull
+	@Enumerated(EnumType.STRING)
+	private AdminMemberRole memberRole;
+
 	@Builder
-	private AdminMemberSignupHistory(LocalDateTime eventTime, Long memberId, String eventId) {
+	private AdminMemberSignupHistory(
+		LocalDateTime eventTime,
+		Long memberId,
+		String eventId,
+		AdminMemberRole memberRole
+	) {
 		this.eventTime = eventTime;
 		this.memberId = memberId;
 		this.eventId = eventId;
+		this.memberRole = memberRole;
 	}
 }

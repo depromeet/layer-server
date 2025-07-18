@@ -8,6 +8,7 @@ public record SignUpEvent(
 	String eventId,
 	Long memberId,
 	String name,
-	LocalDateTime eventTime
+	LocalDateTime eventTime,
+	String memberRole
 ) implements BaseEvent {
 }
