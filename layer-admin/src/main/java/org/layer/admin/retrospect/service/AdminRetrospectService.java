@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 import org.layer.admin.member.repository.AdminMemberRepository;
 import org.layer.admin.retrospect.controller.dto.CumulativeRetrospectCountResponse;
 import org.layer.admin.retrospect.controller.dto.MeaningfulRetrospectMemberResponse;
+import org.layer.admin.retrospect.controller.dto.RetrospectCompletionRateResponse;
 import org.layer.admin.retrospect.controller.dto.RetrospectRetentionResponse;
 import org.layer.admin.retrospect.controller.dto.RetrospectStayTimeResponse;
 import org.layer.admin.retrospect.entity.AdminRetrospectAnswerHistory;
@@ -25,6 +26,7 @@ import org.layer.admin.retrospect.entity.AdminRetrospectHistory;
 import org.layer.admin.retrospect.enums.AnswerTimeRange;
 import org.layer.admin.retrospect.repository.AdminRetrospectAnswerRepository;
 import org.layer.admin.retrospect.repository.AdminRetrospectRepository;
+import org.layer.admin.retrospect.repository.dto.RetrospectAnswerCompletionDto;
 import org.layer.admin.retrospect.repository.dto.SpaceRetrospectCountDto;
 import org.layer.admin.space.repository.AdminSpaceRepository;
 import org.layer.event.retrospect.CreateRetrospectEvent;
@@ -181,8 +183,29 @@ public class AdminRetrospectService {
 			.sum();
 
 		Long totalSpaceCount = adminSpaceRepository.countAllByEventTimeBetween(startTime, endTime);
-		long averageCumulativeCount = totalSpaceCount == 0 ? 0 : totalRetrospectCount / totalSpaceCount;
+		double averageCumulativeCount = totalSpaceCount == 0 ? 0.0 : (double)totalRetrospectCount / totalSpaceCount;
 		return new CumulativeRetrospectCountResponse(averageCumulativeCount);
+	}
+
+	public RetrospectCompletionRateResponse getRetrospectCompletionRate(LocalDateTime startTime, LocalDateTime endTime) {
+		List<RetrospectAnswerCompletionDto> answerHistories = adminRetrospectAnswerRepository.findRetrospectAnswerCompletionStatsBetween(
+			startTime, endTime);
+
+		// 회고별 완수율 계산 (단위: %)
+		List<Double> completionRates = answerHistories.stream()
+			.filter(dto -> dto.targetAnswerCount() > 0) // division by zero 방지
+			.map(dto -> (double) dto.actualAnswerCount() / dto.targetAnswerCount() * 100.0)
+			.toList();
+
+		// 평균 완수율 계산
+		double averageCompletionRate = completionRates.isEmpty()
+			? 0.0
+			: completionRates.stream()
+			.mapToDouble(Double::doubleValue)
+			.average()
+			.orElse(0.0);
+
+		return new RetrospectCompletionRateResponse(averageCompletionRate);
 	}
 
 	@Transactional(propagation = REQUIRES_NEW)
