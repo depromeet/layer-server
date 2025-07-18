@@ -30,7 +30,7 @@ public interface AdminRetrospectAnswerRepository extends JpaRepository<AdminRetr
 		@Param("minCount") int minCount);
 
 	@Query("""
-		SELECT new org.layer.admin.dto.RetrospectAnswerCompletionDto(
+		SELECT new org.layer.admin.retrospect.repository.dto.RetrospectAnswerCompletionDto(
 			a.retrospectId,
 			MIN(r.targetAnswerCount),
 			COUNT(*)
