@@ -2,6 +2,8 @@ package org.layer.event.retrospect;
 
 import java.time.LocalDateTime;
 
+import org.layer.event.BaseEvent;
+
 public record AnswerRetrospectEndEvent(
 	String eventId,
 	LocalDateTime eventTime,
@@ -9,7 +11,7 @@ public record AnswerRetrospectEndEvent(
 	Long spaceId,
 	Long retrospectId,
 	String answerContent
-) {
+) implements BaseEvent {
 	public static AnswerRetrospectEndEvent of(
 		String eventId,
 		LocalDateTime eventTime,
