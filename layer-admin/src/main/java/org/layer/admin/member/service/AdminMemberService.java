@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.layer.admin.member.controller.dto.MemberSignupCountResponse;
+import org.layer.admin.member.entity.AdminMemberRole;
 import org.layer.admin.member.entity.AdminMemberSignupHistory;
 import org.layer.admin.member.repository.AdminMemberRepository;
 import org.layer.event.member.SignUpEvent;
@@ -53,6 +54,7 @@ public class AdminMemberService {
 			.eventId(event.eventId())
 			.eventTime(event.eventTime())
 			.memberId(event.memberId())
+			.memberRole(AdminMemberRole.fromString(event.memberRole()))
 			.build();
 
 		adminMemberRepository.save(adminMemberSignupHistory);

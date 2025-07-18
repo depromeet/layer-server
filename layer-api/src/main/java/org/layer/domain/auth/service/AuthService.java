@@ -82,7 +82,7 @@ public class AuthService {
 
             // 3. DB에 회원 저장
             member = memberService.saveMember(signUpRequest, memberInfo);
-            publishCreateRetrospectEvent(member);
+            publishSignUpEvent(member);
 
             // 4. 토큰 발급
             jwtToken = jwtService.issueToken(member.getId(), member.getMemberRole());
@@ -103,12 +103,13 @@ public class AuthService {
         return SignUpResponse.of(member, jwtToken);
     }
 
-    private void publishCreateRetrospectEvent(final Member member) {
+    private void publishSignUpEvent(final Member member) {
         eventPublisher.publishEvent(new SignUpEvent(
             	random.generateRandomValue(),
 				member.getId(),
 				member.getName(),
-                time.now()
+                time.now(),
+                member.getMemberRole().name()
         ));
     }
 
