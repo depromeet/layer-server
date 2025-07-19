@@ -3,7 +3,7 @@ package org.layer.domain.retrospect.service;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.layer.ai.event.AIAnalyzeStartEvent;
+import org.layer.event.ai.AIAnalyzeStartEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
