@@ -53,8 +53,6 @@ subprojects {
         implementation 'org.springframework.boot:spring-boot-starter-web'
 
         annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
-
-
     }
 
     test {
@@ -70,6 +68,7 @@ project(":layer-api") {
         implementation project(path: ':layer-external')
         implementation project(path: ':layer-event')
         runtimeOnly project(path: ':layer-admin')
+        runtimeOnly project(path: ':layer-batch')
 
         implementation 'org.springframework.boot:spring-boot-starter-actuator'
         implementation 'org.springframework.boot:spring-boot-starter-validation'
@@ -188,8 +187,8 @@ project(":layer-external") {
 }
 
 project(":layer-batch") {
-    jar.enabled = false
-    bootJar.enabled = true
+    jar.enabled = true
+    bootJar.enabled = false
 
     dependencies {
         implementation project(path: ':layer-common')

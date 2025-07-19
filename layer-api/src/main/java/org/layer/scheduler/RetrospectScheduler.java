@@ -29,7 +29,7 @@ public class RetrospectScheduler {
     /**
      * @note: 1시간마다 실행된다.
      */
-    @Scheduled(cron = "0 0 * * * *")
+    // @Scheduled(cron = "0 0 * * * *")
     public void updateRetrospectStatusToDone() {
         log.info("Batch Start : updateRetrospectStatusToDone");
 

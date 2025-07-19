@@ -1,22 +1,20 @@
 package org.layer.batch.scheduler;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.layer.domain.answer.entity.Answer;
-import org.layer.domain.answer.entity.Answers;
-import org.layer.domain.answer.repository.AnswerRepository;
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.layer.ai.event.AIAnalyzeStartEvent;
 import org.layer.domain.common.time.Time;
 import org.layer.domain.retrospect.entity.Retrospect;
 import org.layer.domain.retrospect.entity.RetrospectStatus;
 import org.layer.domain.retrospect.repository.RetrospectRepository;
-import org.layer.ai.service.AIAnalyzeService;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
 @RequiredArgsConstructor
@@ -24,8 +22,7 @@ import java.util.stream.Collectors;
 public class RetrospectScheduler {
 
     private final RetrospectRepository retrospectRepository;
-    private final AnswerRepository answerRepository;
-    private final AIAnalyzeService aiAnalyzeService;
+    private final ApplicationEventPublisher eventPublisher;
 
     private final Time time;
 
@@ -41,26 +38,18 @@ public class RetrospectScheduler {
         List<Retrospect> retrospects = retrospectRepository.findAllByDeadlineBeforeAndRetrospectStatus(
                 now, RetrospectStatus.PROCEEDING);
 
-
-        Map<Long, Retrospect> retrospectMap = retrospects.stream()
-                .collect(Collectors.toMap(Retrospect::getId, retrospect -> retrospect));
-
-        retrospects.forEach(retrospect -> retrospect.updateRetrospectStatus(RetrospectStatus.DONE));
-        retrospectRepository.saveAllAndFlush(retrospects);
-
-        List<Long> retrospectIds = retrospects.stream().map(Retrospect::getId).toList();
-        Answers totalAnswers = new Answers(answerRepository.findAllByRetrospectIdIn(retrospectIds));
-
-        Map<Long, List<Answer>> answerMap = totalAnswers.getAnswers().stream()
-                .collect(Collectors.groupingBy(Answer::getRetrospectId));
-
-        // for 문 돌기
-        answerMap.keySet().forEach(retrospectId -> {
-            Retrospect retrospect = retrospectMap.get(retrospectId);
-            Answers answers = new Answers(answerMap.get(retrospectId));
-            aiAnalyzeService.createAnalyze(retrospectId);
-        });
+        updateRetrospectAndPublishEvent(retrospects);
 
         log.info("Batch End : updateRetrospectStatusToDone");
+    }
+
+    @Transactional
+    public void updateRetrospectAndPublishEvent(List<Retrospect> retrospects) {
+        retrospects.forEach(Retrospect::completeRetrospectAndStartAnalysis);
+        retrospectRepository.saveAll(retrospects);
+
+        retrospects.forEach(retrospect ->
+            eventPublisher.publishEvent(AIAnalyzeStartEvent.of(retrospect.getId()))
+        );
     }
 }
