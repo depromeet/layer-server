@@ -1,4 +1,4 @@
-package org.layer.domain.jwt;
+package org.layer.jwt;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

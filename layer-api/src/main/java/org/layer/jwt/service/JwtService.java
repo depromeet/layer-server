@@ -1,12 +1,12 @@
-package org.layer.domain.jwt.service;
+package org.layer.jwt.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.layer.domain.jwt.JwtProvider;
-import org.layer.domain.jwt.JwtToken;
-import org.layer.domain.jwt.JwtValidator;
-import org.layer.domain.jwt.MemberAuthentication;
-import org.layer.domain.jwt.exception.TokenException;
+import org.layer.jwt.JwtProvider;
+import org.layer.jwt.JwtToken;
+import org.layer.jwt.JwtValidator;
+import org.layer.jwt.MemberAuthentication;
+import org.layer.jwt.exception.TokenException;
 import org.layer.domain.member.entity.MemberRole;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;

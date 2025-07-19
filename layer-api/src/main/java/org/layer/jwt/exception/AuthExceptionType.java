@@ -1,4 +1,4 @@
-package org.layer.domain.jwt.exception;
+package org.layer.jwt.exception;
 
 import lombok.RequiredArgsConstructor;
 import org.layer.common.exception.ExceptionType;

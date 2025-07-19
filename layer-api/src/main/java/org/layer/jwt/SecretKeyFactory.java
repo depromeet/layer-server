@@ -1,4 +1,4 @@
-package org.layer.domain.jwt;
+package org.layer.jwt;
 
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;

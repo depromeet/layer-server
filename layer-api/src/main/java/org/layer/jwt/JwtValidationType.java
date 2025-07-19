@@ -1,4 +1,4 @@
-package org.layer.domain.jwt;
+package org.layer.jwt;
 
 public enum JwtValidationType {
     VALID_JWT,

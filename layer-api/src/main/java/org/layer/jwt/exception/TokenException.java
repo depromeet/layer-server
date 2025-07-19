@@ -1,4 +1,4 @@
-package org.layer.domain.jwt.exception;
+package org.layer.jwt.exception;
 
 import org.layer.common.exception.BaseCustomException;
 import org.layer.common.exception.ExceptionType;

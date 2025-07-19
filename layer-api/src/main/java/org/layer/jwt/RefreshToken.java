@@ -1,4 +1,4 @@
-package org.layer.domain.jwt;
+package org.layer.jwt;
 
 import lombok.Builder;
 import lombok.Getter;
