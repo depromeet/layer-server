@@ -1,4 +1,4 @@
-package org.layer.ai.event;
+package org.layer.event.ai;
 
 public record AIAnalyzeStartEvent(Long retrospectId) {
 	public static AIAnalyzeStartEvent of(Long retrospectId) {
