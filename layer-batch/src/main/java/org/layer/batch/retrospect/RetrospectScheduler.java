@@ -1,4 +1,4 @@
-package org.layer.batch.scheduler;
+package org.layer.batch.retrospect;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -31,7 +31,7 @@ public class RetrospectScheduler {
      */
     @Scheduled(cron = "0 0 * * * *")
     public void updateRetrospectStatusToDone() {
-        log.info("Batch Start : updateRetrospectStatusToDone");
+        log.info("Batch Module: Batch Start : updateRetrospectStatusToDone");
 
         LocalDateTime now = time.now();
 
@@ -40,7 +40,7 @@ public class RetrospectScheduler {
 
         updateRetrospectAndPublishEvent(retrospects);
 
-        log.info("Batch End : updateRetrospectStatusToDone");
+        log.info("Batch Module: Batch End : updateRetrospectStatusToDone");
     }
 
     @Transactional
