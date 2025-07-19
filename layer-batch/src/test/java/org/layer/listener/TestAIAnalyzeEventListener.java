@@ -1,4 +1,4 @@
-package org.layer.domain.retrospect.service;
+package org.layer.listener;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -32,3 +32,4 @@ public class TestAIAnalyzeEventListener {
 		return receivedRetrospectId;
 	}
 }
+

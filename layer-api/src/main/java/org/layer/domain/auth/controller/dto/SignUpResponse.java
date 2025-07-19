@@ -1,6 +1,6 @@
 package org.layer.domain.auth.controller.dto;
 
-import org.layer.domain.jwt.JwtToken;
+import org.layer.jwt.JwtToken;
 import org.layer.domain.member.entity.Member;
 import org.layer.domain.member.entity.MemberRole;
 import org.layer.domain.member.entity.SocialType;

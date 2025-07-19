@@ -2,7 +2,7 @@ package org.layer.config;
 
 import lombok.RequiredArgsConstructor;
 
-import org.layer.domain.jwt.JwtAuthenticationFilter;
+import org.layer.jwt.JwtAuthenticationFilter;
 import org.springframework.boot.autoconfigure.security.ConditionalOnDefaultWebSecurity;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

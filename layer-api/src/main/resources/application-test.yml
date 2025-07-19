@@ -26,25 +26,6 @@ spring:
 jwt:
   secret: ${DEV_JWT_SECRET}
 
-kakao:
-  login:
-    api_key: ${KAKAO_API_KEY}
-    redirect_uri: http://localhost:8080/api/auth/oauth2/kakao
-    uri:
-      base: https://kauth.kakao.com
-      code: /oauth/authorize
-      token: /oauth/token
-  api:
-    uri:
-      base: https://kapi.kakao.com
-      user: /v2/user/me
-
-google:
-  login:
-    client_id: ${GOOGLE_CLIENT_ID}
-    client_secret: ${GOOGLE_CLIENT_SECRET}
-    redirect_uri: ${GOOGLE_REDIRECT_URI}
-
 apple:
   login:
     issuer: ${APPLE_ISSUER}
