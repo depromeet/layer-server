@@ -7,10 +7,10 @@ import org.layer.domain.common.random.CustomRandom;
 import org.layer.event.member.SignUpEvent;
 import org.layer.domain.auth.controller.dto.*;
 import org.layer.domain.common.time.Time;
-import org.layer.domain.jwt.JwtToken;
-import org.layer.domain.jwt.exception.AuthException;
-import org.layer.domain.jwt.exception.AuthExceptionType;
-import org.layer.domain.jwt.service.JwtService;
+import org.layer.jwt.JwtToken;
+import org.layer.jwt.exception.AuthException;
+import org.layer.jwt.exception.AuthExceptionType;
+import org.layer.jwt.service.JwtService;
 import org.layer.domain.member.entity.Member;
 import org.layer.domain.member.entity.SocialType;
 import org.layer.domain.member.service.MemberService;
@@ -24,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Duration;
 import java.util.UUID;
 
-import static org.layer.domain.jwt.exception.AuthExceptionType.DUPLICATED_SIGN_UP_REQUEST;
+import static org.layer.jwt.exception.AuthExceptionType.DUPLICATED_SIGN_UP_REQUEST;
 
 
 @Slf4j

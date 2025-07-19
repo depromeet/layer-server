@@ -6,7 +6,7 @@ import static org.layer.global.exception.ApiMemberSpaceRelationExceptionType.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.layer.ai.event.AIAnalyzeStartEvent;
+import org.layer.event.ai.AIAnalyzeStartEvent;
 import org.layer.domain.analyze.entity.Analyze;
 import org.layer.domain.analyze.enums.AnalyzeType;
 import org.layer.domain.analyze.repository.AnalyzeRepository;

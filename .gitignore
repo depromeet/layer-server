@@ -2,6 +2,8 @@
 layer-api/src/main/resources/application.yml
 
 layer-api/src/main/resources/application-secret.properties
+layer-batch/src/test/resources/application-secret.properties
+
 
 # q
 layer-domain/src/main/generated/
