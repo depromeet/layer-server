@@ -2,24 +2,19 @@ spring:
   config:
     import: application-secret.properties
   datasource:
-    driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:layer-local-db;DATABASE_TO_UPPER=FALSE;mode=mysql  # H2 접속 정보 (전부 소문자로 지정)
-    username: sa
-    password:
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
+    url: jdbc:mysql://localhost:3306/layer_local
+    username: ${LOCAL_DB_NAME}
+    password: ${LOCAL_DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
-      ddl-auto: create
+      ddl-auto: validate
     properties:
       hibernate:
         format_sql: true
         show_sql: true
     open-in-view: false
-    defer-datasource-initialization: true
+    database: mysql
 
   data:
     redis:
@@ -33,7 +28,7 @@ jwt:
 kakao:
   login:
     api_key: ${KAKAO_API_KEY}
-    redirect_uri: http://localhost:8080/api/auth/oauth2/kakao
+    redirect_uri: ${KAKAO_REDIRECT_URI}
     uri:
       base: https://kauth.kakao.com
       code: /oauth/authorize
