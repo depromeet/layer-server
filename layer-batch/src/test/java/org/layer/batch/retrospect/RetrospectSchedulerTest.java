@@ -1,16 +1,15 @@
-package org.layer.scheduler;
+package org.layer.batch.retrospect;
 
 import static org.assertj.core.api.Assertions.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.layer.domain.common.time.Time;
-import org.layer.domain.fixture.RetrospectFixture;
 import org.layer.domain.retrospect.entity.AnalysisStatus;
 import org.layer.domain.retrospect.entity.Retrospect;
 import org.layer.domain.retrospect.entity.RetrospectStatus;
+import org.layer.listener.TestAIAnalyzeEventListener;
+import org.layer.domain.common.time.Time;
 import org.layer.domain.retrospect.repository.RetrospectRepository;
-import org.layer.domain.retrospect.service.TestAIAnalyzeEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -55,4 +54,3 @@ class RetrospectSchedulerTest {
 		assertThat(eventListener.getReceivedRetrospectId()).isEqualTo(retrospect.getId());
 	}
 }
-

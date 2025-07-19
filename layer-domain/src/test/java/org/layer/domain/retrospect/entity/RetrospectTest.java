@@ -1,12 +1,9 @@
-package layer.domain.retrospect.entity;
+package org.layer.domain.retrospect.entity;
 
 import java.time.LocalDateTime;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.layer.domain.retrospect.entity.AnalysisStatus;
-import org.layer.domain.retrospect.entity.Retrospect;
-import org.layer.domain.retrospect.entity.RetrospectStatus;
 
 class RetrospectTest {
 

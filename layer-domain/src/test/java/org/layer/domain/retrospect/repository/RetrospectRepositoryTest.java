@@ -1,4 +1,4 @@
-package layer.domain.retrospect.repository;
+package org.layer.domain.retrospect.repository;
 
 import java.time.LocalDateTime;
 
@@ -8,7 +8,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.layer.domain.retrospect.entity.AnalysisStatus;
 import org.layer.domain.retrospect.entity.Retrospect;
 import org.layer.domain.retrospect.entity.RetrospectStatus;
-import org.layer.domain.retrospect.repository.RetrospectRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;

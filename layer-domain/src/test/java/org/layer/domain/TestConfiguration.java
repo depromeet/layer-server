@@ -1,4 +1,4 @@
-package layer.domain;
+package org.layer.domain;
 
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
