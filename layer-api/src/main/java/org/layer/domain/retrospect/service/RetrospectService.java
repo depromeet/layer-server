@@ -3,7 +3,7 @@ package org.layer.domain.retrospect.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.layer.ai.event.AIAnalyzeStartEvent;
+import org.layer.event.ai.AIAnalyzeStartEvent;
 import org.layer.domain.answer.entity.Answers;
 import org.layer.domain.answer.repository.AnswerRepository;
 import org.layer.domain.common.random.CustomRandom;
