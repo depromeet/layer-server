@@ -110,6 +110,7 @@ public class SpaceService {
 			random.generateRandomValue(),
 			memberId,
 			time.now(),
+			space.getId(),
 			space.getName(),
 			space.getCategory().name()
 		));

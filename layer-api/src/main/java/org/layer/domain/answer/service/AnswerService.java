@@ -105,13 +105,8 @@ public class AnswerService {
 
 		// 마지막 답변인 경우 -> ai 분석 실행
 		if (answers.getWriteCount(retrospectId) == team.getTeamMemberCount()) {
-			retrospect.completeRetrospectAndStartAnalysis();
-
-			if (!retrospect.hasDeadLine()) {
-                retrospect.updateDeadLine(time.now());
-			}
+			retrospect.completeRetrospectAndStartAnalysis(time.now());
 			retrospectRepository.save(retrospect);
-
 			eventPublisher.publishEvent(AIAnalyzeStartEvent.of(retrospectId));
 		}
 
