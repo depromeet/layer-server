@@ -10,12 +10,14 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.layer.domain.fixture.MemberFixture;
+import org.layer.domain.fixture.RetrospectFixture;
 import org.layer.domain.fixture.SpaceFixture;
 import org.layer.domain.member.entity.Member;
 import org.layer.domain.member.repository.MemberRepository;
 import org.layer.domain.question.enums.QuestionType;
 import org.layer.domain.retrospect.controller.dto.request.QuestionCreateRequest;
 import org.layer.domain.retrospect.controller.dto.request.RetrospectCreateRequest;
+import org.layer.domain.retrospect.entity.AnalysisStatus;
 import org.layer.domain.retrospect.entity.Retrospect;
 import org.layer.domain.retrospect.entity.RetrospectStatus;
 import org.layer.domain.retrospect.repository.RetrospectRepository;
@@ -80,8 +82,32 @@ class RetrospectServiceTest {
 	}
 
 	@Nested
-	class 회고_마감{
+	class 회고_마감 {
+		@Test
+		@DisplayName("마감기한이 미지정된 회고를 마감할 경우, 마감기한이 현재시간으로 설정된다.")
+		void closeRetrospectWithoutDeadline() {
+			// given
+			Member member = MemberFixture.createFixture("social-1");
+			member = memberRepository.save(member);
 
+			Space space = SpaceFixture.createFixture(member.getId(), 1L);
+			spaceRepository.save(space);
+			memberSpaceRelationRepository.save(new MemberSpaceRelation(member.getId(), space));
+
+			Retrospect retrospect = RetrospectFixture.createFixture(space.getId(),
+				RetrospectStatus.PROCEEDING, AnalysisStatus.NOT_STARTED, null);
+
+			retrospect = retrospectRepository.save(retrospect);
+
+			// when
+			retrospectService.closeRetrospect(space.getId(), retrospect.getId(), member.getId());
+
+			// then
+			Retrospect savedRetrospect = retrospectRepository.findByIdOrThrow(retrospect.getId());
+
+			Assertions.assertThat(savedRetrospect.getDeadline()).isNotNull();
+			Assertions.assertThat(retrospect.getDeadline()).isBeforeOrEqualTo(LocalDateTime.now());
+		}
 	}
 
 }
