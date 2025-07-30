@@ -138,11 +138,7 @@ public class Answers {
 			}
 		}
 
-		if (count == ZERO) {
-			throw new AnswerException(NOT_CONTAIN_ANSWERS);
-		}
-
-		return sum / count;
+		return count == ZERO ? 0 : sum / count;
 	}
 
 	public int getScoreCount(Long questionId, int score, Long memberId) {
