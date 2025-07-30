@@ -196,13 +196,11 @@ public class RetrospectService {
 
 		Retrospect retrospect = retrospectRepository.findByIdOrThrow(retrospectId);
 
-		retrospect.completeRetrospectAndStartAnalysis();
+		retrospect.completeRetrospectAndStartAnalysis(time.now());
 		if (retrospect.getAnalysisStatus().equals(AnalysisStatus.DONE)) {
-			// 비정상 케이스
 			log.error("비정상적인 오류입니다.");
 			return;
 		}
-
 		retrospectRepository.save(retrospect);
 
 		// 회고 ai 분석 시작

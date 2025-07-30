@@ -21,35 +21,35 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class RetrospectScheduler {
 
-    private final RetrospectRepository retrospectRepository;
-    private final ApplicationEventPublisher eventPublisher;
+	private final RetrospectRepository retrospectRepository;
+	private final ApplicationEventPublisher eventPublisher;
 
-    private final Time time;
+	private final Time time;
 
-    /**
-     * @note: 1시간마다 실행된다.
-     */
-    @Scheduled(cron = "0 0 * * * *")
-    public void updateRetrospectStatusToDone() {
-        log.info("Batch Module: Batch Start : updateRetrospectStatusToDone");
+	/**
+	 * @note: 1시간마다 실행된다.
+	 */
+	@Scheduled(cron = "0 0 * * * *")
+	public void updateRetrospectStatusToDone() {
+		log.info("Batch Module: Batch Start : updateRetrospectStatusToDone");
 
-        LocalDateTime now = time.now();
+		LocalDateTime now = time.now();
 
-        List<Retrospect> retrospects = retrospectRepository.findAllByDeadlineBeforeAndRetrospectStatus(
-                now, RetrospectStatus.PROCEEDING);
+		List<Retrospect> retrospects = retrospectRepository.findAllByDeadlineBeforeAndRetrospectStatus(
+			now, RetrospectStatus.PROCEEDING);
 
-        updateRetrospectAndPublishEvent(retrospects);
+		updateRetrospectAndPublishEvent(retrospects);
 
-        log.info("Batch Module: Batch End : updateRetrospectStatusToDone");
-    }
+		log.info("Batch Module: Batch End : updateRetrospectStatusToDone");
+	}
 
-    @Transactional
-    public void updateRetrospectAndPublishEvent(List<Retrospect> retrospects) {
-        retrospects.forEach(Retrospect::completeRetrospectAndStartAnalysis);
-        retrospectRepository.saveAll(retrospects);
+	@Transactional
+	public void updateRetrospectAndPublishEvent(List<Retrospect> retrospects) {
+		retrospects.forEach(retrospect -> retrospect.completeRetrospectAndStartAnalysis(time.now()));
+		retrospectRepository.saveAll(retrospects);
 
-        retrospects.forEach(retrospect ->
-            eventPublisher.publishEvent(AIAnalyzeStartEvent.of(retrospect.getId()))
-        );
-    }
+		retrospects.forEach(retrospect ->
+			eventPublisher.publishEvent(AIAnalyzeStartEvent.of(retrospect.getId()))
+		);
+	}
 }
