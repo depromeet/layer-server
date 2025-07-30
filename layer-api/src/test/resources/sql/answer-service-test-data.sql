@@ -12,14 +12,24 @@ VALUES
     ('2024-12-27 00:00:00', '2024-12-27 00:00:00', 1, 1),
     ('2024-12-27 00:00:00', '2024-12-27 00:00:00', 2, 1);
 
-INSERT INTO question (created_at, updated_at, content, form_id, question_order, question_owner, question_type, retrospect_id)
+INSERT INTO retrospect (id, created_at, updated_at, space_id, title, introduction, retrospect_status,
+                        analysis_status, deadline)
 VALUES
-    ('2024-12-27 00:00:00', '2024-12-27 00:00:00', '질문1', 1, 1, 'INDIVIDUAL', 'PLAIN_TEXT', 1),
-    ('2024-12-27 00:00:00', '2024-12-27 00:00:00', '질문2', 1, 2, 'TEAM', 'PLAIN_TEXT', 1);
+    (1, '2024-12-27 00:00:00', '2024-12-27 00:00:00', 1, '2024년 12월 회고', '2024년 12월 회고를 위한 공간입니다.', 'PROCEEDING',
+     'NOT_STARTED', null);
 
-INSERT INTO answer (created_at, updated_at, answer_status, content, member_id, question_id, retrospect_id)
+INSERT INTO question (id, created_at, updated_at, content, form_id, question_order, question_owner, question_type, retrospect_id)
 VALUES
-    ('2024-12-27 00:00:00', '2024-12-27 00:00:00', 'DONE', '회고답변 1', 1, 1, 1),
-    ('2024-12-27 00:00:00', '2024-12-27 00:00:00', 'TEMPORARY', '회고임시답변', 1, 2, 1),
-    ('2024-12-27 00:00:00', '2024-12-27 00:00:00', 'DONE', '회고답변 2', 1, 2, 1);
+    (1, '2024-12-27 00:00:00', '2024-12-27 00:00:00', '질문1', 1, 1, 'TEAM', 'NUMBER', 1),
+    (2, '2024-12-27 00:00:00', '2024-12-27 00:00:00', '질문2', 1, 2, 'TEAM', 'RANGER', 1),
+    (3, '2024-12-27 00:00:00', '2024-12-27 00:00:00', '질문3', 1, 3, 'TEAM', 'PLAIN_TEXT', 1),
+    (4, '2024-12-27 00:00:00', '2024-12-27 00:00:00', '질문4', 1, 4, 'TEAM', 'PLAIN_TEXT', 1);
+
+INSERT INTO answer (id, created_at, updated_at, answer_status, content, member_id, question_id, retrospect_id)
+VALUES
+    (1, '2024-12-27 00:00:00', '2024-12-27 00:00:00', 'DONE', '5', 1, 1, 1),
+    (2, '2024-12-27 00:00:00', '2024-12-27 00:00:00', 'TEMPORARY', '80', 1, 2, 1),
+    (3, '2024-12-27 00:00:00', '2024-12-27 00:00:00', 'DONE', '80', 1, 2, 1),
+    (4, '2024-12-27 00:00:00', '2024-12-27 00:00:00', 'DONE', '답변1', 1, 3, 1),
+    (5, '2024-12-27 00:00:00', '2024-12-27 00:00:00', 'DONE', '답변2', 1, 4, 1);
 
