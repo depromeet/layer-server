@@ -1,7 +1,6 @@
 package org.layer.domain.space.dto;
 
 import com.querydsl.core.annotations.QueryProjection;
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import org.layer.domain.form.enums.FormTag;
@@ -20,19 +19,14 @@ public class SpaceWithMemberCount {
     private Long id;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    @NotNull
     private SpaceCategory category;
-    @NotNull
     private List<SpaceField> fieldList;
-    @NotNull
     private String name;
     private String introduction;
-    @NotNull
     private Leader leader;
     private Long formId;
     private String formTag;
     private Long memberCount;
-
     private String bannerUrl;
 
     @QueryProjection

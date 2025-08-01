@@ -35,7 +35,7 @@ public interface SpaceApi {
             )
     }
     )
-    ResponseEntity<SpaceResponse.SpacePage> getMySpaceList(@MemberId Long memberId, @ModelAttribute @Validated SpaceRequest.GetSpaceRequest getSpaceRequest);
+    ResponseEntity<SpaceResponse.SpacePage> getMySpaces(@MemberId Long memberId, @ModelAttribute @Validated SpaceRequest.GetSpaceRequest getSpaceRequest);
 
     @Operation(summary = "스페이스 생성하기", method = "POST", description = """
             스페이스를 생성합니다. <br />

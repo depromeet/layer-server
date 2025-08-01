@@ -3,8 +3,10 @@ package org.layer.domain.space.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.layer.common.dto.Meta;
+import org.layer.common.dto.CursorPageReq;
+import org.layer.common.dto.CursorPageRes;
 import org.layer.domain.common.random.CustomRandom;
+import org.layer.domain.space.dto.SpaceWithRetrospectCount;
 import org.layer.event.space.CreateSpaceEvent;
 import org.layer.domain.actionItem.repository.ActionItemRepository;
 import org.layer.domain.common.time.Time;
@@ -33,6 +35,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.layer.global.exception.ApiMemberSpaceRelationExceptionType.NOT_FOUND_MEMBER_SPACE_RELATION;
 import static org.layer.global.exception.ApiSpaceExceptionType.*;
@@ -56,30 +60,33 @@ public class SpaceService {
 	private final Time time;
 	private final CustomRandom random;
 
-	public SpaceResponse.SpacePage getSpaceListFromMemberId(Long memberId, SpaceRequest.GetSpaceRequest request) {
+	public SpaceResponse.SpacePage getMySpaces(Long memberId, SpaceRequest.GetSpaceRequest request) {
+		CursorPageReq cursorPageReq = new CursorPageReq(request.cursorId(), request.pageSize());
 
-		int pageSize = request.pageSize();
-		List<SpaceWithMemberCount> spaces = spaceRepository.findAllSpacesByMemberIdAndCategoryAndCursor(
-			memberId, request.cursorId(), request.category(), pageSize + 1 // hasNext 판단을 위해 +1
+		CursorPageRes<SpaceWithMemberCount> spacesWithCursor = spaceRepository.findAllSpacesByMemberIdAndCategoryAndCursor(
+			memberId, request.category(), cursorPageReq
 		);
 
-		boolean hasNext = spaces.size() > pageSize;
-		if (hasNext) {
-			spaces.remove(spaces.size() - 1); // 다음 페이지 존재 시 마지막 요소 제거
-		}
+		List<Long> spaceIds = spacesWithCursor.getData().stream().map(SpaceWithMemberCount::getId).toList();
+		Map<Long, SpaceWithRetrospectCount> spaceWithRetrospectCountMap = spaceRepository.findAllSpaceWithRetrospectCount(spaceIds)
+			.stream()
+			.collect(
+				Collectors.toMap(
+					SpaceWithRetrospectCount::getId,
+					spaceWithRetrospectCount -> spaceWithRetrospectCount
+				)
+			);
 
-		Long nextCursor = spaces.isEmpty() ? null : spaces.get(spaces.size() - 1).getId();
+		List<SpaceResponse.SpaceWithMemberCountAndRetrospectCount> responses = spacesWithCursor.getData().stream()
+			.map(space -> {
+				SpaceWithRetrospectCount spaceWithRetrospectCount = spaceWithRetrospectCountMap.get(space.getId());
+				Long retrospectCount = spaceWithRetrospectCount != null ? spaceWithRetrospectCount.getRetrospectCount() : 0L;
+				Long proceedingRetrospectCount = spaceWithRetrospectCount != null ? spaceWithRetrospectCount.getProceedingRetrospectCount() : 0L;
 
-		List<SpaceResponse.SpaceWithMemberCountInfo> responseList = spaces.stream()
-			.map(SpaceResponse.SpaceWithMemberCountInfo::toResponse)
-			.toList();
+				return SpaceResponse.SpaceWithMemberCountAndRetrospectCount.toResponse(space, retrospectCount, proceedingRetrospectCount);
+			}).toList();
 
-		Meta meta = Meta.builder()
-			.cursor(hasNext ? nextCursor : null)
-			.hasNextPage(hasNext)
-			.build();
-
-		return SpaceResponse.SpacePage.toResponse(responseList, meta);
+		return SpaceResponse.SpacePage.toResponse(responses, spacesWithCursor.getMeta());
 	}
 
 	@Transactional
@@ -169,7 +176,7 @@ public class SpaceService {
 			throw new SpaceException(SPACE_ALREADY_JOINED);
 		});
 
-        // 스페이스 참여여부 저장
+		// 스페이스 참여여부 저장
 		var joinedSpace = MemberSpaceRelation.builder()
 			.space(foundSpace)
 			.memberId(memberId)
@@ -199,10 +206,10 @@ public class SpaceService {
 
 	@Transactional
 	public void removeMemberSpace(Long memberId, Long spaceId) {
-        //  존재하는 스페이스 여부 확인
+		//  존재하는 스페이스 여부 확인
 		var foundSpace = spaceRepository.findById(spaceId).orElseThrow(() -> new SpaceException(NOT_FOUND_SPACE));
 
-        //  스페이스 팀장 여부 확인
+		//  스페이스 팀장 여부 확인
 		if (foundSpace.getLeaderId().equals(memberId)) {
 			throw new SpaceException(SPACE_LEADER_CANNOT_LEAVE);
 		}
@@ -218,11 +225,11 @@ public class SpaceService {
 			throw new SpaceException(NOT_FOUND_SPACE);
 		}
 
-        //  이미 참여중인 스페이스 여부 확인
+		//  이미 참여중인 스페이스 여부 확인
 		var foundMemberSpaceRelation = memberSpaceRelationRepository.findBySpaceIdAndMemberId(spaceId, memberId)
 			.orElseThrow(() -> new SpaceException(SPACE_ALREADY_JOINED));
 
-        //  스페이스 참여여부 삭제 ( 스페이스 떠나기 )
+		//  스페이스 참여여부 삭제 ( 스페이스 떠나기 )
 		memberSpaceRelationRepository.deleteById(foundMemberSpaceRelation.getId());
 
 		publishLeaveSpaceEvent(memberId, spaceId);

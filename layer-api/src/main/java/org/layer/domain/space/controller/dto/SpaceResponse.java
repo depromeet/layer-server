@@ -20,121 +20,161 @@ import java.util.List;
 @Slf4j
 public class SpaceResponse {
 
-    @Builder
-    @Schema(description = "스페이스 정보 응답")
-    public record SpaceWithMemberCountInfo(
-            @Schema(description = "스페이스 ID")
-            @NotNull
-            Long id,
-            @Schema(description = "프로젝트 유형 카테고리")
-            @NotNull
-            SpaceCategory category,
-            @Schema(description = "진행중인 프로젝트 유형")
-            @NotNull
-            List<SpaceField> fieldList,
-            @Schema(description = "이름")
-            @NotNull
-            String name,
-            @Schema(description = "공간 설명")
-            String introduction,
-            @Schema(description = "설정된 회고 폼 아이디")
-            Long formId,
-            @Schema(description = "설정된 회고 폼 태그")
-            String formTag,
-            @Schema(description = "소속된 회원 수")
-            Long memberCount,
-            @Schema(description = "스페이스 배너 이미지")
-            String bannerUrl,
-            @Schema(description = "스페이스 생성 일자")
-            LocalDateTime createdAt,
-            @Schema(description = "스페이스 리더 아이디")
-            Leader leader
-    ) {
-        public static SpaceWithMemberCountInfo toResponse(SpaceWithMemberCount space) {
+	@Builder
+	@Schema(description = "스페이스 정보 응답")
+	public record SpaceWithMemberCountInfo(
+		@Schema(description = "스페이스 ID")
+		@NotNull
+		Long id,
+		@Schema(description = "프로젝트 유형 카테고리")
+		@NotNull
+		SpaceCategory category,
+		@Schema(description = "진행중인 프로젝트 유형")
+		@NotNull
+		List<SpaceField> fieldList,
+		@Schema(description = "이름")
+		@NotNull
+		String name,
+		@Schema(description = "공간 설명")
+		String introduction,
+		@Schema(description = "설정된 회고 폼 아이디")
+		Long formId,
+		@Schema(description = "설정된 회고 폼 태그")
+		String formTag,
+		@Schema(description = "소속된 회원 수")
+		Long memberCount,
+		@Schema(description = "스페이스 배너 이미지")
+		String bannerUrl,
+		@Schema(description = "스페이스 생성 일자")
+		LocalDateTime createdAt,
+		@Schema(description = "스페이스 리더 아이디")
+		Leader leader
 
-            return SpaceWithMemberCountInfo.builder()
-                .id(space.getId())
-                .category(space.getCategory())
-                .fieldList(space.getFieldList())
-                .name(space.getName())
-                .introduction(space.getIntroduction())
-                .formId(space.getFormId())
-                .formTag(space.getFormTag())
-                .memberCount(space.getMemberCount())
-                .bannerUrl(space.getBannerUrl())
-                .createdAt(space.getCreatedAt())
-                .leader(space.getLeader())
-                .build();
-        }
+	) {
+		public static SpaceWithMemberCountInfo of(Space space, Form form, Long memberCount, Leader leader) {
+			String formTag = form != null ? form.getFormTag().getTag() : null;
 
-        public static SpaceWithMemberCountInfo of(Space space, Form form, Long memberCount, Leader leader) {
-            String formTag = form != null ? form.getFormTag().getTag() : null;
+			return SpaceWithMemberCountInfo.builder()
+				.id(space.getId())
+				.category(space.getCategory())
+				.fieldList(space.getFieldList())
+				.name(space.getName())
+				.introduction(space.getIntroduction())
+				.formId(space.getFormId())
+				.formTag(formTag)
+				.memberCount(memberCount)
+				.bannerUrl(space.getBannerUrl())
+				.createdAt(space.getCreatedAt())
+				.leader(leader)
+				.build();
+		}
+	}
 
-            return SpaceWithMemberCountInfo.builder()
-                .id(space.getId())
-                .category(space.getCategory())
-                .fieldList(space.getFieldList())
-                .name(space.getName())
-                .introduction(space.getIntroduction())
-                .formId(space.getFormId())
-                .formTag(formTag)
-                .memberCount(memberCount)
-                .bannerUrl(space.getBannerUrl())
-                .createdAt(space.getCreatedAt())
-                .leader(leader)
-                .build();
-        }
-    }
+	@Builder
+	@Schema(description = "스페이스 정보 응답 (회원 수 및 회고 수 포함)")
+	public record SpaceWithMemberCountAndRetrospectCount(
+		@Schema(description = "스페이스 ID")
+		@NotNull
+		Long id,
+		@Schema(description = "프로젝트 유형 카테고리")
+		@NotNull
+		SpaceCategory category,
+		@Schema(description = "진행중인 프로젝트 유형")
+		@NotNull
+		List<SpaceField> fieldList,
+		@Schema(description = "이름")
+		@NotNull
+		String name,
+		@Schema(description = "공간 설명")
+		String introduction,
+		@Schema(description = "설정된 회고 폼 아이디")
+		Long formId,
+		@Schema(description = "설정된 회고 폼 태그")
+		String formTag,
+		@Schema(description = "소속된 회원 수")
+		Long memberCount,
+		@Schema(description = "스페이스 배너 이미지")
+		String bannerUrl,
+		@Schema(description = "스페이스 생성 일자")
+		LocalDateTime createdAt,
+		@Schema(description = "스페이스 리더 아이디")
+		Leader leader,
+		@Schema(description = "누적 회고 수")
+		Long retrospectCount,
+		@Schema(description = "진행중인 회고 수")
+		Long proceedingRetrospectCount
 
-    @Builder
-    @Schema
-    public record SpacePage(
-            @Schema
-            List<SpaceWithMemberCountInfo> data,
+	) {
+		public static SpaceWithMemberCountAndRetrospectCount toResponse(SpaceWithMemberCount space, Long retrospectCount,
+			Long proceedingRetrospectCount) {
 
-            @Schema
-            Meta meta
-    ) {
+			return SpaceWithMemberCountAndRetrospectCount.builder()
+				.id(space.getId())
+				.category(space.getCategory())
+				.fieldList(space.getFieldList())
+				.name(space.getName())
+				.introduction(space.getIntroduction())
+				.formId(space.getFormId())
+				.formTag(space.getFormTag())
+				.memberCount(space.getMemberCount())
+				.bannerUrl(space.getBannerUrl())
+				.createdAt(space.getCreatedAt())
+				.leader(space.getLeader())
+				.retrospectCount(retrospectCount)
+				.proceedingRetrospectCount(proceedingRetrospectCount)
+				.build();
+		}
+	}
 
-        public static SpacePage toResponse(List<SpaceWithMemberCountInfo> spaceInfo, Meta meta) {
-            return SpacePage.builder().data(spaceInfo).meta(meta).build();
-        }
-    }
+	@Builder
+	@Schema
+	public record SpacePage(
+		@Schema
+		List<SpaceWithMemberCountAndRetrospectCount> data,
 
-    @Builder
-    @Schema
-    public record SpaceCreateResponse(
-            @Schema(title = "생성된 스페이스 아이디", description = """
-                                        
-                    생성 완료된 스페이스의 아이디
-                                        
-                    """)
-            Long spaceId
-    ) {
-    }
+		@Schema
+		Meta meta
+	) {
 
-    @Builder
-    @Schema
-    public record SpaceMemberResponse(
-            @Schema(title = "맴버 아이디")
-            Long id,
-            @Schema(title = "멤버 프로필 사진")
-            String avatar,
+		public static SpacePage toResponse(List<SpaceWithMemberCountAndRetrospectCount> spaceInfo, Meta meta) {
+			return SpacePage.builder().data(spaceInfo).meta(meta).build();
+		}
+	}
 
-            @Schema(title = "멤버 이름")
-            String name,
+	@Builder
+	@Schema
+	public record SpaceCreateResponse(
+		@Schema(title = "생성된 스페이스 아이디", description = """
+			                    
+			생성 완료된 스페이스의 아이디
+			                    
+			""")
+		Long spaceId
+	) {
+	}
 
-            @Schema(title = "스페이스 리더 여부")
-            Boolean isLeader
-    ) {
-        public static SpaceMemberResponse of(Member member, boolean isLeader) {
-            return SpaceMemberResponse
-                .builder()
-                .id(member.getId())
-                .name(member.getName())
-                .avatar(member.getProfileImageUrl())
-                .isLeader(isLeader)
-                .build();
-        }
-    }
+	@Builder
+	@Schema
+	public record SpaceMemberResponse(
+		@Schema(title = "맴버 아이디")
+		Long id,
+		@Schema(title = "멤버 프로필 사진")
+		String avatar,
+
+		@Schema(title = "멤버 이름")
+		String name,
+
+		@Schema(title = "스페이스 리더 여부")
+		Boolean isLeader
+	) {
+		public static SpaceMemberResponse of(Member member, boolean isLeader) {
+			return SpaceMemberResponse
+				.builder()
+				.id(member.getId())
+				.name(member.getName())
+				.avatar(member.getProfileImageUrl())
+				.isLeader(isLeader)
+				.build();
+		}
+	}
 }
