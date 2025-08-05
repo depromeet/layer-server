@@ -53,6 +53,7 @@ public class AdminTemplateService {
 			.eventTime(event.eventTime())
 			.memberId(event.memberId())
 			.eventId(event.eventId())
+			.choiceType(AdminChoiceType.RECOMMENDATION)
 			.build();
 
 		templateRecommendationRepository.save(recommendation);

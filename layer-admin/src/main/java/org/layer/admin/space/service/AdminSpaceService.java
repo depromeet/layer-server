@@ -72,6 +72,7 @@ public class AdminSpaceService {
 			.eventId(event.eventId())
 			.eventTime(event.eventTime())
 			.memberId(event.memberId())
+			.spaceId(event.spaceId())
 			.build();
 
 		adminMemberSpaceRepository.save(memberSpaceHistory);
