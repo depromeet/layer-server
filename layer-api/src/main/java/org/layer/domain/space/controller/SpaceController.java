@@ -23,8 +23,8 @@ public class SpaceController implements SpaceApi {
 
     @Override
     @GetMapping("/list")
-    public ResponseEntity<SpaceResponse.SpacePage> getMySpaceList(@MemberId Long memberId, @ModelAttribute @Valid SpaceRequest.GetSpaceRequest getSpaceRequest) {
-        var response = spaceService.getSpaceListFromMemberId(memberId, getSpaceRequest);
+    public ResponseEntity<SpaceResponse.SpacePage> getMySpaces(@MemberId Long memberId, @ModelAttribute @Valid SpaceRequest.GetSpaceRequest getSpaceRequest) {
+        var response = spaceService.getMySpaces(memberId, getSpaceRequest);
         return ResponseEntity.ok(response);
     }
 

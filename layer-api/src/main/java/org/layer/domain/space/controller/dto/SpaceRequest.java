@@ -68,24 +68,15 @@ public class SpaceRequest {
     @Schema(description = "내가 속한 스페이스 조회")
     public record GetSpaceRequest(
             @Schema(description = "커서 아이디")
-            Long cursorId,
+            long cursorId,
 
             @Schema(description = "조회하고자 하는 스페이스 타입")
-            Optional<SpaceCategory> category,
+            SpaceCategory category,
 
             @Schema(description = "페이지 사이즈", defaultValue = "1")
             int pageSize
 
     ) {
-        public GetSpaceRequest {
-            if (pageSize <= 0) {
-                pageSize = 1;
-            }
-            if (cursorId == null) {
-                cursorId = 0L;
-            }
-        }
-
     }
 
     @Schema(description = "스페이스 떠나기")
