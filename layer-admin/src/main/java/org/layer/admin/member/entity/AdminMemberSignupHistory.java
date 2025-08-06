@@ -14,6 +14,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * 특정 유저의 회원 가입 시점을 저장하는 엔티티
+ * 이 엔티티는 유저의 회원 가입 이벤트를 기록하여, 나중에 회원 가입 이력을 추적할 수 있도록 합니다.
+ */
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
