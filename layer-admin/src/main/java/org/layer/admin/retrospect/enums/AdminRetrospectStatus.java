@@ -1,5 +1,9 @@
 package org.layer.admin.retrospect.enums;
 
 public enum AdminRetrospectStatus {
-	NOT_STARTED, PROCEEDING, DONE
+	PROCEEDING, DONE;
+
+	public static AdminRetrospectStatus from(String status) {
+		return AdminRetrospectStatus.valueOf(status.toUpperCase());
+	}
 }
