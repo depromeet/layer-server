@@ -23,12 +23,16 @@ import org.layer.admin.retrospect.controller.dto.RetrospectRetentionResponse;
 import org.layer.admin.retrospect.controller.dto.RetrospectStayTimeResponse;
 import org.layer.admin.retrospect.entity.AdminRetrospectAnswerHistory;
 import org.layer.admin.retrospect.entity.AdminRetrospectHistory;
+import org.layer.admin.retrospect.entity.AdminRetrospectImpressionClick;
+import org.layer.admin.retrospect.enums.AdminRetrospectStatus;
 import org.layer.admin.retrospect.enums.AnswerTimeRange;
 import org.layer.admin.retrospect.repository.AdminRetrospectAnswerRepository;
+import org.layer.admin.retrospect.repository.AdminRetrospectImpressionClickRepository;
 import org.layer.admin.retrospect.repository.AdminRetrospectRepository;
 import org.layer.admin.retrospect.repository.dto.RetrospectAnswerCompletionDto;
 import org.layer.admin.retrospect.repository.dto.SpaceRetrospectCountDto;
 import org.layer.admin.space.repository.AdminSpaceRepository;
+import org.layer.event.retrospect.ClickRetrospectEvent;
 import org.layer.event.retrospect.CreateRetrospectEvent;
 import org.layer.event.retrospect.AnswerRetrospectEndEvent;
 import org.layer.event.retrospect.AnswerRetrospectStartEvent;
@@ -44,6 +48,7 @@ public class AdminRetrospectService {
 
 	private final AdminRetrospectRepository adminRetrospectRepository;
 	private final AdminRetrospectAnswerRepository adminRetrospectAnswerRepository;
+	private final AdminRetrospectImpressionClickRepository adminRetrospectImpressionClickRepository;
 	private final AdminMemberRepository adminMemberRepository;
 	private final AdminSpaceRepository adminSpaceRepository;
 
@@ -265,5 +270,21 @@ public class AdminRetrospectService {
 			.build();
 
 		adminRetrospectRepository.save(retrospectHistory);
+	}
+
+	@Transactional(propagation = REQUIRES_NEW)
+	@Async
+	public void saveRetrospectImpressionClick(ClickRetrospectEvent event) {
+
+		AdminRetrospectImpressionClick clickEvent = AdminRetrospectImpressionClick.builder()
+			.eventTime(event.eventTime())
+			.memberId(event.memberId())
+			.eventId(event.eventId())
+			.spaceId(event.spaceId())
+			.retrospectId(event.retrospectId())
+			.retrospectStatus(AdminRetrospectStatus.from(event.retrospectStatus()))
+			.build();
+
+		adminRetrospectImpressionClickRepository.save(clickEvent);
 	}
 }
