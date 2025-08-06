@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.layer.admin.template.controller.dto.TemplateChoiceCountResponse;
-import org.layer.admin.template.controller.dto.TemplateViewCountResponse;
+import org.layer.admin.template.controller.dto.TemplateClickCountResponse;
 import org.layer.admin.template.entity.AdminTemplateChoice;
 import org.layer.admin.template.entity.AdminTemplateClickHistory;
 import org.layer.admin.template.enums.AdminFormTag;
@@ -34,14 +34,14 @@ public class AdminTemplateService {
 	public List<TemplateChoiceCountResponse> getTemplateChoiceCount(
 		LocalDateTime startDate, LocalDateTime endDate, AdminChoiceType choiceType) {
 
-		if( choiceType != null) {
+		if (choiceType != null) {
 			return templateChoiceRepository.countByChoiceType(startDate, endDate, choiceType);
 		}
 
 		return templateChoiceRepository.countAll(startDate, endDate);
 	}
 
-	public List<TemplateViewCountResponse> getTemplateRecommendedListCount(
+	public List<TemplateClickCountResponse> getTemplateClickCount(
 		LocalDateTime startDate, LocalDateTime endDate) {
 
 		return templateClickHistoryRepository.countByViewType(startDate, endDate);

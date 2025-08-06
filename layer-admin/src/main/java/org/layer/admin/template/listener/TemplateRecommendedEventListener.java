@@ -22,7 +22,7 @@ public class TemplateRecommendedEventListener {
 
 	@UserOnlyEventListener
 	@EventListener
-	public void handleTemplateRecommendedChoiceEvent(TemplateRecommendedClickEvent event) {
+	public void handleTemplateRecommendedClickEvent(TemplateRecommendedClickEvent event) {
 		adminTemplateService.saveTemplateClickHistory(event);
 	}
 }
