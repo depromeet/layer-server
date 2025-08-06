@@ -4,13 +4,13 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.layer.admin.template.controller.dto.TemplateViewCountResponse;
-import org.layer.admin.template.entity.AdminTemplateViewHistory;
+import org.layer.admin.template.entity.AdminTemplateClickHistory;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-public interface AdminTemplateViewHistoryRepository extends JpaRepository<AdminTemplateViewHistory, Long> {
+public interface AdminTemplateClickHistoryRepository extends JpaRepository<AdminTemplateClickHistory, Long> {
 	@Query("SELECT new org.layer.admin.template.controller.dto.TemplateViewCountResponse(v.viewType, COUNT(v)) " +
-		"FROM AdminTemplateViewHistory v " +
+		"FROM AdminTemplateClickHistory v " +
 		"WHERE v.eventTime BETWEEN :startDate AND :endDate " +
 		"GROUP BY v.viewType ")
 	List<TemplateViewCountResponse> countByViewType(LocalDateTime startDate, LocalDateTime endDate);

@@ -8,13 +8,15 @@ import java.util.List;
 import org.layer.admin.template.controller.dto.TemplateChoiceCountResponse;
 import org.layer.admin.template.controller.dto.TemplateViewCountResponse;
 import org.layer.admin.template.entity.AdminTemplateChoice;
-import org.layer.admin.template.entity.AdminTemplateViewHistory;
+import org.layer.admin.template.entity.AdminTemplateClickHistory;
 import org.layer.admin.template.enums.AdminFormTag;
 import org.layer.admin.template.enums.AdminChoiceType;
-import org.layer.admin.template.repository.AdminTemplateRecommendationRepository;
-import org.layer.admin.template.repository.AdminTemplateViewHistoryRepository;
-import org.layer.event.template.TemplateListViewEvent;
-import org.layer.event.template.TemplateRecommendedEvent;
+import org.layer.admin.template.repository.AdminTemplateChoiceRepository;
+import org.layer.admin.template.repository.AdminTemplateClickHistoryRepository;
+import org.layer.event.template.TemplateListViewChoiceEvent;
+import org.layer.event.template.TemplateListViewClickEvent;
+import org.layer.event.template.TemplateRecommendedChoiceEvent;
+import org.layer.event.template.TemplateRecommendedClickEvent;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,29 +28,29 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class AdminTemplateService {
-	private final AdminTemplateRecommendationRepository templateRecommendationRepository;
-	private final AdminTemplateViewHistoryRepository templateViewHistoryRepository;
+	private final AdminTemplateChoiceRepository templateChoiceRepository;
+	private final AdminTemplateClickHistoryRepository templateClickHistoryRepository;
 
 	public List<TemplateChoiceCountResponse> getTemplateChoiceCount(
 		LocalDateTime startDate, LocalDateTime endDate, AdminChoiceType choiceType) {
 
 		if( choiceType != null) {
-			return templateRecommendationRepository.countByChoiceType(startDate, endDate, choiceType);
+			return templateChoiceRepository.countByChoiceType(startDate, endDate, choiceType);
 		}
 
-		return templateRecommendationRepository.countAll(startDate, endDate);
+		return templateChoiceRepository.countAll(startDate, endDate);
 	}
 
 	public List<TemplateViewCountResponse> getTemplateRecommendedListCount(
 		LocalDateTime startDate, LocalDateTime endDate) {
 
-		return templateViewHistoryRepository.countByViewType(startDate, endDate);
+		return templateClickHistoryRepository.countByViewType(startDate, endDate);
 	}
 
 	@Transactional(propagation = REQUIRES_NEW)
 	@Async
-	public void saveTemplateRecommendation(TemplateRecommendedEvent event) {
-		AdminTemplateChoice recommendation = AdminTemplateChoice.builder()
+	public void saveTemplateChoice(TemplateRecommendedChoiceEvent event) {
+		AdminTemplateChoice choice = AdminTemplateChoice.builder()
 			.formTag(AdminFormTag.from(event.formTag()))
 			.eventTime(event.eventTime())
 			.memberId(event.memberId())
@@ -56,32 +58,46 @@ public class AdminTemplateService {
 			.choiceType(AdminChoiceType.RECOMMENDATION)
 			.build();
 
-		templateRecommendationRepository.save(recommendation);
+		templateChoiceRepository.save(choice);
 	}
 
 	@Transactional(propagation = REQUIRES_NEW)
 	@Async
-	public void saveTemplateRecommendedViewHistory(TemplateRecommendedEvent event) {
-		AdminTemplateViewHistory viewHistory = AdminTemplateViewHistory.builder()
+	public void saveTemplateChoice(TemplateListViewChoiceEvent event) {
+		AdminTemplateChoice choice = AdminTemplateChoice.builder()
+			.formTag(AdminFormTag.from(event.formTag()))
+			.eventTime(event.eventTime())
+			.memberId(event.memberId())
+			.eventId(event.eventId())
+			.choiceType(AdminChoiceType.LIST_VIEW)
+			.build();
+
+		templateChoiceRepository.save(choice);
+	}
+
+	@Transactional(propagation = REQUIRES_NEW)
+	@Async
+	public void saveTemplateClickHistory(TemplateRecommendedClickEvent event) {
+		AdminTemplateClickHistory clickHistory = AdminTemplateClickHistory.builder()
 			.viewType(AdminChoiceType.RECOMMENDATION)
 			.eventTime(event.eventTime())
 			.memberId(event.memberId())
 			.eventId(event.eventId())
 			.build();
 
-		templateViewHistoryRepository.save(viewHistory);
+		templateClickHistoryRepository.save(clickHistory);
 	}
 
 	@Transactional(propagation = REQUIRES_NEW)
 	@Async
-	public void saveTemplateListViewHistory(TemplateListViewEvent event) {
-		AdminTemplateViewHistory viewHistory = AdminTemplateViewHistory.builder()
+	public void saveTemplateClickHistory(TemplateListViewClickEvent event) {
+		AdminTemplateClickHistory clickHistory = AdminTemplateClickHistory.builder()
 			.viewType(AdminChoiceType.LIST_VIEW)
 			.eventTime(event.eventTime())
 			.memberId(event.memberId())
 			.eventId(event.eventId())
 			.build();
 
-		templateViewHistoryRepository.save(viewHistory);
+		templateClickHistoryRepository.save(clickHistory);
 	}
 }

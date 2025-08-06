@@ -27,13 +27,12 @@ import org.layer.domain.space.repository.MemberSpaceRelationRepository;
 import org.layer.domain.space.repository.SpaceRepository;
 import org.layer.domain.template.entity.TemplateMetadata;
 import org.layer.domain.template.repository.TemplateMetadataRepository;
-import org.layer.event.template.TemplateRecommendedEvent;
+import org.layer.event.template.TemplateRecommendedChoiceEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.annotation.Propagation;
 
 import java.util.List;
 import java.util.Optional;
@@ -87,7 +86,7 @@ public class FormService {
 		Form form = formRepository.findByFormTagAndFormTypeOrThrow(recommandFormTag, FormType.TEMPLATE);
 		TemplateMetadata metadata = metadataRepository.findByFormIdOrThrow(form.getId());
 
-		eventPublisher.publishEvent(new TemplateRecommendedEvent(
+		eventPublisher.publishEvent(new TemplateRecommendedChoiceEvent(
 			customRandom.generateRandomValue(), memberId, recommandFormTag.getTag(), time.now()));
 
 		return RecommendFormResponseDto.of(form, metadata.getTemplateImageUrl());
