@@ -16,10 +16,14 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * 특정 유저의 템플릿 클릭 이력을 저장하는 엔티티
+ * 이 엔티티는 유저가 [추천받기] 또는 [리스트 보기] 버튼을 클릭한 시점을 기록합니다.
+ */
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class AdminTemplateViewHistory {
+public class AdminTemplateClickHistory {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -38,7 +42,7 @@ public class AdminTemplateViewHistory {
 	private String eventId;
 
 	@Builder
-	private AdminTemplateViewHistory(AdminChoiceType viewType, LocalDateTime eventTime, Long memberId, String eventId) {
+	private AdminTemplateClickHistory(AdminChoiceType viewType, LocalDateTime eventTime, Long memberId, String eventId) {
 		this.viewType = viewType;
 		this.eventTime = eventTime;
 		this.memberId = memberId;
