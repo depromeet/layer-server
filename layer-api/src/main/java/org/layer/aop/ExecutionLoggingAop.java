@@ -61,13 +61,7 @@ public class ExecutionLoggingAop {
 		Object result = null;
 
 		// 해당 클래스의 메소드 실행
-		try{
-			result = pjp.proceed();
-		}
-		catch (Exception e){
-			log.warn("[ERROR] " + task + " 메서드 예외 발생 : " + e.getMessage());
-			throw e;
-		}
+		result = pjp.proceed();
 
 		// 해당 클래스 처리 후의 시간
 		sw.stop();
