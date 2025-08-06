@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.layer.admin.template.controller.dto.TemplateChoiceCountResponse;
-import org.layer.admin.template.controller.dto.TemplateViewCountResponse;
+import org.layer.admin.template.controller.dto.TemplateClickCountResponse;
 import org.layer.admin.template.enums.AdminChoiceType;
 import org.layer.admin.template.service.AdminTemplateService;
 import org.springframework.http.ResponseEntity;
@@ -30,12 +30,12 @@ public class AdminTemplateController {
 		return ResponseEntity.ok().body(response);
 	}
 
-	@GetMapping("/admin/template/recommended-list-count")
-	public ResponseEntity<List<TemplateViewCountResponse>> getTemplateRecommendedListCount(
+	@GetMapping("/admin/template/click-count")
+	public ResponseEntity<List<TemplateClickCountResponse>> getTemplateClickCount(
 		@RequestParam(name = "startDate") LocalDateTime startDate,
 		@RequestParam(name = "endDate") LocalDateTime endDate
 	) {
-		List<TemplateViewCountResponse> responses = adminTemplateService.getTemplateRecommendedListCount(
+		List<TemplateClickCountResponse> responses = adminTemplateService.getTemplateClickCount(
 			startDate, endDate);
 
 		return ResponseEntity.ok().body(responses);

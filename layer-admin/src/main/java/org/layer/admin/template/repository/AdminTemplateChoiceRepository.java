@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface AdminTemplateRecommendationRepository extends JpaRepository<AdminTemplateChoice, Long> {
+public interface AdminTemplateChoiceRepository extends JpaRepository<AdminTemplateChoice, Long> {
 
 	@Query("SELECT new org.layer.admin.template.controller.dto.TemplateChoiceCountResponse(r.formTag, COUNT(r)) " +
 		"FROM AdminTemplateChoice r " +
