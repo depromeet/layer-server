@@ -9,6 +9,7 @@ import org.layer.admin.retrospect.controller.dto.RetrospectCompletionRateRespons
 import org.layer.admin.retrospect.controller.dto.RetrospectRetentionResponse;
 import org.layer.admin.retrospect.controller.dto.RetrospectStayTimeResponse;
 import org.layer.admin.retrospect.service.AdminRetrospectService;
+import org.layer.admin.retrospect.controller.dto.ProceedingRetrospectCTRAverageResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -72,6 +73,15 @@ public class AdminRetrospectController {
 
 		RetrospectCompletionRateResponse response = adminRetrospectService.getRetrospectCompletionRate(startDate,
 			endDate);
+		return ResponseEntity.ok().body(response);
+	}
+
+	@GetMapping("/admin/retrospect/ctr/proceeding")
+	public ResponseEntity<ProceedingRetrospectCTRAverageResponse> getProceedingCTR(
+		@RequestParam(name = "startDate") LocalDateTime startDate,
+		@RequestParam(name = "endDate") LocalDateTime endDate) {
+
+		ProceedingRetrospectCTRAverageResponse response = adminRetrospectService.getProceedingRetrospectCTR(startDate, endDate);
 		return ResponseEntity.ok().body(response);
 	}
 }
