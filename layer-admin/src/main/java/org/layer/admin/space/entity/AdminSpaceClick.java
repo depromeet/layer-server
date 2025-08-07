@@ -16,14 +16,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-/*
- * 특정 스페이스의 클릭 이벤트를 저장하는 엔티티
- * 이 엔티티는 스페이스 클릭 이벤트를 기록하여, 나중에 스페이스의 클릭 이력을 추적할 수 있도록 합니다.
- */
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class AdminSpaceImpressionClick {
+public class AdminSpaceClick {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -45,7 +41,7 @@ public class AdminSpaceImpressionClick {
 	private AdminRetrospectStatus retrospectStatus;
 
 	@Builder
-	private AdminSpaceImpressionClick(
+	private AdminSpaceClick(
 		LocalDateTime eventTime,
 		Long memberId,
 		String eventId,

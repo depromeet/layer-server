@@ -23,7 +23,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class AdminRetrospectImpressionClick {
+public class AdminRetrospectClick {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -48,7 +48,7 @@ public class AdminRetrospectImpressionClick {
 	private AdminRetrospectStatus retrospectStatus;
 
 	@Builder
-	private AdminRetrospectImpressionClick(
+	private AdminRetrospectClick(
 		LocalDateTime eventTime,
 		Long memberId,
 		String eventId,
