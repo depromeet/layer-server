@@ -4,20 +4,29 @@ import static org.springframework.transaction.annotation.Propagation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.layer.admin.retrospect.enums.AdminRetrospectStatus;
+import org.layer.admin.space.controller.dto.ProceedingSpaceCTRAverageResponse;
+import org.layer.admin.space.entity.AdminSpaceClick;
+import org.layer.admin.space.entity.AdminSpaceImpression;
+import org.layer.admin.space.repository.AdminSpaceImpressionRepository;
+import org.layer.admin.space.repository.dto.ProceedingSpaceClickDto;
 import org.layer.admin.space.controller.dto.SpaceCountResponse;
 import org.layer.admin.space.controller.dto.TeamSpaceRatioPerMemberDto;
 import org.layer.admin.space.controller.dto.TeamSpaceRatioResponse;
 import org.layer.admin.space.entity.AdminMemberSpaceHistory;
 import org.layer.admin.space.entity.AdminSpaceHistory;
-import org.layer.admin.space.entity.AdminSpaceImpressionClick;
 import org.layer.admin.space.enums.AdminSpaceCategory;
 import org.layer.admin.space.repository.AdminMemberSpaceRepository;
-import org.layer.admin.space.repository.AdminSpaceImpressionClickRepository;
+import org.layer.admin.space.repository.AdminSpaceClickRepository;
 import org.layer.admin.space.repository.AdminSpaceRepository;
+import org.layer.admin.space.repository.dto.ProceedingSpaceImpressionDto;
 import org.layer.event.space.ClickSpaceEvent;
 import org.layer.event.space.CreateSpaceEvent;
+import org.layer.event.space.ImpressionSpaceEvent;
 import org.layer.event.space.JoinSpaceEvent;
 import org.layer.event.space.LeaveSpaceEvent;
 import org.springframework.data.domain.Page;
@@ -34,7 +43,8 @@ public class AdminSpaceService {
 
 	private final AdminSpaceRepository adminSpaceRepository;
 	private final AdminMemberSpaceRepository adminMemberSpaceRepository;
-	private final AdminSpaceImpressionClickRepository adminSpaceImpressionClickRepository;
+	private final AdminSpaceImpressionRepository adminSpaceImpressionRepository;
+	private final AdminSpaceClickRepository adminSpaceClickRepository;
 
 	public List<SpaceCountResponse> getSpaceCount(LocalDateTime startDate, LocalDateTime endDate) {
 		return adminSpaceRepository.findAllByCategory(startDate, endDate);
@@ -54,6 +64,42 @@ public class AdminSpaceService {
 
 		return TeamSpaceRatioResponse.of(histories.getContent(), averageTeamSpaceRatioPerMember, histories.hasNext(),
 			histories.getTotalPages());
+	}
+
+	public ProceedingSpaceCTRAverageResponse getProceedingSpaceCTR(LocalDateTime startDate, LocalDateTime endDate){
+		List<ProceedingSpaceImpressionDto> impressions = adminSpaceImpressionRepository.findProceedingSpaceImpressionGroupByMember(
+			startDate, endDate);
+		List<ProceedingSpaceClickDto> clicks = adminSpaceClickRepository.findProceedingSpaceClickGroupByMember(
+			startDate, endDate);
+
+		Map<Long, Long> impressionMap = impressions.stream()
+			.collect(Collectors.toMap(
+				ProceedingSpaceImpressionDto::memberId,
+				ProceedingSpaceImpressionDto::totalCount
+			));
+
+		// 각 멤버의 CTR 리스트
+		List<Double> ctrList = clicks.stream()
+			.map(clickDto -> {
+				Long memberId = clickDto.memberId();
+				Long impressionCount = impressionMap.getOrDefault(memberId, 0L);
+
+				if (impressionCount == 0) {
+					return null; // 나눌 수 없으면 제외
+				}
+
+				return clickDto.proceedingCount() / (double) impressionCount;
+			})
+			.filter(Objects::nonNull)
+			.toList();
+
+
+		double averageCTR = ctrList.stream()
+			.mapToDouble(Double::doubleValue)
+			.average()
+			.orElse(0.0);
+
+		return new ProceedingSpaceCTRAverageResponse(averageCTR);
 	}
 
 	@Transactional(propagation = REQUIRES_NEW)
@@ -92,8 +138,20 @@ public class AdminSpaceService {
 
 	@Transactional(propagation = REQUIRES_NEW)
 	@Async
-	public void saveSpaceImpressionClick(ClickSpaceEvent event) {
-		AdminSpaceImpressionClick impressionClick = AdminSpaceImpressionClick.builder()
+	public void saveSpaceImpression(ImpressionSpaceEvent event) {
+		AdminSpaceImpression impressionClick = AdminSpaceImpression.builder()
+			.eventId(event.eventId())
+			.eventTime(event.eventTime())
+			.memberId(event.memberId())
+			.build();
+
+		adminSpaceImpressionRepository.save(impressionClick);
+	}
+
+	@Transactional(propagation = REQUIRES_NEW)
+	@Async
+	public void saveSpaceClick(ClickSpaceEvent event) {
+		AdminSpaceClick impressionClick = AdminSpaceClick.builder()
 			.eventId(event.eventId())
 			.eventTime(event.eventTime())
 			.memberId(event.memberId())
@@ -101,6 +159,6 @@ public class AdminSpaceService {
 			.retrospectStatus(AdminRetrospectStatus.from(event.retrospectStatus()))
 			.build();
 
-		adminSpaceImpressionClickRepository.save(impressionClick);
+		adminSpaceClickRepository.save(impressionClick);
 	}
 }
