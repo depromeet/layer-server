@@ -15,11 +15,18 @@ public class StatsRetrospectController implements StatsRetrospectApi {
 	private final StatsRetrospectService statsRetrospectService;
 
 	@Override
-	@PostMapping("/stats/retrospects/{retrospectId}/click")
-	public ResponseEntity<Void> clickSpace(@PathVariable Long retrospectId, @MemberId Long memberId){
+	@PostMapping("/stats/retrospects/impression")
+	public ResponseEntity<Void> impressionRetrospect(@MemberId Long memberId){
+
+		statsRetrospectService.impressionRetrospect(memberId);
+		return ResponseEntity.ok().body(null);
+	}
+
+	@Override
+	@PostMapping("/stats/retrospects/click/{retrospectId}")
+	public ResponseEntity<Void> clickRetrospect(@PathVariable Long retrospectId, @MemberId Long memberId){
 
 		statsRetrospectService.clickRetrospect(retrospectId, memberId);
-
 		return ResponseEntity.ok().body(null);
 	}
 }

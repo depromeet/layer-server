@@ -9,7 +9,9 @@ import org.layer.domain.retrospect.entity.Retrospect;
 import org.layer.domain.retrospect.entity.RetrospectStatus;
 import org.layer.domain.retrospect.repository.RetrospectRepository;
 import org.layer.event.retrospect.ClickRetrospectEvent;
+import org.layer.event.retrospect.ImpressionRetrospectEvent;
 import org.layer.event.space.ClickSpaceEvent;
+import org.layer.event.space.ImpressionSpaceEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +25,14 @@ public class StatsRetrospectService {
 	private final ApplicationEventPublisher eventPublisher;
 	private final CustomRandom random;
 	private final Time time;
+
+	public void impressionSpace(Long memberId) {
+		eventPublisher.publishEvent(new ImpressionSpaceEvent(
+			random.generateRandomValue(),
+			memberId,
+			time.now()
+		));
+	}
 
 	public void clickSpace(Long spaceId, Long memberId) {
 
@@ -48,6 +58,14 @@ public class StatsRetrospectService {
 			time.now(),
 			spaceId,
 			retrospectStatus.name()
+		));
+	}
+
+	public void impressionRetrospect(Long memberId) {
+		eventPublisher.publishEvent(new ImpressionRetrospectEvent(
+			random.generateRandomValue(),
+			memberId,
+			time.now()
 		));
 	}
 

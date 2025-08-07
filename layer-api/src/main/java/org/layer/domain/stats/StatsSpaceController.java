@@ -15,7 +15,16 @@ public class StatsSpaceController implements StatsSpaceApi {
 	private final StatsRetrospectService statsRetrospectService;
 
 	@Override
-	@PostMapping("/stats/spaces/{spaceId}/click")
+	@PostMapping("/stats/spaces/impression")
+	public ResponseEntity<Void> impressionSpace(@MemberId Long memberId){
+
+		statsRetrospectService.impressionSpace(memberId);
+
+		return ResponseEntity.ok().body(null);
+	}
+
+	@Override
+	@PostMapping("/stats/spaces/click/{spaceId}")
 	public ResponseEntity<Void> clickSpace(@PathVariable Long spaceId, @MemberId Long memberId){
 
 		statsRetrospectService.clickSpace(spaceId, memberId);
