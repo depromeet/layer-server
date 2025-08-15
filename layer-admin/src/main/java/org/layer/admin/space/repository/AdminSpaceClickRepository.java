@@ -24,4 +24,6 @@ public interface AdminSpaceClickRepository extends JpaRepository<AdminSpaceClick
 	List<ProceedingSpaceClickDto> findProceedingSpaceClickGroupByMember(
 		@Param("startDate") LocalDateTime startDate,
 		@Param("endDate") LocalDateTime endDate);
+
+	List<AdminSpaceClick> findAllByEventTimeBetween(LocalDateTime startDate, LocalDateTime endDate);
 }

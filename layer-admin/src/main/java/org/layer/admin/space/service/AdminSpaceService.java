@@ -9,9 +9,12 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.layer.admin.retrospect.enums.AdminRetrospectStatus;
+import org.layer.admin.retrospect.repository.AdminRetrospectRepository;
 import org.layer.admin.space.controller.dto.ProceedingSpaceCTRAverageResponse;
+import org.layer.admin.space.controller.dto.SpaceAbandonRate;
 import org.layer.admin.space.entity.AdminSpaceClick;
 import org.layer.admin.space.entity.AdminSpaceImpression;
+import org.layer.admin.space.repository.AdminMemberSpaceRelationRepository;
 import org.layer.admin.space.repository.AdminSpaceImpressionRepository;
 import org.layer.admin.space.repository.dto.ProceedingSpaceClickDto;
 import org.layer.admin.space.controller.dto.SpaceCountResponse;
@@ -23,6 +26,7 @@ import org.layer.admin.space.enums.AdminSpaceCategory;
 import org.layer.admin.space.repository.AdminMemberSpaceRepository;
 import org.layer.admin.space.repository.AdminSpaceClickRepository;
 import org.layer.admin.space.repository.AdminSpaceRepository;
+import org.layer.admin.space.repository.dto.ProceedingSpaceDto;
 import org.layer.admin.space.repository.dto.ProceedingSpaceImpressionDto;
 import org.layer.event.space.ClickSpaceEvent;
 import org.layer.event.space.CreateSpaceEvent;
@@ -42,9 +46,11 @@ import lombok.RequiredArgsConstructor;
 public class AdminSpaceService {
 
 	private final AdminSpaceRepository adminSpaceRepository;
+	private final AdminRetrospectRepository adminRetrospectRepository;
 	private final AdminMemberSpaceRepository adminMemberSpaceRepository;
 	private final AdminSpaceImpressionRepository adminSpaceImpressionRepository;
 	private final AdminSpaceClickRepository adminSpaceClickRepository;
+	private final AdminMemberSpaceRelationRepository adminMemberSpaceRelationRepository;
 
 	public List<SpaceCountResponse> getSpaceCount(LocalDateTime startDate, LocalDateTime endDate) {
 		return adminSpaceRepository.findAllByCategory(startDate, endDate);
@@ -100,6 +106,51 @@ public class AdminSpaceService {
 			.orElse(0.0);
 
 		return new ProceedingSpaceCTRAverageResponse(averageCTR);
+	}
+
+	public SpaceAbandonRate calculateAbandonRate(LocalDateTime startDate, LocalDateTime endDate, long day) {
+		LocalDateTime threshold = endDate.minusDays(day);
+
+		List<Long> proceedingSpaceIds = adminRetrospectRepository.findProceedingSpacesByMember(startDate, endDate);
+
+		Map<Long, Long> spaceMemberCountMap = adminMemberSpaceRelationRepository.findProceedingSpacesWithMemberCount(startDate,
+				endDate)
+			.stream()
+			.collect(Collectors.toMap(
+				ProceedingSpaceDto::spaceId,
+				ProceedingSpaceDto::memberCount
+			));
+
+		List<AdminSpaceClick> clicks = adminSpaceClickRepository.findAllByEventTimeBetween(threshold, endDate);
+		Map<Long, Long> clickCountMap = clicks.stream()
+			.collect(Collectors.groupingBy(
+				AdminSpaceClick::getSpaceId, // spaceId로 그룹화
+				Collectors.collectingAndThen(
+					Collectors.mapping(
+						AdminSpaceClick::getMemberId, // memberId만 추출
+						Collectors.toSet() // 중복 제거
+					),
+					set -> (long) set.size() // Set 크기를 Long으로 변환
+				)
+			));
+
+		double abandonRate = proceedingSpaceIds.stream()
+			.map(spaceId -> {
+				Long memberCount = spaceMemberCountMap.getOrDefault(spaceId, 0L);
+				Long clickCount = clickCountMap.getOrDefault(spaceId, 0L);
+
+				if (memberCount == 0) {
+					return null; // 멤버가 없는 경우 제외
+				}
+
+				return (memberCount - clickCount) / (double)memberCount;
+			})
+			.filter(Objects::nonNull) // null 제거
+			.mapToDouble(Double::doubleValue) // double 스트림으로 변환
+			.average() // 평균 계산
+			.orElse(0.0);// 값이 없을 경우 0.0
+
+		return new SpaceAbandonRate(abandonRate);
 	}
 
 	@Transactional(propagation = REQUIRES_NEW)

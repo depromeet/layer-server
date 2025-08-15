@@ -3,24 +3,21 @@ package org.layer.admin.retrospect.repository;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.layer.admin.retrospect.entity.AdminRetrospectHistory;
-import org.layer.admin.retrospect.repository.dto.SpaceRetrospectCountDto;
+import org.layer.admin.retrospect.entity.AdminRetrospect;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface AdminRetrospectRepository extends JpaRepository<AdminRetrospectHistory, Long> {
-	List<AdminRetrospectHistory> findAllByEventTimeBetween(LocalDateTime startTime, LocalDateTime endTime);
+public interface AdminRetrospectRepository extends JpaRepository<AdminRetrospect, Long> {
 
-	List<AdminRetrospectHistory> findAllByEventTimeBefore(LocalDateTime time);
-
-	@Query("SELECT new org.layer.admin.retrospect.repository.dto.SpaceRetrospectCountDto(m.spaceId, COUNT(m)) " +
-		"FROM AdminRetrospectHistory m " +
-		"WHERE m.eventTime BETWEEN :startTime AND :endTime " +
-		"GROUP BY m.spaceId ")
-	List<SpaceRetrospectCountDto> findRetrospectCountGroupedBySpaceWithPeriod(
-		@Param("startTime") LocalDateTime startTime,
-		@Param("endTime") LocalDateTime endTime
+	@Query("""
+    SELECT DISTINCT r.spaceId
+    FROM AdminRetrospect r
+    WHERE r.retrospectStatus = 'PROCEEDING'
+    AND r.deadline BETWEEN :startDate AND :endDate
+""")
+	List<Long> findProceedingSpacesByMember(
+		@Param("startDate") LocalDateTime startDate,
+		@Param("endDate") LocalDateTime endDate
 	);
-
 }

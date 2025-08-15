@@ -31,14 +31,12 @@ import org.layer.admin.retrospect.enums.AnswerTimeRange;
 import org.layer.admin.retrospect.repository.AdminRetrospectAnswerRepository;
 import org.layer.admin.retrospect.repository.AdminRetrospectClickRepository;
 import org.layer.admin.retrospect.repository.AdminRetrospectImpressionRepository;
-import org.layer.admin.retrospect.repository.AdminRetrospectRepository;
+import org.layer.admin.retrospect.repository.AdminRetrospectHistoryRepository;
 import org.layer.admin.retrospect.repository.dto.ProceedingRetrospectClickDto;
 import org.layer.admin.retrospect.repository.dto.ProceedingRetrospectImpressionDto;
 import org.layer.admin.retrospect.repository.dto.RetrospectAnswerCompletionDto;
 import org.layer.admin.retrospect.repository.dto.SpaceRetrospectCountDto;
-import org.layer.admin.space.controller.dto.ProceedingSpaceCTRAverageResponse;
 import org.layer.admin.space.repository.AdminSpaceRepository;
-import org.layer.admin.space.repository.dto.ProceedingSpaceImpressionDto;
 import org.layer.event.retrospect.ClickRetrospectEvent;
 import org.layer.event.retrospect.CreateRetrospectEvent;
 import org.layer.event.retrospect.AnswerRetrospectEndEvent;
@@ -54,7 +52,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AdminRetrospectService {
 
-	private final AdminRetrospectRepository adminRetrospectRepository;
+	private final AdminRetrospectHistoryRepository adminRetrospectHistoryRepository;
 	private final AdminRetrospectAnswerRepository adminRetrospectAnswerRepository;
 	private final AdminRetrospectImpressionRepository adminRetrospectImpressionRepository;
 	private final AdminRetrospectClickRepository adminRetrospectClickRepository;
@@ -92,9 +90,9 @@ public class AdminRetrospectService {
 	}
 
 	public RetrospectRetentionResponse getRetrospectRetention(LocalDateTime startTime, LocalDateTime endTime) {
-		List<AdminRetrospectHistory> histories = adminRetrospectRepository.findAllByEventTimeBetween(
+		List<AdminRetrospectHistory> histories = adminRetrospectHistoryRepository.findAllByEventTimeBetween(
 			startTime, endTime);
-		List<AdminRetrospectHistory> prevHistories = adminRetrospectRepository.findAllByEventTimeBefore(startTime);
+		List<AdminRetrospectHistory> prevHistories = adminRetrospectHistoryRepository.findAllByEventTimeBefore(startTime);
 
 		Map<Long, Long> retrospectCountMap = new HashMap<>();
 		histories.forEach(history ->
@@ -185,7 +183,7 @@ public class AdminRetrospectService {
 	public CumulativeRetrospectCountResponse getCumulativeRetrospectCount(
 		LocalDateTime startTime, LocalDateTime endTime) {
 
-		List<SpaceRetrospectCountDto> histories = adminRetrospectRepository.findRetrospectCountGroupedBySpaceWithPeriod(startTime,
+		List<SpaceRetrospectCountDto> histories = adminRetrospectHistoryRepository.findRetrospectCountGroupedBySpaceWithPeriod(startTime,
 			endTime);
 
 		if (histories.isEmpty()) {
@@ -314,7 +312,7 @@ public class AdminRetrospectService {
 			.targetAnswerCount(event.targetAnswerCount())
 			.build();
 
-		adminRetrospectRepository.save(retrospectHistory);
+		adminRetrospectHistoryRepository.save(retrospectHistory);
 	}
 
 	@Transactional(propagation = REQUIRES_NEW)

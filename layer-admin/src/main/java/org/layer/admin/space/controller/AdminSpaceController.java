@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.layer.admin.space.controller.dto.ProceedingSpaceCTRAverageResponse;
+import org.layer.admin.space.controller.dto.SpaceAbandonRate;
 import org.layer.admin.space.controller.dto.SpaceCountResponse;
 import org.layer.admin.space.controller.dto.TeamSpaceRatioResponse;
 import org.layer.admin.space.service.AdminSpaceService;
@@ -47,6 +48,16 @@ public class AdminSpaceController {
 		@RequestParam(name = "endDate") LocalDateTime endDate) {
 
 		ProceedingSpaceCTRAverageResponse response = adminSpaceService.getProceedingSpaceCTR(startDate, endDate);
+		return ResponseEntity.ok().body(response);
+	}
+
+	@GetMapping("/admin/space/abandon-rates")
+	public ResponseEntity<SpaceAbandonRate> getAbandonRate(
+		@RequestParam(name = "startDate") LocalDateTime startDate,
+		@RequestParam(name = "endDate") LocalDateTime endDate,
+		@RequestParam(name = "day") long day) {
+
+		SpaceAbandonRate response = adminSpaceService.calculateAbandonRate(startDate, endDate, day);
 		return ResponseEntity.ok().body(response);
 	}
 }
