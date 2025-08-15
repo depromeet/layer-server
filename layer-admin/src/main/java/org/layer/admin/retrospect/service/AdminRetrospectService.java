@@ -18,17 +18,22 @@ import java.util.stream.Collectors;
 import org.layer.admin.member.repository.AdminMemberRepository;
 import org.layer.admin.retrospect.controller.dto.CumulativeRetrospectCountResponse;
 import org.layer.admin.retrospect.controller.dto.MeaningfulRetrospectMemberResponse;
+import org.layer.admin.retrospect.controller.dto.ProceedingRetrospectCTRAverageResponse;
 import org.layer.admin.retrospect.controller.dto.RetrospectCompletionRateResponse;
 import org.layer.admin.retrospect.controller.dto.RetrospectRetentionResponse;
 import org.layer.admin.retrospect.controller.dto.RetrospectStayTimeResponse;
 import org.layer.admin.retrospect.entity.AdminRetrospectAnswerHistory;
 import org.layer.admin.retrospect.entity.AdminRetrospectHistory;
-import org.layer.admin.retrospect.entity.AdminRetrospectImpressionClick;
+import org.layer.admin.retrospect.entity.AdminRetrospectClick;
+import org.layer.admin.retrospect.entity.AdminRetrospectImpression;
 import org.layer.admin.retrospect.enums.AdminRetrospectStatus;
 import org.layer.admin.retrospect.enums.AnswerTimeRange;
 import org.layer.admin.retrospect.repository.AdminRetrospectAnswerRepository;
-import org.layer.admin.retrospect.repository.AdminRetrospectImpressionClickRepository;
-import org.layer.admin.retrospect.repository.AdminRetrospectRepository;
+import org.layer.admin.retrospect.repository.AdminRetrospectClickRepository;
+import org.layer.admin.retrospect.repository.AdminRetrospectImpressionRepository;
+import org.layer.admin.retrospect.repository.AdminRetrospectHistoryRepository;
+import org.layer.admin.retrospect.repository.dto.ProceedingRetrospectClickDto;
+import org.layer.admin.retrospect.repository.dto.ProceedingRetrospectImpressionDto;
 import org.layer.admin.retrospect.repository.dto.RetrospectAnswerCompletionDto;
 import org.layer.admin.retrospect.repository.dto.SpaceRetrospectCountDto;
 import org.layer.admin.space.repository.AdminSpaceRepository;
@@ -36,6 +41,7 @@ import org.layer.event.retrospect.ClickRetrospectEvent;
 import org.layer.event.retrospect.CreateRetrospectEvent;
 import org.layer.event.retrospect.AnswerRetrospectEndEvent;
 import org.layer.event.retrospect.AnswerRetrospectStartEvent;
+import org.layer.event.retrospect.ImpressionRetrospectEvent;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,9 +52,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AdminRetrospectService {
 
-	private final AdminRetrospectRepository adminRetrospectRepository;
+	private final AdminRetrospectHistoryRepository adminRetrospectHistoryRepository;
 	private final AdminRetrospectAnswerRepository adminRetrospectAnswerRepository;
-	private final AdminRetrospectImpressionClickRepository adminRetrospectImpressionClickRepository;
+	private final AdminRetrospectImpressionRepository adminRetrospectImpressionRepository;
+	private final AdminRetrospectClickRepository adminRetrospectClickRepository;
 	private final AdminMemberRepository adminMemberRepository;
 	private final AdminSpaceRepository adminSpaceRepository;
 
@@ -83,9 +90,9 @@ public class AdminRetrospectService {
 	}
 
 	public RetrospectRetentionResponse getRetrospectRetention(LocalDateTime startTime, LocalDateTime endTime) {
-		List<AdminRetrospectHistory> histories = adminRetrospectRepository.findAllByEventTimeBetween(
+		List<AdminRetrospectHistory> histories = adminRetrospectHistoryRepository.findAllByEventTimeBetween(
 			startTime, endTime);
-		List<AdminRetrospectHistory> prevHistories = adminRetrospectRepository.findAllByEventTimeBefore(startTime);
+		List<AdminRetrospectHistory> prevHistories = adminRetrospectHistoryRepository.findAllByEventTimeBefore(startTime);
 
 		Map<Long, Long> retrospectCountMap = new HashMap<>();
 		histories.forEach(history ->
@@ -176,7 +183,7 @@ public class AdminRetrospectService {
 	public CumulativeRetrospectCountResponse getCumulativeRetrospectCount(
 		LocalDateTime startTime, LocalDateTime endTime) {
 
-		List<SpaceRetrospectCountDto> histories = adminRetrospectRepository.findRetrospectCountGroupedBySpaceWithPeriod(startTime,
+		List<SpaceRetrospectCountDto> histories = adminRetrospectHistoryRepository.findRetrospectCountGroupedBySpaceWithPeriod(startTime,
 			endTime);
 
 		if (histories.isEmpty()) {
@@ -211,6 +218,42 @@ public class AdminRetrospectService {
 			.orElse(0.0);
 
 		return new RetrospectCompletionRateResponse(averageCompletionRate);
+	}
+
+	public ProceedingRetrospectCTRAverageResponse getProceedingRetrospectCTR(LocalDateTime startDate, LocalDateTime endDate) {
+		List<ProceedingRetrospectImpressionDto> impressions = adminRetrospectImpressionRepository.findProceedingRetrospectImpressionGroupByMember(
+			startDate, endDate);
+		List<ProceedingRetrospectClickDto> clicks = adminRetrospectClickRepository.findProceedingRetrospectCTRGroupByMember(
+			startDate, endDate);
+
+		Map<Long, Long> impressionMap = impressions.stream()
+			.collect(Collectors.toMap(
+				ProceedingRetrospectImpressionDto::memberId,
+				ProceedingRetrospectImpressionDto::totalCount
+			));
+
+		// 각 멤버의 CTR 리스트
+		List<Double> ctrList = clicks.stream()
+			.map(clickDto -> {
+				Long memberId = clickDto.memberId();
+				Long impressionCount = impressionMap.getOrDefault(memberId, 0L);
+
+				if (impressionCount == 0) {
+					return null; // 나눌 수 없으면 제외
+				}
+
+				return clickDto.proceedingCount() / (double) impressionCount;
+			})
+			.filter(Objects::nonNull)
+			.toList();
+
+
+		double averageCTR = ctrList.stream()
+			.mapToDouble(Double::doubleValue)
+			.average()
+			.orElse(0.0);
+
+		return new ProceedingRetrospectCTRAverageResponse(averageCTR);
 	}
 
 	@Transactional(propagation = REQUIRES_NEW)
@@ -269,14 +312,27 @@ public class AdminRetrospectService {
 			.targetAnswerCount(event.targetAnswerCount())
 			.build();
 
-		adminRetrospectRepository.save(retrospectHistory);
+		adminRetrospectHistoryRepository.save(retrospectHistory);
 	}
 
 	@Transactional(propagation = REQUIRES_NEW)
 	@Async
-	public void saveRetrospectImpressionClick(ClickRetrospectEvent event) {
+	public void saveRetrospectImpression(ImpressionRetrospectEvent event) {
 
-		AdminRetrospectImpressionClick clickEvent = AdminRetrospectImpressionClick.builder()
+		AdminRetrospectImpression clickEvent = AdminRetrospectImpression.builder()
+			.eventTime(event.eventTime())
+			.memberId(event.memberId())
+			.eventId(event.eventId())
+			.build();
+
+		adminRetrospectImpressionRepository.save(clickEvent);
+	}
+
+	@Transactional(propagation = REQUIRES_NEW)
+	@Async
+	public void saveRetrospectClick(ClickRetrospectEvent event) {
+
+		AdminRetrospectClick clickEvent = AdminRetrospectClick.builder()
 			.eventTime(event.eventTime())
 			.memberId(event.memberId())
 			.eventId(event.eventId())
@@ -285,6 +341,6 @@ public class AdminRetrospectService {
 			.retrospectStatus(AdminRetrospectStatus.from(event.retrospectStatus()))
 			.build();
 
-		adminRetrospectImpressionClickRepository.save(clickEvent);
+		adminRetrospectClickRepository.save(clickEvent);
 	}
 }
