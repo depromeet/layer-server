@@ -25,7 +25,6 @@ import org.layer.domain.space.controller.dto.SpaceResponse;
 import org.layer.domain.space.entity.MemberSpaceRelation;
 import org.layer.domain.space.entity.Space;
 import org.layer.domain.space.entity.SpaceCategory;
-import org.layer.domain.space.entity.SpaceField;
 import org.layer.domain.space.exception.MemberSpaceRelationException;
 import org.layer.domain.space.exception.SpaceException;
 import org.layer.domain.space.repository.MemberSpaceRelationRepository;
@@ -164,8 +163,7 @@ public class SpaceServiceTest {
 			// given
 			Long memberId = 1L;
 			SpaceRequest.CreateSpaceRequest req = new SpaceRequest.CreateSpaceRequest(null,
-				SpaceCategory.TEAM,
-				List.of(SpaceField.DESIGN, SpaceField.DEVELOPMENT), "스페이스 이름1", "스페이스 소개1");
+				SpaceCategory.TEAM,"스페이스 이름1", "스페이스 소개1");
 
 			// when
 			Long spaceId = spaceService.createSpace(memberId, req);
@@ -174,9 +172,8 @@ public class SpaceServiceTest {
 			Space space = spaceRepository.findByIdOrThrow(spaceId);
 			assertThat(space.getName()).isEqualTo("스페이스 이름1");
 			assertThat(space.getIntroduction()).isEqualTo("스페이스 소개1");
-			assertThat(space.getBannerUrl()).containsSubsequence("DESIGN");
+			assertThat(space.getBannerUrl()).containsSubsequence("EDUCATION");
 			assertThat(space.getCategory()).isEqualTo(SpaceCategory.TEAM);
-			assertThat(space.getFieldList()).isEqualTo(List.of(SpaceField.DESIGN, SpaceField.DEVELOPMENT));
 		}
 
 		@Test
@@ -185,8 +182,7 @@ public class SpaceServiceTest {
 			// given
 			Long memberId = 1L;
 			SpaceRequest.CreateSpaceRequest req = new SpaceRequest.CreateSpaceRequest("invalid url",
-				SpaceCategory.TEAM,
-				List.of(SpaceField.DESIGN, SpaceField.DEVELOPMENT), "스페이스 이름1", "스페이스 소개1");
+				SpaceCategory.TEAM,"스페이스 이름1", "스페이스 소개1");
 
 			// when, then
 			assertThatThrownBy(() -> spaceService.createSpace(memberId, req));

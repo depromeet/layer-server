@@ -4,15 +4,12 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-import java.util.List;
-
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.layer.domain.space.controller.dto.SpaceRequest;
 import org.layer.domain.space.entity.Space;
 import org.layer.domain.space.entity.SpaceCategory;
-import org.layer.domain.space.entity.SpaceField;
 import org.layer.domain.space.repository.SpaceRepository;
 import org.layer.domain.space.service.SpaceService;
 import org.layer.storage.service.StorageService;
@@ -44,8 +41,7 @@ public class SpaceServiceWithMockedStorageTest {
 			// given
 			Long memberId = 1L;
 			SpaceRequest.CreateSpaceRequest req = new SpaceRequest.CreateSpaceRequest("new url1",
-				SpaceCategory.TEAM,
-				List.of(SpaceField.DESIGN, SpaceField.DEVELOPMENT), "스페이스 이름1", "스페이스 소개1");
+				SpaceCategory.TEAM,"스페이스 이름1", "스페이스 소개1");
 
 			doReturn(true).when(mockStorageService).validateBannerUrl(any());
 
@@ -58,7 +54,6 @@ public class SpaceServiceWithMockedStorageTest {
 			assertThat(space.getIntroduction()).isEqualTo("스페이스 소개1");
 			assertThat(space.getBannerUrl()).isEqualTo("new url1");
 			assertThat(space.getCategory()).isEqualTo(SpaceCategory.TEAM);
-			assertThat(space.getFieldList()).isEqualTo(List.of(SpaceField.DESIGN, SpaceField.DEVELOPMENT));
 		}
 	}
 }
