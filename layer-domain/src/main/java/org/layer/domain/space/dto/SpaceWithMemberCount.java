@@ -6,11 +6,8 @@ import lombok.Setter;
 import org.layer.domain.form.enums.FormTag;
 import org.layer.domain.member.entity.Member;
 import org.layer.domain.space.entity.SpaceCategory;
-import org.layer.domain.space.entity.SpaceField;
 
 import java.time.LocalDateTime;
-import java.util.List;
-
 
 @Getter
 @Setter
@@ -20,7 +17,6 @@ public class SpaceWithMemberCount {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private SpaceCategory category;
-    private List<SpaceField> fieldList;
     private String name;
     private String introduction;
     private Leader leader;
@@ -30,12 +26,11 @@ public class SpaceWithMemberCount {
     private String bannerUrl;
 
     @QueryProjection
-    public SpaceWithMemberCount(Long id, LocalDateTime createdAt, LocalDateTime updatedAt, SpaceCategory category, List<SpaceField> fieldList, String name, String introduction, Member leader, Long formId, FormTag formTag, Long memberCount, String bannerUrl) {
+    public SpaceWithMemberCount(Long id, LocalDateTime createdAt, LocalDateTime updatedAt, SpaceCategory category, String name, String introduction, Member leader, Long formId, FormTag formTag, Long memberCount, String bannerUrl) {
         this.id = id;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.category = category;
-        this.fieldList = fieldList;
         this.name = name;
         this.introduction = introduction;
         this.leader = leader == null ? null : Leader.builder().id(leader.getId()).name(leader.getName()).build();

@@ -45,7 +45,7 @@ public class QuestionService {
 
 		// 해당 회고가 있는지, PROCEEDING 상태인지 검증
 		Retrospect retrospect = retrospectRepository.findByIdOrThrow(retrospectId);
-		retrospect.isProceedingRetrospect();
+		retrospect.validateProceedingRetrospect();
 
 		List<Question> questions = questionRepository.findAllByRetrospectIdAndQuestionOwnerOrderByQuestionOrder(
 			retrospectId, QuestionOwner.TEAM);

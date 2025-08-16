@@ -2,7 +2,6 @@ package org.layer.domain.space.entity;
 
 import static org.layer.global.exception.SpaceExceptionType.*;
 
-import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -12,11 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.layer.domain.common.BaseTimeEntity;
-import org.layer.domain.space.converter.SpaceFieldConverter;
 import org.layer.domain.space.exception.SpaceException;
-
-import java.util.ArrayList;
-import java.util.List;
 
 
 @Getter
@@ -35,10 +30,6 @@ public class Space extends BaseTimeEntity {
     @NotNull
     @Enumerated(EnumType.STRING)
     private SpaceCategory category;
-
-    @NotNull
-    @Convert(converter = SpaceFieldConverter.class)
-    private List<SpaceField> fieldList = new ArrayList<>();
 
     @NotNull
     private String name;
@@ -84,11 +75,10 @@ public class Space extends BaseTimeEntity {
     }
 
     @Builder
-    public Space(String bannerUrl, SpaceCategory category, List<SpaceField> fieldList, String name, String introduction,
+    public Space(String bannerUrl, SpaceCategory category, String name, String introduction,
         Long leaderId, Long formId) {
         this.bannerUrl = bannerUrl;
         this.category = category;
-        this.fieldList = fieldList;
         this.name = name;
         this.introduction = introduction;
         this.leaderId = leaderId;

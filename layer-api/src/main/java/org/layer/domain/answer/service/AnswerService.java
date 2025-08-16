@@ -175,7 +175,7 @@ public class AnswerService {
 		team.validateTeamMembership(memberId);
 
 		Retrospect retrospect = retrospectRepository.findByIdOrThrow(retrospectId);
-		retrospect.isProceedingRetrospect();
+		retrospect.validateProceedingRetrospect();
 
 		// 임시 답변을 했는지 검증
 		Answers answers = new Answers(
@@ -233,7 +233,7 @@ public class AnswerService {
 		team.validateTeamMembership(memberId);
 
 		Retrospect retrospect = retrospectRepository.findByIdOrThrow(retrospectId);
-		retrospect.isProceedingRetrospect();
+		retrospect.validateProceedingRetrospect();
 
 		// 완료된 답변 검증
 		Answers answers = new Answers(

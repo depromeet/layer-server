@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-@Tag(name = "[어드민] 템플릿 관련", description = "템플릿 관련한 어드민 기능 API")
+@Tag(name = "📊어드민", description = "어드민 API")
 public interface StatsTemplateApi {
 
 	@Operation(summary = "템플릿 리스트 보기 클릭 이벤트", description = "템플릿 리스트 보기를 클릭했을 때 해당 API를 호출합니다.")

@@ -10,6 +10,7 @@ import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.layer.domain.common.random.CustomRandom;
 import org.layer.domain.space.entity.SpaceField;
 import org.layer.storage.dto.StorageResponse;
 import org.layer.storage.enums.ImageDomain;
@@ -18,7 +19,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -30,6 +30,7 @@ public class StorageService {
     private String bucketName;
 
     private final AmazonS3Client amazonS3Client;
+    private final CustomRandom random;
 
     public StorageResponse.PresignedResult getPreSignedUrl(Long memberId, ImageDomain imageDomain) {
         String imagePath = imageDomain + "/" + memberId.toString() + "/" + UUID.randomUUID();
@@ -56,10 +57,11 @@ public class StorageService {
         return true;
     }
 
-    public String getDefaultBannerUrl(List<SpaceField> spaceFields){
+    public String getDefaultBannerUrl(){
         String expectedPrefix = "https://" + bucketName + ".kr.object.ncloudstorage.com";
 
-        return expectedPrefix + "/category/" + spaceFields.get(0).getValue() + ".png";
+        int index = random.nextInt(SpaceField.values().length);
+        return expectedPrefix + "/category/" + SpaceField.values()[index].getValue() + ".png";
     }
 
     private GeneratePresignedUrlRequest getGeneratePreSignedUrlRequest(String fileName) {

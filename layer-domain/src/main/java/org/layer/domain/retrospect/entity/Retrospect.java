@@ -58,7 +58,11 @@ public class Retrospect extends BaseTimeEntity {
 		this.deadline = deadline;
 	}
 
-	public void isProceedingRetrospect() {
+	public boolean isRetrospectProceeding() {
+		return this.retrospectStatus.equals(RetrospectStatus.PROCEEDING);
+	}
+
+	public void validateProceedingRetrospect() {
 		if (!this.retrospectStatus.equals(RetrospectStatus.PROCEEDING)) {
 			throw new RetrospectException(NOT_PROCEEDING_RETROSPECT);
 		}
@@ -97,24 +101,12 @@ public class Retrospect extends BaseTimeEntity {
 	}
 
 	public void updateRetrospectStatus(RetrospectStatus retrospectStatus) {
-		isProceedingRetrospect();
+		validateProceedingRetrospect();
 
 		this.retrospectStatus = retrospectStatus;
 	}
 
 	public void updateAnalysisStatus(AnalysisStatus analysisStatus) {
 		this.analysisStatus = analysisStatus;
-	}
-
-	public boolean hasDeadLine() {
-		if (this.deadline == null) {
-			return false;
-		}
-
-		return true;
-	}
-
-	public void updateDeadLine(LocalDateTime deadline){
-		this.deadline = deadline;
 	}
 }
