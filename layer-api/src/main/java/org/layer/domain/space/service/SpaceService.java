@@ -95,7 +95,7 @@ public class SpaceService {
 
 		String bannerUrl = createSpaceRequest.bannerUrl();
 		if (!storageService.validateBannerUrl(bannerUrl)) {
-			bannerUrl = storageService.getDefaultBannerUrl(space.getFieldList());
+			bannerUrl = storageService.getDefaultBannerUrl();
 		}
 		space.updateBannerUrl(bannerUrl);
 

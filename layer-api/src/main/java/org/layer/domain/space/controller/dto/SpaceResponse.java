@@ -12,7 +12,6 @@ import org.layer.domain.space.dto.Leader;
 import org.layer.domain.space.dto.SpaceWithMemberCount;
 import org.layer.domain.space.entity.Space;
 import org.layer.domain.space.entity.SpaceCategory;
-import org.layer.domain.space.entity.SpaceField;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -29,9 +28,6 @@ public class SpaceResponse {
 		@Schema(description = "프로젝트 유형 카테고리")
 		@NotNull
 		SpaceCategory category,
-		@Schema(description = "진행중인 프로젝트 유형")
-		@NotNull
-		List<SpaceField> fieldList,
 		@Schema(description = "이름")
 		@NotNull
 		String name,
@@ -57,7 +53,6 @@ public class SpaceResponse {
 			return SpaceWithMemberCountInfo.builder()
 				.id(space.getId())
 				.category(space.getCategory())
-				.fieldList(space.getFieldList())
 				.name(space.getName())
 				.introduction(space.getIntroduction())
 				.formId(space.getFormId())
@@ -79,9 +74,6 @@ public class SpaceResponse {
 		@Schema(description = "프로젝트 유형 카테고리")
 		@NotNull
 		SpaceCategory category,
-		@Schema(description = "진행중인 프로젝트 유형")
-		@NotNull
-		List<SpaceField> fieldList,
 		@Schema(description = "이름")
 		@NotNull
 		String name,
@@ -111,7 +103,6 @@ public class SpaceResponse {
 			return SpaceWithMemberCountAndRetrospectCount.builder()
 				.id(space.getId())
 				.category(space.getCategory())
-				.fieldList(space.getFieldList())
 				.name(space.getName())
 				.introduction(space.getIntroduction())
 				.formId(space.getFormId())

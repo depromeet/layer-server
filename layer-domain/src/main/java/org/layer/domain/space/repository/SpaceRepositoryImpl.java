@@ -49,7 +49,6 @@ public class SpaceRepositoryImpl implements SpaceCustomRepository {
 				space.createdAt,
 				space.updatedAt,
 				space.category,
-				space.fieldList,
 				space.name,
 				space.introduction,
 				member,
