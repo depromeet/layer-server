@@ -14,7 +14,7 @@ class RetrospectTest {
 			LocalDateTime.of(2024, 8, 4, 3, 5));
 
 		// when
-		retrospect.isProceedingRetrospect();
+		retrospect.validateProceedingRetrospect();
 
 		Assertions.assertThat(retrospect.getRetrospectStatus()).isEqualTo(RetrospectStatus.PROCEEDING);
 	}

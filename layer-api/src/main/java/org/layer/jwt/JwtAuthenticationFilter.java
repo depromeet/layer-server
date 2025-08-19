@@ -26,7 +26,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String accessToken = getJwtFromRequest(request);
 
-
         if (isValidToken(accessToken)) {
             Long memberId = jwtValidator.getMemberIdFromToken(accessToken);
             List<String> role = jwtValidator.getRoleFromToken(accessToken);

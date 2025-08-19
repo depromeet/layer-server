@@ -2,17 +2,11 @@ package org.layer.domain.space.controller.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 
 import org.layer.annotation.AtLeastNotNull;
 import org.layer.domain.space.entity.Space;
 import org.layer.domain.space.entity.SpaceCategory;
-import org.layer.domain.space.entity.SpaceField;
-
-import java.util.List;
-import java.util.Optional;
 
 @Schema
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -26,11 +20,6 @@ public class SpaceRequest {
             @Schema(description = "프로젝트 유형 카테고리", example = "INDIVIDUAL")
             @NotNull
             SpaceCategory category,
-            @Schema(description = "진행중인 프로젝트 유형")
-            @NotNull
-            @Size(min = 1)
-            List<SpaceField> fieldList,
-
             @Schema(description = "이름")
             @NotNull
             String name,
@@ -41,7 +30,6 @@ public class SpaceRequest {
         public Space toEntity(Long memberId) {
             return Space.builder()
                     .category(category)
-                    .fieldList(fieldList)
                     .name(name)
                     .introduction(introduction)
                     .leaderId(memberId)
