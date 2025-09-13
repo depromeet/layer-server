@@ -10,6 +10,8 @@ import java.time.LocalDateTime;
 
 @Schema(name = "RetrospectGetResponse", description = "특정 회고 조회 Dto")
 public record RetrospectGetResponse(
+	@Schema(description = "스페이스 id", example = "1")
+	Long spaceId,
 	@Schema(description = "회고 id", example = "1")
 	Long retrospectId,
 	@Schema(description = "회고 이름", example = "중간 발표 이후")
@@ -31,11 +33,11 @@ public record RetrospectGetResponse(
 	@Schema(description = "회고 종료 일자")
 	LocalDateTime deadline
 ) {
-	public static RetrospectGetResponse of(Long retrospectId, String title, String introduction,
+	public static RetrospectGetResponse of(Long spaceId, Long retrospectId, String title, String introduction,
 		WriteStatus writeStatus, RetrospectStatus retrospectStatus, AnalysisStatus analysisStatus,
 		long writeCount, long totalCount, LocalDateTime createdAt, LocalDateTime deadline) {
 
-		return new RetrospectGetResponse(retrospectId, title, introduction, writeStatus, retrospectStatus,
+		return new RetrospectGetResponse(spaceId, retrospectId, title, introduction, writeStatus, retrospectStatus,
 			analysisStatus, writeCount, totalCount, createdAt, deadline);
 	}
 }
