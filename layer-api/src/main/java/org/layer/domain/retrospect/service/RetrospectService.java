@@ -3,6 +3,8 @@ package org.layer.domain.retrospect.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.layer.domain.retrospect.dto.SpaceMemberCount;
+import org.layer.domain.space.entity.MemberSpaceRelation;
 import org.layer.event.ai.AIAnalyzeStartEvent;
 import org.layer.domain.answer.entity.Answers;
 import org.layer.domain.answer.repository.AnswerRepository;
@@ -35,7 +37,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -136,7 +140,35 @@ public class RetrospectService {
 					writeCount = answers.getWriteCount(r.getId());
 				}
 
-				return RetrospectGetResponse.of(r.getId(), r.getTitle(), r.getIntroduction(),
+				return RetrospectGetResponse.of(r.getSpaceId(), r.getId(), r.getTitle(), r.getIntroduction(),
+					answers.getWriteStatus(memberId, r.getId()), r.getRetrospectStatus(), r.getAnalysisStatus(),
+					answers.getWriteCount(r.getId()), writeCount, r.getCreatedAt(), r.getDeadline());
+			})
+			.toList();
+
+		return RetrospectListGetResponse.of(retrospects.size(), retrospectDtos);
+	}
+
+	public RetrospectListGetResponse getAllRetrospects(Long memberId) {
+
+		List<MemberSpaceRelation> msrList = memberSpaceRelationRepository.findAllByMemberId(memberId);
+		List<Long> spaceIds = msrList.stream().map(m -> m.getSpace().getId()).toList();
+
+		Map<Long, Long> spaceMemberCountMap = memberSpaceRelationRepository.countMembersBySpaceIds(spaceIds)
+			.stream().collect(Collectors.toMap(SpaceMemberCount::getSpaceId, SpaceMemberCount::getMemberCount));
+
+		List<Retrospect> retrospects = retrospectRepository.findAllBySpaceIdIn(spaceIds);
+		List<Long> retrospectIds = retrospects.stream().map(Retrospect::getId).toList();
+		Answers answers = new Answers(answerRepository.findAllByRetrospectIdIn(retrospectIds));
+
+		List<RetrospectGetResponse> retrospectDtos = retrospects.stream()
+			.map(r -> {
+				long writeCount = spaceMemberCountMap.get(r.getSpaceId());
+				if (r.getRetrospectStatus().equals(RetrospectStatus.DONE)) {
+					writeCount = answers.getWriteCount(r.getId());
+				}
+
+				return RetrospectGetResponse.of(r.getSpaceId(), r.getId(), r.getTitle(), r.getIntroduction(),
 					answers.getWriteStatus(memberId, r.getId()), r.getRetrospectStatus(), r.getAnalysisStatus(),
 					answers.getWriteCount(r.getId()), writeCount, r.getCreatedAt(), r.getDeadline());
 			})
