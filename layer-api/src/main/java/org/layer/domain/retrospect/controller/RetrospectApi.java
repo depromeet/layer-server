@@ -28,6 +28,9 @@ public interface RetrospectApi {
 	ResponseEntity<RetrospectListGetResponse> getRetrospects(@PathVariable("spaceId") Long spaceId,
 		@MemberId Long memberId);
 
+	@Operation(summary = "모든 회고 목록 조회", description = "특정 유저의 모든 회고 목록을 보는 기능입니다.")
+	ResponseEntity<RetrospectListGetResponse> getAllRetrospects(@MemberId Long memberId);
+
 	@Operation(summary = "회고 수정", description = "특정 팀 스페이스에서 작성했던 회고를 수정하는 기능입니다.")
 	ResponseEntity<RetrospectListGetResponse> updateRetrospect(@PathVariable("spaceId") Long spaceId,
 		@PathVariable("retrospectId") Long retrospectId, @RequestBody @Valid RetrospectUpdateRequest request, @MemberId Long memberId);

@@ -1,6 +1,7 @@
 package org.layer.domain.space.repository;
 
 
+import org.layer.domain.retrospect.dto.SpaceMemberCount;
 import org.layer.domain.space.entity.MemberSpaceRelation;
 import org.layer.domain.space.entity.Space;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,6 +18,12 @@ public interface MemberSpaceRelationRepository extends JpaRepository<MemberSpace
     Optional<MemberSpaceRelation> findBySpaceIdAndMemberId(Long spaceId, Long memberId);
 
     List<MemberSpaceRelation> findAllBySpaceId(Long spaceId);
+
+    @Query("SELECT new org.layer.domain.retrospect.dto.SpaceMemberCount(m.space.id, COUNT(m)) " +
+            "FROM MemberSpaceRelation m " +
+            "WHERE m.space.id IN :spaceIds " +
+            "GROUP BY m.space.id")
+    List<SpaceMemberCount> countMembersBySpaceIds(@Param("spaceIds") List<Long> spaceIds);
 
     @Modifying(clearAutomatically = true)
     @Query("DELETE FROM MemberSpaceRelation m where m.space.id = :spaceId")

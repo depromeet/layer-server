@@ -17,8 +17,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-public interface RetrospectRepository extends JpaRepository<Retrospect, Long>, RetrospectCustomRepository {
+public interface RetrospectRepository extends JpaRepository<Retrospect, Long> {
     List<Retrospect> findAllBySpaceId(Long spaceId);
+
+	List<Retrospect> findAllBySpaceIdIn(List<Long> spaceIds);
 
     List<Retrospect> findAllByDeadlineBeforeAndRetrospectStatus(LocalDateTime now, RetrospectStatus retrospectStatus);
 
