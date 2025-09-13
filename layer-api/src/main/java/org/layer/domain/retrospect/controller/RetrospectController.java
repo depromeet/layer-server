@@ -14,13 +14,12 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/space/{spaceId}/retrospect")
 public class RetrospectController implements RetrospectApi {
 
 	private final RetrospectService retrospectService;
 
 	@Override
-	@PostMapping
+	@PostMapping("/space/{spaceId}/retrospect")
 	public ResponseEntity<RetrospectCreateResponse> createRetrospect(
 		@PathVariable("spaceId") Long spaceId,
 		@RequestBody @Valid RetrospectCreateRequest request,
@@ -32,7 +31,7 @@ public class RetrospectController implements RetrospectApi {
 	}
 
 	@Override
-	@GetMapping
+	@GetMapping("/space/{spaceId}/retrospect")
 	public ResponseEntity<RetrospectListGetResponse> getRetrospects(@PathVariable("spaceId") Long spaceId,
 		@MemberId Long memberId) {
 
@@ -40,7 +39,14 @@ public class RetrospectController implements RetrospectApi {
 	}
 
 	@Override
-	@PatchMapping("/{retrospectId}")
+	@GetMapping("/retrospects")
+	public ResponseEntity<RetrospectListGetResponse> getAllRetrospects(@MemberId Long memberId) {
+
+		return ResponseEntity.ok().body(retrospectService.getAllRetrospects(memberId));
+	}
+
+	@Override
+	@PatchMapping("/space/{spaceId}/retrospect/{retrospectId}")
 	public ResponseEntity<RetrospectListGetResponse> updateRetrospect(@PathVariable("spaceId") Long spaceId,
 		@PathVariable("retrospectId") Long retrospectId, @RequestBody @Valid RetrospectUpdateRequest request,
 		@MemberId Long memberId) {
@@ -50,7 +56,7 @@ public class RetrospectController implements RetrospectApi {
 	}
 
 	@Override
-	@DeleteMapping("/{retrospectId}")
+	@DeleteMapping("/space/{spaceId}/retrospect/{retrospectId}")
 	public ResponseEntity<RetrospectListGetResponse> deleteRetrospect(@PathVariable("spaceId") Long spaceId,
 		@PathVariable("retrospectId") Long retrospectId, @MemberId Long memberId) {
 
@@ -59,7 +65,7 @@ public class RetrospectController implements RetrospectApi {
 	}
 
 	@Override
-	@PatchMapping("/{retrospectId}/close")
+	@PatchMapping("/space/{spaceId}/retrospect/{retrospectId}/close")
 	public ResponseEntity<Void> closeRetrospect(
 		@PathVariable("spaceId") Long spaceId,
 		@PathVariable("retrospectId") Long retrospectId,
