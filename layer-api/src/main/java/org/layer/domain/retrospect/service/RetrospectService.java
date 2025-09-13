@@ -140,7 +140,7 @@ public class RetrospectService {
 					writeCount = answers.getWriteCount(r.getId());
 				}
 
-				return RetrospectGetResponse.of(r.getId(), r.getTitle(), r.getIntroduction(),
+				return RetrospectGetResponse.of(r.getSpaceId(), r.getId(), r.getTitle(), r.getIntroduction(),
 					answers.getWriteStatus(memberId, r.getId()), r.getRetrospectStatus(), r.getAnalysisStatus(),
 					answers.getWriteCount(r.getId()), writeCount, r.getCreatedAt(), r.getDeadline());
 			})
@@ -168,7 +168,7 @@ public class RetrospectService {
 					writeCount = answers.getWriteCount(r.getId());
 				}
 
-				return RetrospectGetResponse.of(r.getId(), r.getTitle(), r.getIntroduction(),
+				return RetrospectGetResponse.of(r.getSpaceId(), r.getId(), r.getTitle(), r.getIntroduction(),
 					answers.getWriteStatus(memberId, r.getId()), r.getRetrospectStatus(), r.getAnalysisStatus(),
 					answers.getWriteCount(r.getId()), writeCount, r.getCreatedAt(), r.getDeadline());
 			})
