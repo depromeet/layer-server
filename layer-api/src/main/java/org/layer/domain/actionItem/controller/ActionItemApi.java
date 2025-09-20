@@ -38,7 +38,7 @@ public interface ActionItemApi {
                     content = {
                             @Content(
                                     mediaType = "application/json",
-                                    schema = @Schema(implementation = MemberActionItemResponse.class)
+                                    schema = @Schema(implementation = MemberActionItemGetResponse.class)
                             )
                     }
             )
