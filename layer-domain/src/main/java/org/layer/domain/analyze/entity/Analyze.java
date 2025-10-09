@@ -83,4 +83,8 @@ public class Analyze extends BaseTimeEntity {
 	private AnalyzeDetail getEmptyAnalyzeDetail(){
 		return AnalyzeDetail.builder().build();
 	}
+
+	public int getTotalScore(){
+		return scoreOne * 1 + scoreTwo * 2 + scoreThree * 3 + scoreFour * 4 + scoreFive * 5;
+	}
 }

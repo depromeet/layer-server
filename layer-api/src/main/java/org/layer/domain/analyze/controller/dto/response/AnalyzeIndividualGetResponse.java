@@ -8,6 +8,8 @@ import org.layer.domain.analyze.entity.Analyze;
 import org.layer.domain.analyze.enums.AnalyzeDetailType;
 
 public record AnalyzeIndividualGetResponse(
+	int score,
+	int goalCompletionRate,
 	List<AnalyzeDetailResponse> goodPoints,
 	List<AnalyzeDetailResponse> badPoints,
 	List<AnalyzeDetailResponse> improvementPoints
@@ -19,7 +21,9 @@ public record AnalyzeIndividualGetResponse(
 				analyzeDetail.getAnalyzeDetailType()))
 			.collect(Collectors.groupingBy(AnalyzeDetailResponse::analyzeDetailType));
 
-		return new AnalyzeIndividualGetResponse(map.get(AnalyzeDetailType.GOOD), map.get(AnalyzeDetailType.BAD),
+		return new AnalyzeIndividualGetResponse(analyze.getTotalScore(), analyze.getGoalCompletionRate(),
+			map.get(AnalyzeDetailType.GOOD),
+			map.get(AnalyzeDetailType.BAD),
 			map.get(AnalyzeDetailType.IMPROVEMENT));
 	}
 }
