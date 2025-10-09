@@ -21,10 +21,8 @@ public record AnalyzeIndividualGetResponse(
 				analyzeDetail.getAnalyzeDetailType()))
 			.collect(Collectors.groupingBy(AnalyzeDetailResponse::analyzeDetailType));
 
-		int score = analyze.getScoreOne() * 1 + analyze.getScoreTwo() * 2 + analyze.getScoreThree() * 3
-			+ analyze.getScoreFour() * 4 + analyze.getScoreFive() * 5;
-
-		return new AnalyzeIndividualGetResponse(score, analyze.getGoalCompletionRate(), map.get(AnalyzeDetailType.GOOD),
+		return new AnalyzeIndividualGetResponse(analyze.getTotalScore(), analyze.getGoalCompletionRate(),
+			map.get(AnalyzeDetailType.GOOD),
 			map.get(AnalyzeDetailType.BAD),
 			map.get(AnalyzeDetailType.IMPROVEMENT));
 	}
