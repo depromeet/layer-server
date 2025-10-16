@@ -8,6 +8,7 @@ import org.layer.common.exception.ExceptionResponse;
 import org.layer.common.exception.ExceptionType;
 import org.layer.discord.notifier.ErrorEvent;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import lombok.RequiredArgsConstructor;
@@ -81,4 +83,23 @@ public class GlobalExceptionHandler {
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST)
 			.body(ExceptionResponse.of(HttpStatus.BAD_REQUEST.name(), "유효하지 않은 값."));
 	}
+
+	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
+	public ResponseEntity<ExceptionResponse> handleMethodArgumentTypeMismatchException(
+		MethodArgumentTypeMismatchException e) {
+		log.warn(String.format(LOG_FORMAT, e.getMessage()), e);
+		String paramName = e.getName();
+		String invalidValue = e.getValue() != null ? e.getValue().toString() : "null";
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+			.body(ExceptionResponse.of(HttpStatus.BAD_REQUEST.name(),
+				String.format("파라미터 '%s'의 값 '%s'은(는) 유효하지 않습니다.", paramName, invalidValue)));
+	}
+
+	@ExceptionHandler(ConversionFailedException.class)
+	public ResponseEntity<ExceptionResponse> handleConversionFailedException(ConversionFailedException e) {
+		log.warn(String.format(LOG_FORMAT, e.getMessage()), e);
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+			.body(ExceptionResponse.of(HttpStatus.BAD_REQUEST.name(), "요청 파라미터의 형식이 잘못되었습니다."));
+	}
+
 }
