@@ -129,7 +129,7 @@ public class RetrospectService {
 		Team team = new Team(memberSpaceRelationRepository.findAllBySpaceId(spaceId));
 		team.validateTeamMembership(memberId);
 
-		List<Retrospect> retrospects = retrospectRepository.findAllBySpaceId(spaceId);
+		List<Retrospect> retrospects = retrospectRepository.findAllBySpaceIdOrderByCreatedAtDesc(spaceId);
 		List<Long> retrospectIds = retrospects.stream().map(Retrospect::getId).toList();
 		Answers answers = new Answers(answerRepository.findAllByRetrospectIdIn(retrospectIds));
 
