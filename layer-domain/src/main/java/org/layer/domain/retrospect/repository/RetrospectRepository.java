@@ -19,6 +19,7 @@ import java.util.Optional;
 
 public interface RetrospectRepository extends JpaRepository<Retrospect, Long> {
     List<Retrospect> findAllBySpaceId(Long spaceId);
+	List<Retrospect> findAllBySpaceIdOrderByCreatedAtDesc(Long spaceId);
 
 	List<Retrospect> findAllBySpaceIdIn(List<Long> spaceIds);
 
