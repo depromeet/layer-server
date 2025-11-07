@@ -1,4 +1,4 @@
-FROM openjdk:17
+FROM eclipse-temurin:17-jdk
 
 ARG JAR_FILE=./build/libs/*.jar
 ARG SPRING_PROFILE
