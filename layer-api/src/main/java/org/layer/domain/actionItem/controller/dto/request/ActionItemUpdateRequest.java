@@ -11,14 +11,12 @@ public record ActionItemUpdateRequest(@NotNull
                                       @Schema(description = "실행 목표 리스트")
                                       List<ActionItemUpdateElementRequest> actionItems) {
 
-    @Getter
-    public static class ActionItemUpdateElementRequest {
-        @Schema(description = "실행 목표 id")
-        @NotNull
-        Long id;
+    public record ActionItemUpdateElementRequest(
+        @Schema(description = "실행 목표 id (신규 생성시 null)")
+        Long id,
 
         @Schema(description = "변경된 실행 목표 내용")
         @NotNull
-        String content;
-    }
+        String content
+    ) {}
 }

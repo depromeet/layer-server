@@ -231,34 +231,51 @@ public class ActionItemService {
     //== 실행 목표 수정 ==//
     @Transactional
     public void updateActionItems(Long memberId, Long retrospectId, ActionItemUpdateRequest updateDto) {
-        // 실행 목표 가져오기
-        List<ActionItem> actionItems = actionItemRepository.findAllByRetrospectId(retrospectId);
-
-        // 리더인지 검증
+        // 1. 리더 및 권한 검증
         Retrospect retrospect = retrospectRepository.findByIdOrThrow(retrospectId);
         Space space = spaceRepository.findByIdOrThrow(retrospect.getSpaceId());
         space.isLeaderSpace(memberId);
 
-        // 요청 리스트와 DB에 저장된 실행 목표 개수가 다를 때
-        if (updateDto.actionItems().size() != actionItems.size()) {
-            throw new ActionItemException(INVALID_ACTION_ITEM_LIST);
-        }
+        // 2. DB에 저장된 기존 실행 목표 가져오기
+        List<ActionItem> dbActionItems = actionItemRepository.findAllByRetrospectId(retrospectId);
 
+        // 3. 요청 데이터에서 ID 추출 (Update 대상 식별용)
+        Set<Long> requestIds = updateDto.actionItems().stream()
+            .map(ActionItemUpdateRequest.ActionItemUpdateElementRequest::id)
+            .filter(Objects::nonNull) // ID가 있는 것만 (신규 생성 제외)
+            .collect(Collectors.toSet());
 
-        // O(1) 접근을 위해서 map으로 변경
-        Map<Long, ActionItem> actionItemMap = actionItems.stream().collect(Collectors.toMap(
-                ActionItem::getId,
-                actionItem -> actionItem
-        ));
+        // 4. [DELETE] 요청 리스트에 없는 DB 항목 삭제
+        // (DB에는 있는데 요청 ID 목록에는 포함되지 않은 것들을 찾아서 삭제)
+        List<ActionItem> itemsToDelete = dbActionItems.stream()
+            .filter(item -> !requestIds.contains(item.getId()))
+            .toList();
+        actionItemRepository.deleteAll(itemsToDelete);
 
-        AtomicInteger order = new AtomicInteger(1);
-        for (ActionItemUpdateRequest.ActionItemUpdateElementRequest updateItem : updateDto.actionItems()) {
-            ActionItem actionItem = actionItemMap.getOrDefault(updateItem.getId(), null);
-            if (actionItem == null) {
-                throw new ActionItemException(INVALID_ACTION_ITEM_ID);
+        // 5. [UPDATE & CREATE] 요청 리스트 순서대로 처리
+        // 빠른 접근을 위해 DB 데이터를 Map으로 변환
+        Map<Long, ActionItem> actionItemMap = dbActionItems.stream()
+            .collect(Collectors.toMap(ActionItem::getId, item -> item));
+
+        int order = 1;
+
+        for (ActionItemUpdateRequest.ActionItemUpdateElementRequest requestItem : updateDto.actionItems()) {
+            if (requestItem.id() != null && actionItemMap.containsKey(requestItem.id())) {
+                // 5-1. [UPDATE] 기존 아이템 내용 및 순서 갱신
+                ActionItem actionItem = actionItemMap.get(requestItem.id());
+                actionItem.updateContent(requestItem.content());
+                actionItem.updateActionItemOrder(order++);
+            } else {
+                // 5-2. [CREATE] ID가 없거나 DB에 없는 ID인 경우 신규 생성
+                ActionItem newActionItem = ActionItem.builder()
+                    .retrospectId(retrospectId)
+                    .spaceId(space.getId())
+                    .memberId(memberId)
+                    .content(requestItem.content())
+                    .actionItemOrder(order++)
+                    .build();
+                actionItemRepository.save(newActionItem);
             }
-            actionItem.updateContent(updateItem.getContent());
-            actionItem.updateActionItemOrder(order.getAndIncrement());
         }
     }
 }
