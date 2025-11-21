@@ -80,6 +80,16 @@ public class Analyze extends BaseTimeEntity {
 			.orElse(getEmptyAnalyzeDetail());
 	}
 
+	public List<AnalyzeDetail> getAnalyzeDetailsBy(AnalyzeDetailType analyzeDetailType){
+		List<AnalyzeDetail> filteredDetails = new ArrayList<>();
+		for(AnalyzeDetail detail : analyzeDetails){
+			if(detail.getAnalyzeDetailType().equals(analyzeDetailType)){
+				filteredDetails.add(detail);
+			}
+		}
+		return filteredDetails;
+	}
+
 	private AnalyzeDetail getEmptyAnalyzeDetail(){
 		return AnalyzeDetail.builder().build();
 	}
