@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.layer.domain.actionItem.entity.ActionItem;
+import org.layer.domain.actionItem.repository.ActionItemRepository;
 import org.layer.domain.analyze.entity.Analyze;
 import org.layer.domain.analyze.entity.AnalyzeDetail;
 import org.layer.domain.analyze.enums.AnalyzeDetailType;
@@ -21,9 +23,11 @@ import org.layer.domain.question.repository.QuestionRepository;
 import org.layer.domain.retrospect.entity.AnalysisStatus;
 import org.layer.domain.retrospect.entity.Retrospect;
 import org.layer.domain.retrospect.repository.RetrospectRepository;
+import org.layer.domain.space.entity.Space;
 import org.layer.domain.space.entity.Team;
 import org.layer.domain.space.repository.MemberSpaceRelationRepository;
 import org.layer.ai.dto.response.OpenAIResponse;
+import org.layer.domain.space.repository.SpaceRepository;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -39,11 +43,13 @@ public class AIAnalyzeService {
 	private static final int FIRST_RANK = 1;
 	private static final String RETROSPECT_LOCK_KEY = "retrospect:lock:";
 
+	private final SpaceRepository spaceRepository;
 	private final RetrospectRepository retrospectRepository;
 	private final AnalyzeRepository analyzeRepository;
 	private final QuestionRepository questionRepository;
 	private final AnswerRepository answerRepository;
 	private final MemberSpaceRelationRepository memberSpaceRelationRepository;
+	private final ActionItemRepository actionItemRepository;
 
 	private final OpenAIService openAIService;
 
@@ -74,8 +80,10 @@ public class AIAnalyzeService {
 			retrospect.validateAnalysisStatusIsNotDone();
 
 			// 답변 조회
-			Questions questions = new Questions(questionRepository.findAllByRetrospectIdOrderByQuestionOrder(retrospectId));
-			Answers answers = new Answers(answerRepository.findAllByRetrospectIdAndAnswerStatus(retrospectId, AnswerStatus.DONE));
+			Questions questions = new Questions(
+				questionRepository.findAllByRetrospectIdOrderByQuestionOrder(retrospectId));
+			Answers answers = new Answers(
+				answerRepository.findAllByRetrospectIdAndAnswerStatus(retrospectId, AnswerStatus.DONE));
 
 			Long rangeQuestionId = questions.extractEssentialQuestionIdBy(QuestionType.RANGER);
 			Long numberQuestionId = questions.extractEssentialQuestionIdBy(QuestionType.NUMBER);
@@ -85,8 +93,19 @@ public class AIAnalyzeService {
 			OpenAIResponse aiResponse = openAIService.createAnalyze(totalAnswer);
 			OpenAIResponse.Content content = aiResponse.parseContent();
 
-			Analyze teamAnalyze = getAnalyzeEntity(retrospectId, answers, rangeQuestionId, numberQuestionId, content, null, AnalyzeType.TEAM);
+			Analyze teamAnalyze = getAnalyzeEntity(retrospectId, answers, rangeQuestionId, numberQuestionId, content,
+				null, AnalyzeType.TEAM);
 			analyzeRepository.save(teamAnalyze);
+
+
+			// 팀 실행 목표 생성
+			Space space = spaceRepository.findByIdOrThrow(retrospect.getSpaceId());
+
+			List<ActionItem> actionItems = createActionItemsFromAnalyzeDetails(
+				teamAnalyze.getAnalyzeDetailsBy(AnalyzeDetailType.IMPROVEMENT),
+				retrospect.getSpaceId(),
+				retrospect.getId(), space.getLeaderId());
+			actionItemRepository.saveAll(actionItems);
 
 			// 팀원 개인마다의 분석 요청
 			Team team = new Team(memberSpaceRelationRepository.findAllBySpaceId(retrospect.getSpaceId()));
@@ -96,7 +115,8 @@ public class AIAnalyzeService {
 					String individualAnswer = answers.getIndividualAnswer(rangeQuestionId, numberQuestionId, memberId);
 					OpenAIResponse aiIndividualResponse = openAIService.createAnalyze(individualAnswer);
 					OpenAIResponse.Content individualContent = aiIndividualResponse.parseContent();
-					return getAnalyzeEntity(retrospectId, answers, rangeQuestionId, numberQuestionId, individualContent, memberId, AnalyzeType.INDIVIDUAL);
+					return getAnalyzeEntity(retrospectId, answers, rangeQuestionId, numberQuestionId, individualContent,
+						memberId, AnalyzeType.INDIVIDUAL);
 				})
 				.toList();
 			analyzeRepository.saveAll(individualAnalyzes);
@@ -126,9 +146,29 @@ public class AIAnalyzeService {
 		List<AnalyzeDetail> analyzeDetails = createAnalyzeDetails(content);
 
 		return createAnalyzeEntity(retrospectId, memberId, answers.getScoreCount(numberQuestionId, SCORE_ONE, memberId),
-			answers.getScoreCount(numberQuestionId, SCORE_TWO, memberId), answers.getScoreCount(numberQuestionId, SCORE_THREE, memberId),
-			answers.getScoreCount(numberQuestionId, SCORE_FOUR, memberId), answers.getScoreCount(numberQuestionId, SCORE_FIVE, memberId),
+			answers.getScoreCount(numberQuestionId, SCORE_TWO, memberId),
+			answers.getScoreCount(numberQuestionId, SCORE_THREE, memberId),
+			answers.getScoreCount(numberQuestionId, SCORE_FOUR, memberId),
+			answers.getScoreCount(numberQuestionId, SCORE_FIVE, memberId),
 			answers.getGoalCompletionRate(rangeQuestionId), analyzeType, analyzeDetails);
+	}
+
+	private List<ActionItem> createActionItemsFromAnalyzeDetails(List<AnalyzeDetail> analyzeDetails, Long spaceId,
+		Long retrospectId, Long memberId) {
+		List<ActionItem> actionItems = new ArrayList<>();
+		int order = 1;
+		for (AnalyzeDetail detail : analyzeDetails) {
+			ActionItem actionItem = ActionItem.builder()
+				.retrospectId(retrospectId)
+				.spaceId(spaceId)
+				.memberId(memberId)
+				.content(detail.getContent())
+				.actionItemOrder(order)
+				.build();
+			actionItems.add(actionItem);
+			order++;
+		}
+		return actionItems;
 	}
 
 	private List<AnalyzeDetail> createAnalyzeDetails(OpenAIResponse.Content content) {
@@ -162,7 +202,8 @@ public class AIAnalyzeService {
 		return analyzeDetails;
 	}
 
-	private Analyze createAnalyzeEntity(Long retrospectId, Long memberId,int scoreOne, int scoreTwo, int scoreThree, int scoreFour,
+	private Analyze createAnalyzeEntity(Long retrospectId, Long memberId, int scoreOne, int scoreTwo, int scoreThree,
+		int scoreFour,
 		int scoreFive, int goalCompletionRate, AnalyzeType analyzeType, List<AnalyzeDetail> analyzeDetails) {
 
 		return Analyze.builder()
