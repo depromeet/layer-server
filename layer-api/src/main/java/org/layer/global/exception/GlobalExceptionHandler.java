@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
+import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -100,6 +101,20 @@ public class GlobalExceptionHandler {
 		log.warn(String.format(LOG_FORMAT, e.getMessage()), e);
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST)
 			.body(ExceptionResponse.of(HttpStatus.BAD_REQUEST.name(), "요청 파라미터의 형식이 잘못되었습니다."));
+	}
+
+	@ExceptionHandler(ConstraintViolationException.class)
+	public ResponseEntity<ExceptionResponse> handleConstraintViolationException(ConstraintViolationException e) {
+		log.warn(String.format(LOG_FORMAT, e.getMessage()), e);
+
+		String message = e.getConstraintViolations()
+			.stream()
+			.map(v -> v.getPropertyPath() + " " + v.getMessage()) // 예: "title must not be null"
+			.reduce((m1, m2) -> m1 + ", " + m2)
+			.orElse("유효하지 않은 값입니다.");
+
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+			.body(ExceptionResponse.of(HttpStatus.BAD_REQUEST.name(), message));
 	}
 
 }
