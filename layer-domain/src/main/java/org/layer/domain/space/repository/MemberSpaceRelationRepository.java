@@ -19,6 +19,9 @@ public interface MemberSpaceRelationRepository extends JpaRepository<MemberSpace
 
     List<MemberSpaceRelation> findAllBySpaceId(Long spaceId);
 
+    @Query("SELECT m FROM MemberSpaceRelation m WHERE m.space.id IN :spaceIds")
+    List<MemberSpaceRelation> findAllBySpaceIdIn(@Param("spaceIds") List<Long> spaceIds);
+
     @Query("SELECT new org.layer.domain.retrospect.dto.SpaceMemberCount(m.space.id, COUNT(m)) " +
             "FROM MemberSpaceRelation m " +
             "WHERE m.space.id IN :spaceIds " +

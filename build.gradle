@@ -202,6 +202,7 @@ project(":layer-admin") {
 
     dependencies {
         implementation project(path: ':layer-event')
+        implementation project(path: ':layer-domain')
 
         compileOnly 'org.springframework.boot:spring-boot-starter-data-jpa'
         compileOnly 'org.springframework.boot:spring-boot-starter-web'
