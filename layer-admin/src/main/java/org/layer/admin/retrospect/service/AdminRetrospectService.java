@@ -37,6 +37,12 @@ import org.layer.admin.retrospect.repository.dto.ProceedingRetrospectImpressionD
 import org.layer.admin.retrospect.repository.dto.RetrospectAnswerCompletionDto;
 import org.layer.admin.retrospect.repository.dto.SpaceRetrospectCountDto;
 import org.layer.admin.space.repository.AdminSpaceRepository;
+import org.layer.domain.retrospect.entity.Retrospect;
+import org.layer.domain.retrospect.entity.RetrospectStatus;
+import org.layer.domain.retrospect.repository.RetrospectRepository;
+import org.layer.domain.space.entity.MemberSpaceRelation;
+import org.layer.domain.space.entity.Team;
+import org.layer.domain.space.repository.MemberSpaceRelationRepository;
 import org.layer.event.retrospect.ClickRetrospectEvent;
 import org.layer.event.retrospect.CreateRetrospectEvent;
 import org.layer.event.retrospect.AnswerRetrospectEndEvent;
@@ -58,6 +64,8 @@ public class AdminRetrospectService {
 	private final AdminRetrospectClickRepository adminRetrospectClickRepository;
 	private final AdminMemberRepository adminMemberRepository;
 	private final AdminSpaceRepository adminSpaceRepository;
+	private final RetrospectRepository retrospectRepository;
+	private final MemberSpaceRelationRepository memberSpaceRelationRepository;
 
 	public MeaningfulRetrospectMemberResponse getAllMeaningfulRetrospect(
 		LocalDateTime startTime, LocalDateTime endTime, int retrospectLength, int retrospectCount) {
@@ -203,13 +211,60 @@ public class AdminRetrospectService {
 		List<RetrospectAnswerCompletionDto> answerHistories = adminRetrospectAnswerRepository.findRetrospectAnswerCompletionStatsBetween(
 			startTime, endTime);
 
-		// 회고별 완수율 계산 (단위: %)
-		List<Double> completionRates = answerHistories.stream()
-			.filter(dto -> dto.targetAnswerCount() > 0) // division by zero 방지
-			.map(dto -> (double) dto.actualAnswerCount() / dto.targetAnswerCount() * 100.0)
+		if (answerHistories.isEmpty()) {
+			return new RetrospectCompletionRateResponse(0.0);
+		}
+
+		// 필요한 회고/스페이스/팀 정보를 미리 한 번에 로딩해서 N+1 방지
+		List<Long> retrospectIds = answerHistories.stream()
+			.map(RetrospectAnswerCompletionDto::retrospectId)
+			.distinct()
 			.toList();
 
-		// 평균 완수율 계산
+		List<Retrospect> retrospects = retrospectRepository.findAllById(retrospectIds);
+		Map<Long, Retrospect> retrospectMap = retrospects.stream()
+			.collect(Collectors.toMap(Retrospect::getId, r -> r));
+
+		List<Long> spaceIds = retrospects.stream()
+			.map(Retrospect::getSpaceId)
+			.distinct()
+			.toList();
+
+		List<MemberSpaceRelation> allRelations = memberSpaceRelationRepository.findAllBySpaceIdIn(spaceIds);
+		Map<Long, Team> teamBySpaceId = allRelations.stream()
+			.collect(Collectors.groupingBy(
+				relation -> relation.getSpace().getId(),
+				Collectors.collectingAndThen(Collectors.toList(), Team::new)
+			));
+
+		// 회고별 분모를 도메인 로직(Team, RetrospectStatus, deadline) 기반으로 계산
+		List<Double> completionRates = answerHistories.stream()
+			.map(dto -> {
+				Retrospect retrospect = retrospectMap.get(dto.retrospectId());
+				if (retrospect == null) {
+					return null;
+				}
+
+				Team team = teamBySpaceId.get(retrospect.getSpaceId());
+				if (team == null) {
+					return null;
+				}
+
+				long totalCount = team.getTeamMemberCount();
+				if (retrospect.getRetrospectStatus().equals(RetrospectStatus.DONE)) {
+					// 회고가 종료된 경우, deadline 시점의 팀원 수를 분모로 사용
+					totalCount = team.getTeamMemberCountBefore(retrospect.getDeadline());
+				}
+
+				if (totalCount == 0) {
+					return null; // division by zero 방지
+				}
+
+				return (double) dto.actualAnswerCount() / totalCount * 100.0;
+			})
+			.filter(Objects::nonNull)
+			.toList();
+
 		double averageCompletionRate = completionRates.isEmpty()
 			? 0.0
 			: completionRates.stream()
