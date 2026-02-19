@@ -24,4 +24,7 @@ public interface AdminMemberSpaceRelationRepository extends JpaRepository<AdminM
 		@Param("startDate") LocalDateTime startDate,
 		@Param("endDate") LocalDateTime endDate
 	);
+
+	@Query("SELECT m FROM AdminMemberSpaceRelation m WHERE m.spaceId IN :spaceIds")
+	List<AdminMemberSpaceRelation> findAllBySpaceIdIn(@Param("spaceIds") List<Long> spaceIds);
 }

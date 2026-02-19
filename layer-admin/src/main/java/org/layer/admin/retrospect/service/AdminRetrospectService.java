@@ -22,6 +22,7 @@ import org.layer.admin.retrospect.controller.dto.ProceedingRetrospectCTRAverageR
 import org.layer.admin.retrospect.controller.dto.RetrospectCompletionRateResponse;
 import org.layer.admin.retrospect.controller.dto.RetrospectRetentionResponse;
 import org.layer.admin.retrospect.controller.dto.RetrospectStayTimeResponse;
+import org.layer.admin.retrospect.entity.AdminRetrospect;
 import org.layer.admin.retrospect.entity.AdminRetrospectAnswerHistory;
 import org.layer.admin.retrospect.entity.AdminRetrospectHistory;
 import org.layer.admin.retrospect.entity.AdminRetrospectClick;
@@ -32,10 +33,13 @@ import org.layer.admin.retrospect.repository.AdminRetrospectAnswerRepository;
 import org.layer.admin.retrospect.repository.AdminRetrospectClickRepository;
 import org.layer.admin.retrospect.repository.AdminRetrospectImpressionRepository;
 import org.layer.admin.retrospect.repository.AdminRetrospectHistoryRepository;
+import org.layer.admin.retrospect.repository.AdminRetrospectRepository;
 import org.layer.admin.retrospect.repository.dto.ProceedingRetrospectClickDto;
 import org.layer.admin.retrospect.repository.dto.ProceedingRetrospectImpressionDto;
 import org.layer.admin.retrospect.repository.dto.RetrospectAnswerCompletionDto;
 import org.layer.admin.retrospect.repository.dto.SpaceRetrospectCountDto;
+import org.layer.admin.space.entity.AdminMemberSpaceRelation;
+import org.layer.admin.space.repository.AdminMemberSpaceRelationRepository;
 import org.layer.admin.space.repository.AdminSpaceRepository;
 import org.layer.event.retrospect.ClickRetrospectEvent;
 import org.layer.event.retrospect.CreateRetrospectEvent;
@@ -58,6 +62,8 @@ public class AdminRetrospectService {
 	private final AdminRetrospectClickRepository adminRetrospectClickRepository;
 	private final AdminMemberRepository adminMemberRepository;
 	private final AdminSpaceRepository adminSpaceRepository;
+	private final AdminRetrospectRepository retrospectRepository;
+	private final AdminMemberSpaceRelationRepository memberSpaceRelationRepository;
 
 	public MeaningfulRetrospectMemberResponse getAllMeaningfulRetrospect(
 		LocalDateTime startTime, LocalDateTime endTime, int retrospectLength, int retrospectCount) {
@@ -203,13 +209,60 @@ public class AdminRetrospectService {
 		List<RetrospectAnswerCompletionDto> answerHistories = adminRetrospectAnswerRepository.findRetrospectAnswerCompletionStatsBetween(
 			startTime, endTime);
 
-		// 회고별 완수율 계산 (단위: %)
-		List<Double> completionRates = answerHistories.stream()
-			.filter(dto -> dto.targetAnswerCount() > 0) // division by zero 방지
-			.map(dto -> (double) dto.actualAnswerCount() / dto.targetAnswerCount() * 100.0)
+		if (answerHistories.isEmpty()) {
+			return new RetrospectCompletionRateResponse(0.0);
+		}
+
+		// 필요한 회고/스페이스/팀 정보를 미리 한 번에 로딩해서 N+1 방지
+		List<Long> retrospectIds = answerHistories.stream()
+			.map(RetrospectAnswerCompletionDto::retrospectId)
+			.distinct()
 			.toList();
 
-		// 평균 완수율 계산
+		List<AdminRetrospect> retrospects = retrospectRepository.findAllById(retrospectIds);
+		Map<Long, AdminRetrospect> retrospectMap = retrospects.stream()
+			.collect(Collectors.toMap(AdminRetrospect::getId, r -> r));
+
+		List<Long> spaceIds = retrospects.stream()
+			.map(AdminRetrospect::getSpaceId)
+			.distinct()
+			.toList();
+
+		List<AdminMemberSpaceRelation> allRelations = memberSpaceRelationRepository.findAllBySpaceIdIn(spaceIds);
+		Map<Long, List<AdminMemberSpaceRelation>> relationsBySpaceId =
+			allRelations.stream()
+				.collect(Collectors.groupingBy(
+					AdminMemberSpaceRelation::getSpaceId
+				));
+
+		// 회고별 분모를 도메인 로직(Team, RetrospectStatus, deadline) 기반으로 계산
+		List<Double> completionRates = answerHistories.stream()
+			.map(dto -> {
+				AdminRetrospect retrospect = retrospectMap.get(dto.retrospectId());
+				if (retrospect == null) {
+					return null;
+				}
+
+				List<AdminMemberSpaceRelation> relationList = relationsBySpaceId.get(retrospect.getSpaceId());
+				if (relationList == null) {
+					return null;
+				}
+
+				long totalCount = relationList.size();
+				if (retrospect.getRetrospectStatus().equals(AdminRetrospectStatus.DONE)) {
+					// 회고가 종료된 경우, deadline 시점의 팀원 수를 분모로 사용
+					totalCount = getTeamMemberCountBefore(relationList, retrospect.getDeadline());
+				}
+
+				if (totalCount == 0) {
+					return null; // division by zero 방지
+				}
+
+				return (double) dto.actualAnswerCount() / totalCount * 100.0;
+			})
+			.filter(Objects::nonNull)
+			.toList();
+
 		double averageCompletionRate = completionRates.isEmpty()
 			? 0.0
 			: completionRates.stream()
@@ -218,6 +271,12 @@ public class AdminRetrospectService {
 			.orElse(0.0);
 
 		return new RetrospectCompletionRateResponse(averageCompletionRate);
+	}
+
+	private long getTeamMemberCountBefore(List<AdminMemberSpaceRelation> relationList, LocalDateTime end) {
+		return relationList.stream()
+			.filter(memberSpaceRelation -> memberSpaceRelation.getCreatedAt().isBefore(end))
+			.count();
 	}
 
 	public ProceedingRetrospectCTRAverageResponse getProceedingRetrospectCTR(LocalDateTime startDate, LocalDateTime endDate) {
