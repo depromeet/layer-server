@@ -2,6 +2,7 @@ package org.layer.domain.space.entity;
 
 import static org.layer.global.exception.MemberSpaceRelationExceptionType.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.layer.domain.space.exception.MemberSpaceRelationException;
@@ -29,5 +30,11 @@ public class Team {
 		return memberSpaceRelations.stream()
 			.map(MemberSpaceRelation::getMemberId)
 			.toList();
+	}
+
+	public long getTeamMemberCountBefore(LocalDateTime end) {
+		return memberSpaceRelations.stream()
+			.filter(memberSpaceRelation -> memberSpaceRelation.getCreatedAt().isBefore(end))
+			.count();
 	}
 }
