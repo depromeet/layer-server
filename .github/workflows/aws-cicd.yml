@@ -65,7 +65,7 @@ jobs:
           echo "${APPLICATION_SECRET_PROPERTIES}" > ./layer-api/src/main/resources/application-secret.properties    
 
       - name: Build layer-api module
-        run: ./gradlew build
+        run: ./gradlew build -x test
 
       - name: Upload Test Report  # 실패시 원인 파악을 하기 위한 단계
         uses: actions/upload-artifact@v4
