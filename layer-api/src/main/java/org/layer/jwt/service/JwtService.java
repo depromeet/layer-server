@@ -2,6 +2,8 @@ package org.layer.jwt.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.layer.config.AuthValueConfig;
 import org.layer.jwt.JwtProvider;
 import org.layer.jwt.JwtToken;
 import org.layer.jwt.JwtValidator;
@@ -14,7 +16,6 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.util.List;
 
-import static org.layer.config.AuthValueConfig.ACCESS_TOKEN_EXPIRATION_TIME;
 import static org.layer.config.AuthValueConfig.REFRESH_TOKEN_EXPIRATION_TIME;
 import static org.layer.global.exception.ApiTokenExceptionType.*;
 
@@ -26,8 +27,10 @@ public class JwtService {
     private final JwtValidator jwtValidator;
     private final RedisTemplate<String, String> redisTemplate;
 
+    private final AuthValueConfig authValueConfig;
+
     public JwtToken issueToken(Long memberId, MemberRole memberRole) {
-        String accessToken = jwtProvider.createToken(MemberAuthentication.create(memberId, memberRole), ACCESS_TOKEN_EXPIRATION_TIME);
+        String accessToken = jwtProvider.createToken(MemberAuthentication.create(memberId, memberRole), authValueConfig.getAccessTokenExpirationTime());
         String refreshToken = jwtProvider.createToken(MemberAuthentication.create(memberId, memberRole), REFRESH_TOKEN_EXPIRATION_TIME);
 
         saveRefreshTokenToRedis(memberId, refreshToken);
