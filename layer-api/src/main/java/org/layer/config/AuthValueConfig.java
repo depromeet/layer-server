@@ -14,7 +14,10 @@ public class AuthValueConfig {
     @Value("${jwt.secret}")
     private String JWT_SECRET;
 
-    public static final Long ACCESS_TOKEN_EXPIRATION_TIME = 1000 * 60 * 60 * 24 * 14L; // TODO: 2주, 임시 기간이므로 추후 변경 필요
+    @Value("${jwt.access-token-expiration}")
+    private Long accessTokenExpirationTime;
+
+    // public static final Long ACCESS_TOKEN_EXPIRATION_TIME = 1000 * 60 * 60 * 24 * 14L;
     public static final Long REFRESH_TOKEN_EXPIRATION_TIME = 1000 * 60 * 60 * 24 * 14L; // 2주
 
     @PostConstruct
