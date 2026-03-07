@@ -30,6 +30,7 @@ public class RetrospectScheduler {
 	 * @note: 1시간마다 실행된다.
 	 */
 	@Scheduled(cron = "0 0 * * * *")
+	@Transactional
 	public void updateRetrospectStatusToDone() {
 		log.info("Batch Module: Batch Start : updateRetrospectStatusToDone");
 
