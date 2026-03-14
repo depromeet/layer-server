@@ -24,7 +24,7 @@ spring:
 
 jwt:
   secret: ${PROD_JWT_SECRET}
-  access-token-expiration: 1209600000
+  access-token-expiration: 3600000
 
 apple:
   login:
