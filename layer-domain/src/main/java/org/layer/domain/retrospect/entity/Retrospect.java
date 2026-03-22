@@ -82,9 +82,10 @@ public class Retrospect extends BaseTimeEntity {
 
 	public void updateRetrospect(String title, String introduction, LocalDateTime deadline, Time time) {
 
-		if (deadline != null && deadline.isBefore(time.now())) {
-			throw new RetrospectException(INVALID_DEADLINE);
-		}
+		// 회고가 마감되더라도, 회고 자체를 수정할 수 있다.
+		// if (deadline != null && deadline.isBefore(time.now())) {
+		// 	throw new RetrospectException(INVALID_DEADLINE);
+		// }
 
 		this.title = title;
 		this.introduction = introduction;
