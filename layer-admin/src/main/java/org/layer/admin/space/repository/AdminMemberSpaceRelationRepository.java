@@ -12,17 +12,16 @@ import org.springframework.data.repository.query.Param;
 public interface AdminMemberSpaceRelationRepository extends JpaRepository<AdminMemberSpaceRelation, Long> {
 
 	@Query("""
-		SELECT new org.layer.admin.space.repository.dto.ProceedingSpaceDto(
-			r.spaceId,
-			COUNT(r.memberId)
-		)
-		FROM AdminMemberSpaceRelation r
-		WHERE r.createdAt BETWEEN :startDate AND :endDate
-		GROUP BY r.spaceId
-	""")
+	SELECT new org.layer.admin.space.repository.dto.ProceedingSpaceDto(
+		r.spaceId,
+		COUNT(r.memberId)
+	)
+	FROM AdminMemberSpaceRelation r
+	WHERE r.createdAt >= :startDate
+	GROUP BY r.spaceId
+""")
 	List<ProceedingSpaceDto> findProceedingSpacesWithMemberCount(
-		@Param("startDate") LocalDateTime startDate,
-		@Param("endDate") LocalDateTime endDate
+		@Param("startDate") LocalDateTime startDate
 	);
 
 	@Query("SELECT m FROM AdminMemberSpaceRelation m WHERE m.spaceId IN :spaceIds")
