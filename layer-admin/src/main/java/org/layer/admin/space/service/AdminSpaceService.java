@@ -113,8 +113,7 @@ public class AdminSpaceService {
 
 		List<Long> proceedingSpaceIds = adminRetrospectRepository.findProceedingSpacesByMember(startDate, endDate);
 
-		Map<Long, Long> spaceMemberCountMap = adminMemberSpaceRelationRepository.findProceedingSpacesWithMemberCount(startDate,
-				endDate)
+		Map<Long, Long> spaceMemberCountMap = adminMemberSpaceRelationRepository.findProceedingSpacesWithMemberCount(startDate)
 			.stream()
 			.collect(Collectors.toMap(
 				ProceedingSpaceDto::spaceId,
