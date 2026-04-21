@@ -20,4 +20,17 @@ public interface AdminRetrospectRepository extends JpaRepository<AdminRetrospect
 		@Param("startDate") LocalDateTime startDate,
 		@Param("endDate") LocalDateTime endDate
 	);
+
+	Long countAllByCreatedAtBetween(LocalDateTime startDate, LocalDateTime endDate);
+
+	@Query("""
+		SELECT COUNT(r)
+		FROM AdminRetrospect r
+		WHERE r.retrospectStatus = 'DONE'
+		  AND r.updatedAt BETWEEN :startDate AND :endDate
+	""")
+	Long countCompletedRetrospectBetween(
+		@Param("startDate") LocalDateTime startDate,
+		@Param("endDate") LocalDateTime endDate
+	);
 }

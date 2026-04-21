@@ -44,6 +44,17 @@ public interface AdminRetrospectAnswerRepository extends JpaRepository<AdminRetr
 		@Param("start") LocalDateTime startTime,
 		@Param("end") LocalDateTime endTime);
 
+	@Query("""
+		SELECT COALESCE(AVG(LENGTH(a.answerContent)), 0)
+		FROM AdminRetrospectAnswerHistory a
+		WHERE a.answerEndTime IS NOT NULL
+		  AND a.answerEndTime BETWEEN :startTime AND :endTime
+	""")
+	double findAverageRetrospectLengthBetween(
+		@Param("startTime") LocalDateTime startTime,
+		@Param("endTime") LocalDateTime endTime
+	);
+
 	// 엣지 케이스로 답변 종료시간이 없는 경우도 있을 수 있기에 필터링한다.
 	List<AdminRetrospectAnswerHistory> findAllByEventTimeBetweenAndAnswerEndTimeIsNotNull(
 		LocalDateTime startTime, LocalDateTime endTime);
