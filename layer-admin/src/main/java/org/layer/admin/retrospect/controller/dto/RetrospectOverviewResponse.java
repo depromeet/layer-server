@@ -4,6 +4,7 @@ public record RetrospectOverviewResponse(
 	long createdRetrospectCount,
 	long completedRetrospectCount,
 	double averageCompletionRate,
-	double averageRetrospectLength
+	double averageRetrospectLength,
+	double averageWritingTimeMinutes
 ) {
 }

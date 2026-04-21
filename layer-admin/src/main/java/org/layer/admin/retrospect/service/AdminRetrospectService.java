@@ -76,12 +76,20 @@ public class AdminRetrospectService {
 
 		double averageRetrospectLength = adminRetrospectAnswerRepository.findAverageRetrospectLengthBetween(
 			startDate, endDate);
+		List<AdminRetrospectAnswerHistory> completedAnswerHistories =
+			adminRetrospectAnswerRepository.findAllByAnswerEndTimeBetweenAndAnswerStartTimeIsNotNullAndAnswerEndTimeIsNotNull(
+				startDate, endDate);
+		double averageWritingTimeMinutes = completedAnswerHistories.stream()
+			.mapToLong(AdminRetrospectAnswerHistory::getAnswerTime)
+			.average()
+			.orElse(0.0);
 
 		return new RetrospectOverviewResponse(
 			createdRetrospectCount,
 			completedRetrospectCount,
 			averageCompletionRate,
-			averageRetrospectLength
+			averageRetrospectLength,
+			averageWritingTimeMinutes
 		);
 	}
 

@@ -59,6 +59,9 @@ public interface AdminRetrospectAnswerRepository extends JpaRepository<AdminRetr
 	List<AdminRetrospectAnswerHistory> findAllByEventTimeBetweenAndAnswerEndTimeIsNotNull(
 		LocalDateTime startTime, LocalDateTime endTime);
 
+	List<AdminRetrospectAnswerHistory> findAllByAnswerEndTimeBetweenAndAnswerStartTimeIsNotNullAndAnswerEndTimeIsNotNull(
+		LocalDateTime startTime, LocalDateTime endTime);
+
 	void deleteByMemberIdAndSpaceIdAndRetrospectId(
 		Long memberId, Long spaceId, Long retrospectId
 	);
