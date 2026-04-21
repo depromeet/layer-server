@@ -6,6 +6,7 @@ import java.util.List;
 import org.layer.admin.retrospect.controller.dto.CumulativeRetrospectCountResponse;
 import org.layer.admin.retrospect.controller.dto.MeaningfulRetrospectMemberResponse;
 import org.layer.admin.retrospect.controller.dto.RetrospectCompletionRateResponse;
+import org.layer.admin.retrospect.controller.dto.RetrospectOverviewResponse;
 import org.layer.admin.retrospect.controller.dto.RetrospectRetentionResponse;
 import org.layer.admin.retrospect.controller.dto.RetrospectStayTimeResponse;
 import org.layer.admin.retrospect.service.AdminRetrospectService;
@@ -22,6 +23,15 @@ import lombok.RequiredArgsConstructor;
 public class AdminRetrospectController {
 
 	private final AdminRetrospectService adminRetrospectService;
+
+	@GetMapping("/admin/retrospect/overview")
+	public ResponseEntity<RetrospectOverviewResponse> getRetrospectOverview(
+		@RequestParam(name = "startDate") LocalDateTime startDate,
+		@RequestParam(name = "endDate") LocalDateTime endDate) {
+
+		RetrospectOverviewResponse response = adminRetrospectService.getRetrospectOverview(startDate, endDate);
+		return ResponseEntity.ok().body(response);
+	}
 
 	@GetMapping("/admin/retrospect/stay-time")
 	public ResponseEntity<List<RetrospectStayTimeResponse>> getAllRetrospectStayTime(

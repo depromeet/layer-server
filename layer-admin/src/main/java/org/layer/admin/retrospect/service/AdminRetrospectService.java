@@ -20,6 +20,7 @@ import org.layer.admin.retrospect.controller.dto.CumulativeRetrospectCountRespon
 import org.layer.admin.retrospect.controller.dto.MeaningfulRetrospectMemberResponse;
 import org.layer.admin.retrospect.controller.dto.ProceedingRetrospectCTRAverageResponse;
 import org.layer.admin.retrospect.controller.dto.RetrospectCompletionRateResponse;
+import org.layer.admin.retrospect.controller.dto.RetrospectOverviewResponse;
 import org.layer.admin.retrospect.controller.dto.RetrospectRetentionResponse;
 import org.layer.admin.retrospect.controller.dto.RetrospectStayTimeResponse;
 import org.layer.admin.retrospect.entity.AdminRetrospect;
@@ -64,6 +65,25 @@ public class AdminRetrospectService {
 	private final AdminSpaceRepository adminSpaceRepository;
 	private final AdminRetrospectRepository retrospectRepository;
 	private final AdminMemberSpaceRelationRepository memberSpaceRelationRepository;
+
+	public RetrospectOverviewResponse getRetrospectOverview(LocalDateTime startDate, LocalDateTime endDate) {
+		long createdRetrospectCount = retrospectRepository.countAllByCreatedAtBetween(startDate, endDate);
+		long completedRetrospectCount = retrospectRepository.countCompletedRetrospectBetween(startDate, endDate);
+
+		double averageCompletionRate = createdRetrospectCount == 0
+			? 0.0
+			: (completedRetrospectCount / (double)createdRetrospectCount) * 100.0;
+
+		double averageRetrospectLength = adminRetrospectAnswerRepository.findAverageRetrospectLengthBetween(
+			startDate, endDate);
+
+		return new RetrospectOverviewResponse(
+			createdRetrospectCount,
+			completedRetrospectCount,
+			averageCompletionRate,
+			averageRetrospectLength
+		);
+	}
 
 	public MeaningfulRetrospectMemberResponse getAllMeaningfulRetrospect(
 		LocalDateTime startTime, LocalDateTime endTime, int retrospectLength, int retrospectCount) {
