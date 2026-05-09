@@ -6,6 +6,7 @@ import java.util.List;
 import org.layer.admin.retrospect.controller.dto.CumulativeRetrospectCountResponse;
 import org.layer.admin.retrospect.controller.dto.MeaningfulRetrospectMemberResponse;
 import org.layer.admin.retrospect.controller.dto.RetrospectCompletionRateResponse;
+import org.layer.admin.retrospect.controller.dto.RetrospectCreationCycleAverageResponse;
 import org.layer.admin.retrospect.controller.dto.RetrospectOverviewResponse;
 import org.layer.admin.retrospect.controller.dto.RetrospectRetentionResponse;
 import org.layer.admin.retrospect.controller.dto.RetrospectStayTimeResponse;
@@ -73,6 +74,16 @@ public class AdminRetrospectController {
 		CumulativeRetrospectCountResponse response = adminRetrospectService.getCumulativeRetrospectCount(
 			startDate, endDate);
 
+		return ResponseEntity.ok().body(response);
+	}
+
+	@GetMapping("/admin/retrospect/creation-cycle-average")
+	public ResponseEntity<RetrospectCreationCycleAverageResponse> getRetrospectCreationCycleAverage(
+		@RequestParam(name = "startDate") LocalDateTime startDate,
+		@RequestParam(name = "endDate") LocalDateTime endDate) {
+
+		RetrospectCreationCycleAverageResponse response =
+			adminRetrospectService.getRetrospectCreationCycleAverage(startDate, endDate);
 		return ResponseEntity.ok().body(response);
 	}
 

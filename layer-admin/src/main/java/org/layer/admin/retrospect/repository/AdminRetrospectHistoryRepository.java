@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.layer.admin.retrospect.entity.AdminRetrospectHistory;
 import org.layer.admin.retrospect.repository.dto.SpaceRetrospectCountDto;
+import org.layer.admin.space.enums.AdminSpaceCategory;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -21,6 +22,27 @@ public interface AdminRetrospectHistoryRepository extends JpaRepository<AdminRet
 	List<SpaceRetrospectCountDto> findRetrospectCountGroupedBySpaceWithPeriod(
 		@Param("startTime") LocalDateTime startTime,
 		@Param("endTime") LocalDateTime endTime
+	);
+
+	@Query("SELECT r.eventTime " +
+		"FROM AdminRetrospectHistory r " +
+		"WHERE r.eventTime BETWEEN :startTime AND :endTime " +
+		"ORDER BY r.eventTime ASC")
+	List<LocalDateTime> findEventTimesBetween(
+		@Param("startTime") LocalDateTime startTime,
+		@Param("endTime") LocalDateTime endTime
+	);
+
+	@Query("SELECT r.eventTime " +
+		"FROM AdminRetrospectHistory r " +
+		"JOIN AdminSpaceHistory s ON r.spaceId = s.spaceId " +
+		"WHERE r.eventTime BETWEEN :startTime AND :endTime " +
+		"AND s.category = :category " +
+		"ORDER BY r.eventTime ASC")
+	List<LocalDateTime> findEventTimesBetweenBySpaceCategory(
+		@Param("startTime") LocalDateTime startTime,
+		@Param("endTime") LocalDateTime endTime,
+		@Param("category") AdminSpaceCategory category
 	);
 
 

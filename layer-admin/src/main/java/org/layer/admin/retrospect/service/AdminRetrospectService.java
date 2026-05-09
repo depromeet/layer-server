@@ -20,6 +20,7 @@ import org.layer.admin.retrospect.controller.dto.CumulativeRetrospectCountRespon
 import org.layer.admin.retrospect.controller.dto.MeaningfulRetrospectMemberResponse;
 import org.layer.admin.retrospect.controller.dto.ProceedingRetrospectCTRAverageResponse;
 import org.layer.admin.retrospect.controller.dto.RetrospectCompletionRateResponse;
+import org.layer.admin.retrospect.controller.dto.RetrospectCreationCycleAverageResponse;
 import org.layer.admin.retrospect.controller.dto.RetrospectOverviewResponse;
 import org.layer.admin.retrospect.controller.dto.RetrospectRetentionResponse;
 import org.layer.admin.retrospect.controller.dto.RetrospectStayTimeResponse;
@@ -40,6 +41,7 @@ import org.layer.admin.retrospect.repository.dto.ProceedingRetrospectImpressionD
 import org.layer.admin.retrospect.repository.dto.RetrospectAnswerCompletionDto;
 import org.layer.admin.retrospect.repository.dto.SpaceRetrospectCountDto;
 import org.layer.admin.space.entity.AdminMemberSpaceRelation;
+import org.layer.admin.space.enums.AdminSpaceCategory;
 import org.layer.admin.space.repository.AdminMemberSpaceRelationRepository;
 import org.layer.admin.space.repository.AdminSpaceRepository;
 import org.layer.event.retrospect.ClickRetrospectEvent;
@@ -231,6 +233,34 @@ public class AdminRetrospectService {
 		Long totalSpaceCount = adminSpaceRepository.countAllByEventTimeBetween(startTime, endTime);
 		double averageCumulativeCount = totalSpaceCount == 0 ? 0.0 : (double)totalRetrospectCount / totalSpaceCount;
 		return new CumulativeRetrospectCountResponse(averageCumulativeCount);
+	}
+
+	public RetrospectCreationCycleAverageResponse getRetrospectCreationCycleAverage(
+		LocalDateTime startTime, LocalDateTime endTime) {
+		List<LocalDateTime> totalEventTimes = adminRetrospectHistoryRepository.findEventTimesBetween(startTime, endTime);
+		List<LocalDateTime> teamEventTimes = adminRetrospectHistoryRepository.findEventTimesBetweenBySpaceCategory(
+			startTime, endTime, AdminSpaceCategory.TEAM);
+		List<LocalDateTime> individualEventTimes = adminRetrospectHistoryRepository.findEventTimesBetweenBySpaceCategory(
+			startTime, endTime, AdminSpaceCategory.INDIVIDUAL);
+
+		return new RetrospectCreationCycleAverageResponse(
+			calculateAverageCreationCycleSeconds(totalEventTimes),
+			calculateAverageCreationCycleSeconds(teamEventTimes),
+			calculateAverageCreationCycleSeconds(individualEventTimes)
+		);
+	}
+
+	private double calculateAverageCreationCycleSeconds(List<LocalDateTime> sortedEventTimes) {
+		if (sortedEventTimes.size() < 2) {
+			return 0.0;
+		}
+
+		long totalGapSeconds = 0L;
+		for (int i = 1; i < sortedEventTimes.size(); i++) {
+			totalGapSeconds += Duration.between(sortedEventTimes.get(i - 1), sortedEventTimes.get(i)).getSeconds();
+		}
+
+		return totalGapSeconds / (double)(sortedEventTimes.size() - 1);
 	}
 
 	public RetrospectCompletionRateResponse getRetrospectCompletionRate(LocalDateTime startTime, LocalDateTime endTime) {
