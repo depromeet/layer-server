@@ -4,6 +4,8 @@ import static org.springframework.transaction.annotation.Propagation.*;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -32,9 +34,17 @@ import org.layer.admin.retrospect.entity.AdminRetrospectAnswerHistory;
 import org.layer.admin.retrospect.entity.AdminRetrospectHistory;
 import org.layer.admin.retrospect.entity.AdminRetrospectClick;
 import org.layer.admin.retrospect.entity.AdminRetrospectImpression;
+import org.layer.admin.retrospect.controller.dto.CompletionTrendResponse;
+import org.layer.admin.retrospect.controller.dto.MonthlyCompletionRate;
+import org.layer.admin.retrospect.controller.dto.MonthlyWritingCycle;
+import org.layer.admin.retrospect.controller.dto.RetrospectFunnelResponse;
+import org.layer.admin.retrospect.controller.dto.WritingCycleDistributionResponse;
+import org.layer.admin.retrospect.controller.dto.WritingCycleEntry;
+import org.layer.admin.retrospect.controller.dto.WritingCycleMonthlyTrendResponse;
 import org.layer.admin.retrospect.enums.AdminRetrospectStatus;
 import org.layer.admin.retrospect.enums.AnswerTimeRange;
 import org.layer.admin.retrospect.enums.RetrospectCycleRange;
+import org.layer.admin.retrospect.enums.WritingCycleRange;
 import org.layer.admin.retrospect.repository.AdminRetrospectAnswerRepository;
 import org.layer.admin.retrospect.repository.AdminRetrospectClickRepository;
 import org.layer.admin.retrospect.repository.AdminRetrospectImpressionRepository;
@@ -468,6 +478,153 @@ public class AdminRetrospectService {
 	private List<CycleDistributionEntry> buildEmptyCycleDistribution() {
 		return Arrays.stream(RetrospectCycleRange.values())
 			.map(range -> new CycleDistributionEntry(range.getLabel(), 0.0))
+			.collect(Collectors.toList());
+	}
+
+	public WritingCycleDistributionResponse getWritingCycleDistribution(LocalDateTime startDate, LocalDateTime endDate) {
+		List<AdminRetrospectAnswerHistory> currentAnswers =
+			adminRetrospectAnswerRepository.findAllByAnswerEndTimeBetween(startDate, endDate);
+
+		if (currentAnswers.isEmpty()) {
+			return new WritingCycleDistributionResponse(0.0, buildEmptyWritingCycleDistribution());
+		}
+
+		List<AdminRetrospectAnswerHistory> prevAnswers =
+			adminRetrospectAnswerRepository.findAllByAnswerEndTimeBefore(startDate);
+
+		Map<Long, Double> memberAvgGapMap = computeMemberWritingAvgGaps(currentAnswers, prevAnswers, startDate);
+		double overall = memberAvgGapMap.values().stream().mapToDouble(Double::doubleValue).average().orElse(0.0);
+
+		return new WritingCycleDistributionResponse(overall, buildWritingCycleDistribution(memberAvgGapMap));
+	}
+
+	public WritingCycleMonthlyTrendResponse getWritingCycleMonthlyTrend(LocalDateTime endDate) {
+		DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM");
+		YearMonth endMonth = YearMonth.from(endDate);
+		List<MonthlyWritingCycle> months = new ArrayList<>();
+
+		for (int i = 5; i >= 0; i--) {
+			YearMonth ym = endMonth.minusMonths(i);
+			LocalDateTime from = ym.atDay(1).atStartOfDay();
+			LocalDateTime to = ym.atEndOfMonth().atTime(23, 59, 59);
+
+			List<AdminRetrospectAnswerHistory> current =
+				adminRetrospectAnswerRepository.findAllByAnswerEndTimeBetween(from, to);
+			List<AdminRetrospectAnswerHistory> prev =
+				adminRetrospectAnswerRepository.findAllByAnswerEndTimeBefore(from);
+
+			Map<Long, Double> memberMap = computeMemberWritingAvgGaps(current, prev, from);
+			months.add(new MonthlyWritingCycle(ym.format(fmt), buildWritingCycleDistribution(memberMap)));
+		}
+
+		return new WritingCycleMonthlyTrendResponse(months);
+	}
+
+	public RetrospectFunnelResponse getRetrospectFunnel(LocalDateTime startDate, LocalDateTime endDate) {
+		long created = retrospectRepository.countAllByCreatedAtBetween(startDate, endDate);
+		long started = adminRetrospectAnswerRepository.countDistinctRetrospectIdByAnswerStartTimeBetween(startDate, endDate);
+		long quality = adminRetrospectAnswerRepository.countDistinctRetrospectIdByAnswerEndTimeAndQuality(startDate, endDate, 10);
+		long submitted = adminRetrospectAnswerRepository.countDistinctRetrospectIdByAnswerEndTimeBetween(startDate, endDate);
+
+		double startedRate = created == 0 ? 0.0 : started * 100.0 / created;
+		double qualityRate = created == 0 ? 0.0 : quality * 100.0 / created;
+		double submittedRate = created == 0 ? 0.0 : submitted * 100.0 / created;
+
+		return new RetrospectFunnelResponse(created, started, startedRate, quality, qualityRate, submitted, submittedRate);
+	}
+
+	public CompletionTrendResponse getCompletionTrend(LocalDateTime endDate) {
+		DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM");
+		YearMonth endMonth = YearMonth.from(endDate);
+		List<MonthlyCompletionRate> months = new ArrayList<>();
+
+		for (int i = 11; i >= 0; i--) {
+			YearMonth ym = endMonth.minusMonths(i);
+			LocalDateTime from = ym.atDay(1).atStartOfDay();
+			LocalDateTime to = ym.atEndOfMonth().atTime(23, 59, 59);
+
+			List<AdminRetrospect> retrospects = retrospectRepository.findAllByCreatedAtBetween(from, to);
+
+			if (retrospects.isEmpty()) {
+				months.add(new MonthlyCompletionRate(ym.format(fmt), 0.0, 0.0, 0.0));
+				continue;
+			}
+
+			Set<Long> allSpaceIds = retrospects.stream().map(AdminRetrospect::getSpaceId).collect(Collectors.toSet());
+			Map<Long, AdminSpaceCategory> categoryMap = adminSpaceRepository.findAllBySpaceIdIn(allSpaceIds)
+				.stream()
+				.collect(Collectors.toMap(AdminSpaceHistory::getSpaceId, AdminSpaceHistory::getCategory, (a, b) -> a));
+
+			long totalCreated = retrospects.size();
+			long totalDone = retrospects.stream().filter(r -> AdminRetrospectStatus.DONE == r.getRetrospectStatus()).count();
+			double overallRate = totalCreated == 0 ? 0.0 : totalDone * 100.0 / totalCreated;
+
+			List<AdminRetrospect> teamRetros = retrospects.stream()
+				.filter(r -> AdminSpaceCategory.TEAM == categoryMap.get(r.getSpaceId()))
+				.toList();
+			long teamDone = teamRetros.stream().filter(r -> AdminRetrospectStatus.DONE == r.getRetrospectStatus()).count();
+			double teamRate = teamRetros.isEmpty() ? 0.0 : teamDone * 100.0 / teamRetros.size();
+
+			List<AdminRetrospect> indRetros = retrospects.stream()
+				.filter(r -> AdminSpaceCategory.INDIVIDUAL == categoryMap.get(r.getSpaceId()))
+				.toList();
+			long indDone = indRetros.stream().filter(r -> AdminRetrospectStatus.DONE == r.getRetrospectStatus()).count();
+			double indRate = indRetros.isEmpty() ? 0.0 : indDone * 100.0 / indRetros.size();
+
+			months.add(new MonthlyCompletionRate(ym.format(fmt), overallRate, teamRate, indRate));
+		}
+
+		return new CompletionTrendResponse(months);
+	}
+
+	private Map<Long, Double> computeMemberWritingAvgGaps(
+		List<AdminRetrospectAnswerHistory> current,
+		List<AdminRetrospectAnswerHistory> prev,
+		LocalDateTime startDate
+	) {
+		Map<Long, List<LocalDateTime>> timesByMember = new HashMap<>();
+		prev.stream()
+			.filter(a -> a.getAnswerEndTime() != null)
+			.forEach(a -> timesByMember.computeIfAbsent(a.getMemberId(), k -> new ArrayList<>()).add(a.getAnswerEndTime()));
+		current.stream()
+			.filter(a -> a.getAnswerEndTime() != null)
+			.forEach(a -> timesByMember.computeIfAbsent(a.getMemberId(), k -> new ArrayList<>()).add(a.getAnswerEndTime()));
+
+		Set<Long> currentMemberIds = current.stream().map(AdminRetrospectAnswerHistory::getMemberId).collect(Collectors.toSet());
+		Map<Long, Double> memberAvgGapMap = new HashMap<>();
+
+		for (Long memberId : currentMemberIds) {
+			List<LocalDateTime> times = timesByMember.getOrDefault(memberId, Collections.emptyList())
+				.stream().sorted().toList();
+			List<Long> gaps = new ArrayList<>();
+			for (int i = 1; i < times.size(); i++) {
+				if (times.get(i).isBefore(startDate)) continue;
+				long days = Duration.between(times.get(i - 1), times.get(i)).toDays();
+				if (days > 0) gaps.add(days);
+			}
+			if (!gaps.isEmpty()) {
+				memberAvgGapMap.put(memberId, gaps.stream().mapToLong(Long::longValue).average().orElse(0.0));
+			}
+		}
+		return memberAvgGapMap;
+	}
+
+	private List<WritingCycleEntry> buildWritingCycleDistribution(Map<Long, Double> memberAvgGapMap) {
+		if (memberAvgGapMap.isEmpty()) return buildEmptyWritingCycleDistribution();
+
+		Map<WritingCycleRange, Long> buckets = new LinkedHashMap<>();
+		for (WritingCycleRange r : WritingCycleRange.values()) buckets.put(r, 0L);
+		memberAvgGapMap.values().forEach(avg -> buckets.merge(WritingCycleRange.from(avg), 1L, Long::sum));
+
+		double total = memberAvgGapMap.size();
+		return Arrays.stream(WritingCycleRange.values())
+			.map(r -> new WritingCycleEntry(r.getLabel(), Math.round(buckets.get(r) / total * 1000.0) / 10.0, buckets.get(r)))
+			.collect(Collectors.toList());
+	}
+
+	private List<WritingCycleEntry> buildEmptyWritingCycleDistribution() {
+		return Arrays.stream(WritingCycleRange.values())
+			.map(r -> new WritingCycleEntry(r.getLabel(), 0.0, 0L))
 			.collect(Collectors.toList());
 	}
 
