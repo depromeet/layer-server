@@ -6,6 +6,7 @@ import java.util.List;
 import org.layer.admin.retrospect.controller.dto.CumulativeRetrospectCountResponse;
 import org.layer.admin.retrospect.controller.dto.MeaningfulRetrospectMemberResponse;
 import org.layer.admin.retrospect.controller.dto.RetrospectCompletionRateResponse;
+import org.layer.admin.retrospect.controller.dto.RetrospectCreationCycleResponse;
 import org.layer.admin.retrospect.controller.dto.RetrospectOverviewResponse;
 import org.layer.admin.retrospect.controller.dto.RetrospectRetentionResponse;
 import org.layer.admin.retrospect.controller.dto.RetrospectStayTimeResponse;
@@ -92,6 +93,15 @@ public class AdminRetrospectController {
 		@RequestParam(name = "endDate") LocalDateTime endDate) {
 
 		ProceedingRetrospectCTRAverageResponse response = adminRetrospectService.getProceedingRetrospectCTR(startDate, endDate);
+		return ResponseEntity.ok().body(response);
+	}
+
+	@GetMapping("/admin/retrospect/creation-cycle")
+	public ResponseEntity<RetrospectCreationCycleResponse> getRetrospectCreationCycle(
+		@RequestParam(name = "startDate") LocalDateTime startDate,
+		@RequestParam(name = "endDate") LocalDateTime endDate) {
+
+		RetrospectCreationCycleResponse response = adminRetrospectService.getRetrospectCreationCycle(startDate, endDate);
 		return ResponseEntity.ok().body(response);
 	}
 }

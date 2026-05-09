@@ -5,10 +5,12 @@ import static org.springframework.transaction.annotation.Propagation.*;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -17,9 +19,11 @@ import java.util.stream.Collectors;
 
 import org.layer.admin.member.repository.AdminMemberRepository;
 import org.layer.admin.retrospect.controller.dto.CumulativeRetrospectCountResponse;
+import org.layer.admin.retrospect.controller.dto.CycleDistributionEntry;
 import org.layer.admin.retrospect.controller.dto.MeaningfulRetrospectMemberResponse;
 import org.layer.admin.retrospect.controller.dto.ProceedingRetrospectCTRAverageResponse;
 import org.layer.admin.retrospect.controller.dto.RetrospectCompletionRateResponse;
+import org.layer.admin.retrospect.controller.dto.RetrospectCreationCycleResponse;
 import org.layer.admin.retrospect.controller.dto.RetrospectOverviewResponse;
 import org.layer.admin.retrospect.controller.dto.RetrospectRetentionResponse;
 import org.layer.admin.retrospect.controller.dto.RetrospectStayTimeResponse;
@@ -30,6 +34,7 @@ import org.layer.admin.retrospect.entity.AdminRetrospectClick;
 import org.layer.admin.retrospect.entity.AdminRetrospectImpression;
 import org.layer.admin.retrospect.enums.AdminRetrospectStatus;
 import org.layer.admin.retrospect.enums.AnswerTimeRange;
+import org.layer.admin.retrospect.enums.RetrospectCycleRange;
 import org.layer.admin.retrospect.repository.AdminRetrospectAnswerRepository;
 import org.layer.admin.retrospect.repository.AdminRetrospectClickRepository;
 import org.layer.admin.retrospect.repository.AdminRetrospectImpressionRepository;
@@ -40,6 +45,8 @@ import org.layer.admin.retrospect.repository.dto.ProceedingRetrospectImpressionD
 import org.layer.admin.retrospect.repository.dto.RetrospectAnswerCompletionDto;
 import org.layer.admin.retrospect.repository.dto.SpaceRetrospectCountDto;
 import org.layer.admin.space.entity.AdminMemberSpaceRelation;
+import org.layer.admin.space.entity.AdminSpaceHistory;
+import org.layer.admin.space.enums.AdminSpaceCategory;
 import org.layer.admin.space.repository.AdminMemberSpaceRelationRepository;
 import org.layer.admin.space.repository.AdminSpaceRepository;
 import org.layer.event.retrospect.ClickRetrospectEvent;
@@ -341,6 +348,127 @@ public class AdminRetrospectService {
 			.orElse(0.0);
 
 		return new ProceedingRetrospectCTRAverageResponse(averageCTR);
+	}
+
+	public RetrospectCreationCycleResponse getRetrospectCreationCycle(LocalDateTime startDate, LocalDateTime endDate) {
+		List<AdminRetrospectHistory> currentHistories = adminRetrospectHistoryRepository.findAllByEventTimeBetween(startDate, endDate);
+
+		if (currentHistories.isEmpty()) {
+			return new RetrospectCreationCycleResponse(0.0, 0.0, 0.0, buildEmptyCycleDistribution());
+		}
+
+		List<AdminRetrospectHistory> prevHistories = adminRetrospectHistoryRepository.findAllByEventTimeBefore(startDate);
+
+		Set<Long> allSpaceIds = new HashSet<>();
+		currentHistories.forEach(h -> allSpaceIds.add(h.getSpaceId()));
+		prevHistories.forEach(h -> allSpaceIds.add(h.getSpaceId()));
+
+		Map<Long, AdminSpaceCategory> spaceCategoryMap = adminSpaceRepository.findAllBySpaceIdIn(allSpaceIds)
+			.stream()
+			.collect(Collectors.toMap(AdminSpaceHistory::getSpaceId, AdminSpaceHistory::getCategory, (a, b) -> a));
+
+		Map<Long, List<AdminRetrospectHistory>> allHistoriesByMember = new HashMap<>();
+		prevHistories.forEach(h -> allHistoriesByMember.computeIfAbsent(h.getMemberId(), k -> new ArrayList<>()).add(h));
+		currentHistories.forEach(h -> allHistoriesByMember.computeIfAbsent(h.getMemberId(), k -> new ArrayList<>()).add(h));
+
+		Set<Long> currentMemberIds = currentHistories.stream()
+			.map(AdminRetrospectHistory::getMemberId)
+			.collect(Collectors.toSet());
+
+		List<Long> allGaps = new ArrayList<>();
+		List<Long> teamGaps = new ArrayList<>();
+		List<Long> individualGaps = new ArrayList<>();
+		Map<Long, Double> memberAvgGapMap = new HashMap<>();
+
+		for (Long memberId : currentMemberIds) {
+			List<AdminRetrospectHistory> memberHistories = allHistoriesByMember.getOrDefault(memberId, Collections.emptyList());
+			memberHistories.sort(Comparator.comparing(AdminRetrospectHistory::getEventTime));
+
+			List<Long> memberAllGaps = new ArrayList<>();
+			for (int i = 1; i < memberHistories.size(); i++) {
+				AdminRetrospectHistory curr = memberHistories.get(i);
+				if (curr.getEventTime().isBefore(startDate)) {
+					continue;
+				}
+				long gapDays = Duration.between(memberHistories.get(i - 1).getEventTime(), curr.getEventTime()).toDays();
+				if (gapDays <= 0) {
+					continue;
+				}
+				memberAllGaps.add(gapDays);
+				allGaps.add(gapDays);
+			}
+
+			if (!memberAllGaps.isEmpty()) {
+				memberAvgGapMap.put(memberId, memberAllGaps.stream().mapToLong(Long::longValue).average().orElse(0.0));
+			}
+
+			List<AdminRetrospectHistory> teamRetros = memberHistories.stream()
+				.filter(h -> AdminSpaceCategory.TEAM == spaceCategoryMap.get(h.getSpaceId()))
+				.sorted(Comparator.comparing(AdminRetrospectHistory::getEventTime))
+				.toList();
+
+			for (int i = 1; i < teamRetros.size(); i++) {
+				AdminRetrospectHistory curr = teamRetros.get(i);
+				if (curr.getEventTime().isBefore(startDate)) {
+					continue;
+				}
+				long gapDays = Duration.between(teamRetros.get(i - 1).getEventTime(), curr.getEventTime()).toDays();
+				if (gapDays > 0) {
+					teamGaps.add(gapDays);
+				}
+			}
+
+			List<AdminRetrospectHistory> individualRetros = memberHistories.stream()
+				.filter(h -> AdminSpaceCategory.INDIVIDUAL == spaceCategoryMap.get(h.getSpaceId()))
+				.sorted(Comparator.comparing(AdminRetrospectHistory::getEventTime))
+				.toList();
+
+			for (int i = 1; i < individualRetros.size(); i++) {
+				AdminRetrospectHistory curr = individualRetros.get(i);
+				if (curr.getEventTime().isBefore(startDate)) {
+					continue;
+				}
+				long gapDays = Duration.between(individualRetros.get(i - 1).getEventTime(), curr.getEventTime()).toDays();
+				if (gapDays > 0) {
+					individualGaps.add(gapDays);
+				}
+			}
+		}
+
+		double overallAvg = allGaps.stream().mapToLong(Long::longValue).average().orElse(0.0);
+		double teamAvg = teamGaps.stream().mapToLong(Long::longValue).average().orElse(0.0);
+		double individualAvg = individualGaps.stream().mapToLong(Long::longValue).average().orElse(0.0);
+
+		return new RetrospectCreationCycleResponse(overallAvg, teamAvg, individualAvg, buildCycleDistribution(memberAvgGapMap));
+	}
+
+	private List<CycleDistributionEntry> buildCycleDistribution(Map<Long, Double> memberAvgGapMap) {
+		if (memberAvgGapMap.isEmpty()) {
+			return buildEmptyCycleDistribution();
+		}
+
+		Map<RetrospectCycleRange, Long> bucketCounts = new LinkedHashMap<>();
+		for (RetrospectCycleRange range : RetrospectCycleRange.values()) {
+			bucketCounts.put(range, 0L);
+		}
+
+		memberAvgGapMap.values().forEach(avgGap ->
+			bucketCounts.merge(RetrospectCycleRange.from(avgGap), 1L, Long::sum)
+		);
+
+		double total = memberAvgGapMap.size();
+		return Arrays.stream(RetrospectCycleRange.values())
+			.map(range -> new CycleDistributionEntry(
+				range.getLabel(),
+				Math.round(bucketCounts.get(range) / total * 1000.0) / 10.0
+			))
+			.collect(Collectors.toList());
+	}
+
+	private List<CycleDistributionEntry> buildEmptyCycleDistribution() {
+		return Arrays.stream(RetrospectCycleRange.values())
+			.map(range -> new CycleDistributionEntry(range.getLabel(), 0.0))
+			.collect(Collectors.toList());
 	}
 
 	@Transactional(propagation = REQUIRES_NEW)
