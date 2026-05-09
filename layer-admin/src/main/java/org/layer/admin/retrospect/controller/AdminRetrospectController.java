@@ -3,15 +3,19 @@ package org.layer.admin.retrospect.controller;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.layer.admin.retrospect.controller.dto.CompletionTrendResponse;
 import org.layer.admin.retrospect.controller.dto.CumulativeRetrospectCountResponse;
 import org.layer.admin.retrospect.controller.dto.MeaningfulRetrospectMemberResponse;
+import org.layer.admin.retrospect.controller.dto.ProceedingRetrospectCTRAverageResponse;
 import org.layer.admin.retrospect.controller.dto.RetrospectCompletionRateResponse;
 import org.layer.admin.retrospect.controller.dto.RetrospectCreationCycleResponse;
+import org.layer.admin.retrospect.controller.dto.RetrospectFunnelResponse;
 import org.layer.admin.retrospect.controller.dto.RetrospectOverviewResponse;
 import org.layer.admin.retrospect.controller.dto.RetrospectRetentionResponse;
 import org.layer.admin.retrospect.controller.dto.RetrospectStayTimeResponse;
+import org.layer.admin.retrospect.controller.dto.WritingCycleDistributionResponse;
+import org.layer.admin.retrospect.controller.dto.WritingCycleMonthlyTrendResponse;
 import org.layer.admin.retrospect.service.AdminRetrospectService;
-import org.layer.admin.retrospect.controller.dto.ProceedingRetrospectCTRAverageResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -103,5 +107,35 @@ public class AdminRetrospectController {
 
 		RetrospectCreationCycleResponse response = adminRetrospectService.getRetrospectCreationCycle(startDate, endDate);
 		return ResponseEntity.ok().body(response);
+	}
+
+	@GetMapping("/admin/retrospect/writing-cycle/distribution")
+	public ResponseEntity<WritingCycleDistributionResponse> getWritingCycleDistribution(
+		@RequestParam(name = "startDate") LocalDateTime startDate,
+		@RequestParam(name = "endDate") LocalDateTime endDate) {
+
+		return ResponseEntity.ok(adminRetrospectService.getWritingCycleDistribution(startDate, endDate));
+	}
+
+	@GetMapping("/admin/retrospect/writing-cycle/monthly-trend")
+	public ResponseEntity<WritingCycleMonthlyTrendResponse> getWritingCycleMonthlyTrend(
+		@RequestParam(name = "endDate") LocalDateTime endDate) {
+
+		return ResponseEntity.ok(adminRetrospectService.getWritingCycleMonthlyTrend(endDate));
+	}
+
+	@GetMapping("/admin/retrospect/funnel")
+	public ResponseEntity<RetrospectFunnelResponse> getRetrospectFunnel(
+		@RequestParam(name = "startDate") LocalDateTime startDate,
+		@RequestParam(name = "endDate") LocalDateTime endDate) {
+
+		return ResponseEntity.ok(adminRetrospectService.getRetrospectFunnel(startDate, endDate));
+	}
+
+	@GetMapping("/admin/retrospect/completion-trend")
+	public ResponseEntity<CompletionTrendResponse> getCompletionTrend(
+		@RequestParam(name = "endDate") LocalDateTime endDate) {
+
+		return ResponseEntity.ok(adminRetrospectService.getCompletionTrend(endDate));
 	}
 }

@@ -23,6 +23,8 @@ public interface AdminRetrospectRepository extends JpaRepository<AdminRetrospect
 
 	Long countAllByCreatedAtBetween(LocalDateTime startDate, LocalDateTime endDate);
 
+	List<AdminRetrospect> findAllByCreatedAtBetween(LocalDateTime startDate, LocalDateTime endDate);
+
 	@Query("""
 		SELECT COUNT(r)
 		FROM AdminRetrospect r

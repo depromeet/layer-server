@@ -65,4 +65,38 @@ public interface AdminRetrospectAnswerRepository extends JpaRepository<AdminRetr
 	void deleteByMemberIdAndSpaceIdAndRetrospectId(
 		Long memberId, Long spaceId, Long retrospectId
 	);
+
+	List<AdminRetrospectAnswerHistory> findAllByAnswerEndTimeBetween(
+		LocalDateTime startTime, LocalDateTime endTime);
+
+	List<AdminRetrospectAnswerHistory> findAllByAnswerEndTimeBefore(LocalDateTime time);
+
+	@Query("""
+		SELECT COUNT(DISTINCT a.retrospectId)
+		FROM AdminRetrospectAnswerHistory a
+		WHERE a.answerStartTime BETWEEN :start AND :end
+	""")
+	long countDistinctRetrospectIdByAnswerStartTimeBetween(
+		@Param("start") LocalDateTime start,
+		@Param("end") LocalDateTime end);
+
+	@Query("""
+		SELECT COUNT(DISTINCT a.retrospectId)
+		FROM AdminRetrospectAnswerHistory a
+		WHERE a.answerEndTime BETWEEN :start AND :end
+		  AND LENGTH(a.answerContent) >= :minLength
+	""")
+	long countDistinctRetrospectIdByAnswerEndTimeAndQuality(
+		@Param("start") LocalDateTime start,
+		@Param("end") LocalDateTime end,
+		@Param("minLength") int minLength);
+
+	@Query("""
+		SELECT COUNT(DISTINCT a.retrospectId)
+		FROM AdminRetrospectAnswerHistory a
+		WHERE a.answerEndTime BETWEEN :start AND :end
+	""")
+	long countDistinctRetrospectIdByAnswerEndTimeBetween(
+		@Param("start") LocalDateTime start,
+		@Param("end") LocalDateTime end);
 }
