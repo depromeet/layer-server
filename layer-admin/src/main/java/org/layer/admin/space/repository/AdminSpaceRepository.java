@@ -1,6 +1,7 @@
 package org.layer.admin.space.repository;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
 import org.layer.admin.space.controller.dto.SpaceCountResponse;
@@ -26,4 +27,6 @@ public interface AdminSpaceRepository
 	Long countAllByEventTimeBetween(
 		@Param("startTime") LocalDateTime startTime,
 		@Param("endTime") LocalDateTime endTime);
+
+	List<AdminSpaceHistory> findAllBySpaceIdIn(Collection<Long> spaceIds);
 }
