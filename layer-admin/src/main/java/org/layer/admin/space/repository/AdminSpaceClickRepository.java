@@ -1,6 +1,7 @@
 package org.layer.admin.space.repository;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
 import org.layer.admin.space.entity.AdminSpaceClick;
@@ -19,11 +20,13 @@ public interface AdminSpaceClickRepository extends JpaRepository<AdminSpaceClick
 		    )
 		    FROM AdminSpaceClick a
 		    WHERE a.eventTime BETWEEN :startDate AND :endDate
+		      AND a.memberId NOT IN :excludedIds
 		    GROUP BY a.memberId
 		""")
 	List<ProceedingSpaceClickDto> findProceedingSpaceClickGroupByMember(
 		@Param("startDate") LocalDateTime startDate,
-		@Param("endDate") LocalDateTime endDate);
+		@Param("endDate") LocalDateTime endDate,
+		@Param("excludedIds") Collection<Long> excludedIds);
 
 	List<AdminSpaceClick> findAllByEventTimeBetween(LocalDateTime startDate, LocalDateTime endDate);
 }

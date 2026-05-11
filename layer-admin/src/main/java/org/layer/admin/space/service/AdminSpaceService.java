@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.layer.admin.common.ExcludedMembers;
 import org.layer.admin.retrospect.enums.AdminRetrospectStatus;
 import org.layer.admin.retrospect.repository.AdminRetrospectRepository;
 import org.layer.admin.space.controller.dto.ProceedingSpaceCTRAverageResponse;
@@ -74,9 +75,9 @@ public class AdminSpaceService {
 
 	public ProceedingSpaceCTRAverageResponse getProceedingSpaceCTR(LocalDateTime startDate, LocalDateTime endDate){
 		List<ProceedingSpaceImpressionDto> impressions = adminSpaceImpressionRepository.findProceedingSpaceImpressionGroupByMember(
-			startDate, endDate);
+			startDate, endDate, ExcludedMembers.ID_LIST);
 		List<ProceedingSpaceClickDto> clicks = adminSpaceClickRepository.findProceedingSpaceClickGroupByMember(
-			startDate, endDate);
+			startDate, endDate, ExcludedMembers.ID_LIST);
 
 		Map<Long, Long> impressionMap = impressions.stream()
 			.collect(Collectors.toMap(
@@ -120,16 +121,18 @@ public class AdminSpaceService {
 				ProceedingSpaceDto::memberCount
 			));
 
-		List<AdminSpaceClick> clicks = adminSpaceClickRepository.findAllByEventTimeBetween(threshold, endDate);
+		List<AdminSpaceClick> clicks = adminSpaceClickRepository.findAllByEventTimeBetween(threshold, endDate).stream()
+			.filter(c -> !ExcludedMembers.IDS.contains(c.getMemberId()))
+			.toList();
 		Map<Long, Long> clickCountMap = clicks.stream()
 			.collect(Collectors.groupingBy(
-				AdminSpaceClick::getSpaceId, // spaceId로 그룹화
+				AdminSpaceClick::getSpaceId,
 				Collectors.collectingAndThen(
 					Collectors.mapping(
-						AdminSpaceClick::getMemberId, // memberId만 추출
-						Collectors.toSet() // 중복 제거
+						AdminSpaceClick::getMemberId,
+						Collectors.toSet()
 					),
-					set -> (long) set.size() // Set 크기를 Long으로 변환
+					set -> (long) set.size()
 				)
 			));
 

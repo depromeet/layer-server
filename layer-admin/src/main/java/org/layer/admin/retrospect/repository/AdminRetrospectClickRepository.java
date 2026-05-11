@@ -1,6 +1,7 @@
 package org.layer.admin.retrospect.repository;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
 import org.layer.admin.retrospect.entity.AdminRetrospectClick;
@@ -19,9 +20,11 @@ public interface AdminRetrospectClickRepository extends JpaRepository<AdminRetro
 		)
 		FROM AdminRetrospectClick a
 		WHERE a.eventTime BETWEEN :startDate AND :endDate
+		  AND a.memberId NOT IN :excludedIds
 		GROUP BY a.memberId
 		""")
 	List<ProceedingRetrospectClickDto> findProceedingRetrospectCTRGroupByMember(
 		@Param("startDate") LocalDateTime startDate,
-		@Param("endDate") LocalDateTime endDate);
+		@Param("endDate") LocalDateTime endDate,
+		@Param("excludedIds") Collection<Long> excludedIds);
 }

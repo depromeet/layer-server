@@ -1,6 +1,7 @@
 package org.layer.admin.space.repository;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
 import org.layer.admin.space.entity.AdminSpaceImpression;
@@ -17,9 +18,11 @@ public interface AdminSpaceImpressionRepository extends JpaRepository<AdminSpace
 		    )
 		    FROM AdminSpaceImpression a
 		    WHERE a.eventTime BETWEEN :startDate AND :endDate
+		      AND a.memberId NOT IN :excludedIds
 		    GROUP BY a.memberId
 		""")
 	List<ProceedingSpaceImpressionDto> findProceedingSpaceImpressionGroupByMember(
 		@Param("startDate") LocalDateTime startDate,
-		@Param("endDate") LocalDateTime endDate);
+		@Param("endDate") LocalDateTime endDate,
+		@Param("excludedIds") Collection<Long> excludedIds);
 }
