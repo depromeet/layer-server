@@ -1,6 +1,7 @@
 package org.layer.admin.retrospect.repository;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,6 +21,7 @@ public interface AdminRetrospectAnswerRepository extends JpaRepository<AdminRetr
 		FROM AdminRetrospectAnswerHistory a
 		WHERE LENGTH(a.answerContent) >= :minLength
 		  AND a.eventTime BETWEEN :start AND :end
+		  AND a.memberId NOT IN :excludedIds
 		GROUP BY a.memberId
 		HAVING COUNT(a) >= :minCount
 	""")
@@ -27,7 +29,8 @@ public interface AdminRetrospectAnswerRepository extends JpaRepository<AdminRetr
 		@Param("start") LocalDateTime start,
 		@Param("end") LocalDateTime end,
 		@Param("minLength") int minLength,
-		@Param("minCount") int minCount);
+		@Param("minCount") int minCount,
+		@Param("excludedIds") Collection<Long> excludedIds);
 
 	@Query("""
 		SELECT new org.layer.admin.retrospect.repository.dto.RetrospectAnswerCompletionDto(
@@ -38,21 +41,25 @@ public interface AdminRetrospectAnswerRepository extends JpaRepository<AdminRetr
 		FROM AdminRetrospectAnswerHistory a
 		JOIN AdminRetrospectHistory r ON a.retrospectId = r.retrospectId
 		WHERE a.eventTime BETWEEN :start AND :end
+		  AND a.memberId NOT IN :excludedIds
 		GROUP BY a.retrospectId
 	""")
 	List<RetrospectAnswerCompletionDto> findRetrospectAnswerCompletionStatsBetween(
 		@Param("start") LocalDateTime startTime,
-		@Param("end") LocalDateTime endTime);
+		@Param("end") LocalDateTime endTime,
+		@Param("excludedIds") Collection<Long> excludedIds);
 
 	@Query("""
 		SELECT COALESCE(AVG(LENGTH(a.answerContent)), 0)
 		FROM AdminRetrospectAnswerHistory a
 		WHERE a.answerEndTime IS NOT NULL
 		  AND a.answerEndTime BETWEEN :startTime AND :endTime
+		  AND a.memberId NOT IN :excludedIds
 	""")
 	double findAverageRetrospectLengthBetween(
 		@Param("startTime") LocalDateTime startTime,
-		@Param("endTime") LocalDateTime endTime
+		@Param("endTime") LocalDateTime endTime,
+		@Param("excludedIds") Collection<Long> excludedIds
 	);
 
 	// 엣지 케이스로 답변 종료시간이 없는 경우도 있을 수 있기에 필터링한다.
@@ -75,28 +82,34 @@ public interface AdminRetrospectAnswerRepository extends JpaRepository<AdminRetr
 		SELECT COUNT(DISTINCT a.retrospectId)
 		FROM AdminRetrospectAnswerHistory a
 		WHERE a.answerStartTime BETWEEN :start AND :end
+		  AND a.memberId NOT IN :excludedIds
 	""")
 	long countDistinctRetrospectIdByAnswerStartTimeBetween(
 		@Param("start") LocalDateTime start,
-		@Param("end") LocalDateTime end);
+		@Param("end") LocalDateTime end,
+		@Param("excludedIds") Collection<Long> excludedIds);
 
 	@Query("""
 		SELECT COUNT(DISTINCT a.retrospectId)
 		FROM AdminRetrospectAnswerHistory a
 		WHERE a.answerEndTime BETWEEN :start AND :end
 		  AND LENGTH(a.answerContent) >= :minLength
+		  AND a.memberId NOT IN :excludedIds
 	""")
 	long countDistinctRetrospectIdByAnswerEndTimeAndQuality(
 		@Param("start") LocalDateTime start,
 		@Param("end") LocalDateTime end,
-		@Param("minLength") int minLength);
+		@Param("minLength") int minLength,
+		@Param("excludedIds") Collection<Long> excludedIds);
 
 	@Query("""
 		SELECT COUNT(DISTINCT a.retrospectId)
 		FROM AdminRetrospectAnswerHistory a
 		WHERE a.answerEndTime BETWEEN :start AND :end
+		  AND a.memberId NOT IN :excludedIds
 	""")
 	long countDistinctRetrospectIdByAnswerEndTimeBetween(
 		@Param("start") LocalDateTime start,
-		@Param("end") LocalDateTime end);
+		@Param("end") LocalDateTime end,
+		@Param("excludedIds") Collection<Long> excludedIds);
 }

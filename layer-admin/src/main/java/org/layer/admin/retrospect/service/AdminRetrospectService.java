@@ -19,6 +19,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.layer.admin.common.ExcludedMembers;
 import org.layer.admin.member.repository.AdminMemberRepository;
 import org.layer.admin.retrospect.controller.dto.CumulativeRetrospectCountResponse;
 import org.layer.admin.retrospect.controller.dto.CycleDistributionEntry;
@@ -92,10 +93,12 @@ public class AdminRetrospectService {
 			: (completedRetrospectCount / (double)createdRetrospectCount) * 100.0;
 
 		double averageRetrospectLength = adminRetrospectAnswerRepository.findAverageRetrospectLengthBetween(
-			startDate, endDate);
+			startDate, endDate, ExcludedMembers.ID_LIST);
 		List<AdminRetrospectAnswerHistory> completedAnswerHistories =
 			adminRetrospectAnswerRepository.findAllByAnswerEndTimeBetweenAndAnswerStartTimeIsNotNullAndAnswerEndTimeIsNotNull(
-				startDate, endDate);
+				startDate, endDate).stream()
+			.filter(h -> !ExcludedMembers.IDS.contains(h.getMemberId()))
+			.toList();
 		double averageWritingTimeMinutes = completedAnswerHistories.stream()
 			.mapToLong(AdminRetrospectAnswerHistory::getAnswerTime)
 			.average()
@@ -113,9 +116,11 @@ public class AdminRetrospectService {
 	public MeaningfulRetrospectMemberResponse getAllMeaningfulRetrospect(
 		LocalDateTime startTime, LocalDateTime endTime, int retrospectLength, int retrospectCount) {
 		List<Long> meaningfulMemberIds = adminRetrospectAnswerRepository.findMeaningfulMemberIds(
-			startTime, endTime, retrospectLength, retrospectCount);
+			startTime, endTime, retrospectLength, retrospectCount, ExcludedMembers.ID_LIST);
 
-		long totalMemberCount = adminMemberRepository.findAllByEventTimeBefore(endTime).size();
+		long totalMemberCount = adminMemberRepository.findAllByEventTimeBefore(endTime).stream()
+			.filter(m -> !ExcludedMembers.IDS.contains(m.getMemberId()))
+			.count();
 
 		return new MeaningfulRetrospectMemberResponse(meaningfulMemberIds.size(), totalMemberCount);
 	}
@@ -123,7 +128,9 @@ public class AdminRetrospectService {
 	public List<RetrospectStayTimeResponse> getAllRetrospectStayTime(
 		LocalDateTime startTime, LocalDateTime endTime) {
 		List<AdminRetrospectAnswerHistory> retrospectAnswerHistories = adminRetrospectAnswerRepository.findAllByEventTimeBetweenAndAnswerEndTimeIsNotNull(
-			startTime, endTime);
+			startTime, endTime).stream()
+			.filter(h -> !ExcludedMembers.IDS.contains(h.getMemberId()))
+			.toList();
 
 		Map<AnswerTimeRange, Long> countMap = new HashMap<>();
 		retrospectAnswerHistories.forEach(history -> {
@@ -142,8 +149,12 @@ public class AdminRetrospectService {
 
 	public RetrospectRetentionResponse getRetrospectRetention(LocalDateTime startTime, LocalDateTime endTime) {
 		List<AdminRetrospectHistory> histories = adminRetrospectHistoryRepository.findAllByEventTimeBetween(
-			startTime, endTime);
-		List<AdminRetrospectHistory> prevHistories = adminRetrospectHistoryRepository.findAllByEventTimeBefore(startTime);
+			startTime, endTime).stream()
+			.filter(h -> !ExcludedMembers.IDS.contains(h.getMemberId()))
+			.toList();
+		List<AdminRetrospectHistory> prevHistories = adminRetrospectHistoryRepository.findAllByEventTimeBefore(startTime).stream()
+			.filter(h -> !ExcludedMembers.IDS.contains(h.getMemberId()))
+			.toList();
 
 		Map<Long, Long> retrospectCountMap = new HashMap<>();
 		histories.forEach(history ->
@@ -152,7 +163,7 @@ public class AdminRetrospectService {
 
 		// 신규 가입자 목록 조회
 		Set<Long> newMemberIdSet = new HashSet<>(
-			adminMemberRepository.findMemberIdsByEventTimeBetween(startTime, endTime));
+			adminMemberRepository.findMemberIdsByEventTimeBetween(startTime, endTime, ExcludedMembers.ID_LIST));
 
 		// 리텐션 유저 추출
 		List<Long> retainedMemberIds = retrospectCountMap.entrySet().stream()
@@ -170,7 +181,9 @@ public class AdminRetrospectService {
 			.toList();
 
 		// 전체 가입자 수 조회
-		long totalMemberCount = adminMemberRepository.findAllByEventTimeBefore(endTime).size();
+		long totalMemberCount = adminMemberRepository.findAllByEventTimeBefore(endTime).stream()
+			.filter(m -> !ExcludedMembers.IDS.contains(m.getMemberId()))
+			.count();
 
 		// 평균 리텐션 기간 계산
 		long avgRetentionGapSeconds = calculateAverageMinGapInSeconds(histories, prevHistories);
@@ -252,7 +265,7 @@ public class AdminRetrospectService {
 
 	public RetrospectCompletionRateResponse getRetrospectCompletionRate(LocalDateTime startTime, LocalDateTime endTime) {
 		List<RetrospectAnswerCompletionDto> answerHistories = adminRetrospectAnswerRepository.findRetrospectAnswerCompletionStatsBetween(
-			startTime, endTime);
+			startTime, endTime, ExcludedMembers.ID_LIST);
 
 		if (answerHistories.isEmpty()) {
 			return new RetrospectCompletionRateResponse(0.0);
@@ -273,7 +286,9 @@ public class AdminRetrospectService {
 			.distinct()
 			.toList();
 
-		List<AdminMemberSpaceRelation> allRelations = memberSpaceRelationRepository.findAllBySpaceIdIn(spaceIds);
+		List<AdminMemberSpaceRelation> allRelations = memberSpaceRelationRepository.findAllBySpaceIdIn(spaceIds).stream()
+			.filter(r -> !ExcludedMembers.IDS.contains(r.getMemberId()))
+			.toList();
 		Map<Long, List<AdminMemberSpaceRelation>> relationsBySpaceId =
 			allRelations.stream()
 				.collect(Collectors.groupingBy(
@@ -326,9 +341,9 @@ public class AdminRetrospectService {
 
 	public ProceedingRetrospectCTRAverageResponse getProceedingRetrospectCTR(LocalDateTime startDate, LocalDateTime endDate) {
 		List<ProceedingRetrospectImpressionDto> impressions = adminRetrospectImpressionRepository.findProceedingRetrospectImpressionGroupByMember(
-			startDate, endDate);
+			startDate, endDate, ExcludedMembers.ID_LIST);
 		List<ProceedingRetrospectClickDto> clicks = adminRetrospectClickRepository.findProceedingRetrospectCTRGroupByMember(
-			startDate, endDate);
+			startDate, endDate, ExcludedMembers.ID_LIST);
 
 		Map<Long, Long> impressionMap = impressions.stream()
 			.collect(Collectors.toMap(
@@ -361,13 +376,17 @@ public class AdminRetrospectService {
 	}
 
 	public RetrospectCreationCycleResponse getRetrospectCreationCycle(LocalDateTime startDate, LocalDateTime endDate) {
-		List<AdminRetrospectHistory> currentHistories = adminRetrospectHistoryRepository.findAllByEventTimeBetween(startDate, endDate);
+		List<AdminRetrospectHistory> currentHistories = adminRetrospectHistoryRepository.findAllByEventTimeBetween(startDate, endDate).stream()
+			.filter(h -> !ExcludedMembers.IDS.contains(h.getMemberId()))
+			.toList();
 
 		if (currentHistories.isEmpty()) {
 			return new RetrospectCreationCycleResponse(0.0, 0.0, 0.0, buildEmptyCycleDistribution());
 		}
 
-		List<AdminRetrospectHistory> prevHistories = adminRetrospectHistoryRepository.findAllByEventTimeBefore(startDate);
+		List<AdminRetrospectHistory> prevHistories = adminRetrospectHistoryRepository.findAllByEventTimeBefore(startDate).stream()
+			.filter(h -> !ExcludedMembers.IDS.contains(h.getMemberId()))
+			.toList();
 
 		Set<Long> allSpaceIds = new HashSet<>();
 		currentHistories.forEach(h -> allSpaceIds.add(h.getSpaceId()));
@@ -483,14 +502,18 @@ public class AdminRetrospectService {
 
 	public WritingCycleDistributionResponse getWritingCycleDistribution(LocalDateTime startDate, LocalDateTime endDate) {
 		List<AdminRetrospectAnswerHistory> currentAnswers =
-			adminRetrospectAnswerRepository.findAllByAnswerEndTimeBetween(startDate, endDate);
+			adminRetrospectAnswerRepository.findAllByAnswerEndTimeBetween(startDate, endDate).stream()
+				.filter(a -> !ExcludedMembers.IDS.contains(a.getMemberId()))
+				.toList();
 
 		if (currentAnswers.isEmpty()) {
 			return new WritingCycleDistributionResponse(0.0, buildEmptyWritingCycleDistribution());
 		}
 
 		List<AdminRetrospectAnswerHistory> prevAnswers =
-			adminRetrospectAnswerRepository.findAllByAnswerEndTimeBefore(startDate);
+			adminRetrospectAnswerRepository.findAllByAnswerEndTimeBefore(startDate).stream()
+				.filter(a -> !ExcludedMembers.IDS.contains(a.getMemberId()))
+				.toList();
 
 		Map<Long, Double> memberAvgGapMap = computeMemberWritingAvgGaps(currentAnswers, prevAnswers, startDate);
 		double overall = memberAvgGapMap.values().stream().mapToDouble(Double::doubleValue).average().orElse(0.0);
@@ -509,9 +532,13 @@ public class AdminRetrospectService {
 			LocalDateTime to = ym.atEndOfMonth().atTime(23, 59, 59);
 
 			List<AdminRetrospectAnswerHistory> current =
-				adminRetrospectAnswerRepository.findAllByAnswerEndTimeBetween(from, to);
+				adminRetrospectAnswerRepository.findAllByAnswerEndTimeBetween(from, to).stream()
+					.filter(a -> !ExcludedMembers.IDS.contains(a.getMemberId()))
+					.toList();
 			List<AdminRetrospectAnswerHistory> prev =
-				adminRetrospectAnswerRepository.findAllByAnswerEndTimeBefore(from);
+				adminRetrospectAnswerRepository.findAllByAnswerEndTimeBefore(from).stream()
+					.filter(a -> !ExcludedMembers.IDS.contains(a.getMemberId()))
+					.toList();
 
 			Map<Long, Double> memberMap = computeMemberWritingAvgGaps(current, prev, from);
 			months.add(new MonthlyWritingCycle(ym.format(fmt), buildWritingCycleDistribution(memberMap)));
@@ -522,9 +549,9 @@ public class AdminRetrospectService {
 
 	public RetrospectFunnelResponse getRetrospectFunnel(LocalDateTime startDate, LocalDateTime endDate) {
 		long created = retrospectRepository.countAllByCreatedAtBetween(startDate, endDate);
-		long started = adminRetrospectAnswerRepository.countDistinctRetrospectIdByAnswerStartTimeBetween(startDate, endDate);
-		long quality = adminRetrospectAnswerRepository.countDistinctRetrospectIdByAnswerEndTimeAndQuality(startDate, endDate, 10);
-		long submitted = adminRetrospectAnswerRepository.countDistinctRetrospectIdByAnswerEndTimeBetween(startDate, endDate);
+		long started = adminRetrospectAnswerRepository.countDistinctRetrospectIdByAnswerStartTimeBetween(startDate, endDate, ExcludedMembers.ID_LIST);
+		long quality = adminRetrospectAnswerRepository.countDistinctRetrospectIdByAnswerEndTimeAndQuality(startDate, endDate, 10, ExcludedMembers.ID_LIST);
+		long submitted = adminRetrospectAnswerRepository.countDistinctRetrospectIdByAnswerEndTimeBetween(startDate, endDate, ExcludedMembers.ID_LIST);
 
 		double startedRate = created == 0 ? 0.0 : started * 100.0 / created;
 		double qualityRate = created == 0 ? 0.0 : quality * 100.0 / created;

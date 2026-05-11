@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.layer.admin.common.ExcludedMembers;
 import org.layer.admin.member.controller.dto.MemberSignupCountResponse;
 import org.layer.admin.member.entity.AdminMemberRole;
 import org.layer.admin.member.entity.AdminMemberSignupHistory;
@@ -25,7 +26,9 @@ public class AdminMemberService {
 
 	public List<MemberSignupCountResponse> getMemberSignupCount(LocalDateTime startDate, LocalDateTime endDate) {
 		List<AdminMemberSignupHistory> histories = adminMemberRepository.findAllByEventTimeBetween(
-			startDate, endDate);
+			startDate, endDate).stream()
+			.filter(h -> !ExcludedMembers.IDS.contains(h.getMemberId()))
+			.toList();
 
 		Map<LocalDate, Long> countMap = histories.stream()
 			.collect(Collectors.groupingBy(

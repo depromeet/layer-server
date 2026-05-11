@@ -3,6 +3,7 @@ package org.layer.admin.space.repository;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.layer.admin.common.ExcludedMembers;
 import org.layer.admin.space.controller.dto.TeamSpaceRatioPerMemberDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -27,6 +28,7 @@ public class AdminMemberSpaceRepositoryImpl implements AdminMemberSpaceRepositor
 			FROM admin_member_space_history amsh
 			JOIN admin_space_history ash ON amsh.space_id = ash.space_id
 			WHERE amsh.event_time BETWEEN :startTime AND :endTime
+			  AND amsh.member_id NOT IN (:excludedIds)
 			GROUP BY amsh.member_id
 			ORDER BY teamRatio DESC
 			LIMIT :limit OFFSET :offset
@@ -35,6 +37,7 @@ public class AdminMemberSpaceRepositoryImpl implements AdminMemberSpaceRepositor
 		List<Object[]> rows = em.createNativeQuery(sql)
 			.setParameter("startTime", start)
 			.setParameter("endTime", end)
+			.setParameter("excludedIds", ExcludedMembers.ID_LIST)
 			.setParameter("limit", pageable.getPageSize())
 			.setParameter("offset", pageable.getOffset())
 			.getResultList();
@@ -48,14 +51,15 @@ public class AdminMemberSpaceRepositoryImpl implements AdminMemberSpaceRepositor
 			))
 			.toList();
 
-		// 전체 멤버 수 (조건 포함)
 		Long total = ((Number) em.createNativeQuery("""
             SELECT COUNT(DISTINCT amsh.member_id)
             FROM admin_member_space_history amsh
             WHERE amsh.event_time BETWEEN :startTime AND :endTime
+              AND amsh.member_id NOT IN (:excludedIds)
         """)
 			.setParameter("startTime", start)
 			.setParameter("endTime", end)
+			.setParameter("excludedIds", ExcludedMembers.ID_LIST)
 			.getSingleResult()).longValue();
 
 		return new PageImpl<>(content, pageable, total);
@@ -70,6 +74,7 @@ public class AdminMemberSpaceRepositoryImpl implements AdminMemberSpaceRepositor
             FROM admin_member_space_history amsh
             JOIN admin_space_history ash ON amsh.space_id = ash.space_id
             WHERE amsh.event_time BETWEEN :startTime AND :endTime
+              AND amsh.member_id NOT IN (:excludedIds)
             GROUP BY member_id
         ) AS per_member
     """;
@@ -77,6 +82,7 @@ public class AdminMemberSpaceRepositoryImpl implements AdminMemberSpaceRepositor
 		Object result = em.createNativeQuery(sql)
 			.setParameter("startTime", startTime)
 			.setParameter("endTime", endTime)
+			.setParameter("excludedIds", ExcludedMembers.ID_LIST)
 			.getSingleResult();
 
 		if (result == null) return 0.0;
