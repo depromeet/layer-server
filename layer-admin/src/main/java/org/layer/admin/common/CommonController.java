@@ -14,22 +14,20 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CommonController {
 
-	// 간단한 기능이기에 바로 repository를 사용합니다.
 	private final AdminMemberRepository adminMemberRepository;
 	private final AdminSpaceRepository adminSpaceRepository;
 	private final AdminRetrospectHistoryRepository adminRetrospectHistoryRepository;
 	private final AdminRetrospectAnswerRepository adminRetrospectAnswerRepository;
-
 
 	@GetMapping("/admin/outline")
 	public ResponseEntity<OutlineResponse> getOutline() {
 
 		return ResponseEntity.ok(
 			new OutlineResponse(
-				adminMemberRepository.count(),
-				adminSpaceRepository.count(),
-				adminRetrospectHistoryRepository.count(),
-				adminRetrospectAnswerRepository.count()
+				adminMemberRepository.countExcluding(ExcludedMembers.ID_LIST),
+				adminSpaceRepository.countExcluding(ExcludedMembers.ID_LIST),
+				adminRetrospectHistoryRepository.countExcluding(ExcludedMembers.ID_LIST),
+				adminRetrospectAnswerRepository.countExcluding(ExcludedMembers.ID_LIST)
 			)
 		);
 	}

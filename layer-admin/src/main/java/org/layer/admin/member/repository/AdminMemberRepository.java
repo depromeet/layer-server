@@ -26,4 +26,7 @@ public interface AdminMemberRepository extends JpaRepository<AdminMemberSignupHi
 		@Param("endTime") LocalDateTime endTime,
 		@Param("excludedIds") Collection<Long> excludedIds
 	);
+
+	@Query("SELECT COUNT(a) FROM AdminMemberSignupHistory a WHERE a.memberId NOT IN :excludedIds")
+	long countExcluding(@Param("excludedIds") Collection<Long> excludedIds);
 }

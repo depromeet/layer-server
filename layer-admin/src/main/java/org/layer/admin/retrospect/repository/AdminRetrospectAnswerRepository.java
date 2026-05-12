@@ -112,4 +112,7 @@ public interface AdminRetrospectAnswerRepository extends JpaRepository<AdminRetr
 		@Param("start") LocalDateTime start,
 		@Param("end") LocalDateTime end,
 		@Param("excludedIds") Collection<Long> excludedIds);
+
+	@Query("SELECT COUNT(a) FROM AdminRetrospectAnswerHistory a WHERE a.memberId NOT IN :excludedIds")
+	long countExcluding(@Param("excludedIds") Collection<Long> excludedIds);
 }
