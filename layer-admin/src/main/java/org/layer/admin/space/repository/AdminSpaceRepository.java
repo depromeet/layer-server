@@ -16,17 +16,24 @@ public interface AdminSpaceRepository
 	@Query("SELECT new org.layer.admin.space.controller.dto.SpaceCountResponse(a.category, COUNT(a)) " +
 		"FROM AdminSpaceHistory a " +
 		"WHERE a.eventTime BETWEEN :startTime AND :endTime " +
+		"AND a.memberId NOT IN :excludedIds " +
 		"GROUP BY a.category")
 	List<SpaceCountResponse> findAllByCategory(
 		@Param("startTime") LocalDateTime startTime,
-		@Param("endTime") LocalDateTime endTime
+		@Param("endTime") LocalDateTime endTime,
+		@Param("excludedIds") Collection<Long> excludedIds
 	);
 
 	@Query("SELECT COUNT(a) FROM AdminSpaceHistory a " +
-		"WHERE a.eventTime BETWEEN :startTime AND :endTime")
+		"WHERE a.eventTime BETWEEN :startTime AND :endTime " +
+		"AND a.memberId NOT IN :excludedIds")
 	Long countAllByEventTimeBetween(
 		@Param("startTime") LocalDateTime startTime,
-		@Param("endTime") LocalDateTime endTime);
+		@Param("endTime") LocalDateTime endTime,
+		@Param("excludedIds") Collection<Long> excludedIds);
+
+	@Query("SELECT COUNT(a) FROM AdminSpaceHistory a WHERE a.memberId NOT IN :excludedIds")
+	long countExcluding(@Param("excludedIds") Collection<Long> excludedIds);
 
 	List<AdminSpaceHistory> findAllBySpaceIdIn(Collection<Long> spaceIds);
 }

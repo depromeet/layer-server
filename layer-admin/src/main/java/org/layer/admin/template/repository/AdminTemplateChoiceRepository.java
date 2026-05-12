@@ -1,6 +1,7 @@
 package org.layer.admin.template.repository;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
 import org.layer.admin.template.controller.dto.TemplateChoiceCountResponse;
@@ -16,19 +17,23 @@ public interface AdminTemplateChoiceRepository extends JpaRepository<AdminTempla
 		"FROM AdminTemplateChoice r " +
 		"WHERE r.eventTime BETWEEN :startTime AND :endTime " +
 		"AND r.choiceType = :choiceType " +
+		"AND r.memberId NOT IN :excludedIds " +
 		"GROUP BY r.formTag")
 	List<TemplateChoiceCountResponse> countByChoiceType(
 		@Param("startTime") LocalDateTime startTime,
 		@Param("endTime") LocalDateTime endTime,
-		@Param("choiceType") AdminChoiceType choiceType
+		@Param("choiceType") AdminChoiceType choiceType,
+		@Param("excludedIds") Collection<Long> excludedIds
 	);
 
 	@Query("SELECT new org.layer.admin.template.controller.dto.TemplateChoiceCountResponse(r.formTag, COUNT(r)) " +
 		"FROM AdminTemplateChoice r " +
 		"WHERE r.eventTime BETWEEN :startTime AND :endTime " +
+		"AND r.memberId NOT IN :excludedIds " +
 		"GROUP BY r.formTag")
 	List<TemplateChoiceCountResponse> countAll(
 		@Param("startTime") LocalDateTime startTime,
-		@Param("endTime") LocalDateTime endTime
+		@Param("endTime") LocalDateTime endTime,
+		@Param("excludedIds") Collection<Long> excludedIds
 	);
 }

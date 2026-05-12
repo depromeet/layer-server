@@ -54,7 +54,7 @@ public class AdminSpaceService {
 	private final AdminMemberSpaceRelationRepository adminMemberSpaceRelationRepository;
 
 	public List<SpaceCountResponse> getSpaceCount(LocalDateTime startDate, LocalDateTime endDate) {
-		return adminSpaceRepository.findAllByCategory(startDate, endDate);
+		return adminSpaceRepository.findAllByCategory(startDate, endDate, ExcludedMembers.ID_LIST);
 	}
 
 	public TeamSpaceRatioResponse getAverageTeamSpaceRatioPerMember(
@@ -114,7 +114,7 @@ public class AdminSpaceService {
 
 		List<Long> proceedingSpaceIds = adminRetrospectRepository.findProceedingSpacesByMember(startDate, endDate);
 
-		Map<Long, Long> spaceMemberCountMap = adminMemberSpaceRelationRepository.findProceedingSpacesWithMemberCount(startDate)
+		Map<Long, Long> spaceMemberCountMap = adminMemberSpaceRelationRepository.findProceedingSpacesWithMemberCount(startDate, ExcludedMembers.ID_LIST)
 			.stream()
 			.collect(Collectors.toMap(
 				ProceedingSpaceDto::spaceId,

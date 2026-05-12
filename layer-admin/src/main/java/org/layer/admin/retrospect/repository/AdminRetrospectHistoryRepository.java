@@ -1,6 +1,7 @@
 package org.layer.admin.retrospect.repository;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
 import org.layer.admin.retrospect.entity.AdminRetrospectHistory;
@@ -23,6 +24,6 @@ public interface AdminRetrospectHistoryRepository extends JpaRepository<AdminRet
 		@Param("endTime") LocalDateTime endTime
 	);
 
-
-
+	@Query("SELECT COUNT(a) FROM AdminRetrospectHistory a WHERE a.memberId NOT IN :excludedIds")
+	long countExcluding(@Param("excludedIds") Collection<Long> excludedIds);
 }

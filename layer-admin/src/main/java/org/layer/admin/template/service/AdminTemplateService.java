@@ -5,6 +5,7 @@ import static org.springframework.transaction.annotation.Propagation.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.layer.admin.common.ExcludedMembers;
 import org.layer.admin.template.controller.dto.TemplateChoiceCountResponse;
 import org.layer.admin.template.controller.dto.TemplateClickCountResponse;
 import org.layer.admin.template.entity.AdminTemplateChoice;
@@ -35,16 +36,16 @@ public class AdminTemplateService {
 		LocalDateTime startDate, LocalDateTime endDate, AdminChoiceType choiceType) {
 
 		if (choiceType != null) {
-			return templateChoiceRepository.countByChoiceType(startDate, endDate, choiceType);
+			return templateChoiceRepository.countByChoiceType(startDate, endDate, choiceType, ExcludedMembers.ID_LIST);
 		}
 
-		return templateChoiceRepository.countAll(startDate, endDate);
+		return templateChoiceRepository.countAll(startDate, endDate, ExcludedMembers.ID_LIST);
 	}
 
 	public List<TemplateClickCountResponse> getTemplateClickCount(
 		LocalDateTime startDate, LocalDateTime endDate) {
 
-		return templateClickHistoryRepository.countByViewType(startDate, endDate);
+		return templateClickHistoryRepository.countByViewType(startDate, endDate, ExcludedMembers.ID_LIST);
 	}
 
 	@Transactional(propagation = REQUIRES_NEW)

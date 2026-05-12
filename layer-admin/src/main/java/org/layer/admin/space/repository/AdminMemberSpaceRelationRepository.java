@@ -1,6 +1,7 @@
 package org.layer.admin.space.repository;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
 import org.layer.admin.space.entity.AdminMemberSpaceRelation;
@@ -18,10 +19,12 @@ public interface AdminMemberSpaceRelationRepository extends JpaRepository<AdminM
 	)
 	FROM AdminMemberSpaceRelation r
 	WHERE r.createdAt >= :startDate
+	  AND r.memberId NOT IN :excludedIds
 	GROUP BY r.spaceId
 """)
 	List<ProceedingSpaceDto> findProceedingSpacesWithMemberCount(
-		@Param("startDate") LocalDateTime startDate
+		@Param("startDate") LocalDateTime startDate,
+		@Param("excludedIds") Collection<Long> excludedIds
 	);
 
 	@Query("SELECT m FROM AdminMemberSpaceRelation m WHERE m.spaceId IN :spaceIds")
