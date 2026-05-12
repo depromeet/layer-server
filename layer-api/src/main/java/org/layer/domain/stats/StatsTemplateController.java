@@ -4,8 +4,8 @@ import org.layer.annotation.MemberId;
 import org.layer.domain.common.random.CustomRandom;
 import org.layer.domain.common.time.Time;
 import org.layer.domain.form.enums.FormTag;
+import org.layer.event.template.TemplateListViewChoiceEvent;
 import org.layer.event.template.TemplateListViewClickEvent;
-import org.layer.event.template.TemplateRecommendedChoiceEvent;
 import org.layer.event.template.TemplateRecommendedClickEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;
@@ -35,7 +35,7 @@ public class StatsTemplateController implements StatsTemplateApi {
 	public ResponseEntity<Void> publishTemplateListViewChoiceEvent(@MemberId Long memberId,
 		@RequestParam FormTag formTag) {
 		eventPublisher.publishEvent(
-			new TemplateRecommendedChoiceEvent(random.generateRandomValue(), memberId, formTag.getTag(), time.now()));
+			new TemplateListViewChoiceEvent(random.generateRandomValue(), memberId, formTag.getTag(), time.now()));
 		return ResponseEntity.ok().body(null);
 	}
 
