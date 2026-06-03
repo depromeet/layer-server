@@ -71,9 +71,4 @@ public class AuthController implements AuthApi {
         return authService.getMemberInfo(memberId);
     }
 
-    @Override
-    @PostMapping("/create-token")
-    public ResponseEntity<CreateTokenResponse> createToken(@RequestBody CreateTokenRequest request) {
-        return ResponseEntity.ok(authService.createToken(request.memberId()));
-    }
 }

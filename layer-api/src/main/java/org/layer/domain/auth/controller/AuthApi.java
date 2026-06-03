@@ -179,8 +179,4 @@ public interface AuthApi {
                             """)}))
     public MemberInfoResponse getMemberInfo(@MemberId Long memberId);
 
-    @Operation(summary = "[인증 불필요] 테스트용 토큰 생성", description = "memberId를 전달하면 100년 유효한 액세스 토큰을 발급합니다. 개발/스테이징 환경 테스트 전용입니다.")
-    @ApiResponse(responseCode = "200", description = "토큰 생성 성공")
-    public ResponseEntity<CreateTokenResponse> createToken(@RequestBody CreateTokenRequest request);
-
 }
