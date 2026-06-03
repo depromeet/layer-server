@@ -84,4 +84,9 @@ public class JwtService {
     public void deleteRefreshToken(Long memberId) {
         redisTemplate.delete(memberId.toString());
     }
+
+    public String createLongLivedToken(Long memberId) {
+        long hundredYears = 100L * 365 * 24 * 60 * 60 * 1000;
+        return jwtProvider.createToken(MemberAuthentication.create(memberId, MemberRole.USER), hundredYears);
+    }
 }
