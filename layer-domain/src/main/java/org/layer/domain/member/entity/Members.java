@@ -25,4 +25,12 @@ public class Members {
 				.findAny()
 				.orElse(null);
 	}
+
+	public String getProfileImageUrl(Long memberId) {
+		return members.stream()
+			.filter(member -> member.getId().equals(memberId))
+			.map(Member::getProfileImageUrl)
+			.findAny()
+			.orElse(null);
+	}
 }

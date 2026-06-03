@@ -15,6 +15,8 @@ import org.layer.domain.reaction.exception.ReactionException;
 import org.layer.domain.reaction.repository.ReactionRepository;
 import org.layer.domain.reaction.repository.RetrospectReactionRepository;
 import org.layer.domain.retrospect.repository.RetrospectRepository;
+import org.layer.domain.member.entity.Members;
+import org.layer.domain.member.repository.MemberRepository;
 import org.layer.domain.space.entity.Team;
 import org.layer.domain.space.repository.MemberSpaceRelationRepository;
 import org.springframework.stereotype.Service;
@@ -36,6 +38,7 @@ public class RetrospectReactionService {
     private final RetrospectReactionRepository retrospectReactionRepository;
     private final AnswerRepository answerRepository;
     private final RetrospectRepository retrospectRepository;
+    private final MemberRepository memberRepository;
     private final MemberSpaceRelationRepository memberSpaceRelationRepository;
 
     @Transactional
@@ -89,6 +92,9 @@ public class RetrospectReactionService {
 
         List<RetrospectReaction> retrospectReactions = retrospectReactionRepository.findAllByAnswerIdIn(answerIds);
 
+        List<Long> memberIds = retrospectReactions.stream().map(RetrospectReaction::getMemberId).distinct().toList();
+        Members members = new Members(memberRepository.findAllById(memberIds));
+
         Map<Long, List<RetrospectReaction>> reactionsByAnswerId = retrospectReactions.stream()
                 .collect(Collectors.groupingBy(RetrospectReaction::getAnswerId));
 
@@ -97,7 +103,11 @@ public class RetrospectReactionService {
                         answerId,
                         reactionsByAnswerId.getOrDefault(answerId, List.of())
                                 .stream()
-                                .map(RetrospectReactionElementResponse::from)
+                                .map(r -> RetrospectReactionElementResponse.of(
+                                        r,
+                                        members.getName(r.getMemberId()),
+                                        members.getProfileImageUrl(r.getMemberId())
+                                ))
                                 .toList()
                 ))
                 .toList();
