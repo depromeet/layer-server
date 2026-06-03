@@ -29,8 +29,8 @@ public class Members {
 	public String getProfileImageUrl(Long memberId) {
 		return members.stream()
 			.filter(member -> member.getId().equals(memberId))
-			.map(Member::getProfileImageUrl)
 			.findAny()
+			.map(Member::getProfileImageUrl)
 			.orElse(null);
 	}
 }
