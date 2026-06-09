@@ -7,6 +7,7 @@ import org.layer.domain.actionItem.controller.dto.response.*;
 import org.layer.domain.actionItem.dto.ActionItemResponse;
 import org.layer.domain.actionItem.dto.MemberActionItemResponse;
 import org.layer.domain.actionItem.entity.ActionItem;
+import org.layer.domain.actionItem.entity.ActionItemType;
 import org.layer.domain.actionItem.enums.ActionItemStatus;
 import org.layer.domain.actionItem.exception.ActionItemException;
 import org.layer.domain.actionItem.repository.ActionItemRepository;
@@ -24,6 +25,8 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import static org.layer.domain.actionItem.entity.ActionItemType.PERSONAL;
+import static org.layer.domain.actionItem.entity.ActionItemType.TEAM;
 import static org.layer.domain.retrospect.entity.RetrospectStatus.DONE;
 import static org.layer.global.exception.ApiActionItemExceptionType.*;
 import static org.layer.global.exception.ApiMemberSpaceRelationExceptionType.*;
@@ -56,6 +59,7 @@ public class ActionItemService {
                 .memberId(memberId)
                 .content(content)
                 .actionItemOrder(actionItemCount + 1)
+                .type(TEAM)
                 .build());
 
         return new ActionItemCreateResponse(savedActionItem.getId());
@@ -90,6 +94,7 @@ public class ActionItemService {
                 .memberId(memberId)
                 .content(content)
                 .actionItemOrder(actionItemCount + 1)
+                .type(TEAM)
                 .build());
 
         return new ActionItemCreateResponse(savedActionItem.getId());
@@ -228,6 +233,97 @@ public class ActionItemService {
         return new MemberActionItemGetResponse(dtoList);
     }
 
+    //== 개인 실행 목표 생성 ==//
+    @Transactional
+    public ActionItemCreateResponse createPersonalActionItem(Long memberId, Long spaceId, Long retrospectId, String content) {
+        memberSpaceRelationRepository.findBySpaceIdAndMemberId(spaceId, memberId)
+                .orElseThrow(() -> new MemberSpaceRelationException(NOT_FOUND_MEMBER_SPACE_RELATION));
+
+        retrospectRepository.findByIdOrThrow(retrospectId);
+
+        int count = actionItemRepository.countByRetrospectIdAndMemberIdAndType(retrospectId, memberId, PERSONAL);
+
+        ActionItem saved = actionItemRepository.save(ActionItem.builder()
+                .retrospectId(retrospectId)
+                .spaceId(spaceId)
+                .memberId(memberId)
+                .content(content)
+                .actionItemOrder(count + 1)
+                .type(PERSONAL)
+                .build());
+
+        return new ActionItemCreateResponse(saved.getId());
+    }
+
+    //== 개인 실행 목표 조회 ==//
+    public PersonalActionItemGetResponse getPersonalActionItems(Long memberId, Long spaceId, Long retrospectId) {
+        memberSpaceRelationRepository.findBySpaceIdAndMemberId(spaceId, memberId)
+                .orElseThrow(() -> new MemberSpaceRelationException(NOT_FOUND_MEMBER_SPACE_RELATION));
+
+        retrospectRepository.findByIdOrThrow(retrospectId);
+
+        List<ActionItem> items = actionItemRepository
+                .findAllByRetrospectIdAndMemberIdAndType(retrospectId, memberId, PERSONAL)
+                .stream()
+                .sorted(Comparator.comparingInt(ActionItem::getActionItemOrder))
+                .toList();
+
+        return PersonalActionItemGetResponse.from(items);
+    }
+
+    //== 개인 실행 목표 수정 ==//
+    @Transactional
+    public void updatePersonalActionItems(Long memberId, Long spaceId, Long retrospectId, ActionItemUpdateRequest updateDto) {
+        memberSpaceRelationRepository.findBySpaceIdAndMemberId(spaceId, memberId)
+                .orElseThrow(() -> new MemberSpaceRelationException(NOT_FOUND_MEMBER_SPACE_RELATION));
+
+        retrospectRepository.findByIdOrThrow(retrospectId);
+
+        List<ActionItem> dbItems = actionItemRepository.findAllByRetrospectIdAndMemberIdAndType(retrospectId, memberId, PERSONAL);
+
+        Set<Long> requestIds = updateDto.actionItems().stream()
+                .map(ActionItemUpdateRequest.ActionItemUpdateElementRequest::id)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        actionItemRepository.deleteAll(dbItems.stream()
+                .filter(item -> !requestIds.contains(item.getId()))
+                .toList());
+
+        Map<Long, ActionItem> itemMap = dbItems.stream()
+                .collect(Collectors.toMap(ActionItem::getId, item -> item));
+
+        int order = 1;
+        for (ActionItemUpdateRequest.ActionItemUpdateElementRequest req : updateDto.actionItems()) {
+            if (req.id() != null && itemMap.containsKey(req.id())) {
+                ActionItem item = itemMap.get(req.id());
+                item.updateContent(req.content());
+                item.updateActionItemOrder(order++);
+            } else {
+                actionItemRepository.save(ActionItem.builder()
+                        .retrospectId(retrospectId)
+                        .spaceId(spaceId)
+                        .memberId(memberId)
+                        .content(req.content())
+                        .actionItemOrder(order++)
+                        .type(PERSONAL)
+                        .build());
+            }
+        }
+    }
+
+    //== 개인 실행 목표 삭제 ==//
+    @Transactional
+    public void deletePersonalActionItem(Long memberId, Long actionItemId) {
+        ActionItem item = actionItemRepository.findByIdOrThrow(actionItemId);
+
+        if (!item.getMemberId().equals(memberId)) {
+            throw new ActionItemException(FORBIDDEN_ACTION_ITEM);
+        }
+
+        actionItemRepository.delete(item);
+    }
+
     //== 실행 목표 수정 ==//
     @Transactional
     public void updateActionItems(Long memberId, Long retrospectId, ActionItemUpdateRequest updateDto) {
@@ -273,6 +369,7 @@ public class ActionItemService {
                     .memberId(memberId)
                     .content(requestItem.content())
                     .actionItemOrder(order++)
+                    .type(TEAM)
                     .build();
                 actionItemRepository.save(newActionItem);
             }

@@ -1,6 +1,8 @@
 package org.layer.domain.actionItem.entity;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -35,14 +37,19 @@ public class ActionItem extends BaseTimeEntity {
     @NotNull
     private int actionItemOrder; // 회고 내에서 실행 목표의 순서
 
+    @Enumerated(EnumType.STRING)
+    @NotNull
+    private ActionItemType type;
+
 
     @Builder
-    private ActionItem(Long retrospectId, Long spaceId, Long memberId, String content, int actionItemOrder) {
+    private ActionItem(Long retrospectId, Long spaceId, Long memberId, String content, int actionItemOrder, ActionItemType type) {
         this.retrospectId = retrospectId;
         this.spaceId = spaceId;
         this.memberId = memberId;
         this.content = content;
         this.actionItemOrder = actionItemOrder;
+        this.type = type != null ? type : ActionItemType.TEAM;
     }
 
 

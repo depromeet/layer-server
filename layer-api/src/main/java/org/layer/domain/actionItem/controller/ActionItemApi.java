@@ -10,6 +10,7 @@ import org.layer.annotation.MemberId;
 import org.layer.domain.actionItem.controller.dto.request.ActionItemCreateBySpaceIdRequest;
 import org.layer.domain.actionItem.controller.dto.request.ActionItemCreateRequest;
 import org.layer.domain.actionItem.controller.dto.request.ActionItemUpdateRequest;
+import org.layer.domain.actionItem.controller.dto.request.PersonalActionItemCreateRequest;
 import org.layer.domain.actionItem.controller.dto.response.*;
 import org.layer.domain.actionItem.dto.MemberActionItemResponse;
 import org.springframework.http.ResponseEntity;
@@ -113,4 +114,40 @@ public interface ActionItemApi {
     )
     ResponseEntity<ActionItemCreateResponse> createActionItemBySpaceId(@MemberId Long memberId,
                                                    @Validated @RequestBody ActionItemCreateBySpaceIdRequest actionItemCreateRequest);
+
+    @Operation(summary = "개인 실행 목표 생성", method = "POST", description = """
+            특정 회고에 대해 개인 실행 목표를 생성합니다. 스페이스 리더가 아닌 일반 멤버도 생성 가능합니다.
+            """)
+    @ApiResponses({@ApiResponse(responseCode = "201")})
+    ResponseEntity<ActionItemCreateResponse> createPersonalActionItem(@MemberId Long memberId,
+                                                                      @PathVariable Long spaceId,
+                                                                      @PathVariable Long retrospectId,
+                                                                      @Validated @RequestBody PersonalActionItemCreateRequest request);
+
+    @Operation(summary = "개인 실행 목표 조회", method = "GET", description = """
+            특정 회고에 대한 나의 개인 실행 목표 목록을 조회합니다. 생성 시각도 함께 반환됩니다.
+            """)
+    @ApiResponses({
+            @ApiResponse(responseCode = "200",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = PersonalActionItemGetResponse.class))})
+    })
+    ResponseEntity<PersonalActionItemGetResponse> getPersonalActionItems(@MemberId Long memberId,
+                                                                         @PathVariable Long spaceId,
+                                                                         @PathVariable Long retrospectId);
+
+    @Operation(summary = "개인 실행 목표 편집", method = "PATCH", description = """
+            특정 회고의 나의 개인 실행 목표 리스트를 편집합니다. 요청 리스트의 순서를 편집된 순서와 일치하게 넘겨주세요!
+            """)
+    @ApiResponses({@ApiResponse(responseCode = "200")})
+    ResponseEntity<Void> updatePersonalActionItems(@MemberId Long memberId,
+                                                   @PathVariable Long spaceId,
+                                                   @PathVariable Long retrospectId,
+                                                   @RequestBody ActionItemUpdateRequest request);
+
+    @Operation(summary = "개인 실행 목표 삭제", method = "DELETE", description = """
+            개인 실행 목표를 삭제합니다. 본인이 생성한 실행 목표만 삭제할 수 있습니다.
+            """)
+    @ApiResponses({@ApiResponse(responseCode = "200")})
+    ResponseEntity<Void> deletePersonalActionItem(@MemberId Long memberId, @PathVariable Long actionItemId);
 }
