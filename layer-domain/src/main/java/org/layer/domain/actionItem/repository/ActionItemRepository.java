@@ -29,6 +29,8 @@ public interface ActionItemRepository extends JpaRepository<ActionItem, Long> {
 
     int countByRetrospectIdAndMemberIdAndType(Long retrospectId, Long memberId, ActionItemType type);
 
+    List<ActionItem> findAllByRetrospectIdInAndMemberIdAndType(List<Long> retrospectIds, Long memberId, ActionItemType type);
+
     @Modifying(clearAutomatically = true)
     @Transactional
     @Query("DELETE FROM ActionItem a WHERE a.spaceId = :spaceId")

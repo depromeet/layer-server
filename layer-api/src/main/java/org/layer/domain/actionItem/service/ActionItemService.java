@@ -233,6 +233,94 @@ public class ActionItemService {
         return new MemberActionItemGetResponse(dtoList);
     }
 
+    //== 개인 실행 목표 - 스페이스 전체 회고별 조회 ==//
+    public PersonalSpaceRetrospectActionItemGetResponse getPersonalSpaceActionItemList(Long memberId, Long spaceId) {
+        Space space = spaceRepository.findByIdOrThrow(spaceId);
+        memberSpaceRelationRepository.findBySpaceIdAndMemberId(spaceId, memberId)
+                .orElseThrow(() -> new MemberSpaceRelationException(NOT_FOUND_MEMBER_SPACE_RELATION));
+
+        List<Retrospect> doneRetrospects = retrospectRepository.findAllBySpaceId(spaceId).stream()
+                .filter(r -> r.getRetrospectStatus().equals(DONE))
+                .sorted((a, b) -> b.getDeadline().compareTo(a.getDeadline()))
+                .toList();
+
+        List<Long> doneRetrospectIds = doneRetrospects.stream().map(Retrospect::getId).toList();
+        List<ActionItem> personalItems = actionItemRepository.findAllByRetrospectIdInAndMemberIdAndType(doneRetrospectIds, memberId, PERSONAL);
+
+        List<RetrospectActionItemResponse> responses = new ArrayList<>();
+        for (int i = 0; i < doneRetrospects.size(); i++) {
+            Retrospect retrospect = doneRetrospects.get(i);
+            ActionItemStatus status = (i == 0) ? ActionItemStatus.PROCEEDING : ActionItemStatus.DONE;
+
+            List<ActionItemResponse> items = personalItems.stream()
+                    .filter(ai -> ai.getRetrospectId().equals(retrospect.getId()))
+                    .sorted(Comparator.comparingInt(ActionItem::getActionItemOrder))
+                    .map(ActionItemResponse::of)
+                    .toList();
+
+            responses.add(RetrospectActionItemResponse.builder()
+                    .retrospectId(retrospect.getId())
+                    .retrospectTitle(retrospect.getTitle())
+                    .deadline(retrospect.getDeadline())
+                    .status(status)
+                    .actionItemList(items)
+                    .build());
+        }
+
+        return PersonalSpaceRetrospectActionItemGetResponse.of(space, responses);
+    }
+
+    //== 개인 실행 목표 - 스페이스 최근 회고 조회 ==//
+    public PersonalSpaceActionItemGetResponse getPersonalSpaceRecentActionItems(Long memberId, Long spaceId) {
+        Space space = spaceRepository.findByIdOrThrow(spaceId);
+        memberSpaceRelationRepository.findBySpaceIdAndMemberId(spaceId, memberId)
+                .orElseThrow(() -> new MemberSpaceRelationException(NOT_FOUND_MEMBER_SPACE_RELATION));
+
+        Optional<Retrospect> recentOpt = retrospectRepository.findAllBySpaceId(spaceId).stream()
+                .filter(r -> r.getRetrospectStatus().equals(DONE))
+                .sorted(Comparator.comparing(Retrospect::getDeadline,
+                        Comparator.nullsLast(Comparator.naturalOrder())).reversed())
+                .findFirst();
+
+        if (recentOpt.isEmpty()) {
+            return PersonalSpaceActionItemGetResponse.empty(space);
+        }
+
+        Retrospect recent = recentOpt.get();
+        List<ActionItem> items = actionItemRepository
+                .findAllByRetrospectIdAndMemberIdAndType(recent.getId(), memberId, PERSONAL)
+                .stream()
+                .sorted(Comparator.comparingInt(ActionItem::getActionItemOrder))
+                .toList();
+
+        return PersonalSpaceActionItemGetResponse.of(space, recent, items);
+    }
+
+    //== 개인 실행 목표 - 멤버의 전체 스페이스 조회 ==//
+    public MemberActionItemGetResponse getPersonalMemberActionItemList(Long memberId) {
+        List<MemberActionItemResponse> dtoList = retrospectRepository.findAllMemberActionItemResponsesByMemberId(memberId);
+
+        List<Long> retrospectIds = dtoList.stream().map(MemberActionItemResponse::getRetrospectId).toList();
+        List<ActionItem> personalItems = actionItemRepository.findAllByRetrospectIdInAndMemberIdAndType(retrospectIds, memberId, PERSONAL);
+
+        Set<Long> spaceIdSet = new HashSet<>();
+        for (MemberActionItemResponse dto : dtoList) {
+            List<ActionItemResponse> items = personalItems.stream()
+                    .filter(ai -> ai.getRetrospectId().equals(dto.getRetrospectId()))
+                    .sorted(Comparator.comparingInt(ActionItem::getActionItemOrder))
+                    .map(ActionItemResponse::of)
+                    .toList();
+
+            ActionItemStatus status = spaceIdSet.contains(dto.getSpaceId()) ? ActionItemStatus.DONE : ActionItemStatus.PROCEEDING;
+            spaceIdSet.add(dto.getSpaceId());
+
+            dto.updateActionItemList(items);
+            dto.updateStatus(status);
+        }
+
+        return new MemberActionItemGetResponse(dtoList);
+    }
+
     //== 개인 실행 목표 생성 ==//
     @Transactional
     public ActionItemCreateResponse createPersonalActionItem(Long memberId, Long spaceId, Long retrospectId, String content) {

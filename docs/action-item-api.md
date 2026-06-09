@@ -32,6 +32,113 @@
 
 > 스페이스 리더가 아닌 일반 멤버도 사용 가능하며, 본인의 개인 실행목표만 조회됩니다.
 
+---
+
+### 스페이스의 개인 실행목표 전체 조회 (회고별)
+
+팀 실행목표의 `GET /api/action-item/space/{spaceId}`와 동일한 구조로 회고별로 묶어 반환합니다.
+
+```
+GET /api/action-item/personal/space/{spaceId}
+```
+
+**Response** `200 OK`
+```json
+{
+  "spaceId": 430,
+  "spaceName": "세트스",
+  "personalActionItemList": [
+    {
+      "retrospectId": 310,
+      "retrospectTitle": "테스트",
+      "deadline": "2025-03-19T05:00:00",
+      "status": "PROCEEDING",
+      "actionItemList": [
+        {
+          "actionItemId": 55,
+          "content": "개인 학습 2시간씩 투자하기",
+          "createdAt": "2024-03-15T10:30:00"
+        }
+      ]
+    },
+    {
+      "retrospectId": 309,
+      "retrospectTitle": "이전 회고",
+      "deadline": "2025-03-12T04:00:00",
+      "status": "DONE",
+      "actionItemList": []
+    }
+  ]
+}
+```
+
+> `status`: `PROCEEDING` (가장 최근 회고), `DONE` (이전 회고)  
+> 개인 실행목표가 없는 회고는 `actionItemList`가 빈 배열로 반환
+
+---
+
+### 스페이스의 최근 회고 개인 실행목표 조회
+
+팀 실행목표의 `GET /api/action-item/space/{spaceId}/recent`에 대응합니다.
+
+```
+GET /api/action-item/personal/space/{spaceId}/recent
+```
+
+**Response** `200 OK`
+```json
+{
+  "spaceId": 430,
+  "spaceName": "세트스",
+  "personalActionItemList": [
+    {
+      "actionItemId": 55,
+      "content": "개인 학습 2시간씩 투자하기",
+      "retrospectId": 310,
+      "retrospectTitle": "테스트",
+      "createdAt": "2024-03-15T10:30:00"
+    }
+  ]
+}
+```
+
+> 완료된 회고가 없거나 개인 실행목표가 없으면 `personalActionItemList`는 빈 배열 반환
+
+---
+
+### 내 모든 스페이스의 개인 실행목표 조회
+
+팀 실행목표의 `GET /api/action-item/member`에 대응합니다.
+
+```
+GET /api/action-item/personal/member
+```
+
+**Response** `200 OK`
+```json
+{
+  "actionItems": [
+    {
+      "spaceId": 430,
+      "spaceName": "세트스",
+      "retrospectId": 310,
+      "retrospectTitle": "테스트",
+      "deadline": "2025-03-19T05:00:00",
+      "status": "PROCEEDING",
+      "actionItemList": [
+        {
+          "actionItemId": 55,
+          "content": "개인 학습 2시간씩 투자하기",
+          "createdAt": "2024-03-15T10:30:00"
+        }
+      ]
+    }
+  ]
+}
+```
+
+---
+
 ### 개인 실행목표 생성
 
 ```

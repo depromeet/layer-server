@@ -10,6 +10,8 @@ import org.layer.domain.actionItem.controller.dto.request.PersonalActionItemCrea
 import org.layer.domain.actionItem.controller.dto.response.ActionItemCreateResponse;
 import org.layer.domain.actionItem.controller.dto.response.MemberActionItemGetResponse;
 import org.layer.domain.actionItem.controller.dto.response.PersonalActionItemGetResponse;
+import org.layer.domain.actionItem.controller.dto.response.PersonalSpaceActionItemGetResponse;
+import org.layer.domain.actionItem.controller.dto.response.PersonalSpaceRetrospectActionItemGetResponse;
 import org.layer.domain.actionItem.controller.dto.response.SpaceActionItemGetResponse;
 import org.layer.domain.actionItem.controller.dto.response.SpaceRetrospectActionItemGetResponse;
 import org.layer.domain.actionItem.service.ActionItemService;
@@ -83,6 +85,26 @@ public class ActionItemController implements ActionItemApi {
                 actionItemCreateRequest.content());
 
         return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @Override
+    @GetMapping("/personal/space/{spaceId}")
+    public ResponseEntity<PersonalSpaceRetrospectActionItemGetResponse> getPersonalSpaceActionItems(@MemberId Long memberId,
+                                                                                                     @PathVariable Long spaceId) {
+        return new ResponseEntity<>(actionItemService.getPersonalSpaceActionItemList(memberId, spaceId), HttpStatus.OK);
+    }
+
+    @Override
+    @GetMapping("/personal/space/{spaceId}/recent")
+    public ResponseEntity<PersonalSpaceActionItemGetResponse> getPersonalSpaceRecentActionItems(@MemberId Long memberId,
+                                                                                                 @PathVariable Long spaceId) {
+        return new ResponseEntity<>(actionItemService.getPersonalSpaceRecentActionItems(memberId, spaceId), HttpStatus.OK);
+    }
+
+    @Override
+    @GetMapping("/personal/member")
+    public ResponseEntity<MemberActionItemGetResponse> getPersonalMemberActionItems(@MemberId Long memberId) {
+        return new ResponseEntity<>(actionItemService.getPersonalMemberActionItemList(memberId), HttpStatus.OK);
     }
 
     @Override

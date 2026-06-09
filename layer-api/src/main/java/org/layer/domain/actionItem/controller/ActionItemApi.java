@@ -115,6 +115,38 @@ public interface ActionItemApi {
     ResponseEntity<ActionItemCreateResponse> createActionItemBySpaceId(@MemberId Long memberId,
                                                    @Validated @RequestBody ActionItemCreateBySpaceIdRequest actionItemCreateRequest);
 
+    @Operation(summary = "스페이스의 개인 실행 목표 전체 조회 (회고별)", method = "GET", description = """
+            스페이스 내 완료된 모든 회고를 회고별로 묶어 나의 개인 실행목표를 조회합니다.
+            """)
+    @ApiResponses({
+            @ApiResponse(responseCode = "200",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = PersonalSpaceRetrospectActionItemGetResponse.class))})
+    })
+    ResponseEntity<PersonalSpaceRetrospectActionItemGetResponse> getPersonalSpaceActionItems(@MemberId Long memberId,
+                                                                                              @PathVariable Long spaceId);
+
+    @Operation(summary = "스페이스의 최근 회고 개인 실행 목표 조회", method = "GET", description = """
+            스페이스에서 가장 최근에 완료된 회고의 나의 개인 실행목표를 조회합니다.
+            """)
+    @ApiResponses({
+            @ApiResponse(responseCode = "200",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = PersonalSpaceActionItemGetResponse.class))})
+    })
+    ResponseEntity<PersonalSpaceActionItemGetResponse> getPersonalSpaceRecentActionItems(@MemberId Long memberId,
+                                                                                          @PathVariable Long spaceId);
+
+    @Operation(summary = "멤버의 전체 스페이스 개인 실행 목표 조회", method = "GET", description = """
+            내가 속한 모든 스페이스의 개인 실행목표를 회고별로 조회합니다.
+            """)
+    @ApiResponses({
+            @ApiResponse(responseCode = "200",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = MemberActionItemGetResponse.class))})
+    })
+    ResponseEntity<MemberActionItemGetResponse> getPersonalMemberActionItems(@MemberId Long memberId);
+
     @Operation(summary = "개인 실행 목표 생성", method = "POST", description = """
             특정 회고에 대해 개인 실행 목표를 생성합니다. 스페이스 리더가 아닌 일반 멤버도 생성 가능합니다.
             """)
