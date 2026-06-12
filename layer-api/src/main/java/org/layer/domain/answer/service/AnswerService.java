@@ -262,9 +262,11 @@ public class AnswerService {
 		return members.getMembers().stream()
 			.map(member -> {
 				List<QuestionAndAnswerGetResponse> questionAndAnswer = questions.stream()
-					.map(question -> new QuestionAndAnswerGetResponse(question.getContent(),
-						question.getQuestionType().getStyle(), answers.getAnswerToQuestion(
-						question.getId(), member.getId())))
+					.map(question -> new QuestionAndAnswerGetResponse(
+						answers.getAnswerIdToQuestion(question.getId(), member.getId()),
+						question.getContent(),
+						question.getQuestionType().getStyle(),
+						answers.getAnswerToQuestion(question.getId(), member.getId())))
 					.toList();
 
 				return new AnswerByPersonGetResponse(member.getName(), member.getDeletedAt() != null,
@@ -280,8 +282,11 @@ public class AnswerService {
 			.map(question -> {
 				List<PersonAndAnswerGetResponse> personAndAnswer = answers.getAnswers().stream()
 					.filter(answer -> answer.getQuestionId().equals(question.getId()))
-					.map(answer -> new PersonAndAnswerGetResponse(members.getName(answer.getMemberId()),
-						members.getDeleted(answer.getMemberId()), answer.getContent()))
+					.map(answer -> new PersonAndAnswerGetResponse(
+						answer.getId(),
+						members.getName(answer.getMemberId()),
+						members.getDeleted(answer.getMemberId()),
+						answer.getContent()))
 					.toList();
 
 				return new AnswerByQuestionGetResponse(question.getContent(), question.getQuestionType().getStyle(),

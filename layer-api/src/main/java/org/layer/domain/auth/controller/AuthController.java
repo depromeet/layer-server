@@ -70,4 +70,5 @@ public class AuthController implements AuthApi {
     public MemberInfoResponse getMemberInfo(@MemberId Long memberId) {
         return authService.getMemberInfo(memberId);
     }
+
 }

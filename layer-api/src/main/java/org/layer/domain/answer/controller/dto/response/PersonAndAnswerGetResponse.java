@@ -4,6 +4,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(name = "PersonAndAnswerGetResponse", description = "개인-답변 응답 Dto")
 public record PersonAndAnswerGetResponse(
+	@Schema(description = "답변 ID", example = "1")
+	Long answerId,
 	@Schema(description = "답변자", example = "홍길동")
 	String name,
 	@Schema(description = "탈퇴 여부. 탈퇴시 true", example = "false")

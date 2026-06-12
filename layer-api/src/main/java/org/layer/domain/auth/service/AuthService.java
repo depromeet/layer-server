@@ -142,6 +142,10 @@ public class AuthService {
         return MemberInfoResponse.of(member);
     }
 
+    public CreateTokenResponse createToken(Long memberId) {
+        return new CreateTokenResponse(jwtService.createLongLivedToken(memberId));
+    }
+
 
     //== private methods ==//
 

@@ -6,8 +6,12 @@ import org.layer.annotation.MemberId;
 import org.layer.domain.actionItem.controller.dto.request.ActionItemCreateBySpaceIdRequest;
 import org.layer.domain.actionItem.controller.dto.request.ActionItemCreateRequest;
 import org.layer.domain.actionItem.controller.dto.request.ActionItemUpdateRequest;
+import org.layer.domain.actionItem.controller.dto.request.PersonalActionItemCreateRequest;
 import org.layer.domain.actionItem.controller.dto.response.ActionItemCreateResponse;
 import org.layer.domain.actionItem.controller.dto.response.MemberActionItemGetResponse;
+import org.layer.domain.actionItem.controller.dto.response.PersonalActionItemGetResponse;
+import org.layer.domain.actionItem.controller.dto.response.PersonalSpaceActionItemGetResponse;
+import org.layer.domain.actionItem.controller.dto.response.PersonalSpaceRetrospectActionItemGetResponse;
 import org.layer.domain.actionItem.controller.dto.response.SpaceActionItemGetResponse;
 import org.layer.domain.actionItem.controller.dto.response.SpaceRetrospectActionItemGetResponse;
 import org.layer.domain.actionItem.service.ActionItemService;
@@ -81,5 +85,62 @@ public class ActionItemController implements ActionItemApi {
                 actionItemCreateRequest.content());
 
         return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @Override
+    @GetMapping("/personal/space/{spaceId}")
+    public ResponseEntity<PersonalSpaceRetrospectActionItemGetResponse> getPersonalSpaceActionItems(@MemberId Long memberId,
+                                                                                                     @PathVariable Long spaceId) {
+        return new ResponseEntity<>(actionItemService.getPersonalSpaceActionItemList(memberId, spaceId), HttpStatus.OK);
+    }
+
+    @Override
+    @GetMapping("/personal/space/{spaceId}/recent")
+    public ResponseEntity<PersonalSpaceActionItemGetResponse> getPersonalSpaceRecentActionItems(@MemberId Long memberId,
+                                                                                                 @PathVariable Long spaceId) {
+        return new ResponseEntity<>(actionItemService.getPersonalSpaceRecentActionItems(memberId, spaceId), HttpStatus.OK);
+    }
+
+    @Override
+    @GetMapping("/personal/member")
+    public ResponseEntity<MemberActionItemGetResponse> getPersonalMemberActionItems(@MemberId Long memberId) {
+        return new ResponseEntity<>(actionItemService.getPersonalMemberActionItemList(memberId), HttpStatus.OK);
+    }
+
+    @Override
+    @PostMapping("/personal/space/{spaceId}/retrospect/{retrospectId}")
+    public ResponseEntity<ActionItemCreateResponse> createPersonalActionItem(@MemberId Long memberId,
+                                                                             @PathVariable Long spaceId,
+                                                                             @PathVariable Long retrospectId,
+                                                                             @Validated @RequestBody PersonalActionItemCreateRequest request) {
+        ActionItemCreateResponse response = actionItemService.createPersonalActionItem(memberId, spaceId, retrospectId, request.content());
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @Override
+    @GetMapping("/personal/space/{spaceId}/retrospect/{retrospectId}")
+    public ResponseEntity<PersonalActionItemGetResponse> getPersonalActionItems(@MemberId Long memberId,
+                                                                                @PathVariable Long spaceId,
+                                                                                @PathVariable Long retrospectId) {
+        PersonalActionItemGetResponse response = actionItemService.getPersonalActionItems(memberId, spaceId, retrospectId);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @Override
+    @PatchMapping("/personal/space/{spaceId}/retrospect/{retrospectId}/update")
+    public ResponseEntity<Void> updatePersonalActionItems(@MemberId Long memberId,
+                                                          @PathVariable Long spaceId,
+                                                          @PathVariable Long retrospectId,
+                                                          @RequestBody ActionItemUpdateRequest request) {
+        actionItemService.updatePersonalActionItems(memberId, spaceId, retrospectId, request);
+        return ResponseEntity.ok().build();
+    }
+
+    @Override
+    @DeleteMapping("/personal/{actionItemId}")
+    public ResponseEntity<Void> deletePersonalActionItem(@MemberId Long memberId,
+                                                         @PathVariable Long actionItemId) {
+        actionItemService.deletePersonalActionItem(memberId, actionItemId);
+        return ResponseEntity.ok().build();
     }
 }

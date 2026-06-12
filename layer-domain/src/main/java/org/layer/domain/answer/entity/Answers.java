@@ -35,6 +35,14 @@ public class Answers {
 			.orElse(null);
 	}
 
+	public Long getAnswerIdToQuestion(Long questionId, Long memberId) {
+		return answers.stream()
+			.filter(answer -> answer.getQuestionId().equals(questionId) && answer.getMemberId().equals(memberId))
+			.map(Answer::getId)
+			.findFirst()
+			.orElse(null);
+	}
+
 	public boolean hasRetrospectAnswer(Long memberId, Long retrospectId) {
 		return answers.stream()
 			.filter(answer -> answer.getRetrospectId().equals(retrospectId))

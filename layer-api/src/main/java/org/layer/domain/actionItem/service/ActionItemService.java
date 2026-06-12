@@ -7,6 +7,7 @@ import org.layer.domain.actionItem.controller.dto.response.*;
 import org.layer.domain.actionItem.dto.ActionItemResponse;
 import org.layer.domain.actionItem.dto.MemberActionItemResponse;
 import org.layer.domain.actionItem.entity.ActionItem;
+import org.layer.domain.actionItem.entity.ActionItemType;
 import org.layer.domain.actionItem.enums.ActionItemStatus;
 import org.layer.domain.actionItem.exception.ActionItemException;
 import org.layer.domain.actionItem.repository.ActionItemRepository;
@@ -24,6 +25,8 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import static org.layer.domain.actionItem.entity.ActionItemType.PERSONAL;
+import static org.layer.domain.actionItem.entity.ActionItemType.TEAM;
 import static org.layer.domain.retrospect.entity.RetrospectStatus.DONE;
 import static org.layer.global.exception.ApiActionItemExceptionType.*;
 import static org.layer.global.exception.ApiMemberSpaceRelationExceptionType.*;
@@ -56,6 +59,7 @@ public class ActionItemService {
                 .memberId(memberId)
                 .content(content)
                 .actionItemOrder(actionItemCount + 1)
+                .type(TEAM)
                 .build());
 
         return new ActionItemCreateResponse(savedActionItem.getId());
@@ -90,6 +94,7 @@ public class ActionItemService {
                 .memberId(memberId)
                 .content(content)
                 .actionItemOrder(actionItemCount + 1)
+                .type(TEAM)
                 .build());
 
         return new ActionItemCreateResponse(savedActionItem.getId());
@@ -228,6 +233,185 @@ public class ActionItemService {
         return new MemberActionItemGetResponse(dtoList);
     }
 
+    //== 개인 실행 목표 - 스페이스 전체 회고별 조회 ==//
+    public PersonalSpaceRetrospectActionItemGetResponse getPersonalSpaceActionItemList(Long memberId, Long spaceId) {
+        Space space = spaceRepository.findByIdOrThrow(spaceId);
+        memberSpaceRelationRepository.findBySpaceIdAndMemberId(spaceId, memberId)
+                .orElseThrow(() -> new MemberSpaceRelationException(NOT_FOUND_MEMBER_SPACE_RELATION));
+
+        List<Retrospect> doneRetrospects = retrospectRepository.findAllBySpaceId(spaceId).stream()
+                .filter(r -> r.getRetrospectStatus().equals(DONE))
+                .sorted((a, b) -> b.getDeadline().compareTo(a.getDeadline()))
+                .toList();
+
+        List<Long> doneRetrospectIds = doneRetrospects.stream().map(Retrospect::getId).toList();
+        List<ActionItem> personalItems = actionItemRepository.findAllByRetrospectIdInAndMemberIdAndType(doneRetrospectIds, memberId, PERSONAL);
+
+        List<RetrospectActionItemResponse> responses = new ArrayList<>();
+        for (int i = 0; i < doneRetrospects.size(); i++) {
+            Retrospect retrospect = doneRetrospects.get(i);
+            ActionItemStatus status = (i == 0) ? ActionItemStatus.PROCEEDING : ActionItemStatus.DONE;
+
+            List<ActionItemResponse> items = personalItems.stream()
+                    .filter(ai -> ai.getRetrospectId().equals(retrospect.getId()))
+                    .sorted(Comparator.comparingInt(ActionItem::getActionItemOrder))
+                    .map(ActionItemResponse::of)
+                    .toList();
+
+            responses.add(RetrospectActionItemResponse.builder()
+                    .retrospectId(retrospect.getId())
+                    .retrospectTitle(retrospect.getTitle())
+                    .deadline(retrospect.getDeadline())
+                    .status(status)
+                    .actionItemList(items)
+                    .build());
+        }
+
+        return PersonalSpaceRetrospectActionItemGetResponse.of(space, responses);
+    }
+
+    //== 개인 실행 목표 - 스페이스 최근 회고 조회 ==//
+    public PersonalSpaceActionItemGetResponse getPersonalSpaceRecentActionItems(Long memberId, Long spaceId) {
+        Space space = spaceRepository.findByIdOrThrow(spaceId);
+        memberSpaceRelationRepository.findBySpaceIdAndMemberId(spaceId, memberId)
+                .orElseThrow(() -> new MemberSpaceRelationException(NOT_FOUND_MEMBER_SPACE_RELATION));
+
+        Optional<Retrospect> recentOpt = retrospectRepository.findAllBySpaceId(spaceId).stream()
+                .filter(r -> r.getRetrospectStatus().equals(DONE))
+                .sorted(Comparator.comparing(Retrospect::getDeadline,
+                        Comparator.nullsLast(Comparator.naturalOrder())).reversed())
+                .findFirst();
+
+        if (recentOpt.isEmpty()) {
+            return PersonalSpaceActionItemGetResponse.empty(space);
+        }
+
+        Retrospect recent = recentOpt.get();
+        List<ActionItem> items = actionItemRepository
+                .findAllByRetrospectIdAndMemberIdAndType(recent.getId(), memberId, PERSONAL)
+                .stream()
+                .sorted(Comparator.comparingInt(ActionItem::getActionItemOrder))
+                .toList();
+
+        return PersonalSpaceActionItemGetResponse.of(space, recent, items);
+    }
+
+    //== 개인 실행 목표 - 멤버의 전체 스페이스 조회 ==//
+    public MemberActionItemGetResponse getPersonalMemberActionItemList(Long memberId) {
+        List<MemberActionItemResponse> dtoList = retrospectRepository.findAllMemberActionItemResponsesByMemberId(memberId);
+
+        List<Long> retrospectIds = dtoList.stream().map(MemberActionItemResponse::getRetrospectId).toList();
+        List<ActionItem> personalItems = actionItemRepository.findAllByRetrospectIdInAndMemberIdAndType(retrospectIds, memberId, PERSONAL);
+
+        Set<Long> spaceIdSet = new HashSet<>();
+        for (MemberActionItemResponse dto : dtoList) {
+            List<ActionItemResponse> items = personalItems.stream()
+                    .filter(ai -> ai.getRetrospectId().equals(dto.getRetrospectId()))
+                    .sorted(Comparator.comparingInt(ActionItem::getActionItemOrder))
+                    .map(ActionItemResponse::of)
+                    .toList();
+
+            ActionItemStatus status = spaceIdSet.contains(dto.getSpaceId()) ? ActionItemStatus.DONE : ActionItemStatus.PROCEEDING;
+            spaceIdSet.add(dto.getSpaceId());
+
+            dto.updateActionItemList(items);
+            dto.updateStatus(status);
+        }
+
+        return new MemberActionItemGetResponse(dtoList);
+    }
+
+    //== 개인 실행 목표 생성 ==//
+    @Transactional
+    public ActionItemCreateResponse createPersonalActionItem(Long memberId, Long spaceId, Long retrospectId, String content) {
+        memberSpaceRelationRepository.findBySpaceIdAndMemberId(spaceId, memberId)
+                .orElseThrow(() -> new MemberSpaceRelationException(NOT_FOUND_MEMBER_SPACE_RELATION));
+
+        retrospectRepository.findByIdOrThrow(retrospectId);
+
+        int count = actionItemRepository.countByRetrospectIdAndMemberIdAndType(retrospectId, memberId, PERSONAL);
+
+        ActionItem saved = actionItemRepository.save(ActionItem.builder()
+                .retrospectId(retrospectId)
+                .spaceId(spaceId)
+                .memberId(memberId)
+                .content(content)
+                .actionItemOrder(count + 1)
+                .type(PERSONAL)
+                .build());
+
+        return new ActionItemCreateResponse(saved.getId());
+    }
+
+    //== 개인 실행 목표 조회 ==//
+    public PersonalActionItemGetResponse getPersonalActionItems(Long memberId, Long spaceId, Long retrospectId) {
+        memberSpaceRelationRepository.findBySpaceIdAndMemberId(spaceId, memberId)
+                .orElseThrow(() -> new MemberSpaceRelationException(NOT_FOUND_MEMBER_SPACE_RELATION));
+
+        retrospectRepository.findByIdOrThrow(retrospectId);
+
+        List<ActionItem> items = actionItemRepository
+                .findAllByRetrospectIdAndMemberIdAndType(retrospectId, memberId, PERSONAL)
+                .stream()
+                .sorted(Comparator.comparingInt(ActionItem::getActionItemOrder))
+                .toList();
+
+        return PersonalActionItemGetResponse.from(items);
+    }
+
+    //== 개인 실행 목표 수정 ==//
+    @Transactional
+    public void updatePersonalActionItems(Long memberId, Long spaceId, Long retrospectId, ActionItemUpdateRequest updateDto) {
+        memberSpaceRelationRepository.findBySpaceIdAndMemberId(spaceId, memberId)
+                .orElseThrow(() -> new MemberSpaceRelationException(NOT_FOUND_MEMBER_SPACE_RELATION));
+
+        retrospectRepository.findByIdOrThrow(retrospectId);
+
+        List<ActionItem> dbItems = actionItemRepository.findAllByRetrospectIdAndMemberIdAndType(retrospectId, memberId, PERSONAL);
+
+        Set<Long> requestIds = updateDto.actionItems().stream()
+                .map(ActionItemUpdateRequest.ActionItemUpdateElementRequest::id)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        actionItemRepository.deleteAll(dbItems.stream()
+                .filter(item -> !requestIds.contains(item.getId()))
+                .toList());
+
+        Map<Long, ActionItem> itemMap = dbItems.stream()
+                .collect(Collectors.toMap(ActionItem::getId, item -> item));
+
+        int order = 1;
+        for (ActionItemUpdateRequest.ActionItemUpdateElementRequest req : updateDto.actionItems()) {
+            if (req.id() != null && itemMap.containsKey(req.id())) {
+                ActionItem item = itemMap.get(req.id());
+                item.updateContent(req.content());
+                item.updateActionItemOrder(order++);
+            } else {
+                actionItemRepository.save(ActionItem.builder()
+                        .retrospectId(retrospectId)
+                        .spaceId(spaceId)
+                        .memberId(memberId)
+                        .content(req.content())
+                        .actionItemOrder(order++)
+                        .type(PERSONAL)
+                        .build());
+            }
+        }
+    }
+
+    //== 개인 실행 목표 삭제 ==//
+    @Transactional
+    public void deletePersonalActionItem(Long memberId, Long actionItemId) {
+        ActionItem item = actionItemRepository.findByIdOrThrow(actionItemId);
+
+        if (!item.getMemberId().equals(memberId)) {
+            throw new ActionItemException(FORBIDDEN_ACTION_ITEM);
+        }
+
+        actionItemRepository.delete(item);
+    }
+
     //== 실행 목표 수정 ==//
     @Transactional
     public void updateActionItems(Long memberId, Long retrospectId, ActionItemUpdateRequest updateDto) {
@@ -273,6 +457,7 @@ public class ActionItemService {
                     .memberId(memberId)
                     .content(requestItem.content())
                     .actionItemOrder(order++)
+                    .type(TEAM)
                     .build();
                 actionItemRepository.save(newActionItem);
             }
