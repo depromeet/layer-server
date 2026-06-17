@@ -86,6 +86,14 @@ public class AIAnalyzeService {
 			Answers answers = new Answers(
 				answerRepository.findAllByRetrospectIdAndAnswerStatus(retrospectId, AnswerStatus.DONE));
 
+			// 답변이 없으면 할루시네이션 방지를 위해 분석 없이 종료
+			if (answers.getAnswers().isEmpty()) {
+				log.info("No answers found for retrospectId: {}. Skipping AI analysis.", retrospectId);
+				retrospect.updateAnalysisStatus(AnalysisStatus.DONE);
+				retrospectRepository.save(retrospect);
+				return;
+			}
+
 			Long rangeQuestionId = questions.extractEssentialQuestionIdBy(QuestionType.RANGER);
 			Long numberQuestionId = questions.extractEssentialQuestionIdBy(QuestionType.NUMBER);
 			String totalAnswer = answers.getTotalAnswer(rangeQuestionId, numberQuestionId);
