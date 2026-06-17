@@ -65,7 +65,7 @@ public class RetrospectService {
 		Team team = new Team(memberSpaceRelationRepository.findAllBySpaceId(spaceId));
 		team.validateTeamMembership(memberId);
 
-		Retrospect retrospect = getRetrospect(request, spaceId);
+		Retrospect retrospect = getRetrospect(request, spaceId, (int) team.getTeamMemberCount());
 		Retrospect savedRetrospect = retrospectRepository.save(retrospect);
 
 		List<Question> questions = getQuestions(request.questions(), savedRetrospect.getId(), null);
@@ -100,7 +100,7 @@ public class RetrospectService {
 		return savedRetrospect.getId();
 	}
 
-	private Retrospect getRetrospect(RetrospectCreateRequest request, Long spaceId) {
+	private Retrospect getRetrospect(RetrospectCreateRequest request, Long spaceId, int targetMemberCount) {
 		return Retrospect.builder()
 			.spaceId(spaceId)
 			.title(request.title())
@@ -108,6 +108,7 @@ public class RetrospectService {
 			.retrospectStatus(RetrospectStatus.PROCEEDING)
 			.analysisStatus(AnalysisStatus.NOT_STARTED)
 			.deadline(request.deadline())
+			.targetMemberCount(targetMemberCount)
 			.build();
 	}
 

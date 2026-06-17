@@ -47,15 +47,19 @@ public class Retrospect extends BaseTimeEntity {
 
 	private LocalDateTime deadline;
 
+	// 회고 생성 시점의 스페이스 멤버 수 스냅샷 (이후 멤버 변동과 무관하게 분석 트리거 기준으로 사용)
+	private Integer targetMemberCount;
+
 	@Builder
 	public Retrospect(Long spaceId, String title, String introduction, RetrospectStatus retrospectStatus,
-		AnalysisStatus analysisStatus, LocalDateTime deadline) {
+		AnalysisStatus analysisStatus, LocalDateTime deadline, Integer targetMemberCount) {
 		this.spaceId = spaceId;
 		this.title = title;
 		this.introduction = introduction;
 		this.retrospectStatus = retrospectStatus;
 		this.analysisStatus = analysisStatus;
 		this.deadline = deadline;
+		this.targetMemberCount = targetMemberCount;
 	}
 
 	public boolean isRetrospectProceeding() {
