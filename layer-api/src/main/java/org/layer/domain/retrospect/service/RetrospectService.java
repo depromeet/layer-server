@@ -136,13 +136,14 @@ public class RetrospectService {
 
 		List<RetrospectGetResponse> retrospectDtos = retrospects.stream()
 			.map(r -> {
-				long totalCount = r.getTargetMemberCount() != null
-					? r.getTargetMemberCount()
-					: team.getTeamMemberCount();
-				if (r.getRetrospectStatus().equals(RetrospectStatus.DONE)) {
-					// 회고가 종료된 경우, 해당 회고의 deadline 시점의 팀원 수를 totalCount로 설정한다.
-					// RetrospectStatus 가 DONE 으로 변경되면, deadline이 null 값이 될 수 없기 때문이다.
+				long totalCount;
+				if (r.getTargetMemberCount() != null) {
+					totalCount = r.getTargetMemberCount();
+				} else if (r.getRetrospectStatus().equals(RetrospectStatus.DONE)) {
+					// targetMemberCount가 없는 기존 데이터: deadline 시점 팀원 수로 폴백
 					totalCount = team.getTeamMemberCountBefore(r.getDeadline());
+				} else {
+					totalCount = team.getTeamMemberCount();
 				}
 
 				return RetrospectGetResponse.of(r.getSpaceId(), r.getId(), r.getTitle(), r.getIntroduction(),
@@ -171,9 +172,6 @@ public class RetrospectService {
 				long totalCount = r.getTargetMemberCount() != null
 					? r.getTargetMemberCount()
 					: spaceMemberCountMap.get(r.getSpaceId());
-				if (r.getRetrospectStatus().equals(RetrospectStatus.DONE)) {
-					totalCount = answers.getWriteCount(r.getId());
-				}
 
 				return RetrospectGetResponse.of(r.getSpaceId(), r.getId(), r.getTitle(), r.getIntroduction(),
 					answers.getWriteStatus(memberId, r.getId()), r.getRetrospectStatus(), r.getAnalysisStatus(),
