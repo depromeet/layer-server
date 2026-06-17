@@ -1,5 +1,7 @@
 package org.layer.domain.retrospect.service;
 
+import static org.layer.global.exception.RetrospectExceptionType.NO_ANSWERS_TO_CLOSE;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -7,7 +9,9 @@ import org.layer.domain.retrospect.dto.SpaceMemberCount;
 import org.layer.domain.space.entity.MemberSpaceRelation;
 import org.layer.event.ai.AIAnalyzeStartEvent;
 import org.layer.domain.answer.entity.Answers;
+import org.layer.domain.answer.enums.AnswerStatus;
 import org.layer.domain.answer.repository.AnswerRepository;
+import org.layer.domain.retrospect.exception.RetrospectException;
 import org.layer.domain.common.random.CustomRandom;
 import org.layer.domain.common.time.Time;
 import org.layer.domain.form.entity.Form;
@@ -232,6 +236,12 @@ public class RetrospectService {
 		space.isLeaderSpace(memberId);
 
 		Retrospect retrospect = retrospectRepository.findByIdOrThrow(retrospectId);
+
+		// 작성된 답변이 없으면 마감 불가
+		Answers answers = new Answers(answerRepository.findAllByRetrospectIdAndAnswerStatus(retrospectId, AnswerStatus.DONE));
+		if (answers.getAnswers().isEmpty()) {
+			throw new RetrospectException(NO_ANSWERS_TO_CLOSE);
+		}
 
 		retrospect.completeRetrospectAndStartAnalysis(time.now());
 		if (retrospect.getAnalysisStatus().equals(AnalysisStatus.DONE)) {
