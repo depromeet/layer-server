@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.layer.domain.actionItem.entity.ActionItem;
+import org.layer.domain.actionItem.entity.ActionItemType;
 import org.layer.domain.actionItem.repository.ActionItemRepository;
 import org.layer.domain.analyze.entity.Analyze;
 import org.layer.domain.analyze.entity.AnalyzeDetail;
@@ -104,22 +105,30 @@ public class AIAnalyzeService {
 			List<ActionItem> actionItems = createActionItemsFromAnalyzeDetails(
 				teamAnalyze.getAnalyzeDetailsBy(AnalyzeDetailType.IMPROVEMENT),
 				retrospect.getSpaceId(),
-				retrospect.getId(), space.getLeaderId());
+				retrospect.getId(), space.getLeaderId(), ActionItemType.TEAM);
 			actionItemRepository.saveAll(actionItems);
 
-			// 팀원 개인마다의 분석 요청
+			// 팀원 개인마다의 분석 요청 및 개인 실행 목표 생성
 			Team team = new Team(memberSpaceRelationRepository.findAllBySpaceId(retrospect.getSpaceId()));
 
-			List<Analyze> individualAnalyzes = team.getMemberIds().stream()
-				.map(memberId -> {
-					String individualAnswer = answers.getIndividualAnswer(rangeQuestionId, numberQuestionId, memberId);
-					OpenAIResponse aiIndividualResponse = openAIService.createAnalyze(individualAnswer);
-					OpenAIResponse.Content individualContent = aiIndividualResponse.parseContent();
-					return getAnalyzeEntity(retrospectId, answers, rangeQuestionId, numberQuestionId, individualContent,
-						memberId, AnalyzeType.INDIVIDUAL);
-				})
-				.toList();
+			List<Analyze> individualAnalyzes = new ArrayList<>();
+			List<ActionItem> personalActionItems = new ArrayList<>();
+
+			for (Long memberId : team.getMemberIds()) {
+				String individualAnswer = answers.getIndividualAnswer(rangeQuestionId, numberQuestionId, memberId);
+				OpenAIResponse aiIndividualResponse = openAIService.createAnalyze(individualAnswer);
+				OpenAIResponse.Content individualContent = aiIndividualResponse.parseContent();
+				Analyze individualAnalyze = getAnalyzeEntity(retrospectId, answers, rangeQuestionId, numberQuestionId,
+					individualContent, memberId, AnalyzeType.INDIVIDUAL);
+				individualAnalyzes.add(individualAnalyze);
+
+				personalActionItems.addAll(createActionItemsFromAnalyzeDetails(
+					individualAnalyze.getAnalyzeDetailsBy(AnalyzeDetailType.IMPROVEMENT),
+					retrospect.getSpaceId(), retrospect.getId(), memberId, ActionItemType.PERSONAL));
+			}
+
 			analyzeRepository.saveAll(individualAnalyzes);
+			actionItemRepository.saveAll(personalActionItems);
 
 			long endTime = System.currentTimeMillis();
 			log.info("createAnalyze completed in {} ms", (endTime - startTime));
@@ -154,7 +163,7 @@ public class AIAnalyzeService {
 	}
 
 	private List<ActionItem> createActionItemsFromAnalyzeDetails(List<AnalyzeDetail> analyzeDetails, Long spaceId,
-		Long retrospectId, Long memberId) {
+		Long retrospectId, Long memberId, ActionItemType type) {
 		List<ActionItem> actionItems = new ArrayList<>();
 		int order = 1;
 		for (AnalyzeDetail detail : analyzeDetails) {
@@ -164,6 +173,7 @@ public class AIAnalyzeService {
 				.memberId(memberId)
 				.content(detail.getContent())
 				.actionItemOrder(order)
+				.type(type)
 				.build();
 			actionItems.add(actionItem);
 			order++;
