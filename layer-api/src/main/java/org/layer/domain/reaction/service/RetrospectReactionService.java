@@ -9,6 +9,7 @@ import org.layer.domain.reaction.controller.dto.response.ReactionGetResponse;
 import org.layer.domain.reaction.controller.dto.response.ReactionListGetResponse;
 import org.layer.domain.reaction.controller.dto.response.RetrospectReactionElementResponse;
 import org.layer.domain.reaction.controller.dto.response.RetrospectReactionListGetResponse;
+import org.layer.domain.reaction.entity.EmojiCode;
 import org.layer.domain.reaction.entity.Reaction;
 import org.layer.domain.reaction.entity.RetrospectReaction;
 import org.layer.domain.reaction.exception.ReactionException;
@@ -48,14 +49,15 @@ public class RetrospectReactionService {
 
         retrospectRepository.findByIdOrThrow(retrospectId);
 
-        reactionRepository.findByIdOrThrow(request.reactionId());
+        EmojiCode emojiCode = EmojiCode.valueOf(request.emojiCode());
+        Reaction reaction = reactionRepository.findByEmojiCodeOrThrow(emojiCode);
 
         if (retrospectReactionRepository.existsByAnswerIdAndMemberId(request.answerId(), memberId)) {
             throw new ReactionException(ALREADY_REACTED);
         }
 
         RetrospectReaction retrospectReaction = RetrospectReaction.builder()
-                .reactionId(request.reactionId())
+                .reactionId(reaction.getId())
                 .answerId(request.answerId())
                 .memberId(memberId)
                 .build();
@@ -92,6 +94,10 @@ public class RetrospectReactionService {
 
         List<RetrospectReaction> retrospectReactions = retrospectReactionRepository.findAllByAnswerIdIn(answerIds);
 
+        List<Long> reactionIds = retrospectReactions.stream().map(RetrospectReaction::getReactionId).distinct().toList();
+        Map<Long, EmojiCode> reactionEmojiMap = reactionRepository.findAllById(reactionIds).stream()
+                .collect(Collectors.toMap(Reaction::getId, Reaction::getEmojiCode));
+
         List<Long> memberIds = retrospectReactions.stream().map(RetrospectReaction::getMemberId).distinct().toList();
         Members members = new Members(memberRepository.findAllById(memberIds));
 
@@ -105,6 +111,7 @@ public class RetrospectReactionService {
                                 .stream()
                                 .map(r -> RetrospectReactionElementResponse.of(
                                         r,
+                                        reactionEmojiMap.get(r.getReactionId()),
                                         members.getName(r.getMemberId()),
                                         members.getProfileImageUrl(r.getMemberId())
                                 ))

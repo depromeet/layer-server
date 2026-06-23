@@ -1,6 +1,8 @@
 package org.layer.domain.reaction.entity;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -21,10 +23,11 @@ public class Reaction extends BaseTimeEntity {
     private Long id;
 
     @NotNull
-    private String imgUrl;
+    @Enumerated(EnumType.STRING)
+    private EmojiCode emojiCode;
 
     @Builder
-    public Reaction(String imgUrl) {
-        this.imgUrl = imgUrl;
+    public Reaction(EmojiCode emojiCode) {
+        this.emojiCode = emojiCode;
     }
 }
