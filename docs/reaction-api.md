@@ -7,6 +7,25 @@
 
 ---
 
+## 이모지 코드 목록
+
+서버-클라이언트는 아래 코드 값으로 소통하며, **이미지 리소스는 클라이언트에서 관리**합니다.
+
+| 코드 | 설명 |
+|---|---|
+| `LEC01` | 대단해 |
+| `LEC02` | 완벽해 |
+| `LEC03` | 최고야 |
+| `LEC04` | 역시 |
+| `LEC05` | 고생했어 |
+| `LEC06` | 기대중 |
+| `LEC07` | 괜찮아 |
+| `LEC08` | 성장했다 |
+| `LEC09` | 화이팅 |
+| `LEC10` | 할 수 있다 |
+
+---
+
 ## 목차
 
 1. [사용 가능한 모든 반응 조회](#1-사용-가능한-모든-반응-조회)
@@ -32,11 +51,13 @@ GET /api/reaction
   "reactions": [
     {
       "id": 1,
-      "imgUrl": "https://example.com/reaction/thumbs-up.png"
+      "emojiCode": "LEC01",
+      "description": "대단해"
     },
     {
       "id": 2,
-      "imgUrl": "https://example.com/reaction/heart.png"
+      "emojiCode": "LEC02",
+      "description": "완벽해"
     }
   ]
 }
@@ -46,7 +67,8 @@ GET /api/reaction
 |---|---|---|
 | `reactions` | `array` | 반응 목록 |
 | `reactions[].id` | `number` | 반응 ID |
-| `reactions[].imgUrl` | `string` | 반응 이미지 URL |
+| `reactions[].emojiCode` | `string` | 이모지 코드 (예: `LEC01`) |
+| `reactions[].description` | `string` | 이모지 설명 (예: `대단해`) |
 
 ---
 
@@ -78,11 +100,13 @@ GET /api/reaction/recent?limit=8
   "reactions": [
     {
       "id": 3,
-      "imgUrl": "https://example.com/reaction/fire.png"
+      "emojiCode": "LEC03",
+      "description": "최고야"
     },
     {
       "id": 1,
-      "imgUrl": "https://example.com/reaction/thumbs-up.png"
+      "emojiCode": "LEC01",
+      "description": "대단해"
     }
   ]
 }
@@ -112,14 +136,14 @@ POST /space/{spaceId}/retrospect/{retrospectId}/reaction
 
 ```json
 {
-  "reactionId": 1,
+  "emojiCode": "LEC01",
   "answerId": 5
 }
 ```
 
 | 필드 | 타입 | 필수 | 설명 |
 |---|---|---|---|
-| `reactionId` | `number` | Y | 사용할 반응 ID (반응 목록 조회 API에서 가져온 값) |
+| `emojiCode` | `string` | Y | 사용할 이모지 코드 (예: `LEC01`) |
 | `answerId` | `number` | Y | 반응을 달 답변 ID |
 
 ### Response
@@ -129,7 +153,7 @@ POST /space/{spaceId}/retrospect/{retrospectId}/reaction
 | `201` | 반응 생성 성공 |
 | `400` | 이미 해당 답변에 반응을 달았음 |
 | `403` | 해당 스페이스 멤버가 아님 |
-| `404` | 존재하지 않는 반응 ID |
+| `404` | 존재하지 않는 이모지 코드 |
 
 ---
 
@@ -185,13 +209,19 @@ GET /space/{spaceId}/retrospect/{retrospectId}/reaction
       "reactions": [
         {
           "retrospectReactionId": 1,
-          "reactionId": 2,
-          "memberId": 29
+          "emojiCode": "LEC01",
+          "description": "대단해",
+          "memberId": 29,
+          "memberName": "홍길동",
+          "memberProfileImgUrl": "https://example.com/profile.png"
         },
         {
           "retrospectReactionId": 2,
-          "reactionId": 5,
-          "memberId": 31
+          "emojiCode": "LEC05",
+          "description": "고생했어",
+          "memberId": 31,
+          "memberName": "김철수",
+          "memberProfileImgUrl": "https://example.com/profile2.png"
         }
       ]
     },
@@ -209,8 +239,11 @@ GET /space/{spaceId}/retrospect/{retrospectId}/reaction
 | `answerReactions[].answerId` | `number` | 답변 ID |
 | `answerReactions[].reactions` | `array` | 해당 답변에 달린 반응 목록 (없으면 빈 배열) |
 | `reactions[].retrospectReactionId` | `number` | 회고 반응 ID — **삭제 시 이 값을 사용** |
-| `reactions[].reactionId` | `number` | 어떤 반응인지 (imgUrl 매핑에 사용) |
+| `reactions[].emojiCode` | `string` | 이모지 코드 (예: `LEC01`) |
+| `reactions[].description` | `string` | 이모지 설명 (예: `대단해`) |
 | `reactions[].memberId` | `number` | 반응을 단 멤버 ID — **내 반응 여부 판단에 사용** |
+| `reactions[].memberName` | `string` | 반응을 단 멤버 이름 |
+| `reactions[].memberProfileImgUrl` | `string` | 반응을 단 멤버 프로필 이미지 URL |
 
 ---
 
