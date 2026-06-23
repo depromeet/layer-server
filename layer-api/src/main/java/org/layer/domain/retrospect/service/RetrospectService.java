@@ -1,5 +1,7 @@
 package org.layer.domain.retrospect.service;
 
+import static org.layer.global.exception.RetrospectExceptionType.NO_ANSWERS_TO_CLOSE;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -7,7 +9,9 @@ import org.layer.domain.retrospect.dto.SpaceMemberCount;
 import org.layer.domain.space.entity.MemberSpaceRelation;
 import org.layer.event.ai.AIAnalyzeStartEvent;
 import org.layer.domain.answer.entity.Answers;
+import org.layer.domain.answer.enums.AnswerStatus;
 import org.layer.domain.answer.repository.AnswerRepository;
+import org.layer.domain.retrospect.exception.RetrospectException;
 import org.layer.domain.common.random.CustomRandom;
 import org.layer.domain.common.time.Time;
 import org.layer.domain.form.entity.Form;
@@ -65,7 +69,7 @@ public class RetrospectService {
 		Team team = new Team(memberSpaceRelationRepository.findAllBySpaceId(spaceId));
 		team.validateTeamMembership(memberId);
 
-		Retrospect retrospect = getRetrospect(request, spaceId);
+		Retrospect retrospect = getRetrospect(request, spaceId, (int) team.getTeamMemberCount());
 		Retrospect savedRetrospect = retrospectRepository.save(retrospect);
 
 		List<Question> questions = getQuestions(request.questions(), savedRetrospect.getId(), null);
@@ -100,7 +104,7 @@ public class RetrospectService {
 		return savedRetrospect.getId();
 	}
 
-	private Retrospect getRetrospect(RetrospectCreateRequest request, Long spaceId) {
+	private Retrospect getRetrospect(RetrospectCreateRequest request, Long spaceId, int targetMemberCount) {
 		return Retrospect.builder()
 			.spaceId(spaceId)
 			.title(request.title())
@@ -108,6 +112,7 @@ public class RetrospectService {
 			.retrospectStatus(RetrospectStatus.PROCEEDING)
 			.analysisStatus(AnalysisStatus.NOT_STARTED)
 			.deadline(request.deadline())
+			.targetMemberCount(targetMemberCount)
 			.build();
 	}
 
@@ -135,11 +140,14 @@ public class RetrospectService {
 
 		List<RetrospectGetResponse> retrospectDtos = retrospects.stream()
 			.map(r -> {
-				long totalCount = team.getTeamMemberCount();
-				if (r.getRetrospectStatus().equals(RetrospectStatus.DONE)) {
-					// 회고가 종료된 경우, 해당 회고의 deadline 시점의 팀원 수를 totalCount로 설정한다.
-					// RetrospectStatus 가 DONE 으로 변경되면, deadline이 null 값이 될 수 없기 때문이다.
+				long totalCount;
+				if (r.getTargetMemberCount() != null) {
+					totalCount = r.getTargetMemberCount();
+				} else if (r.getRetrospectStatus().equals(RetrospectStatus.DONE)) {
+					// targetMemberCount가 없는 기존 데이터: deadline 시점 팀원 수로 폴백
 					totalCount = team.getTeamMemberCountBefore(r.getDeadline());
+				} else {
+					totalCount = team.getTeamMemberCount();
 				}
 
 				return RetrospectGetResponse.of(r.getSpaceId(), r.getId(), r.getTitle(), r.getIntroduction(),
@@ -165,14 +173,13 @@ public class RetrospectService {
 
 		List<RetrospectGetResponse> retrospectDtos = retrospects.stream()
 			.map(r -> {
-				long writeCount = spaceMemberCountMap.get(r.getSpaceId());
-				if (r.getRetrospectStatus().equals(RetrospectStatus.DONE)) {
-					writeCount = answers.getWriteCount(r.getId());
-				}
+				long totalCount = r.getTargetMemberCount() != null
+					? r.getTargetMemberCount()
+					: spaceMemberCountMap.get(r.getSpaceId());
 
 				return RetrospectGetResponse.of(r.getSpaceId(), r.getId(), r.getTitle(), r.getIntroduction(),
 					answers.getWriteStatus(memberId, r.getId()), r.getRetrospectStatus(), r.getAnalysisStatus(),
-					answers.getWriteCount(r.getId()), writeCount, r.getCreatedAt(), r.getDeadline());
+					answers.getWriteCount(r.getId()), totalCount, r.getCreatedAt(), r.getDeadline());
 			})
 			.toList();
 
@@ -229,6 +236,12 @@ public class RetrospectService {
 		space.isLeaderSpace(memberId);
 
 		Retrospect retrospect = retrospectRepository.findByIdOrThrow(retrospectId);
+
+		// 작성된 답변이 없으면 마감 불가
+		Answers answers = new Answers(answerRepository.findAllByRetrospectIdAndAnswerStatus(retrospectId, AnswerStatus.DONE));
+		if (answers.getAnswers().isEmpty()) {
+			throw new RetrospectException(NO_ANSWERS_TO_CLOSE);
+		}
 
 		retrospect.completeRetrospectAndStartAnalysis(time.now());
 		if (retrospect.getAnalysisStatus().equals(AnalysisStatus.DONE)) {

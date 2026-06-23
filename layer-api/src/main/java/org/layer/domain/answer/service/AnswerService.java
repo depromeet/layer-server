@@ -103,8 +103,12 @@ public class AnswerService {
 
 		Answers answers = new Answers(answerRepository.findAllByRetrospectId(retrospectId));
 
-		// 마지막 답변인 경우 -> ai 분석 실행
-		if (answers.getWriteCount(retrospectId) == team.getTeamMemberCount()) {
+		// 회고 생성 시점에 스냅샷된 targetMemberCount 기준으로 트리거 (멤버 변동과 무관)
+		// null인 경우(기존 데이터)는 현재 팀 멤버 수로 폴백
+		long target = retrospect.getTargetMemberCount() != null
+			? retrospect.getTargetMemberCount()
+			: team.getTeamMemberCount();
+		if (answers.getWriteCount(retrospectId) >= target) {
 			retrospect.completeRetrospectAndStartAnalysis(time.now());
 			retrospectRepository.save(retrospect);
 			eventPublisher.publishEvent(AIAnalyzeStartEvent.of(retrospectId));

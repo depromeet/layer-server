@@ -11,7 +11,8 @@ public enum RetrospectExceptionType implements ExceptionType {
 	DEADLINE_PASSED(HttpStatus.BAD_REQUEST, "회고 마감기한이 지났습니다."),
 	ALREADY_ANALYSIS_DONE(HttpStatus.BAD_REQUEST, "회고 분석을 이미 마쳤습니다."),
 	NOT_PROCEEDING_RETROSPECT(HttpStatus.BAD_REQUEST, "진행중인 회고가 아닙니다."),
-	NOT_FOUND_RETROSPECT(HttpStatus.NOT_FOUND, "유효한 회고가 존재하지 않습니다.");
+	NOT_FOUND_RETROSPECT(HttpStatus.NOT_FOUND, "유효한 회고가 존재하지 않습니다."),
+	NO_ANSWERS_TO_CLOSE(HttpStatus.BAD_REQUEST, "작성된 답변이 없어 회고를 마감할 수 없습니다.");
 
 	private final HttpStatus status;
 	private final String message;

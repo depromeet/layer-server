@@ -87,6 +87,7 @@ public class Answers {
 		return answerMembers.size();
 	}
 
+
 	public void validateNoAnswer() {
 		if (answers.size() != ZERO) {
 			throw new AnswerException(ALREADY_ANSWERED);
