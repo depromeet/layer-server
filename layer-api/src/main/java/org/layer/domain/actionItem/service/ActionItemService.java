@@ -183,8 +183,8 @@ public class ActionItemService {
         if (recentOpt.isPresent()) {
             Retrospect recent = recentOpt.get();
             List<ActionItem> actionItems = actionItemRepository
-                    .findAllByRetrospectId(recent.getId()).stream()
-                    .sorted(Comparator.comparingInt(ActionItem::getActionItemOrder)) // order 순으로 정렬
+                    .findAllByRetrospectIdAndType(recent.getId(), TEAM).stream()
+                    .sorted(Comparator.comparingInt(ActionItem::getActionItemOrder))
                     .toList();
 
             return SpaceActionItemGetResponse.of(space, recent, actionItems);
