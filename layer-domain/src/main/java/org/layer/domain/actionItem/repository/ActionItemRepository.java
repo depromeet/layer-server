@@ -23,6 +23,8 @@ public interface ActionItemRepository extends JpaRepository<ActionItem, Long> {
 
     int countByRetrospectId(Long retrospectId);
 
+    int countByRetrospectIdAndType(Long retrospectId, ActionItemType type);
+
     List<ActionItem> findAllByRetrospectIdIn(List<Long> retrospectIds);
 
     List<ActionItem> findAllByRetrospectIdInAndType(List<Long> retrospectIds, ActionItemType type);
