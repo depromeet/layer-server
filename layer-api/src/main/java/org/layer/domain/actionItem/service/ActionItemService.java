@@ -120,7 +120,7 @@ public class ActionItemService {
                 .toList();
 
         List<Long> doneRetrospectIds = doneRetrospects.stream().map(Retrospect::getId).toList();
-        List<ActionItem> actionItemList = actionItemRepository.findAllByRetrospectIdIn(doneRetrospectIds);
+        List<ActionItem> actionItemList = actionItemRepository.findAllByRetrospectIdInAndType(doneRetrospectIds, TEAM);
 
         List<RetrospectActionItemResponse> responses = new ArrayList<>();
         for (int index = 0; index < doneRetrospects.size(); index++) {
