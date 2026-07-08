@@ -49,8 +49,8 @@ public class ActionItemService {
         space.isLeaderSpace(memberId);
 
 
-        // order 설정을 위해 회고 아이디로 액션아이템 개수 찾기
-        int actionItemCount = actionItemRepository.countByRetrospectId(retrospectId);
+        // order 설정을 위해 TEAM 타입 실행 목표 개수 찾기
+        int actionItemCount = actionItemRepository.countByRetrospectIdAndType(retrospectId, TEAM);
 
         // 액션 아이템 생성
         ActionItem savedActionItem = actionItemRepository.save(ActionItem.builder()
@@ -84,8 +84,8 @@ public class ActionItemService {
 
         Retrospect retrospect = retrospectOpt.get();
 
-        // order 설정을 위해 회고 아이디로 실행 목표 개수 찾기
-        int actionItemCount = actionItemRepository.countByRetrospectId(retrospect.getId());
+        // order 설정을 위해 TEAM 타입 실행 목표 개수 찾기
+        int actionItemCount = actionItemRepository.countByRetrospectIdAndType(retrospect.getId(), TEAM);
 
         // 액션 아이템 생성
         ActionItem savedActionItem = actionItemRepository.save(ActionItem.builder()
@@ -120,7 +120,7 @@ public class ActionItemService {
                 .toList();
 
         List<Long> doneRetrospectIds = doneRetrospects.stream().map(Retrospect::getId).toList();
-        List<ActionItem> actionItemList = actionItemRepository.findAllByRetrospectIdIn(doneRetrospectIds);
+        List<ActionItem> actionItemList = actionItemRepository.findAllByRetrospectIdInAndType(doneRetrospectIds, TEAM);
 
         List<RetrospectActionItemResponse> responses = new ArrayList<>();
         for (int index = 0; index < doneRetrospects.size(); index++) {
@@ -183,8 +183,8 @@ public class ActionItemService {
         if (recentOpt.isPresent()) {
             Retrospect recent = recentOpt.get();
             List<ActionItem> actionItems = actionItemRepository
-                    .findAllByRetrospectId(recent.getId()).stream()
-                    .sorted(Comparator.comparingInt(ActionItem::getActionItemOrder)) // order 순으로 정렬
+                    .findAllByRetrospectIdAndType(recent.getId(), TEAM).stream()
+                    .sorted(Comparator.comparingInt(ActionItem::getActionItemOrder))
                     .toList();
 
             return SpaceActionItemGetResponse.of(space, recent, actionItems);
@@ -204,8 +204,8 @@ public class ActionItemService {
                 .map(MemberActionItemResponse::getRetrospectId)
                 .toList();
 
-        // 실행 목표 모두 찾기
-        List<ActionItem> actionItemList = actionItemRepository.findAllByRetrospectIdIn(doneRetrospectIds);
+        // 팀 실행 목표만 찾기
+        List<ActionItem> actionItemList = actionItemRepository.findAllByRetrospectIdInAndType(doneRetrospectIds, TEAM);
 
 
         Set<Long> spaceIdSet = new HashSet<>();
@@ -420,8 +420,8 @@ public class ActionItemService {
         Space space = spaceRepository.findByIdOrThrow(retrospect.getSpaceId());
         space.isLeaderSpace(memberId);
 
-        // 2. DB에 저장된 기존 실행 목표 가져오기
-        List<ActionItem> dbActionItems = actionItemRepository.findAllByRetrospectId(retrospectId);
+        // 2. DB에 저장된 기존 팀 실행 목표 가져오기
+        List<ActionItem> dbActionItems = actionItemRepository.findAllByRetrospectIdAndType(retrospectId, TEAM);
 
         // 3. 요청 데이터에서 ID 추출 (Update 대상 식별용)
         Set<Long> requestIds = updateDto.actionItems().stream()
