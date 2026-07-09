@@ -16,7 +16,7 @@ public interface RetrospectReactionRepository extends JpaRepository<RetrospectRe
         return findById(id).orElseThrow(() -> new ReactionException(NOT_FOUND_RETROSPECT_REACTION));
     }
 
-    boolean existsByAnswerIdAndMemberId(Long answerId, Long memberId);
+    boolean existsByAnswerIdAndMemberIdAndReactionId(Long answerId, Long memberId, Long reactionId);
 
     List<RetrospectReaction> findAllByAnswerIdIn(List<Long> answerIds);
 
