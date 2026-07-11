@@ -119,7 +119,7 @@ GET /api/reaction/recent?limit=8
 ## 3. 회고 반응 생성
 
 특정 회고 답변에 반응을 답니다.  
-**하나의 답변에 하나의 반응만 가능합니다.** 이미 반응을 달았다면 `400` 에러가 반환됩니다.
+**하나의 답변에 여러 이모지를 달 수 있습니다.** 단, 같은 이모지를 같은 답변에 중복으로 달 수는 없습니다.
 
 ```
 POST /space/{spaceId}/retrospect/{retrospectId}/reaction
@@ -151,7 +151,7 @@ POST /space/{spaceId}/retrospect/{retrospectId}/reaction
 | 상태코드 | 설명 |
 |---|---|
 | `201` | 반응 생성 성공 |
-| `400` | 이미 해당 답변에 반응을 달았음 |
+| `400` | 해당 답변에 동일한 이모지를 이미 달았음 |
 | `403` | 해당 스페이스 멤버가 아님 |
 | `404` | 존재하지 않는 이모지 코드 |
 
@@ -159,7 +159,8 @@ POST /space/{spaceId}/retrospect/{retrospectId}/reaction
 
 ## 4. 회고 반응 삭제
 
-내가 단 반응을 삭제합니다. **본인이 단 반응만 삭제 가능합니다.**
+내가 단 반응을 삭제합니다. **본인이 단 반응만 삭제 가능합니다.**  
+한 답변에 여러 반응을 달 수 있으므로, **반응 조회 API에서 받은 `retrospectReactionId`로 삭제할 반응을 특정해야 합니다.**
 
 ```
 DELETE /space/{spaceId}/retrospect/{retrospectId}/reaction/{retrospectReactionId}
@@ -171,7 +172,7 @@ DELETE /space/{spaceId}/retrospect/{retrospectId}/reaction/{retrospectReactionId
 |---|---|---|
 | `spaceId` | `number` | 스페이스 ID |
 | `retrospectId` | `number` | 회고 ID |
-| `retrospectReactionId` | `number` | 삭제할 회고 반응 ID (반응 조회 API의 `reactions[].retrospectReactionId`) |
+| `retrospectReactionId` | `number` | 삭제할 반응 ID — 반응 조회 API의 `reactions[].retrospectReactionId` 값 사용 |
 
 ### Response
 
@@ -259,12 +260,21 @@ GET /space/{spaceId}/retrospect/{retrospectId}/reaction
 
 ## 내가 단 반응 판단 방법
 
-```js
-const myReaction = reactions.find(r => r.memberId === currentMemberId);
-const hasMyReaction = !!myReaction;
+한 사람이 같은 답변에 여러 이모지를 달 수 있으므로, `filter`로 내 반응 목록을 모두 가져와야 합니다.
 
-// 반응 취소 시
-if (hasMyReaction) {
-  await deleteReaction(myReaction.retrospectReactionId);
-}
+```js
+// 내가 단 반응 목록 (여러 개일 수 있음)
+const myReactions = reactions.filter(r => r.memberId === currentMemberId);
+
+// 특정 이모지를 내가 이미 달았는지 확인
+const alreadyReacted = (emojiCode) =>
+  myReactions.some(r => r.emojiCode === emojiCode);
+
+// 특정 이모지 반응 취소 시 — retrospectReactionId로 특정
+const cancelReaction = (emojiCode) => {
+  const target = myReactions.find(r => r.emojiCode === emojiCode);
+  if (target) {
+    await deleteReaction(target.retrospectReactionId);
+  }
+};
 ```

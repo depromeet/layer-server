@@ -52,7 +52,7 @@ public class RetrospectReactionService {
         EmojiCode emojiCode = EmojiCode.valueOf(request.emojiCode());
         Reaction reaction = reactionRepository.findByEmojiCodeOrThrow(emojiCode);
 
-        if (retrospectReactionRepository.existsByAnswerIdAndMemberId(request.answerId(), memberId)) {
+        if (retrospectReactionRepository.existsByAnswerIdAndMemberIdAndReactionId(request.answerId(), memberId, reaction.getId())) {
             throw new ReactionException(ALREADY_REACTED);
         }
 
