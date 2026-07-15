@@ -51,7 +51,12 @@ public class JwtService {
             throw new TokenException(NO_REFRESH_TOKEN);
         }
 
-        // 2. 요청 헤더로 들어온 것과 같은가
+        // 2. Redis에 저장된 토큰이 없는 경우 (만료 또는 미존재)
+        if(refreshToken == null) {
+            throw new TokenException(INVALID_REFRESH_TOKEN);
+        }
+
+        // 3. 요청 헤더로 들어온 것과 같은가
         if(!refreshToken.equals(requestRefreshToken)) {
             throw new TokenException(INVALID_REFRESH_TOKEN);
         }
