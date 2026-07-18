@@ -18,7 +18,7 @@ public class AuthValueConfig {
     private Long accessTokenExpirationTime;
 
     // public static final Long ACCESS_TOKEN_EXPIRATION_TIME = 1000 * 60 * 60 * 24 * 14L;
-    public static final Long REFRESH_TOKEN_EXPIRATION_TIME = 1000 * 60 * 60 * 24 * 14L; // 2주
+    public static final Long REFRESH_TOKEN_EXPIRATION_TIME = 1000 * 60 * 60 * 24 * 30L; // 30일
 
     @PostConstruct
     protected void init() {

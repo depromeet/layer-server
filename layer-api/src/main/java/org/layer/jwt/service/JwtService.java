@@ -70,7 +70,7 @@ public class JwtService {
     }
 
     private void saveRefreshTokenToRedis(Long memberId, String refreshToken) {
-        redisTemplate.opsForValue().set(memberId.toString(), refreshToken, Duration.ofDays(14));
+        redisTemplate.opsForValue().set(memberId.toString(), refreshToken, Duration.ofMillis(REFRESH_TOKEN_EXPIRATION_TIME));
     }
 
     private String getRefreshTokenFromRedis(Long memberId) {
