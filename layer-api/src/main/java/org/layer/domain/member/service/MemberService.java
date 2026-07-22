@@ -9,8 +9,10 @@ import org.layer.domain.auth.controller.dto.SignUpRequest;
 import org.layer.domain.common.time.Time;
 import org.layer.domain.member.controller.dto.*;
 import org.layer.domain.member.entity.Member;
+import org.layer.domain.member.entity.MemberAgreement;
 import org.layer.domain.member.entity.SocialType;
 import org.layer.domain.member.exception.MemberException;
+import org.layer.domain.member.repository.MemberAgreementRepository;
 import org.layer.domain.member.repository.MemberRepository;
 import org.layer.domain.retrospect.dto.SpaceRetrospectDto;
 import org.layer.domain.retrospect.entity.RetrospectStatus;
@@ -22,14 +24,19 @@ import org.layer.oauth.dto.service.MemberInfoServiceResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static org.layer.domain.member.entity.AgreementType.MARKETING;
+import static org.layer.domain.member.entity.AgreementType.PRIVACY;
+import static org.layer.domain.member.entity.AgreementType.TERMS;
 import static org.layer.domain.member.entity.MemberRole.USER;
 import static org.layer.global.exception.ApiMemberExceptionType.NOT_A_NEW_MEMBER;
+import static org.layer.global.exception.MemberExceptionType.REQUIRED_AGREEMENT_NOT_ACCEPTED;
 
 @RequiredArgsConstructor
 @Service
@@ -37,6 +44,7 @@ public class MemberService {
 	private static final int TWO_MONTHS = 2;
 
 	private final MemberRepository memberRepository;
+	private final MemberAgreementRepository memberAgreementRepository;
 	private final MemberSpaceRelationRepository memberSpaceRelationRepository;
 	private final RetrospectRepository retrospectRepository;
 	private final AnalyzeRepository analyzeRepository;
@@ -60,6 +68,8 @@ public class MemberService {
 
 	@Transactional
 	public Member saveMember(SignUpRequest signUpRequest, MemberInfoServiceResponse memberInfo) {
+		validateRequiredAgreements(signUpRequest);
+
 		Member member = Member.builder()
 				.name(signUpRequest.name())
 				.memberRole(USER)
@@ -69,8 +79,33 @@ public class MemberService {
 				.build();
 
 		memberRepository.save(member);
+		saveInitialAgreements(member.getId(), signUpRequest);
 
 		return member;
+	}
+
+	private void validateRequiredAgreements(SignUpRequest signUpRequest) {
+		if (!signUpRequest.isTermsAgreedOrDefault() || !signUpRequest.isPrivacyAgreedOrDefault()) {
+			throw new MemberException(REQUIRED_AGREEMENT_NOT_ACCEPTED);
+		}
+	}
+
+	// 필수 약관(이용약관, 개인정보)은 가입 시점에 바로 동의 처리하고,
+	// 마케팅 동의는 응답이 있을 때만 기록한다 (null이면 추후 별도 화면에서 물어봄).
+	private void saveInitialAgreements(Long memberId, SignUpRequest signUpRequest) {
+		LocalDateTime now = time.now();
+
+		memberAgreementRepository.save(MemberAgreement.builder()
+				.memberId(memberId).agreementType(TERMS).agreed(true).agreedAt(now).lastAskedAt(now).build());
+		memberAgreementRepository.save(MemberAgreement.builder()
+				.memberId(memberId).agreementType(PRIVACY).agreed(true).agreedAt(now).lastAskedAt(now).build());
+
+		if (signUpRequest.marketingAgreed() != null) {
+			boolean agreed = signUpRequest.marketingAgreed();
+			memberAgreementRepository.save(MemberAgreement.builder()
+					.memberId(memberId).agreementType(MARKETING).agreed(agreed)
+					.agreedAt(agreed ? now : null).lastAskedAt(now).build());
+		}
 	}
 
 	public Member getMemberByMemberId(Long memberId) {
