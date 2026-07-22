@@ -81,7 +81,7 @@ class AuthServiceTest {
         String email = "layer@test.com";
         String kakaoAccessToken = "fake-kakao-access-token";
 
-        SignUpRequest signUpRequest = new SignUpRequest(socialType, name);
+        SignUpRequest signUpRequest = new SignUpRequest(socialType, name, true, true, null);
         MemberInfoServiceResponse memberInfoServiceResponse = new MemberInfoServiceResponse(socialId, socialType, email);
 
         Mockito.when(kakaoService.getMemberInfo(any())).thenReturn(memberInfoServiceResponse);

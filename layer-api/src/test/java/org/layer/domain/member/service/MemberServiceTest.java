@@ -42,7 +42,7 @@ class MemberServiceTest {
         String username = "레이어";
         SocialType socialType = SocialType.KAKAO;
 
-        SignUpRequest signUpRequest = new SignUpRequest(socialType, username);
+        SignUpRequest signUpRequest = new SignUpRequest(socialType, username, true, true, null);
         MemberInfoServiceResponse memberInfoServiceResponse = new MemberInfoServiceResponse(socialId, socialType, email);
 
         // when
@@ -64,7 +64,7 @@ class MemberServiceTest {
         String username = "레이어";
         SocialType socialType = SocialType.KAKAO;
 
-        SignUpRequest signUpRequest = new SignUpRequest(socialType, username);
+        SignUpRequest signUpRequest = new SignUpRequest(socialType, username, true, true, null);
         MemberInfoServiceResponse memberInfoServiceResponse = new MemberInfoServiceResponse(socialId, socialType, email);
 
         // when
