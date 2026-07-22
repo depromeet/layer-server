@@ -27,7 +27,7 @@ public class MemberAgreementService {
     private final Time time;
 
     // 마케팅 수신 동의를 거절(또는 미응답)한 회원에게 다시 물어볼 때까지의 최소 간격(일)
-    @Value("${member.agreement.marketing-reprompt-interval-days:90}")
+    @Value("${member.agreement.marketing-reprompt-interval-days}")
     private long marketingRepromptIntervalDays;
 
     @Transactional(readOnly = true)

@@ -27,6 +27,10 @@ jwt:
   secret: ${DEV_JWT_SECRET}
   access-token-expiration: 1209600000
 
+member:
+  agreement:
+    marketing-reprompt-interval-days: 1 # 테스트에서 재요청 조건을 쉽게 만들기 위한 짧은 값
+
 apple:
   login:
     issuer: ${APPLE_ISSUER}
