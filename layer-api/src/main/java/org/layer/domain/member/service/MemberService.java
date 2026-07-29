@@ -138,7 +138,7 @@ public class MemberService {
 
 		List<SpaceRetrospectDto> recentRetrospects = new ArrayList<>();
 		spaceIds.forEach(spaceId -> {
-			Optional<SpaceRetrospectDto> spaceRetrospectDto = retrospectRepository.findFirstBySpaceIdAndRetrospectStatusAndDeadlineAfterOrderByDeadline(
+			Optional<SpaceRetrospectDto> spaceRetrospectDto = retrospectRepository.findFirstBySpaceIdAndRetrospectStatusAndDeadlineAfterOrderByDeadlineDesc(
 					spaceId, RetrospectStatus.DONE, time.now().minusMonths(TWO_MONTHS));
 			spaceRetrospectDto.ifPresent(recentRetrospects::add);
 		});
