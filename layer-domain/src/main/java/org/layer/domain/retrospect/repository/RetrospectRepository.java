@@ -49,9 +49,9 @@ public interface RetrospectRepository extends JpaRepository<Retrospect, Long> {
 		"WHERE r.spaceId = :spaceId " +
 		"AND r.retrospectStatus = :retrospectStatus " +
 		"AND r.deadline > :twoMonthsAgo " +
-		"ORDER BY r.deadline ASC " +
+		"ORDER BY r.deadline DESC " +
 		"LIMIT 1")
-	Optional<SpaceRetrospectDto> findFirstBySpaceIdAndRetrospectStatusAndDeadlineAfterOrderByDeadline(Long spaceId,
+	Optional<SpaceRetrospectDto> findFirstBySpaceIdAndRetrospectStatusAndDeadlineAfterOrderByDeadlineDesc(Long spaceId,
 		RetrospectStatus retrospectStatus, LocalDateTime twoMonthsAgo);
 
 }

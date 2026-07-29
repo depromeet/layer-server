@@ -195,7 +195,7 @@ public class ActionItemService {
     }
 
 
-    //== 회원의 실행 목표 조회 ==//
+    //== 회원의 실행 목표 조회 (스페이스별 최신 회고만) ==//
     public MemberActionItemGetResponse getMemberActionItemList(Long currentMemberId) {
         // 멤버가 속한 스페이스 정보와 회고 모두 가져오기 (회고 데드라인 내림차순)
         List<MemberActionItemResponse> dtoList = retrospectRepository.findAllMemberActionItemResponsesByMemberId(currentMemberId);
@@ -207,30 +207,31 @@ public class ActionItemService {
         // 팀 실행 목표만 찾기
         List<ActionItem> actionItemList = actionItemRepository.findAllByRetrospectIdInAndType(doneRetrospectIds, TEAM);
 
+        return new MemberActionItemGetResponse(filterLatestRetrospectPerSpace(dtoList, actionItemList));
+    }
 
-        Set<Long> spaceIdSet = new HashSet<>();
+    // dtoList는 deadline 내림차순으로 정렬되어 들어오므로, 스페이스별로 처음 등장하는 항목이 최신 회고다.
+    private List<MemberActionItemResponse> filterLatestRetrospectPerSpace(List<MemberActionItemResponse> dtoList,
+                                                                           List<ActionItem> actionItemList) {
+        Set<Long> seenSpaceIds = new HashSet<>();
+        List<MemberActionItemResponse> latestPerSpace = new ArrayList<>();
+
         for (MemberActionItemResponse dto : dtoList) {
+            if (!seenSpaceIds.add(dto.getSpaceId())) {
+                continue; // 이미 해당 스페이스의 최신 회고를 담았으므로, 더 과거인 나머지는 제외
+            }
+
             List<ActionItemResponse> actionItems = actionItemList.stream()
                     .filter(ai -> ai.getRetrospectId().equals(dto.getRetrospectId()))
                     .sorted(Comparator.comparingInt(ActionItem::getActionItemOrder)) // order 순으로 정렬
                     .map(ActionItemResponse::of).toList();
 
-
-            // 상태 확인
-            ActionItemStatus status;
-            if (spaceIdSet.contains(dto.getSpaceId())) {
-                status = ActionItemStatus.DONE;
-            } else {
-                spaceIdSet.add(dto.getSpaceId());
-                status = ActionItemStatus.PROCEEDING;
-            }
-
             dto.updateActionItemList(actionItems);
-            dto.updateStatus(status);
-
+            dto.updateStatus(ActionItemStatus.PROCEEDING); // 항상 최신 회고만 남기므로 상태는 고정
+            latestPerSpace.add(dto);
         }
 
-        return new MemberActionItemGetResponse(dtoList);
+        return latestPerSpace;
     }
 
     //== 개인 실행 목표 - 스페이스 전체 회고별 조회 ==//
@@ -296,29 +297,14 @@ public class ActionItemService {
         return PersonalSpaceActionItemGetResponse.of(space, recent, items);
     }
 
-    //== 개인 실행 목표 - 멤버의 전체 스페이스 조회 ==//
+    //== 개인 실행 목표 - 멤버의 전체 스페이스 조회 (스페이스별 최신 회고만) ==//
     public MemberActionItemGetResponse getPersonalMemberActionItemList(Long memberId) {
         List<MemberActionItemResponse> dtoList = retrospectRepository.findAllMemberActionItemResponsesByMemberId(memberId);
 
         List<Long> retrospectIds = dtoList.stream().map(MemberActionItemResponse::getRetrospectId).toList();
         List<ActionItem> personalItems = actionItemRepository.findAllByRetrospectIdInAndMemberIdAndType(retrospectIds, memberId, PERSONAL);
 
-        Set<Long> spaceIdSet = new HashSet<>();
-        for (MemberActionItemResponse dto : dtoList) {
-            List<ActionItemResponse> items = personalItems.stream()
-                    .filter(ai -> ai.getRetrospectId().equals(dto.getRetrospectId()))
-                    .sorted(Comparator.comparingInt(ActionItem::getActionItemOrder))
-                    .map(ActionItemResponse::of)
-                    .toList();
-
-            ActionItemStatus status = spaceIdSet.contains(dto.getSpaceId()) ? ActionItemStatus.DONE : ActionItemStatus.PROCEEDING;
-            spaceIdSet.add(dto.getSpaceId());
-
-            dto.updateActionItemList(items);
-            dto.updateStatus(status);
-        }
-
-        return new MemberActionItemGetResponse(dtoList);
+        return new MemberActionItemGetResponse(filterLatestRetrospectPerSpace(dtoList, personalItems));
     }
 
     //== 개인 실행 목표 생성 ==//
