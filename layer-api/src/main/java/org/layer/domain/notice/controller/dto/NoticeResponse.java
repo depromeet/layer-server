@@ -18,6 +18,8 @@ public class NoticeResponse {
         Long id,
         @Schema(description = "제목")
         String title,
+        @Schema(description = "본문")
+        String content,
         @Schema(description = "카테고리")
         NoticeCategory category,
         @Schema(description = "상단 고정 여부")
@@ -33,6 +35,7 @@ public class NoticeResponse {
             return NoticeSummary.builder()
                 .id(notice.getId())
                 .title(notice.getTitle())
+                .content(notice.getContent())
                 .category(notice.getCategory())
                 .isPinned(notice.getIsPinned())
                 .startAt(notice.getStartAt())

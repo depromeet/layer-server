@@ -6,13 +6,16 @@ import org.layer.domain.notice.entity.Notice;
 import org.layer.domain.notice.entity.NoticeCategory;
 
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 public class AdminNoticeRequest {
 
     public record CreateNoticeRequest(
         @NotNull
+        @Size(max = 100)
         String title,
         @NotNull
+        @Size(max = 800)
         String content,
         @NotNull
         NoticeCategory category,
@@ -38,8 +41,10 @@ public class AdminNoticeRequest {
 
     public record UpdateNoticeRequest(
         @NotNull
+        @Size(max = 100)
         String title,
         @NotNull
+        @Size(max = 800)
         String content,
         @NotNull
         NoticeCategory category,
