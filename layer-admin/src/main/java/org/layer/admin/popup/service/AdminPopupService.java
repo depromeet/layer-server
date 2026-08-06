@@ -35,12 +35,19 @@ public class AdminPopupService {
 
     @Transactional
     public Long createPopup(CreatePopupRequest request) {
+        // 팝업은 항상 최대 1개만 활성 상태여야 하므로, 새로 활성화하기 전 기존 활성 팝업을 먼저 비활성화한다.
+        if (Boolean.TRUE.equals(request.isActive())) {
+            popupRepository.deactivateAll();
+        }
         Popup popup = popupRepository.save(request.toEntity());
         return popup.getId();
     }
 
     @Transactional
     public void updatePopup(Long popupId, UpdatePopupRequest request) {
+        if (Boolean.TRUE.equals(request.isActive())) {
+            popupRepository.deactivateAll(); // 영속성 컨텍스트를 비우므로, 엔티티 조회는 반드시 이후에 한다.
+        }
         Popup popup = popupRepository.findByIdOrThrow(popupId);
         popup.update(request.iconType(), request.title(), request.content(), request.moveButtonUrl(),
             request.isActive());
@@ -48,6 +55,9 @@ public class AdminPopupService {
 
     @Transactional
     public void updatePopupActive(Long popupId, UpdatePopupActiveRequest request) {
+        if (Boolean.TRUE.equals(request.isActive())) {
+            popupRepository.deactivateAll();
+        }
         Popup popup = popupRepository.findByIdOrThrow(popupId);
         popup.updateActive(request.isActive());
     }
