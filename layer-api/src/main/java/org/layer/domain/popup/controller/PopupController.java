@@ -1,6 +1,6 @@
 package org.layer.domain.popup.controller;
 
-import org.layer.domain.popup.controller.dto.PopupResponse.PopupListResponse;
+import org.layer.domain.popup.controller.dto.PopupResponse.PopupElement;
 import org.layer.domain.popup.service.PopupService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,8 +16,9 @@ public class PopupController {
 
     private final PopupService popupService;
 
-    @GetMapping("/list")
-    public ResponseEntity<PopupListResponse> getPopups() {
-        return ResponseEntity.ok(popupService.getExposedPopups());
+    // 활성 팝업이 없으면 body가 null인 200 응답을 반환한다.
+    @GetMapping
+    public ResponseEntity<PopupElement> getActivePopup() {
+        return ResponseEntity.ok(popupService.getActivePopup());
     }
 }

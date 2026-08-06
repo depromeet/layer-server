@@ -1,7 +1,5 @@
 package org.layer.domain.popup.controller.dto;
 
-import java.util.List;
-
 import org.layer.domain.popup.entity.Popup;
 import org.layer.domain.popup.entity.PopupIconType;
 
@@ -11,7 +9,7 @@ import lombok.Builder;
 public class PopupResponse {
 
     @Builder
-    @Schema(description = "팝업 정보")
+    @Schema(description = "현재 활성화된 팝업 정보")
     public record PopupElement(
         @Schema(description = "팝업 아이디")
         Long id,
@@ -31,18 +29,6 @@ public class PopupResponse {
                 .title(popup.getTitle())
                 .content(popup.getContent())
                 .moveButtonUrl(popup.getMoveButtonUrl())
-                .build();
-        }
-    }
-
-    @Builder
-    @Schema
-    public record PopupListResponse(
-        List<PopupElement> popups
-    ) {
-        public static PopupListResponse of(List<Popup> popups) {
-            return PopupListResponse.builder()
-                .popups(popups.stream().map(PopupElement::of).toList())
                 .build();
         }
     }
